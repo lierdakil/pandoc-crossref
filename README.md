@@ -2,6 +2,14 @@
 
 pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 
+Input file (like [demo.md][demo-md]) can be converted into [html][html], [latex][latex], [pdf][pdf], [md][md] or other formats.
+
+[demo-md]: http://lierdakil.github.io/pandoc-crossref/demo.md
+[html]: http://lierdakil.github.io/pandoc-crossref/output.html
+[latex]: http://lierdakil.github.io/pandoc-crossref/output.latex
+[pdf]: http://lierdakil.github.io/pandoc-crossref/output.pdf
+[md]: http://lierdakil.github.io/pandoc-crossref/output.md
+
 Tested with pandoc 1.13.2.
 
 This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.
@@ -28,12 +36,14 @@ This only works on implicit figures, i.e. an image occurring by itself in a para
 ### Equation labels
 
 ```markdown
-$$ math $$ {#eq:label}
+$$ math $${#eq:label}
 ```
 
 To label a display equation, append `{#eq:label}` (with `label` being something unique to reference this equation by) immediately after math block.
 
 This only works if display math and label specification are in a paragraph of its own.
+
+Please notice there is no spalce between `$$` and `{`.
 
 ### Table labels
 
