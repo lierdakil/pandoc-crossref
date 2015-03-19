@@ -39,4 +39,10 @@ This only works if display math and label specification are in a paragraph of it
 [@fig:label1;@fig:label2;...] or [@eq:label1;@eq:label2;...] or @fig:label or @eq:label
 ```
 
-Reference syntax heavily relies on citation syntax
+Reference syntax heavily relies on citation syntax. Basic reference is created by writing `@`, then basically desired label with prefix. It is also possible to reference a group of objects, by putting them into brackets with `;` as separator. Sequential reference numbers will be shortened, e.g. `1,2,3` will be shortened to `1-3`.
+
+## Usage
+
+Get `pandoc-crossref.hs` at your convenience and run pandoc with `--filter` option:
+
+`pandoc --filter ./pandoc-crossref.hs`.
