@@ -43,6 +43,7 @@ defaultReferences = References M.empty M.empty M.empty
 data Options = Options { useCleveref :: Bool
                        , figureTitle :: String
                        , tableTitle  :: String
+                       , titleDelim  :: String
                        , figPrefix   :: String
                        , eqnPrefix   :: String
                        , tblPrefix   :: String
@@ -63,6 +64,7 @@ go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
       useCleveref = isJust $ lookupMeta "cref" meta
     , figureTitle = getMetaString "Figure" "figureTitle"
     , tableTitle  = getMetaString "Table" "tableTitle"
+    , titleDelim  = getMetaString ":" "titleDelimiter"
     , figPrefix   = getMetaString "fig." "figPrefix"
     , eqnPrefix   = getMetaString "eq." "eqnPrefix"
     , tblPrefix   = getMetaString "tbl." "tblPrefix"
@@ -82,7 +84,7 @@ replaceAttrImages opts (Para c)
           Just (Format "latex") ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  ->
-            [Str $ figureTitle opts,Space,Str idxStr, Str ".",Space]++alt
+            [Str $ figureTitle opts,Space,Str idxStr, Str $ titleDelim opts,Space]++alt
     return $ Para [Image alt' (fst img,"fig:")]
   | [Math DisplayMath eq, Str s] <- c
   , Just label <- getRefLabel s "eq"
@@ -104,7 +106,7 @@ replaceAttrImages opts (Table title align widths header cells)
               Just (Format "latex") ->
                 [RawInline (Format "tex") ("\\label{"++label++"}")]
               _  ->
-                [Str $ tableTitle opts,Space,Str idxStr, Str ".",Space]
+                [Str $ tableTitle opts,Space,Str idxStr, Str $ titleDelim opts,Space]
           ++ init title
     return $ Table title' align widths header cells
 replaceAttrImages _ x = return x
