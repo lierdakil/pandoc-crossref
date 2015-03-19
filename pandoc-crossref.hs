@@ -141,6 +141,11 @@ prefMap = M.fromList [("fig:",figPrefix)
 prefixes :: [String]
 prefixes = M.keys accMap
 
+getRefPrefix :: Options -> String -> String
+getRefPrefix opts prefix | null refprefix = []
+                         | otherwise   = refprefix ++ " "
+                         where refprefix = lookupUnsafe prefix prefMap opts
+
 lookupUnsafe :: Ord k => k -> M.Map k v -> v
 lookupUnsafe = (fromMaybe undefined .) . M.lookup
 
@@ -163,8 +168,9 @@ allCitsPrefix cits = foldl f Nothing prefixes
 replaceRefsLatex :: String -> Options -> [Citation] -> WS Inline
 replaceRefsLatex prefix opts cits =
   return $ RawInline (Format "tex") $
+    getRefPrefix opts prefix ++
     if useCleveref opts then
-      "\\cref{"++listLabels prefix "" "" cits++"}"
+      " \\cref{"++listLabels prefix "" "" cits++"}"
       else
         listLabels prefix " \\ref{" "}" cits
 
@@ -182,11 +188,7 @@ getLabel prefix Citation{citationId=cid}
 replaceRefsOther :: String -> Options -> [Citation] -> WS Inline
 replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
-  let str = refprefix' ++ makeIndices (sort indices)
-      refprefix = lookupUnsafe prefix prefMap opts
-      refprefix' | null refprefix = []
-                 | otherwise   = refprefix ++ " "
-  return $ Str str
+  return $ Str $ getRefPrefix opts prefix ++ makeIndices (sort indices)
 
 getRefIndex :: String -> Citation -> WS (Maybe Int)
 getRefIndex prefix Citation{citationId=cid}
