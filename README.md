@@ -2,7 +2,7 @@
 
 pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 
-This version of pandoc-eqnos was tested using pandoc 1.13.2.
+Tested with pandoc 1.13.2.
 
 This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.
 
