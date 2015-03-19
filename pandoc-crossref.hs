@@ -24,6 +24,7 @@ modifyProp f g rOld =
 -- state data type
 data References = References { imgRefs :: RefMap
                              , eqnRefs :: RefMap
+                             , tblRefs :: RefMap
                              }
 
 -- accessors
@@ -33,13 +34,18 @@ imgRefs' new r@References{imgRefs=old} = (old, r{imgRefs=new})
 eqnRefs' :: Accessor References RefMap
 eqnRefs' new r@References{eqnRefs=old} = (old, r{eqnRefs=new})
 
+tblRefs' :: Accessor References RefMap
+tblRefs' new r@References{tblRefs=old} = (old, r{tblRefs=new})
+
 defaultReferences :: References
-defaultReferences = References M.empty M.empty
+defaultReferences = References M.empty M.empty M.empty
 
 data Options = Options { useCleveref :: Bool
                        , figureTitle :: String
+                       , tableTitle  :: String
                        , figPrefix   :: String
                        , eqnPrefix   :: String
+                       , tblPrefix   :: String
                        , outFormat   :: Maybe Format
                        }
 
@@ -56,8 +62,10 @@ go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
   opts = Options {
       useCleveref = isJust $ lookupMeta "cref" meta
     , figureTitle = getMetaString "Figure" "figureTitle"
+    , tableTitle  = getMetaString "Table" "tableTitle"
     , figPrefix   = getMetaString "fig." "figPrefix"
     , eqnPrefix   = getMetaString "eq." "eqnPrefix"
+    , tblPrefix   = getMetaString "tbl." "tblPrefix"
     , outFormat   = fmt
   }
   getMetaString def name = getString def $ lookupMeta name meta
@@ -66,8 +74,8 @@ go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
 
 replaceAttrImages :: Options -> Block -> WS Block
 replaceAttrImages opts (Para c)
-  | [Image alt img, Str s] <- c,
-    Just label <- getRefLabel s "fig"
+  | [Image alt img, Str s] <- c
+  , Just label <- getRefLabel s "fig"
   = do
     idxStr <- replaceAttr label imgRefs'
     let alt' = case outFormat opts of
@@ -76,8 +84,8 @@ replaceAttrImages opts (Para c)
           _  ->
             [Str $ figureTitle opts,Space,Str idxStr, Str ".",Space]++alt
     return $ Para [Image alt' (fst img,"fig:")]
-  | [Math DisplayMath eq, Str s] <- c,
-    Just label <- getRefLabel s "eq"
+  | [Math DisplayMath eq, Str s] <- c
+  , Just label <- getRefLabel s "eq"
   = case outFormat opts of
       Just (Format "latex") ->
         let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
@@ -86,6 +94,19 @@ replaceAttrImages opts (Para c)
         idxStr <- replaceAttr label eqnRefs'
         let eq' = eq++"\\qquad("++idxStr++")"
         return $ Para [Math DisplayMath eq']
+replaceAttrImages opts (Table title align widths header cells)
+  | Str s <- last title
+  , Just label <- getRefLabel s "tbl"
+  = do
+    idxStr <- replaceAttr label tblRefs'
+    let title' =
+          case outFormat opts of
+              Just (Format "latex") ->
+                [RawInline (Format "tex") ("\\label{"++label++"}")]
+              _  ->
+                [Str $ tableTitle opts,Space,Str idxStr, Str ".",Space]
+          ++ init title
+    return $ Table title' align widths header cells
 replaceAttrImages _ x = return x
 
 getRefLabel :: String -> String -> Maybe String
@@ -104,12 +125,16 @@ replaceAttr label prop
 -- accessors to state variables
 accMap :: M.Map String (Accessor References RefMap)
 accMap = M.fromList [("fig:",imgRefs')
-                    ,("eq:", eqnRefs')]
+                    ,("eq:" ,eqnRefs')
+                    ,("tbl:",tblRefs')
+                    ]
 
 -- accessors to options
 prefMap :: M.Map String (Options -> String)
 prefMap = M.fromList [("fig:",figPrefix)
-                     ,("eq:", eqnPrefix)]
+                     ,("eq:" ,eqnPrefix)
+                     ,("tbl:",tblPrefix)
+                     ]
 
 prefixes :: [String]
 prefixes = M.keys accMap
