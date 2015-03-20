@@ -7,7 +7,9 @@ import qualified Data.Map as M
 
 type RefMap = M.Map String Int
 
---from data-accessors
+-- from data-accessor http://www.haskell.org/haskellwiki/Record_access
+-- Copyright (c) Henning Thielemann <haskell@henning-thielemann.de>, Luke Palmer <lrpalmer@gmail.com>
+-- Licensed under BSD3 -- see BSD3.md
 type Accessor r a  =  a -> r -> (a, r)
 
 setProp :: Accessor r a -> a -> r -> r
@@ -20,6 +22,7 @@ modifyProp :: Accessor r a -> (a -> a) -> r -> r
 modifyProp f g rOld =
    let (a,rNew) = f (g a) rOld
    in  rNew
+-- end data-accessor
 
 -- state data type
 data References = References { imgRefs :: RefMap
