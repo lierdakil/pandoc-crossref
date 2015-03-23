@@ -152,7 +152,8 @@ getRefLabel tag ils
   | Str attr <- last ils
   , all (==Space) (init ils)
   , "}" `isSuffixOf` attr
-  = init `fmap` stripPrefix ("{#"++tag++":") attr
+  , ("{#"++tag++":") `isPrefixOf` attr
+  = init `fmap` stripPrefix "{#" attr
 getRefLabel _ _ = Nothing
 
 replaceAttr :: Options -> String -> [Inline] -> Accessor References RefMap -> WS [Inline]
@@ -231,7 +232,7 @@ listLabels prefix p s = foldl' joinStr "" . mapMaybe (getLabel prefix)
 
 getLabel :: String -> Citation -> Maybe String
 getLabel prefix Citation{citationId=cid}
-  | Just label <- stripPrefix prefix cid = Just label
+  | prefix `isPrefixOf` cid = Just cid
   | otherwise = Nothing
 
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
@@ -243,8 +244,8 @@ replaceRefsOther prefix opts cits = do
 
 getRefIndex :: String -> Citation -> WS (Maybe (Int, Int))
 getRefIndex prefix Citation{citationId=cid}
-  | Just label <- stripPrefix prefix cid
-  = gets (fmap refIndex . M.lookup label . getProp prop)
+  | prefix `isPrefixOf` cid
+  = gets (fmap refIndex . M.lookup cid . getProp prop)
   | otherwise = return Nothing
   where
   prop = lookupUnsafe prefix accMap
