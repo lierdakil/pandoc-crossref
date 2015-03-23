@@ -17,10 +17,6 @@ $$ P_i(x) = \sum_i a_i x^i $$ {#eq:eqn1}
 
 It's also possible to show lists of figures and tables, like this:
 
-List of figures:
-
 \listoffigures
-
-List of tables:
 
 \listoftables

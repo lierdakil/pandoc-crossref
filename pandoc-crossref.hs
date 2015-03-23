@@ -1,5 +1,6 @@
 import Text.Pandoc.JSON
 import Text.Pandoc.Walk
+import Text.Pandoc.Generic
 import Control.Monad.State
 import Data.List
 import Data.Maybe
@@ -54,6 +55,8 @@ data Options = Options { useCleveref :: Bool
                        , figPrefix   :: String
                        , eqnPrefix   :: String
                        , tblPrefix   :: String
+                       , lofTitle   :: String
+                       , lotTitle   :: String
                        , outFormat   :: Maybe Format
                        }
 
@@ -69,7 +72,7 @@ go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
   doWalk =
     walkM (replaceAttrImages opts) p
     >>= walkM (replaceRefs opts)
-    >>= walkM (listOf opts)
+    >>= bottomUpM (listOf opts)
   opts = Options {
       useCleveref = isJust $ lookupMeta "cref" meta
     , figureTitle = getMetaString "Figure" "figureTitle"
@@ -78,6 +81,8 @@ go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
     , figPrefix   = getMetaString "fig." "figPrefix"
     , eqnPrefix   = getMetaString "eq." "eqnPrefix"
     , tblPrefix   = getMetaString "tbl." "tblPrefix"
+    , lofTitle    = getMetaString "List of Figures" "lofTitle"
+    , lotTitle    = getMetaString "List of Tables" "lotTitle"
     , outFormat   = fmt
   }
   getMetaString def name = getString def $ lookupMeta name meta
@@ -226,16 +231,20 @@ makeIndices s = intercalate sep $ reverse $ mapMaybe f $ foldl' f2 [] $ catMaybe
   f (x:xs) = Just $ show (last xs) ++ "-" ++ show x -- shorten more than two values
   sep = ", "
 
-listOf :: Options -> Block -> WS Block
+listOf :: Options -> [Block] -> WS [Block]
 listOf Options{outFormat=Just (Format "latex")} x = return x
-listOf _ (Para [RawInline (Format "tex") "\\listoffigures"])
-  = gets imgRefs >>= makeList
-listOf _ (Para [RawInline (Format "tex") "\\listoftables"])
-  = gets tblRefs >>= makeList
+listOf opts (Para [RawInline (Format "tex") "\\listoffigures"]:xs)
+  = gets imgRefs >>= makeList (lofTitle opts) xs
+listOf opts (Para [RawInline (Format "tex") "\\listoftables"]:xs)
+  = gets tblRefs >>= makeList (lotTitle opts) xs
 listOf _ x = return x
 
-makeList :: M.Map String RefRec -> WS Block
-makeList refs = return $ OrderedList style $ item `map` refsSorted
+makeList :: String -> [Block] -> M.Map String RefRec -> WS [Block]
+makeList title xs refs
+  = return $
+      Header 1 nullAttr [Str title]
+      : OrderedList style (item `map` refsSorted)
+      : xs
   where
     refsSorted = sortBy compare' $ M.toList refs
     compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j

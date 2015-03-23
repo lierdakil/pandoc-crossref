@@ -11,11 +11,11 @@
  ,[[Plain [Str "Content",Space,Str "Cell"]]
   ,[Plain [Str "Content",Space,Str "Cell"]]]]
 ,Para [Str "It's",Space,Str "also",Space,Str "possible",Space,Str "to",Space,Str "show",Space,Str "lists",Space,Str "of",Space,Str "figures",Space,Str "and",Space,Str "tables,",Space,Str "like",Space,Str "this:"]
-,Para [Str "List",Space,Str "of",Space,Str "figures:"]
+,Header 1 ("",[],[]) [Str "List of Figures"]
 ,OrderedList (1,DefaultStyle,DefaultDelim)
  [[Plain [Str "First",Space,Str "figure"]]
  ,[Plain [Str "Second",Space,Str "figure"]]
  ,[Plain [Str "Third",Space,Str "figure"]]]
-,Para [Str "List",Space,Str "of",Space,Str "tables:"]
+,Header 1 ("",[],[]) [Str "List of Tables"]
 ,OrderedList (1,DefaultStyle,DefaultDelim)
  [[Plain [Str "Table",Space,Str "example",Space]]]]
