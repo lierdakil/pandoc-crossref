@@ -116,7 +116,7 @@ replaceAttrImages opts (Para (Image alt img:c))
   = do
     idxStr <- replaceAttr opts label alt imgRefs'
     let alt' = case outFormat opts of
-          Just (Format "latex") ->
+          Just f | isFormat "latex" f ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  ->
             figureTitle opts++ Space : idxStr ++ titleDelim opts ++ [Space]++alt
@@ -124,7 +124,7 @@ replaceAttrImages opts (Para (Image alt img:c))
 replaceAttrImages opts (Para (Math DisplayMath eq:c))
   | Just label <- getRefLabel "eq" c
   = case outFormat opts of
-      Just (Format "latex") ->
+      Just f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
         in return $ Para [RawInline (Format "tex") eqn]
       _ -> do
@@ -138,7 +138,7 @@ replaceAttrImages opts (Table title align widths header cells)
     idxStr <- replaceAttr opts label (init title) tblRefs'
     let title' =
           case outFormat opts of
-              Just (Format "latex") ->
+              Just f | isFormat "latex" f ->
                 [RawInline (Format "tex") ("\\label{"++label++"}")]
               _  ->
                 tableTitle opts++Space : idxStr++titleDelim opts++[Space]
@@ -199,8 +199,8 @@ replaceRefs opts (Cite cits _:xs)
   = (++ xs) `fmap` replaceRefs' prefix opts cits
   where
     replaceRefs' = case outFormat opts of
-                    Just (Format "latex") -> replaceRefsLatex
-                    _                     -> replaceRefsOther
+                    Just f | isFormat "latex" f -> replaceRefsLatex
+                    _                           -> replaceRefsOther
 replaceRefs _ x = return x
 
 allCitsPrefix :: [Citation] -> Maybe String
@@ -269,7 +269,7 @@ makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ catMaybes s
     else [Str $ show n]
 
 listOf :: Options -> [Block] -> WS [Block]
-listOf Options{outFormat=Just (Format "latex")} x = return x
+listOf Options{outFormat=Just f} x | isFormat "latex" f = return x
 listOf opts (Para [RawInline (Format "tex") "\\listoffigures"]:xs)
   = gets imgRefs >>= makeList (lofTitle opts) xs
 listOf opts (Para [RawInline (Format "tex") "\\listoftables"]:xs)
@@ -287,3 +287,11 @@ makeList title xs refs
     compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j
     item = (:[]) . Plain . refTitle . snd
     style = (1,DefaultStyle,DefaultDelim)
+
+isFormat :: String -> Format -> Bool
+isFormat fmt (Format f)
+  | fmt == f = True
+  | Just (x:_) <- stripPrefix fmt f
+  , x `elem` "+-"
+  = True
+  | otherwise = False
