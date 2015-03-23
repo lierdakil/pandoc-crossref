@@ -36,14 +36,12 @@ This only works on implicit figures, i.e. an image occurring by itself in a para
 ### Equation labels
 
 ```markdown
-$$ math $${#eq:label}
+$$ math $$ {#eq:label}
 ```
 
 To label a display equation, append `{#eq:label}` (with `label` being something unique to reference this equation by) immediately after math block.
 
 This only works if display math and label specification are in a paragraph of its own.
-
-Please notice there is no spalce between `$$` and `{`.
 
 ### Table labels
 
@@ -65,6 +63,10 @@ To label a table, append `{#tbl:label}` at the end of table caption (with `label
 ```
 
 Reference syntax heavily relies on citation syntax. Basic reference is created by writing `@`, then basically desired label with prefix. It is also possible to reference a group of objects *of the same type*, by putting them into brackets with `;` as separator. Sequential reference numbers will be shortened, e.g. `1,2,3` will be shortened to `1-3`.
+
+### Lists
+
+It's possible to use raw latex commands `\listoffigures` and `\listoftables`, which will produce ordered list of figure/table titles, in order of appearance in document.
 
 ## Usage
 
