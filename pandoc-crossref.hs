@@ -119,7 +119,8 @@ replaceAttrImages opts (Para (Math DisplayMath eq:c))
         let eq' = eq++"\\qquad("++idxStr++")"
         return $ Para [Math DisplayMath eq']
 replaceAttrImages opts (Table title align widths header cells)
-  | Just label <- getRefLabel "tbl" [last title]
+  | not $ null title
+  , Just label <- getRefLabel "tbl" [last title]
   = do
     idxStr <- replaceAttr label (init title) tblRefs'
     let title' =
@@ -133,6 +134,7 @@ replaceAttrImages opts (Table title align widths header cells)
 replaceAttrImages _ x = return x
 
 getRefLabel :: String -> [Inline] -> Maybe String
+getRefLabel _ [] = Nothing
 getRefLabel tag ils
   | Str attr <- last ils
   , all (==Space) (init ils)
