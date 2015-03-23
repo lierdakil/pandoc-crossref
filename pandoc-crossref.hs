@@ -162,10 +162,11 @@ lookupUnsafe = (fromMaybe undefined .) . M.lookup
 replaceRefs :: Options -> Inline -> WS Inline
 replaceRefs opts (Cite cits _)
   | Just prefix <- allCitsPrefix cits
-  , Just (Format "latex") <- outFormat opts
-  = replaceRefsLatex prefix opts cits
-  | Just prefix <- allCitsPrefix cits
-  = replaceRefsOther prefix opts cits
+  = replaceRefs' prefix opts cits
+  where
+    replaceRefs' = case outFormat opts of
+                    Just (Format "latex") -> replaceRefsLatex
+                    _                     -> replaceRefsOther
 replaceRefs _ x = return x
 
 allCitsPrefix :: [Citation] -> Maybe String
