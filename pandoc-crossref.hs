@@ -79,8 +79,7 @@ go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
 
 replaceAttrImages :: Options -> Block -> WS Block
 replaceAttrImages opts (Para c)
-  | [Image alt img, Str s] <- c
-  , Just label <- getRefLabel s "fig"
+  | (Image alt img, Just label) <- getRefLabel "fig" c
   = do
     idxStr <- replaceAttr label imgRefs'
     let alt' = case outFormat opts of
@@ -89,8 +88,7 @@ replaceAttrImages opts (Para c)
           _  ->
             [Str $ figureTitle opts,Space,Str idxStr, Str $ titleDelim opts,Space]++alt
     return $ Para [Image alt' (fst img,"fig:")]
-  | [Math DisplayMath eq, Str s] <- c
-  , Just label <- getRefLabel s "eq"
+  | (Math DisplayMath eq, Just label) <- getRefLabel "eq" c
   = case outFormat opts of
       Just (Format "latex") ->
         let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
@@ -100,8 +98,7 @@ replaceAttrImages opts (Para c)
         let eq' = eq++"\\qquad("++idxStr++")"
         return $ Para [Math DisplayMath eq']
 replaceAttrImages opts (Table title align widths header cells)
-  | Str s <- last title
-  , Just label <- getRefLabel s "tbl"
+  | (_, Just label) <- getRefLabel "tbl" [last title]
   = do
     idxStr <- replaceAttr label tblRefs'
     let title' =
@@ -114,11 +111,16 @@ replaceAttrImages opts (Table title align widths header cells)
     return $ Table title' align widths header cells
 replaceAttrImages _ x = return x
 
-getRefLabel :: String -> String -> Maybe String
-getRefLabel attr refPrefix
-  | "}" `isSuffixOf` attr
-  = liftM init $ stripPrefix ("{#"++refPrefix++":") attr
-  | otherwise = Nothing
+getRefLabel :: String -> [Inline] -> (Inline, Maybe String)
+getRefLabel tag ils@(il:ils')
+  | Str attr <- last ils
+  , null ils' || all (==Space) (init ils')
+  , "}" `isSuffixOf` attr
+  = (il,label attr)
+  | otherwise = (il,Nothing)
+  where
+    label = liftM init . stripPrefix ("{#"++tag++":")
+getRefLabel _ [] = (Space, Nothing)
 
 replaceAttr :: String -> Accessor References RefMap -> WS String
 replaceAttr label prop
