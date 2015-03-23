@@ -4,11 +4,22 @@ pandoc-crossref is a pandoc filter for numbering figures, equations, tables and 
 
 Input file (like [demo.md][demo-md]) can be converted into [html][html], [latex][latex], [pdf][pdf], [md][md] or other formats.
 
+Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref pdf][cpdf], [cleveref latex][clatex]
+
+You can also enable per-chapter numbering (as with `--chapters` for latex output). You need to specify `-M chapters` for non-latex/pdf output however. Examples: [html][chap-html], [markdown][chap-markdown], [latex][chap-latex], [pdf][chap-pdf].
+
 [demo-md]: http://lierdakil.github.io/pandoc-crossref/demo.md
 [html]: http://lierdakil.github.io/pandoc-crossref/output.html
 [latex]: http://lierdakil.github.io/pandoc-crossref/output.latex
 [pdf]: http://lierdakil.github.io/pandoc-crossref/output.pdf
 [md]: http://lierdakil.github.io/pandoc-crossref/output.md
+[chap-html]: http://lierdakil.github.io/pandoc-crossref/output-chapters.html
+[chap-latex]:http://lierdakil.github.io/pandoc-crossref/output-chapters.latex
+[chap-markdown]:http://lierdakil.github.io/pandoc-crossref/output-chapters.md
+[chap-pdf]:http://lierdakil.github.io/pandoc-crossref/output-chapters.pdf
+[clatex]: http://lierdakil.github.io/pandoc-crossref/output-cref.latex
+[cpdf]: http://lierdakil.github.io/pandoc-crossref/output-cref.pdf
+
 
 Tested with pandoc 1.13.2.
 
@@ -80,12 +91,15 @@ There are several parameters that can be set via YAML metadata (either by passin
 
 Following variables are supported:
 
-* `cref`: if present, latex export will use `\cref` from cleveref package. It is user's responsibility to include relevant `\usepackage` directives in template
-* `figureTitle`, default `Figure`: Word to prepend to figure titles, e.g. `Figure 1: Description`
-* `tableTitle`, default `Table`: Word to prepend to table titles, e.g. `Table 1: Description`
+* `cref`: if True, latex export will use `\cref` from cleveref package. It is user's responsibility to include relevant `\usepackage` directives in template
+* `chapter`: if True, number elements as `chapter.item`, and restart `item` on each first-level heading (as `--chapters` for latex/pdf output)
+* `figureTitle`, default `Figure`: Word(s) to prepend to figure titles, e.g. `Figure 1: Description`
+* `tableTitle`, default `Table`: Word(s) to prepend to table titles, e.g. `Table 1: Description`
 * `titleDelimiter`, default `:`: What to put between object number and caption text.
 * `figPrefix`, default `fig.`: Prefix for references to figures, e.g. `fig. 1-3`
 * `eqnPrefix`, default `eq.`: Prefix for references to equations, e.g. `eq. 3,4`
 * `tblPrefix`, default `tbl.`: Prefix for references to tables, e.g. `tbl. 2`
+* `chapDelim`, default `.`: Delimiter between chapter number and figure number.
+* `rangeDelim`, default `-`: Delimiter between figure ranges
 * `lofTitle`, default `List of Figures`: Title for list of figures (lof)
 * `lotTitle`, default `List of Tables`: Title for list of tables (lot)
