@@ -66,7 +66,10 @@ main = toJSONFilter go
 go :: Maybe Format -> Pandoc -> Pandoc
 go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
   where
-  doWalk = walkM (replaceAttrImages opts) p >>= walkM (replaceRefs opts)
+  doWalk =
+    walkM (replaceAttrImages opts) p
+    >>= walkM (replaceRefs opts)
+    >>= walkM (listOf opts)
   opts = Options {
       useCleveref = isJust $ lookupMeta "cref" meta
     , figureTitle = getMetaString "Figure" "figureTitle"
@@ -203,7 +206,8 @@ replaceRefsOther prefix opts cits = do
 
 getRefIndex :: String -> Citation -> WS (Maybe Int)
 getRefIndex prefix Citation{citationId=cid}
-  | Just label <- stripPrefix prefix cid = gets (fmap refIndex . M.lookup label . getProp prop)
+  | Just label <- stripPrefix prefix cid
+  = gets (fmap refIndex . M.lookup label . getProp prop)
   | otherwise = return Nothing
   where
   prop = lookupUnsafe prefix accMap
@@ -221,3 +225,19 @@ makeIndices s = intercalate sep $ reverse $ mapMaybe f $ foldl' f2 [] $ catMaybe
   f [w1,w2] = Just $ show w2 ++ sep ++ show w1 -- two values
   f (x:xs) = Just $ show (last xs) ++ "-" ++ show x -- shorten more than two values
   sep = ", "
+
+listOf :: Options -> Block -> WS Block
+listOf Options{outFormat=Just (Format "latex")} x = return x
+listOf _ (Para [RawInline (Format "tex") "\\listoffigures"])
+  = gets imgRefs >>= makeList
+listOf _ (Para [RawInline (Format "tex") "\\listoftables"])
+  = gets tblRefs >>= makeList
+listOf _ x = return x
+
+makeList :: M.Map String RefRec -> WS Block
+makeList refs = return $ OrderedList style $ item `map` refsSorted
+  where
+    refsSorted = sortBy compare' $ M.toList refs
+    compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j
+    item = (:[]) . Plain . refTitle . snd
+    style = (1,DefaultStyle,DefaultDelim)
