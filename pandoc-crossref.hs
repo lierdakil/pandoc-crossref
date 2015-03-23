@@ -5,7 +5,11 @@ import Data.List
 import Data.Maybe
 import qualified Data.Map as M
 
-type RefMap = M.Map String Int
+data RefRec = RefRec { refIndex :: Int
+                     , refTitle :: [Inline]
+                     }
+
+type RefMap = M.Map String RefRec
 
 -- from data-accessor http://www.haskell.org/haskellwiki/Record_access
 -- Copyright (c) Henning Thielemann <haskell@henning-thielemann.de>, Luke Palmer <lrpalmer@gmail.com>
@@ -81,7 +85,7 @@ replaceAttrImages :: Options -> Block -> WS Block
 replaceAttrImages opts (Para (Image alt img:c))
   | Just label <- getRefLabel "fig" c
   = do
-    idxStr <- replaceAttr label imgRefs'
+    idxStr <- replaceAttr label alt imgRefs'
     let alt' = case outFormat opts of
           Just (Format "latex") ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
@@ -95,13 +99,13 @@ replaceAttrImages opts (Para (Math DisplayMath eq:c))
         let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
         in return $ Para [RawInline (Format "tex") eqn]
       _ -> do
-        idxStr <- replaceAttr label eqnRefs'
+        idxStr <- replaceAttr label [] eqnRefs'
         let eq' = eq++"\\qquad("++idxStr++")"
         return $ Para [Math DisplayMath eq']
 replaceAttrImages opts (Table title align widths header cells)
   | Just label <- getRefLabel "tbl" [last title]
   = do
-    idxStr <- replaceAttr label tblRefs'
+    idxStr <- replaceAttr label (init title) tblRefs'
     let title' =
           case outFormat opts of
               Just (Format "latex") ->
@@ -117,14 +121,17 @@ getRefLabel tag ils
   | Str attr <- last ils
   , all (==Space) (init ils)
   , "}" `isSuffixOf` attr
-  = liftM init $ stripPrefix ("{#"++tag++":") attr
+  = init `fmap` stripPrefix ("{#"++tag++":") attr
 getRefLabel _ _ = Nothing
 
-replaceAttr :: String -> Accessor References RefMap -> WS String
-replaceAttr label prop
+replaceAttr :: String -> [Inline] -> Accessor References RefMap -> WS String
+replaceAttr label title prop
   = do
-    index <- liftM (1+) $ gets (M.size . getProp prop)
-    modify $ modifyProp prop (M.insert label index)
+    index <- (1+) `fmap` gets (M.size . getProp prop)
+    modify $ modifyProp prop $ M.insert label RefRec {
+      refIndex=index
+    , refTitle=title
+    }
     return $ show index
 
 -- accessors to state variables
@@ -195,7 +202,7 @@ replaceRefsOther prefix opts cits = do
 
 getRefIndex :: String -> Citation -> WS (Maybe Int)
 getRefIndex prefix Citation{citationId=cid}
-  | Just label <- stripPrefix prefix cid = gets (M.lookup label . getProp prop)
+  | Just label <- stripPrefix prefix cid = gets (fmap refIndex . M.lookup label . getProp prop)
   | otherwise = return Nothing
   where
   prop = lookupUnsafe prefix accMap
