@@ -210,8 +210,7 @@ allCitsPrefix cits = foldl f Nothing prefixes
 
 replaceRefsLatex :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsLatex prefix opts cits =
-  return $
-    getRefPrefix opts prefix ++ [texcit]
+  return $ p ++ [texcit]
   where
     texcit =
       RawInline (Format "tex") $
@@ -219,6 +218,8 @@ replaceRefsLatex prefix opts cits =
         " \\cref{"++listLabels prefix "" "" cits++"}"
         else
           listLabels prefix " \\ref{" "}" cits
+    p | useCleveref opts = []
+      | otherwise = getRefPrefix opts prefix
 
 listLabels :: String -> String -> String -> [Citation] -> String
 listLabels prefix p s = foldl' joinStr "" . mapMaybe (getLabel prefix)
