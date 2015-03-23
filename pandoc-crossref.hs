@@ -1,6 +1,7 @@
 import Text.Pandoc.JSON
 import Text.Pandoc.Walk
 import Text.Pandoc.Generic
+import Text.Pandoc.Shared (normalizeInlines)
 import Control.Monad.State
 import Data.List
 import Data.Maybe
@@ -49,14 +50,14 @@ defaultReferences :: References
 defaultReferences = References M.empty M.empty M.empty
 
 data Options = Options { useCleveref :: Bool
-                       , figureTitle :: String
-                       , tableTitle  :: String
-                       , titleDelim  :: String
-                       , figPrefix   :: String
-                       , eqnPrefix   :: String
-                       , tblPrefix   :: String
-                       , lofTitle   :: String
-                       , lotTitle   :: String
+                       , figureTitle :: [Inline]
+                       , tableTitle  :: [Inline]
+                       , titleDelim  :: [Inline]
+                       , figPrefix   :: [Inline]
+                       , eqnPrefix   :: [Inline]
+                       , tblPrefix   :: [Inline]
+                       , lofTitle    :: [Block]
+                       , lotTitle    :: [Block]
                        , outFormat   :: Maybe Format
                        }
 
@@ -71,23 +72,30 @@ go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
   where
   doWalk =
     walkM (replaceAttrImages opts) p
-    >>= walkM (replaceRefs opts)
+    >>= bottomUpM (replaceRefs opts)
     >>= bottomUpM (listOf opts)
   opts = Options {
-      useCleveref = isJust $ lookupMeta "cref" meta
+      useCleveref = getMetaBool False "cref"
     , figureTitle = getMetaString "Figure" "figureTitle"
     , tableTitle  = getMetaString "Table" "tableTitle"
     , titleDelim  = getMetaString ":" "titleDelimiter"
     , figPrefix   = getMetaString "fig." "figPrefix"
     , eqnPrefix   = getMetaString "eq." "eqnPrefix"
     , tblPrefix   = getMetaString "tbl." "tblPrefix"
-    , lofTitle    = getMetaString "List of Figures" "lofTitle"
-    , lotTitle    = getMetaString "List of Tables" "lotTitle"
+    , lofTitle    = getMetaBlock (Header 1 nullAttr) "List of Figures" "lofTitle"
+    , lotTitle    = getMetaBlock (Header 1 nullAttr) "List of Tables" "lotTitle"
     , outFormat   = fmt
   }
+  getMetaBool def name = getBool def $ lookupMeta name meta
+  getBool _ (Just (MetaBool b)) = b
+  getBool b _ = b
   getMetaString def name = getString def $ lookupMeta name meta
-  getString _ (Just (MetaString s)) = s
-  getString def _ = def
+  getString _ (Just (MetaString s)) = normalizeInlines [Str s]
+  getString _ (Just (MetaInlines s)) = s
+  getString def _ = normalizeInlines [Str def]
+  getMetaBlock block def name = getBlock block def $ lookupMeta name meta
+  getBlock _ _ (Just (MetaBlocks b)) = b
+  getBlock block def m = [block $ getString def m]
 
 replaceAttrImages :: Options -> Block -> WS Block
 replaceAttrImages opts (Para (Image alt img:c))
@@ -98,7 +106,7 @@ replaceAttrImages opts (Para (Image alt img:c))
           Just (Format "latex") ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  ->
-            [Str $ figureTitle opts,Space,Str idxStr, Str $ titleDelim opts,Space]++alt
+            figureTitle opts++[Space,Str idxStr] ++ titleDelim opts ++ [Space]++alt
     return $ Para [Image alt' (fst img,"fig:")]
 replaceAttrImages opts (Para (Math DisplayMath eq:c))
   | Just label <- getRefLabel "eq" c
@@ -119,7 +127,7 @@ replaceAttrImages opts (Table title align widths header cells)
               Just (Format "latex") ->
                 [RawInline (Format "tex") ("\\label{"++label++"}")]
               _  ->
-                [Str $ tableTitle opts,Space,Str idxStr, Str $ titleDelim opts,Space]
+                tableTitle opts++[Space,Str idxStr]++titleDelim opts++[Space]
           ++ init title
     return $ Table title' align widths header cells
 replaceAttrImages _ x = return x
@@ -150,7 +158,7 @@ accMap = M.fromList [("fig:",imgRefs')
                     ]
 
 -- accessors to options
-prefMap :: M.Map String (Options -> String)
+prefMap :: M.Map String (Options -> [Inline])
 prefMap = M.fromList [("fig:",figPrefix)
                      ,("eq:" ,eqnPrefix)
                      ,("tbl:",tblPrefix)
@@ -159,18 +167,18 @@ prefMap = M.fromList [("fig:",figPrefix)
 prefixes :: [String]
 prefixes = M.keys accMap
 
-getRefPrefix :: Options -> String -> String
+getRefPrefix :: Options -> String -> [Inline]
 getRefPrefix opts prefix | null refprefix = []
-                         | otherwise   = refprefix ++ " "
+                         | otherwise   = refprefix ++ [Space]
                          where refprefix = lookupUnsafe prefix prefMap opts
 
 lookupUnsafe :: Ord k => k -> M.Map k v -> v
 lookupUnsafe = (fromMaybe undefined .) . M.lookup
 
-replaceRefs :: Options -> Inline -> WS Inline
-replaceRefs opts (Cite cits _)
+replaceRefs :: Options -> [Inline] -> WS [Inline]
+replaceRefs opts (Cite cits _:xs)
   | Just prefix <- allCitsPrefix cits
-  = replaceRefs' prefix opts cits
+  = (++ xs) `fmap` replaceRefs' prefix opts cits
   where
     replaceRefs' = case outFormat opts of
                     Just (Format "latex") -> replaceRefsLatex
@@ -184,14 +192,17 @@ allCitsPrefix cits = foldl f Nothing prefixes
   f _ p | all (isPrefixOf p . citationId) cits = Just p
   f _ _ = Nothing
 
-replaceRefsLatex :: String -> Options -> [Citation] -> WS Inline
+replaceRefsLatex :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsLatex prefix opts cits =
-  return $ RawInline (Format "tex") $
-    getRefPrefix opts prefix ++
-    if useCleveref opts then
-      " \\cref{"++listLabels prefix "" "" cits++"}"
-      else
-        listLabels prefix " \\ref{" "}" cits
+  return $
+    getRefPrefix opts prefix ++ [texcit]
+  where
+    texcit =
+      RawInline (Format "tex") $
+      if useCleveref opts then
+        " \\cref{"++listLabels prefix "" "" cits++"}"
+        else
+          listLabels prefix " \\ref{" "}" cits
 
 listLabels :: String -> String -> String -> [Citation] -> String
 listLabels prefix p s = foldl' joinStr "" . mapMaybe (getLabel prefix)
@@ -204,10 +215,10 @@ getLabel prefix Citation{citationId=cid}
   | Just label <- stripPrefix prefix cid = Just label
   | otherwise = Nothing
 
-replaceRefsOther :: String -> Options -> [Citation] -> WS Inline
+replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
-  return $ Str $ getRefPrefix opts prefix ++ makeIndices (sort indices)
+  return $ getRefPrefix opts prefix ++ normalizeInlines [Str $ makeIndices (sort indices)]
 
 getRefIndex :: String -> Citation -> WS (Maybe Int)
 getRefIndex prefix Citation{citationId=cid}
@@ -239,11 +250,11 @@ listOf opts (Para [RawInline (Format "tex") "\\listoftables"]:xs)
   = gets tblRefs >>= makeList (lotTitle opts) xs
 listOf _ x = return x
 
-makeList :: String -> [Block] -> M.Map String RefRec -> WS [Block]
+makeList :: [Block] -> [Block] -> M.Map String RefRec -> WS [Block]
 makeList title xs refs
   = return $
-      Header 1 nullAttr [Str title]
-      : OrderedList style (item `map` refsSorted)
+      title ++
+      OrderedList style (item `map` refsSorted)
       : xs
   where
     refsSorted = sortBy compare' $ M.toList refs
