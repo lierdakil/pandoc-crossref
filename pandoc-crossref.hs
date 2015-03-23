@@ -1,7 +1,7 @@
 import Text.Pandoc.JSON
 import Text.Pandoc.Walk
 import Text.Pandoc.Generic
-import Text.Pandoc.Shared (normalizeInlines)
+import Text.Pandoc.Shared (normalizeInlines,stringify)
 import Control.Monad.State
 import Data.List
 import Data.Maybe
@@ -114,12 +114,12 @@ replaceAttrImages opts x@(Header 1 _ _)
 replaceAttrImages opts (Para (Image alt img:c))
   | Just label <- getRefLabel "fig" c
   = do
-    idxStr <- replaceAttr label alt imgRefs'
+    idxStr <- replaceAttr opts label alt imgRefs'
     let alt' = case outFormat opts of
           Just (Format "latex") ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  ->
-            figureTitle opts++[Space,Str idxStr] ++ titleDelim opts ++ [Space]++alt
+            figureTitle opts++ Space : idxStr ++ titleDelim opts ++ [Space]++alt
     return $ Para [Image alt' (fst img,"fig:")]
 replaceAttrImages opts (Para (Math DisplayMath eq:c))
   | Just label <- getRefLabel "eq" c
@@ -128,20 +128,20 @@ replaceAttrImages opts (Para (Math DisplayMath eq:c))
         let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
         in return $ Para [RawInline (Format "tex") eqn]
       _ -> do
-        idxStr <- replaceAttr label [] eqnRefs'
-        let eq' = eq++"\\qquad("++idxStr++")"
+        idxStr <- replaceAttr opts label [] eqnRefs'
+        let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Para [Math DisplayMath eq']
 replaceAttrImages opts (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]
   = do
-    idxStr <- replaceAttr label (init title) tblRefs'
+    idxStr <- replaceAttr opts label (init title) tblRefs'
     let title' =
           case outFormat opts of
               Just (Format "latex") ->
                 [RawInline (Format "tex") ("\\label{"++label++"}")]
               _  ->
-                tableTitle opts++[Space,Str idxStr]++titleDelim opts++[Space]
+                tableTitle opts++Space : idxStr++titleDelim opts++[Space]
           ++ init title
     return $ Table title' align widths header cells
 replaceAttrImages _ x = return x
@@ -155,8 +155,8 @@ getRefLabel tag ils
   = init `fmap` stripPrefix ("{#"++tag++":") attr
 getRefLabel _ _ = Nothing
 
-replaceAttr :: String -> [Inline] -> Accessor References RefMap -> WS String
-replaceAttr label title prop
+replaceAttr :: Options -> String -> [Inline] -> Accessor References RefMap -> WS [Inline]
+replaceAttr o label title prop
   = do
     chap  <- gets curChap
     index <- (1+) `fmap` gets (M.size . getProp prop)
@@ -164,7 +164,9 @@ replaceAttr label title prop
       refIndex=(chap,index)
     , refTitle=title
     }
-    return $ show index
+    if sepChapters o
+    then return $ Str (show chap) : chapDelim o ++ [Str (show index)]
+    else return [Str (show index)]
 
 -- accessors to state variables
 accMap :: M.Map String (Accessor References RefMap)
