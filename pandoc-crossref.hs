@@ -5,9 +5,10 @@ import Text.Pandoc.Shared (normalizeInlines)
 import Control.Monad.State
 import Data.List
 import Data.Maybe
+import Data.Function
 import qualified Data.Map as M
 
-data RefRec = RefRec { refIndex :: Int
+data RefRec = RefRec { refIndex :: (Int, Int)
                      , refTitle :: [Inline]
                      }
 
@@ -34,6 +35,7 @@ modifyProp f g rOld =
 data References = References { imgRefs :: RefMap
                              , eqnRefs :: RefMap
                              , tblRefs :: RefMap
+                             , curChap :: Int
                              }
 
 -- accessors
@@ -47,15 +49,18 @@ tblRefs' :: Accessor References RefMap
 tblRefs' new r@References{tblRefs=old} = (old, r{tblRefs=new})
 
 defaultReferences :: References
-defaultReferences = References M.empty M.empty M.empty
+defaultReferences = References M.empty M.empty M.empty 0
 
 data Options = Options { useCleveref :: Bool
+                       , sepChapters :: Bool
                        , figureTitle :: [Inline]
                        , tableTitle  :: [Inline]
                        , titleDelim  :: [Inline]
                        , figPrefix   :: [Inline]
                        , eqnPrefix   :: [Inline]
                        , tblPrefix   :: [Inline]
+                       , chapDelim   :: [Inline]
+                       , rangeDelim  :: [Inline]
                        , lofTitle    :: [Block]
                        , lotTitle    :: [Block]
                        , outFormat   :: Maybe Format
@@ -68,20 +73,23 @@ main :: IO ()
 main = toJSONFilter go
 
 go :: Maybe Format -> Pandoc -> Pandoc
-go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
+go fmt (Pandoc meta bs) = Pandoc meta $ evalState doWalk defaultReferences
   where
   doWalk =
-    walkM (replaceAttrImages opts) p
+    walkM (replaceAttrImages opts) bs
     >>= bottomUpM (replaceRefs opts)
     >>= bottomUpM (listOf opts)
   opts = Options {
       useCleveref = getMetaBool False "cref"
+    , sepChapters = getMetaBool False "chapters"
     , figureTitle = getMetaString "Figure" "figureTitle"
     , tableTitle  = getMetaString "Table" "tableTitle"
     , titleDelim  = getMetaString ":" "titleDelimiter"
     , figPrefix   = getMetaString "fig." "figPrefix"
     , eqnPrefix   = getMetaString "eq." "eqnPrefix"
     , tblPrefix   = getMetaString "tbl." "tblPrefix"
+    , chapDelim   = getMetaString "." "chapDelim"
+    , rangeDelim  = getMetaString "-" "rangeDelim"
     , lofTitle    = getMetaBlock (Header 1 nullAttr) "List of Figures" "lofTitle"
     , lotTitle    = getMetaBlock (Header 1 nullAttr) "List of Tables" "lotTitle"
     , outFormat   = fmt
@@ -98,6 +106,11 @@ go fmt p@(Pandoc meta _) = evalState doWalk defaultReferences
   getBlock block def m = [block $ getString def m]
 
 replaceAttrImages :: Options -> Block -> WS Block
+replaceAttrImages opts x@(Header 1 _ _)
+  | sepChapters opts
+  = do
+    modify (\r@References{curChap=cc} -> r{curChap=cc+1})
+    return x
 replaceAttrImages opts (Para (Image alt img:c))
   | Just label <- getRefLabel "fig" c
   = do
@@ -145,9 +158,10 @@ getRefLabel _ _ = Nothing
 replaceAttr :: String -> [Inline] -> Accessor References RefMap -> WS String
 replaceAttr label title prop
   = do
+    chap  <- gets curChap
     index <- (1+) `fmap` gets (M.size . getProp prop)
     modify $ modifyProp prop $ M.insert label RefRec {
-      refIndex=index
+      refIndex=(chap,index)
     , refTitle=title
     }
     return $ show index
@@ -220,9 +234,11 @@ getLabel prefix Citation{citationId=cid}
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
-  return $ getRefPrefix opts prefix ++ normalizeInlines [Str $ makeIndices (sort indices)]
+  let
+    indices' = groupBy ((==) `on` fmap fst) (sort indices)
+  return $ getRefPrefix opts prefix ++ normalizeInlines (concatMap (makeIndices opts) indices')
 
-getRefIndex :: String -> Citation -> WS (Maybe Int)
+getRefIndex :: String -> Citation -> WS (Maybe (Int, Int))
 getRefIndex prefix Citation{citationId=cid}
   | Just label <- stripPrefix prefix cid
   = gets (fmap refIndex . M.lookup label . getProp prop)
@@ -230,19 +246,24 @@ getRefIndex prefix Citation{citationId=cid}
   where
   prop = lookupUnsafe prefix accMap
 
-makeIndices :: [Maybe Int] -> String
-makeIndices s | any isNothing s = "??"
-makeIndices s = intercalate sep $ reverse $ mapMaybe f $ foldl' f2 [] $ catMaybes s
+makeIndices :: Options -> [Maybe (Int,Int)] -> [Inline]
+makeIndices _ s | any isNothing s = [Str "??"]
+makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ catMaybes s
   where
   f2 [] i = [[i]]
-  f2 l@(x:xs) i | i-head x == 0 = l        -- remove duplicates
-                | i-head x == 1 = (i:x):xs -- group sequental
-                | otherwise     = [i]:l    -- new group
-  f []  = Nothing                          -- drop empty lists
-  f [w] = Just $ show w                    -- single value
-  f [w1,w2] = Just $ show w2 ++ sep ++ show w1 -- two values
-  f (x:xs) = Just $ show (last xs) ++ "-" ++ show x -- shorten more than two values
-  sep = ", "
+  f2 ([]:xs) i = [i]:xs
+  f2 l@(x@((_,hx):_):xs) i@(_,ni)
+    | ni-hx == 0 = l        -- remove duplicates
+    | ni-hx == 1 = (i:x):xs -- group sequental
+    | otherwise     = [i]:l    -- new group
+  f []  = []                          -- drop empty lists
+  f [w] = show' w                    -- single value
+  f [w1,w2] = show' w2 ++ sep ++ show' w1 -- two values
+  f (x:xs) = show' (last xs) ++ rangeDelim o ++ show' x -- shorten more than two values
+  sep = [Str ", "]
+  show' (c,n) = if sepChapters o && c>0
+    then [Str $ show c] ++ chapDelim o ++ [Str $ show n]
+    else [Str $ show n]
 
 listOf :: Options -> [Block] -> WS [Block]
 listOf Options{outFormat=Just (Format "latex")} x = return x
