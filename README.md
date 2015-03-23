@@ -87,3 +87,5 @@ Following variables are supported:
 * `figPrefix`, default `fig.`: Prefix for references to figures, e.g. `fig. 1-3`
 * `eqnPrefix`, default `eq.`: Prefix for references to equations, e.g. `eq. 3,4`
 * `tblPrefix`, default `tbl.`: Prefix for references to tables, e.g. `tbl. 2`
+* `lofTitle`, default `List of Figures`: Title for list of figures (lof)
+* `lotTitle`, default `List of Tables`: Title for list of tables (lot)
