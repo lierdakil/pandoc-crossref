@@ -44,6 +44,8 @@ To label an (implicit) figure, append `{#fig:label}` (with `label` being somethi
 
 This only works on implicit figures, i.e. an image occurring by itself in a paragraph (which will be rendered as a figure with caption by pandoc)
 
+Image block and label *can* be separated by one or more spaces.
+
 ### Equation labels
 
 ```markdown
@@ -53,6 +55,8 @@ $$ math $$ {#eq:label}
 To label a display equation, append `{#eq:label}` (with `label` being something unique to reference this equation by) immediately after math block.
 
 This only works if display math and label specification are in a paragraph of its own.
+
+Math block and label *can* be separated by one or more spaces.
 
 ### Table labels
 
@@ -65,7 +69,7 @@ a   b   c
 : Caption {#tbl:label}
 ```
 
-To label a table, append `{#tbl:label}` at the end of table caption (with `label` being something unique to reference this equation by)
+To label a table, append `{#tbl:label}` at the end of table caption (with `label` being something unique to reference this equation by). Caption and label *must* be separated by at least one space.
 
 ### References
 
