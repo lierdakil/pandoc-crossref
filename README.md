@@ -105,5 +105,15 @@ Following variables are supported:
 * `tblPrefix`, default `tbl.`: Prefix for references to tables, e.g. `tbl. 2`
 * `chapDelim`, default `.`: Delimiter between chapter number and item number.
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
-* `lofTitle`, default `List of Figures`: Title for list of figures (lof)
-* `lotTitle`, default `List of Tables`: Title for list of tables (lot)
+* `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
+* `lotTitle`, default `# List of Tables`: Title for list of tables (lot)
+* `figureTemplate`, default `\[figureTitle\] \[i\]\[titleDelim\] \[t\]`: template for figure captions, see [Templates](#templates)
+* `tableTemplate`, default `\[tableTitle\] \[i\]\[titleDelim\] \[t\]`: template for table captions, see [Templates](#templates)
+
+### Templates
+
+pandoc-crossref supports advanced caption customization via caption templates. Templates are specified as YAML metadata variables (see [Customization](#customization)), and are parsed as default Pandoc Markdown. Variables are specified with display math syntax, i.e. `$$var$$` in a template will be replaced with value of variable `var`.
+Variables can be specified in YAML metadata block, or from command line (with `-M` switch). There are two special variables, that are set internally:
+
+* `i` -- object number, possibly with chapter number (if `chapter=True`)
+* `t` -- object caption, as given in source Markdown
