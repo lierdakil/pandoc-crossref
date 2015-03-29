@@ -3,6 +3,7 @@ cref: False
 figureTitle: "Figure \\#"
 lofTitle: "## List of Figures"
 lotTitle: "## List of Tables"
+tableTemplate: "*$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$"
 ---
 
 This is a demo file for pandoc-crossref. With this filter, you can cross-reference figures (see [@fig:figure1;@fig:figure2;@fig:figure3]), display equations (see @eq:eqn1) and tables (see [@tbl:table1])

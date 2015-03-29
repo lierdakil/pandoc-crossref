@@ -7,7 +7,7 @@
 ,Header 1 ("chapter-2.-equations",[],[]) [Str "Chapter",Space,Str "2.",Space,Str "Equations"]
 ,Para [Math DisplayMath " P_i(x) = \\sum_i a_i x^i \\qquad(1)"]
 ,Header 1 ("chapter-3.-tables",[],[]) [Str "Chapter",Space,Str "3.",Space,Str "Tables"]
-,Table [Str "Table",Space,Str "1",Str ":",Space,Str "Table",Space,Str "example",Space] [AlignLeft,AlignLeft] [0.0,0.0]
+,Table [Emph [Str "Table",Space,Str "1"],Str ":",Space,Str "Table",Space,Str "example",Space] [AlignLeft,AlignLeft] [0.0,0.0]
  [[Plain [Str "First",Space,Str "Header"]]
  ,[Plain [Str "Second",Space,Str "Header"]]]
  [[[Plain [Str "Content",Space,Str "Cell"]]
