@@ -107,8 +107,8 @@ Following variables are supported:
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
 * `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
 * `lotTitle`, default `# List of Tables`: Title for list of tables (lot)
-* `figureTemplate`, default `\[figureTitle\] \[i\]\[titleDelim\] \[t\]`: template for figure captions, see [Templates](#templates)
-* `tableTemplate`, default `\[tableTitle\] \[i\]\[titleDelim\] \[t\]`: template for table captions, see [Templates](#templates)
+* `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions, see [Templates](#templates)
+* `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions, see [Templates](#templates)
 
 ### Templates
 
