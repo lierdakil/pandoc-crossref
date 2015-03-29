@@ -196,8 +196,8 @@ replaceAttrImages opts (Table title align widths header cells)
     idxStr <- replaceAttr opts label (init title) tblRefs'
     title' <-
           case outFormat opts of
-              Just f | isFormat "latex" f -> return
-                [RawInline (Format "tex") ("\\label{"++label++"}")]
+              Just f | isFormat "latex" f -> return $
+                RawInline (Format "tex") ("\\label{"++label++"}") : init title
               _  -> tableTemplate opts >>= applyTemplate idxStr (init title)
     return $ Table title' align widths header cells
 replaceAttrImages _ x = return x
