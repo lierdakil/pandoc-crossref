@@ -9,7 +9,7 @@ import Data.Function
 import qualified Data.Map as M
 import qualified Data.Yaml as Y
 import qualified Data.ByteString as B
-import Debug.Trace
+import Control.Exception (handle,IOException)
 
 data RefRec = RefRec { refIndex :: (Int, Int)
                      , refTitle :: [Inline]
@@ -80,11 +80,12 @@ main = toJSONFilter go
 go :: Maybe Format -> Pandoc -> IO Pandoc
 go fmt (Pandoc meta bs) = do
   let getMetaString name = fromMaybe [] $ lookupDefault name meta M.empty >>= toString
-  dtve <-Y.decodeEither `fmap` B.readFile (getMetaString "crossrefYaml")
+      handler :: IOException -> IO (Either String (M.Map String String))
+      handler _ = return $ Right M.empty
+  dtve <-handle handler $ Y.decodeEither `fmap` B.readFile (getMetaString "crossrefYaml")
   let dtv = case dtve of
               Right dtv' -> dtv'
               Left e -> error e
-  traceIO $ show dtv
   let
     st = defaultReferences{stMeta=meta, stDTV=dtv}
     doWalk =
