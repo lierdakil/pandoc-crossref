@@ -7,7 +7,8 @@ import Util.Meta (getMetaString)
 
 getDefaultSettings :: Meta -> IO Meta
 getDefaultSettings meta = do
-  let handler :: IOException -> IO Pandoc
-      handler _ = return $ Pandoc nullMeta []
-  Pandoc dtve _ <- handle handler $ readMarkdown def `fmap` readFile (getMetaString "crossrefYaml" meta nullMeta)
+  let handler :: IOException -> IO String
+      handler _ = return []
+  yaml <- handle handler $ readFile (getMetaString "crossrefYaml" meta nullMeta)
+  let Pandoc dtve _ = readMarkdown def ("---\n" ++ yaml ++ "\n---")
   return dtve
