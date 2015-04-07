@@ -1,14 +1,13 @@
 module Util.Util where
 
 import Text.Pandoc.Definition
-import qualified Data.Map as M
 import Control.Monad (mplus)
 import Util.Default.Default
-import Util.Default.Types (DefaultSettings(..))
+import Data.Monoid
 
-lookupDefault :: String -> Meta -> DefaultSettings -> Maybe MetaValue
+lookupDefault :: String -> Meta -> Meta -> Maybe MetaValue
 lookupDefault name meta defMap =
-  lookupMeta name meta `mplus` (MetaString `fmap` M.lookup name defMap) `mplus` getDefaultMeta name
+  lookupMeta name meta `mplus` lookupMeta name (defMap `mappend` defaultMeta)
 
 isFormat :: String -> Format -> Bool
 isFormat fmt (Format f) = takeWhile (`notElem` "+-") f == fmt

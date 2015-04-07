@@ -1,21 +1,22 @@
 module Util.Default.Default where
 
 import Text.Pandoc.Definition
+import qualified Data.Map as M
 
-getDefaultMeta :: String -> Maybe MetaValue
-getDefaultMeta varname = case varname of
-  "figureTitle"    -> Just $ MetaInlines [Str "Figure"]
-  "tableTitle"     -> Just $ MetaInlines [Str "Table"]
-  "titleDelim"     -> Just $ MetaInlines [Str ":"]
-  "chapDelim"      -> Just $ MetaInlines [Str "."]
-  "rangeDelim"     -> Just $ MetaInlines [Str "-"]
-  "figPrefix"      -> Just $ MetaInlines [Str "fig."]
-  "eqnPrefix"      -> Just $ MetaInlines [Str "eq."]
-  "tblPrefix"      -> Just $ MetaInlines [Str "tbl."]
-  "lofTitle"       -> Just $ MetaBlocks [Header 1 nullAttr [Str "List of Figures"]]
-  "lotTitle"       -> Just $ MetaBlocks [Header 1 nullAttr [Str "List of Tables"]]
-  "figureTemplate" -> Just $ MetaInlines [var "figureTitle",Space,var "i",var "titleDelim",Space,var "t"]
-  "tableTemplate"  -> Just $ MetaInlines [var "tableTitle",Space,var "i",var "titleDelim",Space,var "t"]
-  "crossrefYaml"   -> Just $ MetaString "pandoc-crossref.yaml"
-  _                -> Nothing
+defaultMeta :: Meta
+defaultMeta = Meta $ M.fromList
+  [ ("figureTitle"    , MetaInlines [Str "Figure"])
+  , ("tableTitle"     , MetaInlines [Str "Table"])
+  , ("titleDelim"     , MetaInlines [Str ":"])
+  , ("chapDelim"      , MetaInlines [Str "."])
+  , ("rangeDelim"     , MetaInlines [Str "-"])
+  , ("figPrefix"      , MetaInlines [Str "fig."])
+  , ("eqnPrefix"      , MetaInlines [Str "eq."])
+  , ("tblPrefix"      , MetaInlines [Str "tbl."])
+  , ("lofTitle"       , MetaBlocks [Header 1 nullAttr [Str "List of Figures"]])
+  , ("lotTitle"       , MetaBlocks [Header 1 nullAttr [Str "List of Tables"]])
+  , ("figureTemplate" , MetaInlines [var "figureTitle",Space,var "i",var "titleDelim",Space,var "t"])
+  , ("tableTemplate"  , MetaInlines [var "tableTitle",Space,var "i",var "titleDelim",Space,var "t"])
+  , ("crossrefYaml"   , MetaString "pandoc-crossref.yaml")
+  ]
   where var = Math DisplayMath

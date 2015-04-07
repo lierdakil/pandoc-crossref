@@ -6,18 +6,16 @@ import Text.Pandoc.Definition
 import Data.Maybe (fromMaybe)
 import Util.Util (lookupDefault)
 
-import Util.Default.Types (DefaultSettings)
-
-getMetaBool :: String -> Meta -> DefaultSettings -> Bool
+getMetaBool :: String -> Meta -> Meta -> Bool
 getMetaBool name meta defaults = fromMaybe False $ lookupDefault name meta defaults >>= toBool
 
-getMetaInlines :: String -> Meta -> DefaultSettings -> [Inline]
+getMetaInlines :: String -> Meta -> Meta -> [Inline]
 getMetaInlines name meta defaults = fromMaybe [] $ lookupDefault name meta defaults >>= toInlines
 
-getMetaBlock :: String -> Meta -> DefaultSettings -> [Block]
+getMetaBlock :: String -> Meta -> Meta -> [Block]
 getMetaBlock name meta defaults = fromMaybe [] $ lookupDefault name meta defaults >>= toBlocks
 
-getMetaString :: String -> Meta -> DefaultSettings -> String
+getMetaString :: String -> Meta -> Meta -> String
 getMetaString name meta defaults = fromMaybe [] $ lookupDefault name meta defaults >>= toString
 
 toInlines :: MetaValue -> Maybe [Inline]

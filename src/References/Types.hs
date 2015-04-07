@@ -8,8 +8,6 @@ import qualified Data.Map as M
 import Text.Pandoc.Definition
 import Control.Monad.State
 
-import Util.Default.Types
-
 data RefRec = RefRec { refIndex :: (Int, Int)
                      , refTitle :: [Inline]
                      }
@@ -23,7 +21,7 @@ data References = References { imgRefs :: RefMap
                              , curChap :: Int
                              , stMeta  :: Meta
                              , stTmplV :: String -> Maybe MetaValue
-                             , stDTV   :: DefaultSettings
+                             , stDTV   :: Meta
                              }
 
 --state monad

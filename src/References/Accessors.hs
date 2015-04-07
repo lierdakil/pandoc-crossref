@@ -15,4 +15,4 @@ tblRefs' :: Accessor References RefMap
 tblRefs' new r@References{tblRefs=old} = (old, r{tblRefs=new})
 
 defaultReferences :: References
-defaultReferences = References empty empty empty 0 nullMeta (const Nothing) empty
+defaultReferences = References empty empty empty 0 nullMeta (const Nothing) nullMeta

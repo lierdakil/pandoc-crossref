@@ -4,7 +4,6 @@ import Text.Pandoc.Definition
 import References.Types
 import Util.Meta
 import Util.Template
-import Util.Default.Types (DefaultSettings)
 
 data Options = Options { useCleveref :: Bool
                        , sepChapters :: Bool
@@ -20,7 +19,7 @@ data Options = Options { useCleveref :: Bool
                        , tableTemplate  :: WS [Inline]
                        }
 
-getOptions :: Meta -> DefaultSettings -> Maybe Format -> Options
+getOptions :: Meta -> Meta -> Maybe Format -> Options
 getOptions meta dtv fmt =
   Options {
       useCleveref = getMetaBool "cref" meta dtv
