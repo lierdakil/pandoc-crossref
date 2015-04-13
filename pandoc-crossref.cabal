@@ -29,7 +29,7 @@ executable pandoc-crossref
   main-is:             pandoc-crossref.hs
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.7 && <4.8
+  build-depends:       base >=4.2 && <5
                      , pandoc >= 1.13 && <1.14
                      , mtl >= 2.2.1 && <2.3
                      , containers >= 0.5.5.1 && <0.6
@@ -42,7 +42,7 @@ executable pandoc-crossref
 Test-Suite test-pandoc-crossref
   Type:           exitcode-stdio-1.0
   Main-Is:        test-pandoc-crossref.hs
-  Build-Depends:   base >=4.7 && <4.8
+  Build-Depends:   base >=4.2 && <5
                  , pandoc >= 1.13 && <1.14
                  , mtl >= 2.2.1 && <2.3
                  , containers >= 0.5.5.1 && <0.6
