@@ -176,7 +176,9 @@ toString _ = Nothing
 
 applyTemplate :: [Inline] -> [Inline] -> [Inline] -> WS [Inline]
 applyTemplate i t tmpl = withTmplV internalVars $ replaceTemplate tmpl
-  where withTmplV f g = do
+  where
+        withTmplV :: (String -> Maybe MetaValue) -> WS [Inline] -> WS [Inline]
+        withTmplV f g = do
           modify $ \s -> s{stTmplV=f}
           res <- g
           modify $ \s -> s{stTmplV=const Nothing}
