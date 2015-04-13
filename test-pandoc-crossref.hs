@@ -6,8 +6,9 @@ import System.Process
 main :: IO ()
 main = do
   native <- read `fmap` readFile "demo.native" :: IO [Block]
-  parsed <- read `fmap` readProcess "pandoc" [
-                              "-F", "pandoc-crossref.hs"
+  parsed <- read `fmap` readProcess "cabal" [
+                              "exec", "pandoc", "--"
+                            , "-F", "pandoc-crossref.hs"
                             , "-i", "demo.md"
                             , "-t", "native"]
                             ""
