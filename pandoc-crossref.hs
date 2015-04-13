@@ -7,6 +7,9 @@ import Data.List
 import Data.Maybe
 import Data.Function
 import qualified Data.Map as M
+import qualified Data.Yaml as Y
+import qualified Data.ByteString as B
+import Control.Exception (handle,IOException)
 
 data RefRec = RefRec { refIndex :: (Int, Int)
                      , refTitle :: [Inline]
@@ -38,6 +41,7 @@ data References = References { imgRefs :: RefMap
                              , curChap :: Int
                              , stMeta  :: Meta
                              , stTmplV :: String -> Maybe MetaValue
+                             , stDTV   :: M.Map String String
                              }
 
 -- accessors
@@ -51,7 +55,7 @@ tblRefs' :: Accessor References RefMap
 tblRefs' new r@References{tblRefs=old} = (old, r{tblRefs=new})
 
 defaultReferences :: References
-defaultReferences = References M.empty M.empty M.empty 0 nullMeta (const Nothing)
+defaultReferences = References M.empty M.empty M.empty 0 nullMeta (const Nothing) M.empty
 
 data Options = Options { useCleveref :: Bool
                        , sepChapters :: Bool
@@ -73,31 +77,39 @@ type WS a = State References a
 main :: IO ()
 main = toJSONFilter go
 
-go :: Maybe Format -> Pandoc -> Pandoc
-go fmt (Pandoc meta bs) = Pandoc meta $ evalState doWalk st
-  where
-  st = defaultReferences{stMeta=meta}
-  doWalk =
-    walkM (replaceAttrImages opts) bs
-    >>= bottomUpM (replaceRefs opts)
-    >>= bottomUpM (listOf opts)
-  opts = Options {
-      useCleveref = getMetaBool "cref"
-    , sepChapters = getMetaBool "chapters"
-    , figPrefix   = getMetaInlines "figPrefix"
-    , eqnPrefix   = getMetaInlines "eqnPrefix"
-    , tblPrefix   = getMetaInlines "tblPrefix"
-    , chapDelim   = getMetaInlines "chapDelim"
-    , rangeDelim  = getMetaInlines "rangeDelim"
-    , lofTitle    = getMetaBlock "lofTitle"
-    , lotTitle    = getMetaBlock "lotTitle"
-    , outFormat   = fmt
-    , figureTemplate = replaceTemplate $ getMetaInlines "figureTemplate"
-    , tableTemplate  = replaceTemplate $ getMetaInlines "tableTemplate"
-  }
-  getMetaBool name = fromMaybe False $ lookupDefault name meta >>= toBool
-  getMetaInlines name = fromMaybe [] $ lookupDefault name meta >>= toInlines
-  getMetaBlock name = fromMaybe [] $ lookupDefault name meta >>= toBlocks
+go :: Maybe Format -> Pandoc -> IO Pandoc
+go fmt (Pandoc meta bs) = do
+  let getMetaString name = fromMaybe [] $ lookupDefault name meta M.empty >>= toString
+      handler :: IOException -> IO (Either String (M.Map String String))
+      handler _ = return $ Right M.empty
+  dtve <-handle handler $ Y.decodeEither `fmap` B.readFile (getMetaString "crossrefYaml")
+  let dtv = case dtve of
+              Right dtv' -> dtv'
+              Left e -> error e
+  let
+    st = defaultReferences{stMeta=meta, stDTV=dtv}
+    doWalk =
+      walkM (replaceAttrImages opts) bs
+      >>= bottomUpM (replaceRefs opts)
+      >>= bottomUpM (listOf opts)
+    opts = Options {
+        useCleveref = getMetaBool "cref"
+      , sepChapters = getMetaBool "chapters"
+      , figPrefix   = getMetaInlines "figPrefix"
+      , eqnPrefix   = getMetaInlines "eqnPrefix"
+      , tblPrefix   = getMetaInlines "tblPrefix"
+      , chapDelim   = getMetaInlines "chapDelim"
+      , rangeDelim  = getMetaInlines "rangeDelim"
+      , lofTitle    = getMetaBlock "lofTitle"
+      , lotTitle    = getMetaBlock "lotTitle"
+      , outFormat   = fmt
+      , figureTemplate = replaceTemplate $ getMetaInlines "figureTemplate"
+      , tableTemplate  = replaceTemplate $ getMetaInlines "tableTemplate"
+    }
+    getMetaBool name = fromMaybe False $ lookupDefault name meta dtv >>= toBool
+    getMetaInlines name = fromMaybe [] $ lookupDefault name meta dtv >>= toInlines
+    getMetaBlock name = fromMaybe [] $ lookupDefault name meta dtv >>= toBlocks
+  return $ Pandoc meta $ evalState doWalk st
 
 replaceTemplate :: [Inline] -> WS [Inline]
 replaceTemplate = bottomUpM replace
@@ -109,9 +121,10 @@ getTemplateMetaVar :: String -> [Inline] -> WS [Inline]
 getTemplateMetaVar var def' = do
   meta <- gets stMeta
   tmplv <- gets stTmplV
+  dtv <- gets stDTV
   return
     $ fromMaybe def'
-    $ (tmplv var `mplus` lookupDefault var meta) >>= toInlines
+    $ (tmplv var `mplus` lookupDefault var meta dtv) >>= toInlines
 
 getDefaultMeta :: String -> Maybe MetaValue
 getDefaultMeta varname = case varname of
@@ -127,11 +140,13 @@ getDefaultMeta varname = case varname of
   "lotTitle"       -> Just $ MetaBlocks [Header 1 nullAttr [Str "List of Tables"]]
   "figureTemplate" -> Just $ MetaInlines [var "figureTitle",Space,var "i",var "titleDelim",Space,var "t"]
   "tableTemplate"  -> Just $ MetaInlines [var "tableTitle",Space,var "i",var "titleDelim",Space,var "t"]
+  "crossrefYaml"   -> Just $ MetaString "pandoc-crossref.yaml"
   _                -> Nothing
   where var = Math DisplayMath
 
-lookupDefault :: String -> Meta -> Maybe MetaValue
-lookupDefault name meta = lookupMeta name meta `mplus` getDefaultMeta name
+lookupDefault :: String -> Meta -> M.Map String String -> Maybe MetaValue
+lookupDefault name meta defMap =
+  lookupMeta name meta `mplus` (MetaString `fmap` M.lookup name defMap) `mplus` getDefaultMeta name
 
 toInlines :: MetaValue -> Maybe [Inline]
 toInlines (MetaString s) = return $ getInlines $
@@ -155,16 +170,24 @@ toBlocks (MetaString s) = return $ getBlocks $
   where getBlocks (Pandoc _ bs) = bs
 toBlocks _ = Nothing
 
+toString :: MetaValue -> Maybe String
+toString (MetaString s) = Just s
+toString (MetaBlocks b) = Just $ stringify b
+toString (MetaInlines i) = Just $ stringify i
+toString _ = Nothing
+
 applyTemplate :: [Inline] -> [Inline] -> [Inline] -> WS [Inline]
-applyTemplate i t tmpl = do
-  setTmplV $ \n -> case n of
-    "i" -> Just $ MetaInlines i
-    "t" -> Just $ MetaInlines t
-    _   -> Nothing
-  res <- replaceTemplate tmpl
-  setTmplV $ const Nothing
-  return res
-  where setTmplV f = modify $ \s -> s{stTmplV=f}
+applyTemplate i t tmpl = withTmplV internalVars $ replaceTemplate tmpl
+  where
+        withTmplV :: (String -> Maybe MetaValue) -> WS [Inline] -> WS [Inline]
+        withTmplV f g = do
+          modify $ \s -> s{stTmplV=f}
+          res <- g
+          modify $ \s -> s{stTmplV=const Nothing}
+          return res
+        internalVars "i" = Just $ MetaInlines i
+        internalVars "t" = Just $ MetaInlines t
+        internalVars _   = Nothing
 
 replaceAttrImages :: Options -> Block -> WS Block
 replaceAttrImages opts x@(Header 1 _ _)

@@ -117,3 +117,23 @@ Variables can be specified in YAML metadata block, or from command line (with `-
 
 * `i` -- object number, possibly with chapter number (if `chapter=True`)
 * `t` -- object caption, as given in source Markdown
+
+### Settings file
+
+It is also possible to set variables used by pandoc-crossref with a separate YAML file. If a given variable is not set in metadata, then pandoc-crossref will attempt to read it from file specified by `crossrefYaml` metadata variable, or, if not set, from `pandoc-crossref.yaml` from current working directory. This allows for reusable configurations. One possible application is ad-hoc internationalization.
+
+For example, consider `$HOME/misc/pandoc-crossref-es.yaml`:
+
+```yaml
+figureTitle: "Figura"
+tableTitle: "Tabla"
+figPrefix: "fig."
+eqnPrefix: "ec."
+tblPrefix: "tbl."
+loftitle: "# Lista de figuras"
+lotTitle: "# Lista de tablas"
+```
+
+One could use this with pandoc-crossref as follows:
+
+`pandoc -F pandoc-crossref.hs -M "crossrefYaml=$HOME/misc/pandoc-crossref-es.yaml"`
