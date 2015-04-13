@@ -31,8 +31,8 @@ executable pandoc-crossref
   -- other-extensions:
   build-depends:       base >=4.2 && <5
                      , pandoc >= 1.13 && <1.14
-                     , mtl >= 2.2.1 && <2.3
-                     , containers >= 0.5.5.1 && <0.6
+                     , mtl >= 1.1 && <2.3
+                     , containers >= 0.1 && <0.6
                      , pandoc-types >= 1.12.4.1 && < 1.13
                      , yaml >= 0.8 && <0.9
                      , data-default
@@ -44,13 +44,13 @@ Test-Suite test-pandoc-crossref
   Main-Is:        test-pandoc-crossref.hs
   Build-Depends:   base >=4.2 && <5
                  , pandoc >= 1.13 && <1.14
-                 , mtl >= 2.2.1 && <2.3
-                 , containers >= 0.5.5.1 && <0.6
+                 , mtl >= 1.1 && <2.3
+                 , containers >= 0.1 && <0.6
                  , pandoc-types >= 1.12.4.1 && < 1.13
                  , yaml >= 0.8 && <0.9
                  , data-default
                  , bytestring
                  , hspec
-                 , process >= 1.2.0.0 && < 1.3
+                 , process
   Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
   Default-Language: Haskell2010
