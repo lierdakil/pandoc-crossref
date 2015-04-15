@@ -1,4 +1,4 @@
-# pandoc-crossref filter
+# pandoc-crossref filter ![](https://travis-ci.org/lierdakil/pandoc-crossref.svg)
 
 pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 
@@ -83,11 +83,22 @@ Reference syntax heavily relies on citation syntax. Basic reference is created b
 
 It's possible to use raw latex commands `\listoffigures` and `\listoftables`, which will produce ordered list of figure/table titles, in order of appearance in document.
 
+## Installation
+
+Assuming you already installed [Haskell platform](http://hackage.haskell.org/platform/), you can install pandoc-crossref with cabal:
+
+```bash
+cabal update
+cabal install pandoc-crossref
+```
+
 ## Usage
 
-Get `pandoc-crossref.hs` at your convenience and run pandoc with `--filter` option:
+Run pandoc with `--filter` option, passing path to pandoc-crossref executable, or simply `pandoc-crossref`, if it's in PATH:
 
-`pandoc --filter ./pandoc-crossref.hs`.
+`pandoc --filter pandoc-crossref`
+
+If you installed with cabal, it's most likely located in `$HOME/.cabal/bin` on \*NIX systems, or in `%AppData%\cabal\bin` on Windows.
 
 ### Customization
 
