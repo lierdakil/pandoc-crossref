@@ -18,7 +18,7 @@ before_install:
 
 install:
  - cabal-$CABALVER update
- - git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodue update && cabal-$CABALVER install && cd ..
+ - git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal-$CABALVER install && cd ..
  - cabal-$CABALVER install --only-dependencies
  - export PATH=$HOME/.cabal/bin:$PATH
 
