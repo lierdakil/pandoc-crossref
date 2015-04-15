@@ -27,7 +27,19 @@ source-repository this
 
 executable pandoc-crossref
   main-is:             pandoc-crossref.hs
-  -- other-modules:
+  other-modules:       References
+                     , References.Accessors
+                     , References.Blocks
+                     , References.List
+                     , References.Refs
+                     , References.Types
+                     , Util.Default.Default
+                     , Util.Default.Settings
+                     , Util.Accessor
+                     , Util.Meta
+                     , Util.Options
+                     , Util.Template
+                     , Util.Util
   -- other-extensions:
   build-depends:       base >=4.2 && <5
                      , pandoc >= 1.13 && <1.14
