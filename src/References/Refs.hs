@@ -43,7 +43,7 @@ prefixes = M.keys accMap
 
 getRefPrefix :: Options -> String -> [Inline]
 getRefPrefix opts prefix | null refprefix = []
-                         | otherwise   = refprefix ++ [Space]
+                         | otherwise   = normalizeInlines $ refprefix ++ [Str "\160"]
                          where refprefix = lookupUnsafe prefix prefMap opts
 
 lookupUnsafe :: Ord k => k -> M.Map k v -> v
