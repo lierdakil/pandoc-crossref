@@ -1,36 +1,24 @@
-module Util.Template where
+module Util.Template (Template,makeTemplate,applyTemplate) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Generic
-import References.Types
-
-import Control.Monad.State
 import Data.Maybe
 import Util.Meta
 
-replaceTemplate :: [Inline] -> WS [Inline]
-replaceTemplate = bottomUpM replace
-  where
-  replace (x@(Math DisplayMath var):xs) = (++xs) `fmap` getTemplateMetaVar var [x]
-  replace x = return x
+type VarFunc = String -> Maybe MetaValue
+newtype Template = Template (VarFunc -> [Inline])
 
-getTemplateMetaVar :: String -> [Inline] -> WS [Inline]
-getTemplateMetaVar var def' = do
-  tmplv <- gets stTmplV
-  dtv <- gets stDTV
-  return
-    $ fromMaybe def'
-    $ (tmplv var `mplus` lookupMeta var dtv) >>= toInlines
-
-applyTemplate :: [Inline] -> [Inline] -> [Inline] -> WS [Inline]
-applyTemplate i t tmpl = withTmplV internalVars $ replaceTemplate tmpl
+makeTemplate :: Meta -> [Inline] -> Template
+makeTemplate dtv = Template . flip scan . scan (`lookupMeta` dtv)
   where
-        withTmplV :: (String -> Maybe MetaValue) -> WS [Inline] -> WS [Inline]
-        withTmplV f g = do
-          modify $ \s -> s{stTmplV=f}
-          res <- g
-          modify $ \s -> s{stTmplV=const Nothing}
-          return res
-        internalVars "i" = Just $ MetaInlines i
-        internalVars "t" = Just $ MetaInlines t
-        internalVars _   = Nothing
+  scan = bottomUp . go
+  go vf (x@(Math DisplayMath var):xs) = replaceVar (vf var) [x] ++ xs
+  go _ x = x
+  replaceVar val def' = fromMaybe def' $ val >>= toInlines
+
+applyTemplate :: [Inline] -> [Inline] -> Template -> [Inline]
+applyTemplate i t (Template g) = g internalVars
+  where
+  internalVars "i" = Just $ MetaInlines i
+  internalVars "t" = Just $ MetaInlines t
+  internalVars _   = Nothing

@@ -19,8 +19,6 @@ data References = References { imgRefs :: RefMap
                              , eqnRefs :: RefMap
                              , tblRefs :: RefMap
                              , curChap :: Int
-                             , stTmplV :: String -> Maybe MetaValue
-                             , stDTV   :: Meta
                              }
 
 --state monad

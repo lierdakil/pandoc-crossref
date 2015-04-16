@@ -14,10 +14,9 @@ go :: Maybe Format -> Pandoc -> IO Pandoc
 go fmt (Pandoc meta bs) = do
   dtv <- getSettings meta
   let
-    st = defaultReferences{stDTV=dtv}
     doWalk =
       walkM (replaceBlocks opts) bs
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)
     opts = getOptions dtv fmt
-  return $ Pandoc meta $ evalState doWalk st
+  return $ Pandoc meta $ evalState doWalk defaultReferences

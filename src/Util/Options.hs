@@ -1,7 +1,6 @@
 module Util.Options where
 
 import Text.Pandoc.Definition
-import References.Types
 import Util.Meta
 import Util.Template
 
@@ -15,8 +14,8 @@ data Options = Options { useCleveref :: Bool
                        , lofTitle    :: [Block]
                        , lotTitle    :: [Block]
                        , outFormat   :: Maybe Format
-                       , figureTemplate :: WS [Inline]
-                       , tableTemplate  :: WS [Inline]
+                       , figureTemplate :: Template
+                       , tableTemplate  :: Template
                        }
 
 getOptions :: Meta -> Maybe Format -> Options
@@ -32,6 +31,6 @@ getOptions dtv fmt =
     , lofTitle    = getMetaBlock "lofTitle" dtv
     , lotTitle    = getMetaBlock "lotTitle" dtv
     , outFormat   = fmt
-    , figureTemplate = replaceTemplate $ getMetaInlines "figureTemplate" dtv
-    , tableTemplate  = replaceTemplate $ getMetaInlines "tableTemplate" dtv
+    , figureTemplate = makeTemplate dtv $ getMetaInlines "figureTemplate" dtv
+    , tableTemplate  = makeTemplate dtv $ getMetaInlines "tableTemplate" dtv
   }
