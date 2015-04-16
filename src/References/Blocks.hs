@@ -26,7 +26,7 @@ replaceBlocks opts (Para (Image alt img:c))
     alt' <- case outFormat opts of
           Just f | isFormat "latex" f -> return $
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
-          _  -> figureTemplate opts >>= applyTemplate idxStr alt
+          _  -> return $ applyTemplate idxStr alt $ figureTemplate opts
     return $ Para [Image alt' (fst img,"fig:")]
 replaceBlocks opts (Para (Math DisplayMath eq:c))
   | Just label <- getRefLabel "eq" c
@@ -47,7 +47,7 @@ replaceBlocks opts (Table title align widths header cells)
           case outFormat opts of
               Just f | isFormat "latex" f -> return $
                 RawInline (Format "tex") ("\\label{"++label++"}") : init title
-              _  -> tableTemplate opts >>= applyTemplate idxStr (init title)
+              _  -> return $ applyTemplate idxStr (init title) $ tableTemplate opts
     return $ Table title' align widths header cells
 replaceBlocks _ x = return x
 

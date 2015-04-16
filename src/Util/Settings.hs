@@ -1,7 +1,19 @@
-module Util.Default.Default where
+module Util.Settings (getSettings) where
 
-import Text.Pandoc.Definition
+import Text.Pandoc
+import Control.Exception (handle,IOException)
 import qualified Data.Map as M
+import Data.Monoid
+
+import Util.Meta (getMetaString)
+
+getSettings :: Meta -> IO Meta
+getSettings meta = do
+  let handler :: IOException -> IO String
+      handler _ = return []
+  yaml <- handle handler $ readFile (getMetaString "crossrefYaml" (meta <> defaultMeta))
+  let Pandoc dtve _ = either (error . show) id $ readMarkdown def ("---\n" ++ yaml ++ "\n---")
+  return $ meta <> dtve <> defaultMeta
 
 defaultMeta :: Meta
 defaultMeta = Meta $ M.fromList

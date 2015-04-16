@@ -2,7 +2,6 @@ module References.Accessors where
 
 import References.Types
 import Util.Accessor
-import Text.Pandoc.Definition (nullMeta)
 import Data.Map (empty)
 
 imgRefs' :: Accessor References RefMap
@@ -15,4 +14,4 @@ tblRefs' :: Accessor References RefMap
 tblRefs' new r@References{tblRefs=old} = (old, r{tblRefs=new})
 
 defaultReferences :: References
-defaultReferences = References empty empty empty 0 nullMeta (const Nothing) nullMeta
+defaultReferences = References empty empty empty 0
