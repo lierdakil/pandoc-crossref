@@ -4,7 +4,7 @@ import Text.Pandoc.Walk
 import Control.Monad.State
 
 import References
-import Util.Default.Settings
+import Util.Settings
 import Util.Options
 
 main :: IO ()
@@ -12,12 +12,12 @@ main = toJSONFilter go
 
 go :: Maybe Format -> Pandoc -> IO Pandoc
 go fmt (Pandoc meta bs) = do
-  dtv <- getDefaultSettings meta
+  dtv <- getSettings meta
   let
-    st = defaultReferences{stMeta=meta, stDTV=dtv}
+    st = defaultReferences{stDTV=dtv}
     doWalk =
       walkM (replaceBlocks opts) bs
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)
-    opts = getOptions meta dtv fmt
+    opts = getOptions dtv fmt
   return $ Pandoc meta $ evalState doWalk st

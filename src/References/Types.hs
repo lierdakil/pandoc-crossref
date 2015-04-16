@@ -19,7 +19,6 @@ data References = References { imgRefs :: RefMap
                              , eqnRefs :: RefMap
                              , tblRefs :: RefMap
                              , curChap :: Int
-                             , stMeta  :: Meta
                              , stTmplV :: String -> Maybe MetaValue
                              , stDTV   :: Meta
                              }

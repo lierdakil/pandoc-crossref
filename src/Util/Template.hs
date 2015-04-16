@@ -6,7 +6,6 @@ import References.Types
 
 import Control.Monad.State
 import Data.Maybe
-import Util.Util
 import Util.Meta
 
 replaceTemplate :: [Inline] -> WS [Inline]
@@ -17,12 +16,11 @@ replaceTemplate = bottomUpM replace
 
 getTemplateMetaVar :: String -> [Inline] -> WS [Inline]
 getTemplateMetaVar var def' = do
-  meta <- gets stMeta
   tmplv <- gets stTmplV
   dtv <- gets stDTV
   return
     $ fromMaybe def'
-    $ (tmplv var `mplus` lookupDefault var meta dtv) >>= toInlines
+    $ (tmplv var `mplus` lookupMeta var dtv) >>= toInlines
 
 applyTemplate :: [Inline] -> [Inline] -> [Inline] -> WS [Inline]
 applyTemplate i t tmpl = withTmplV internalVars $ replaceTemplate tmpl

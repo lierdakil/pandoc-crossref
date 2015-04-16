@@ -4,19 +4,18 @@ import Text.Pandoc (readMarkdown,def)
 import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Definition
 import Data.Maybe (fromMaybe)
-import Util.Util (lookupDefault)
 
-getMetaBool :: String -> Meta -> Meta -> Bool
-getMetaBool name meta defaults = fromMaybe False $ lookupDefault name meta defaults >>= toBool
+getMetaBool :: String -> Meta -> Bool
+getMetaBool name meta = fromMaybe False $ lookupMeta name meta >>= toBool
 
-getMetaInlines :: String -> Meta -> Meta -> [Inline]
-getMetaInlines name meta defaults = fromMaybe [] $ lookupDefault name meta defaults >>= toInlines
+getMetaInlines :: String -> Meta -> [Inline]
+getMetaInlines name meta = fromMaybe [] $ lookupMeta name meta >>= toInlines
 
-getMetaBlock :: String -> Meta -> Meta -> [Block]
-getMetaBlock name meta defaults = fromMaybe [] $ lookupDefault name meta defaults >>= toBlocks
+getMetaBlock :: String -> Meta -> [Block]
+getMetaBlock name meta = fromMaybe [] $ lookupMeta name meta >>= toBlocks
 
-getMetaString :: String -> Meta -> Meta -> String
-getMetaString name meta defaults = fromMaybe [] $ lookupDefault name meta defaults >>= toString
+getMetaString :: String -> Meta -> String
+getMetaString name meta = fromMaybe [] $ lookupMeta name meta >>= toString
 
 toInlines :: MetaValue -> Maybe [Inline]
 toInlines (MetaString s) = return $ getInlines $ readMarkdown def s
