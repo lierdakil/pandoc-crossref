@@ -19,4 +19,4 @@ go fmt (Pandoc meta bs) = do
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)
     opts = getOptions dtv fmt
-  return $ Pandoc meta $ evalState doWalk defaultReferences
+  return $ Pandoc meta $ evalState doWalk def

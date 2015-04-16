@@ -2,6 +2,7 @@ module Util.Template (Template,makeTemplate,applyTemplate) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Generic
+import Text.Pandoc.Shared (normalizeInlines)
 import Data.Maybe
 import Util.Meta
 
@@ -17,7 +18,8 @@ makeTemplate dtv = Template . flip scan . scan (`lookupMeta` dtv)
   replaceVar val def' = fromMaybe def' $ val >>= toInlines
 
 applyTemplate :: [Inline] -> [Inline] -> Template -> [Inline]
-applyTemplate i t (Template g) = g internalVars
+applyTemplate i t (Template g) =
+  normalizeInlines $ g internalVars
   where
   internalVars "i" = Just $ MetaInlines i
   internalVars "t" = Just $ MetaInlines t

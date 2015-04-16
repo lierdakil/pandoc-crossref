@@ -1,4 +1,4 @@
-module Util.Settings (getSettings) where
+module Util.Settings (getSettings, defaultMeta) where
 
 import Text.Pandoc
 import Control.Exception (handle,IOException)
