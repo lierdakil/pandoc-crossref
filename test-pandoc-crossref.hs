@@ -3,6 +3,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.Walk
 import Text.Pandoc.Generic
+import Text.Pandoc.Shared (normalizeInlines)
 import Util.Options
 import Control.Monad.State
 import References.Types
@@ -76,7 +77,7 @@ refRec'' :: String -> Int -> [(String, RefRec)]
 refRec'' ref i = refRec' ref i []
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
-testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen p l1 l2) def) (para $ str' res)
+testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen p l1 l2) def) (para $ str'' res)
 
 testBlocks :: Blocks -> (Blocks, References) -> Expectation
 testBlocks arg res = runState (walkM (f defaultOptions) arg) def `shouldBe` res
@@ -105,6 +106,9 @@ ref' p n | null n  = mempty
 
 str' :: String -> Inlines
 str' s = fromList $ intersperse Space $ Str `map` words s
+
+str'' :: String -> Inlines
+str'' s = fromList $ normalizeInlines $ intersperse (Str "\160") $ Str `map` words s
 
 defaultOptions :: Options
 defaultOptions = getOptions defaultMeta Nothing
