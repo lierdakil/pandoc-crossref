@@ -3,7 +3,6 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.Walk
 import Text.Pandoc.Generic
-import Text.Pandoc.Shared (normalizeInlines)
 import Util.Options
 import Control.Monad.State
 import References.Types
@@ -16,7 +15,6 @@ import qualified References.List
 import qualified Util.Template
 import qualified Data.Map as M
 import Data.Monoid
-import Data.List (intersperse)
 
 main :: IO ()
 main = hspec $ do
@@ -36,27 +34,27 @@ main = hspec $ do
 
     describe "References.Refs.replaceRefs" $ do
       it "References one image" $
-        testRefs' "fig:" [1] [4] imgRefs' "fig. 4"
+        testRefs' "fig:" [1] [4] imgRefs' "fig.\160\&4"
       it "References multiple images" $
-        testRefs' "fig:" [1..3] [4..6] imgRefs' "fig. 4-6"
+        testRefs' "fig:" [1..3] [4..6] imgRefs' "fig.\160\&4-6"
       it "References one equation" $
-        testRefs' "eq:" [1] [4] eqnRefs' "eq. 4"
+        testRefs' "eq:" [1] [4] eqnRefs' "eq.\160\&4"
       it "References multiple equations" $
-        testRefs' "eq:" [1..3] [4..6] eqnRefs' "eq. 4-6"
+        testRefs' "eq:" [1..3] [4..6] eqnRefs' "eq.\160\&4-6"
       it "References one table" $
-        testRefs' "tbl:" [1] [4] tblRefs' "tbl. 4"
+        testRefs' "tbl:" [1] [4] tblRefs' "tbl.\160\&4"
       it "References multiple tables" $
-        testRefs' "tbl:" [1..3] [4..6] tblRefs' "tbl. 4-6"
+        testRefs' "tbl:" [1..3] [4..6] tblRefs' "tbl.\160\&4-6"
 
     describe "References.List.listOf" $ do
       it "Generates list of tables" $
         testList (para $ rawInline "tex" "\\listoftables")
                  def{tblRefs=M.fromList $ refRec' "tbl:1" 4 "4" <> refRec' "tbl:2" 5 "5" <> refRec' "tbl:3" 6 "6"}
-                 (header 1 (str' "List of Tables") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
+                 (header 1 (text "List of Tables") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
       it "Generates list of figures" $
         testList (para $ rawInline "tex" "\\listoffigures")
                  def{imgRefs=M.fromList $ refRec' "fig:1" 4 "4" <> refRec' "fig:2" 5 "5" <> refRec' "fig:3" 6 "6"}
-                 (header 1 (str' "List of Figures") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
+                 (header 1 (text "List of Figures") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
 
     describe "Util.Template" $
       it "Applies templates" $
@@ -71,13 +69,13 @@ refGen :: String -> [Int] -> [Int] -> M.Map String RefRec
 refGen p l1 l2 = M.fromList $ mconcat $ zipWith refRec'' (((p++) . show) `map` l1) l2
 
 refRec' :: String -> Int -> String -> [(String, RefRec)]
-refRec' ref i tit = [(ref, RefRec{refIndex=(0,i),refTitle=toList $ str' tit})]
+refRec' ref i tit = [(ref, RefRec{refIndex=(0,i),refTitle=toList $ text tit})]
 
 refRec'' :: String -> Int -> [(String, RefRec)]
 refRec'' ref i = refRec' ref i []
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
-testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen p l1 l2) def) (para $ str'' res)
+testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen p l1 l2) def) (para $ text res)
 
 testBlocks :: Blocks -> (Blocks, References) -> Expectation
 testBlocks arg res = runState (walkM (f defaultOptions) arg) def `shouldBe` res
@@ -90,25 +88,19 @@ testList :: Blocks -> References -> Blocks -> Expectation
 testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) st `shouldBe` (toList res,st)
 
 figure :: String -> String -> String -> String -> Blocks
-figure src title alt ref = para (image src title (str' alt) <> ref' "fig" ref)
+figure src title alt ref = para (image src title (text alt) <> ref' "fig" ref)
 
 equation :: String -> String -> Blocks
 equation eq ref = para (displayMath eq <> ref' "eq" ref)
 
 table' :: String -> String -> Blocks
-table' title ref = table (str' title <> ref' "tbl" ref) []
+table' title ref = table (text title <> ref' "tbl" ref) []
    [para $ str "H1", para $ str "H2"]
   [[para $ str "C1", para $ str "C2"]]
 
 ref' :: String -> String -> Inlines
 ref' p n | null n  = mempty
          | otherwise = space <> str ("{#"++p++":"++n++"}")
-
-str' :: String -> Inlines
-str' s = fromList $ intersperse Space $ Str `map` words s
-
-str'' :: String -> Inlines
-str'' s = fromList $ normalizeInlines $ intersperse (Str "\160") $ Str `map` words s
 
 defaultOptions :: Options
 defaultOptions = getOptions defaultMeta Nothing
