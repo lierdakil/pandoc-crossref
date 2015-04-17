@@ -1,4 +1,4 @@
-module Util.Settings (getSettings) where
+module Util.Settings (getSettings, defaultMeta) where
 
 import Text.Pandoc
 import Control.Exception (handle,IOException)
@@ -25,8 +25,8 @@ defaultMeta = Meta $ M.fromList
   , ("figPrefix"      , MetaInlines [Str "fig."])
   , ("eqnPrefix"      , MetaInlines [Str "eq."])
   , ("tblPrefix"      , MetaInlines [Str "tbl."])
-  , ("lofTitle"       , MetaBlocks [Header 1 nullAttr [Str "List of Figures"]])
-  , ("lotTitle"       , MetaBlocks [Header 1 nullAttr [Str "List of Tables"]])
+  , ("lofTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Figures"]])
+  , ("lotTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Tables"]])
   , ("figureTemplate" , MetaInlines [var "figureTitle",Space,var "i",var "titleDelim",Space,var "t"])
   , ("tableTemplate"  , MetaInlines [var "tableTitle",Space,var "i",var "titleDelim",Space,var "t"])
   , ("crossrefYaml"   , MetaString "pandoc-crossref.yaml")

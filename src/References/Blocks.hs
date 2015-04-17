@@ -1,7 +1,7 @@
 module References.Blocks (replaceBlocks) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Shared (stringify)
+import Text.Pandoc.Shared (stringify, normalizeSpaces)
 import Control.Monad.State
 import Data.List
 import qualified Data.Map as M
@@ -23,10 +23,10 @@ replaceBlocks opts (Para (Image alt img:c))
   | Just label <- getRefLabel "fig" c
   = do
     idxStr <- replaceAttr opts label alt imgRefs'
-    alt' <- case outFormat opts of
-          Just f | isFormat "latex" f -> return $
+    let alt' = case outFormat opts of
+          Just f | isFormat "latex" f ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
-          _  -> return $ applyTemplate idxStr alt $ figureTemplate opts
+          _  -> applyTemplate idxStr alt $ figureTemplate opts
     return $ Para [Image alt' (fst img,"fig:")]
 replaceBlocks opts (Para (Math DisplayMath eq:c))
   | Just label <- getRefLabel "eq" c
@@ -43,11 +43,11 @@ replaceBlocks opts (Table title align widths header cells)
   , Just label <- getRefLabel "tbl" [last title]
   = do
     idxStr <- replaceAttr opts label (init title) tblRefs'
-    title' <-
+    let title' =
           case outFormat opts of
-              Just f | isFormat "latex" f -> return $
+              Just f | isFormat "latex" f ->
                 RawInline (Format "tex") ("\\label{"++label++"}") : init title
-              _  -> return $ applyTemplate idxStr (init title) $ tableTemplate opts
+              _  -> applyTemplate idxStr (init title) $ tableTemplate opts
     return $ Table title' align widths header cells
 replaceBlocks _ x = return x
 
@@ -68,7 +68,7 @@ replaceAttr o label title prop
     index <- (1+) `fmap` gets (M.size . getProp prop)
     modify $ modifyProp prop $ M.insert label RefRec {
       refIndex=(chap,index)
-    , refTitle=title
+    , refTitle=normalizeSpaces title
     }
     if sepChapters o
     then return $ Str (show chap) : chapDelim o ++ [Str (show index)]

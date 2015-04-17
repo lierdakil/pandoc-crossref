@@ -43,7 +43,7 @@ prefixes = M.keys accMap
 
 getRefPrefix :: Options -> String -> [Inline]
 getRefPrefix opts prefix | null refprefix = []
-                         | otherwise   = refprefix ++ [Space]
+                         | otherwise   = refprefix ++ [Str "\160"]
                          where refprefix = lookupUnsafe prefix prefMap opts
 
 lookupUnsafe :: Ord k => k -> M.Map k v -> v
@@ -85,7 +85,7 @@ replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
   let
     indices' = groupBy ((==) `on` fmap fst) (sort indices)
-  return $ getRefPrefix opts prefix ++ normalizeInlines (concatMap (makeIndices opts) indices')
+  return $ normalizeInlines $ getRefPrefix opts prefix ++ concatMap (makeIndices opts) indices'
 
 getRefIndex :: String -> Citation -> WS (Maybe (Int, Int))
 getRefIndex prefix Citation{citationId=cid}

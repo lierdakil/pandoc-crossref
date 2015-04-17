@@ -23,7 +23,7 @@ source-repository head
 source-repository this
   type: git
   location: https://github.com/lierdakil/pandoc-crossref
-  tag: v0.2.0.0
+  tag: v0.2.0.1
 
 executable pandoc-crossref
   main-is:             pandoc-crossref.hs
@@ -54,6 +54,19 @@ executable pandoc-crossref
 Test-Suite test-pandoc-crossref
   Type:           exitcode-stdio-1.0
   Main-Is:        test-pandoc-crossref.hs
+  other-modules:       References
+                     , References.Accessors
+                     , References.Blocks
+                     , References.List
+                     , References.Refs
+                     , References.Types
+                     , Util.Settings
+                     , Util.Accessor
+                     , Util.Meta
+                     , Util.Options
+                     , Util.Template
+                     , Util.Util
+  hs-source-dirs: ., src
   Build-Depends:   base >=4.2 && <5
                  , pandoc >= 1.14 && <1.15
                  , mtl >= 1.1 && <2.3
