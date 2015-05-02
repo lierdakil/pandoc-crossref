@@ -7,6 +7,7 @@ import Data.List
 import Data.Maybe
 import Data.Function
 import qualified Data.Map as M
+import Control.Arrow as A
 
 import Util.Accessor
 import References.Types
@@ -84,32 +85,34 @@ replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
   let
-    indices' = groupBy ((==) `on` fmap fst) (sort indices)
+    indices' = groupBy ((==) `on` (fmap fst . fst)) (sort indices)
   return $ normalizeInlines $ getRefPrefix opts prefix ++ concatMap (makeIndices opts) indices'
 
-getRefIndex :: String -> Citation -> WS (Maybe (Int, Int))
-getRefIndex prefix Citation{citationId=cid}
+getRefIndex :: String -> Citation -> WS (Maybe (Int, Int), [Inline])
+getRefIndex prefix Citation{citationId=cid,citationSuffix=suf}
   | prefix `isPrefixOf` cid
-  = gets (fmap refIndex . M.lookup cid . getProp prop)
-  | otherwise = return Nothing
+  = (\x -> (x,suf)) `fmap` gets (fmap refIndex . M.lookup cid . getProp prop)
+  | otherwise = return (Nothing, suf)
   where
   prop = lookupUnsafe prefix accMap
 
-makeIndices :: Options -> [Maybe (Int,Int)] -> [Inline]
-makeIndices _ s | any isNothing s = [Str "??"]
-makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ catMaybes s
+makeIndices :: Options -> [(Maybe (Int, Int), [Inline])] -> [Inline]
+makeIndices _ s | any (isNothing . fst) s = [Strong [Str "??"]]
+makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ map (A.first fromJust) $ filter (isJust . fst) s
   where
-  f2 [] i = [[i]]
-  f2 ([]:xs) i = [i]:xs
-  f2 l@(x@((_,hx):_):xs) i@(_,ni)
+  f2 [] (i,suf) = [[(i,suf)]]
+  f2 ([]:xs) (i,suf) = [(i,suf)]:xs
+  f2 l@(x@(((_,hx),sufp):_):xs) (i@(_,ni),suf)
+    | not (null suf) || not (null sufp) = [(i,suf)]:l
     | ni-hx == 0 = l        -- remove duplicates
-    | ni-hx == 1 = (i:x):xs -- group sequental
-    | otherwise     = [i]:l    -- new group
+    | ni-hx == 1 = ((i,[]):x):xs -- group sequental
+    | otherwise     = [(i,[])]:l    -- new group
   f []  = []                          -- drop empty lists
   f [w] = show' w                    -- single value
   f [w1,w2] = show' w2 ++ sep ++ show' w1 -- two values
   f (x:xs) = show' (last xs) ++ rangeDelim o ++ show' x -- shorten more than two values
   sep = [Str ", "]
-  show' (c,n) = if sepChapters o && c>0
-    then [Str $ show c] ++ chapDelim o ++ [Str $ show n]
-    else [Str $ show n]
+  show' ((c,n),suf) = (if sepChapters o && c>0
+                          then [Str $ show c] ++ chapDelim o ++ [Str $ show n]
+                          else [Str $ show n])
+                      ++ suf
