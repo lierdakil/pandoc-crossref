@@ -64,9 +64,9 @@ replaceRefsLatex prefix opts cits =
     texcit =
       RawInline (Format "tex") $
       if useCleveref opts then
-        " \\cref{"++listLabels prefix "" "" cits++"}"
+        "\\cref{"++listLabels prefix "" "" cits++"}"
         else
-          listLabels prefix " \\ref{" "}" cits
+          listLabels prefix "\\ref{" "}" cits
     p | useCleveref opts = []
       | otherwise = getRefPrefix opts prefix
 
@@ -74,7 +74,7 @@ listLabels :: String -> String -> String -> [Citation] -> String
 listLabels prefix p s = foldl' joinStr "" . mapMaybe (getLabel prefix)
   where
   joinStr acc i | null acc  = p++i++s
-                | otherwise = acc++","++p++i++s
+                | otherwise = acc++", "++p++i++s
 
 getLabel :: String -> Citation -> Maybe String
 getLabel prefix Citation{citationId=cid}
