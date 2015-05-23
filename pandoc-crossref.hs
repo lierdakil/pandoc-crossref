@@ -7,6 +7,7 @@ import References
 import Util.Settings
 import Util.Options
 import Util.CodeBlockCaptions
+import Util.ModifyMeta
 
 main :: IO ()
 main = toJSONFilter go
@@ -21,4 +22,5 @@ go fmt (Pandoc meta bs) = do
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)
     opts = getOptions dtv fmt
-  return $ Pandoc meta $ evalState doWalk def
+    meta' = modifyMeta opts dtv
+  return $ Pandoc meta' $ evalState doWalk def
