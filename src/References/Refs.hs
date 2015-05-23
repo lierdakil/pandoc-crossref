@@ -30,6 +30,7 @@ accMap :: M.Map String (Accessor References RefMap)
 accMap = M.fromList [("fig:",imgRefs')
                     ,("eq:" ,eqnRefs')
                     ,("tbl:",tblRefs')
+                    ,("lst:",lstRefs')
                     ]
 
 -- accessors to options
@@ -37,6 +38,7 @@ prefMap :: M.Map String (Options -> [Inline])
 prefMap = M.fromList [("fig:",figPrefix)
                      ,("eq:" ,eqnPrefix)
                      ,("tbl:",tblPrefix)
+                     ,("lst:",lstPrefix)
                      ]
 
 prefixes :: [String]

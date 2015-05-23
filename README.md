@@ -71,6 +71,61 @@ a   b   c
 
 To label a table, append `{#tbl:label}` at the end of table caption (with `label` being something unique to reference this table by). Caption and label *must* be separated by at least one space.
 
+### Code Block labels
+
+There are a couple options to add code block labels. Those work only if code block id starts with `lst:`, e.g. `{#lst:label}`
+
+#### `caption` attribute
+
+`caption` attribute will be treated as code block caption. If code block has both id and `caption` attributes, it will be treated as numbered code block.
+
+```markdown
+'''{#lst:code .haskell caption="Listing caption"}
+main :: IO ()
+main = putStrLn "Hello World!"
+'''
+```
+
+#### Table-style captions
+
+Enabled with `codeBlockCaptions` metadata option. If code block is immediately
+adjacent to paragraph, starting with `Listing: ` or `: `, said paragraph will be
+treated as code block caption.
+
+```markdown
+Listing: Listing caption
+
+'''{#lst:code .haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+'''
+```
+
+or
+
+```markdown
+'''{#lst:code .haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+'''
+
+: Listing caption
+```
+
+#### Wrapping div
+
+Wrapping code block without label in a div with id `lst:...` and class, starting with `listing`, and adding paragraph before code block, but inside div, will treat said paragraph as code block caption.
+
+```markdown
+<div id="lst:code" class="listing">
+Listing caption
+'''{.haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+'''
+</div>
+```
+
 ### References
 
 ```markdown
@@ -106,20 +161,25 @@ There are several parameters that can be set via YAML metadata (either by passin
 
 Following variables are supported:
 
-* `cref`: if True, latex export will use `\cref` from cleveref package. It is user's responsibility to include relevant `\usepackage` directives in template
+* `cref`: if True, latex export will use `\cref` from cleveref package. Only relevant for LaTeX output. `\usepackage{cleveref}` will be automatically added to `header-includes`.
 * `chapter`: if True, number elements as `chapter.item`, and restart `item` on each first-level heading (as `--chapters` for latex/pdf output)
+* `listings`: if True, generate code blocks for `listings` package. Only relevant for LaTeX output. `\usepackage{listings}` will be automatically added to `header-includes`.
+* `codeBlockCaptions`: if True, parse table-style code block captions.
 * `figureTitle`, default `Figure`: Word(s) to prepend to figure titles, e.g. `Figure 1: Description`
 * `tableTitle`, default `Table`: Word(s) to prepend to table titles, e.g. `Table 1: Description`
+* `listingTitle`, default `Listing`: Word(s) to prepend to listing titles, e.g. `Listing 1: Description`
 * `titleDelimiter`, default `:`: What to put between object number and caption text.
 * `figPrefix`, default `fig.`: Prefix for references to figures, e.g. `fig. 1-3`
 * `eqnPrefix`, default `eq.`: Prefix for references to equations, e.g. `eq. 3,4`
 * `tblPrefix`, default `tbl.`: Prefix for references to tables, e.g. `tbl. 2`
+* `lstPrefix`, default `lst.`: Prefix for references to lists, e.g. `lst. 2,5`
 * `chapDelim`, default `.`: Delimiter between chapter number and item number.
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
 * `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
 * `lotTitle`, default `# List of Tables`: Title for list of tables (lot)
 * `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions, see [Templates](#templates)
 * `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions, see [Templates](#templates)
+* `listingTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions, see [Templates](#templates)
 
 ### Templates
 
