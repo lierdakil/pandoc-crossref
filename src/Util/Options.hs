@@ -8,10 +8,10 @@ data Options = Options { useCleveref :: Bool
                        , sepChapters :: Bool
                        , useListings :: Bool
                        , cbCaptions  :: Bool
-                       , figPrefix   :: [Inline]
-                       , eqnPrefix   :: [Inline]
-                       , tblPrefix   :: [Inline]
-                       , lstPrefix   :: [Inline]
+                       , figPrefix   :: Int -> [Inline]
+                       , eqnPrefix   :: Int -> [Inline]
+                       , tblPrefix   :: Int -> [Inline]
+                       , lstPrefix   :: Int -> [Inline]
                        , chapDelim   :: [Inline]
                        , rangeDelim  :: [Inline]
                        , lofTitle    :: [Block]
@@ -29,10 +29,10 @@ getOptions dtv fmt =
     , sepChapters = getMetaBool "chapters" dtv
     , useListings = getMetaBool "listings" dtv
     , cbCaptions  = getMetaBool "codeBlockCaptions" dtv
-    , figPrefix   = getMetaInlines "figPrefix" dtv
-    , eqnPrefix   = getMetaInlines "eqnPrefix" dtv
-    , tblPrefix   = getMetaInlines "tblPrefix" dtv
-    , lstPrefix   = getMetaInlines "lstPrefix" dtv
+    , figPrefix   = getMetaList toInlines "figPrefix" dtv
+    , eqnPrefix   = getMetaList toInlines "eqnPrefix" dtv
+    , tblPrefix   = getMetaList toInlines "tblPrefix" dtv
+    , lstPrefix   = getMetaList toInlines "lstPrefix" dtv
     , chapDelim   = getMetaInlines "chapDelim" dtv
     , rangeDelim  = getMetaInlines "rangeDelim" dtv
     , lofTitle    = getMetaBlock "lofTitle" dtv

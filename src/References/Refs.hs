@@ -34,7 +34,7 @@ accMap = M.fromList [("fig:",imgRefs')
                     ]
 
 -- accessors to options
-prefMap :: M.Map String (Options -> [Inline])
+prefMap :: M.Map String (Options -> Int -> [Inline])
 prefMap = M.fromList [("fig:",figPrefix)
                      ,("eq:" ,eqnPrefix)
                      ,("tbl:",tblPrefix)
@@ -44,10 +44,11 @@ prefMap = M.fromList [("fig:",figPrefix)
 prefixes :: [String]
 prefixes = M.keys accMap
 
-getRefPrefix :: Options -> String -> [Inline]
-getRefPrefix opts prefix | null refprefix = []
-                         | otherwise   = refprefix ++ [Str "\160"]
-                         where refprefix = lookupUnsafe prefix prefMap opts
+getRefPrefix :: Options -> String -> Int -> [Inline]
+getRefPrefix opts prefix num
+  | null $ refprefix num = []
+  | otherwise   = refprefix num ++ [Str "\160"]
+  where refprefix = lookupUnsafe prefix prefMap opts
 
 lookupUnsafe :: Ord k => k -> M.Map k v -> v
 lookupUnsafe = (fromMaybe undefined .) . M.lookup
@@ -70,7 +71,7 @@ replaceRefsLatex prefix opts cits =
         else
           listLabels prefix "\\ref{" ", " "}" cits
     p | useCleveref opts = []
-      | otherwise = getRefPrefix opts prefix
+      | otherwise = getRefPrefix opts prefix (length cits - 1)
 
 listLabels :: String -> String -> String -> String -> [Citation] -> String
 listLabels prefix p sep s = foldl' joinStr "" . mapMaybe (getLabel prefix)
@@ -88,7 +89,7 @@ replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
   let
     indices' = groupBy ((==) `on` (fmap fst . fst)) (sort indices)
-  return $ normalizeInlines $ getRefPrefix opts prefix ++ concatMap (makeIndices opts) indices'
+  return $ normalizeInlines $ getRefPrefix opts prefix (length cits - 1) ++ concatMap (makeIndices opts) indices'
 
 getRefIndex :: String -> Citation -> WS (Maybe (Int, Int), [Inline])
 getRefIndex prefix Citation{citationId=cid,citationSuffix=suf}
