@@ -3,10 +3,11 @@ module Util.ModifyMeta
     modifyMeta
     ) where
 
+import Text.Pandoc
 import Text.Pandoc.Builder
-import Data.Maybe (fromMaybe)
 import Util.Options
 import Util.Meta
+import Util.Util
 
 modifyMeta :: Options -> Meta -> Meta
 modifyMeta opts meta
@@ -20,7 +21,7 @@ modifyMeta opts meta
     headerInc (Just (MetaList x)) = MetaList $ x ++ incList
     headerInc (Just x) = x
     incList = map MetaString $
-        [ x | x <- floatnames] ++
+        floatnames ++
         [ x | x <- codelisting, not $ useListings opts] ++
         [ x | x <- cleveref, useCleveref opts] ++
         [ x | x <- cleverefCodelisting, useCleveref opts && not (useListings opts)] ++
@@ -38,10 +39,18 @@ modifyMeta opts meta
           ]
         cleveref = [
             "\\usepackage{cleveref}"
+          , "\\crefname{figure}" ++ prefix "figPrefix"
+          , "\\crefname{table}" ++ prefix "tblPrefix"
+          , "\\crefname{equation}" ++ prefix "eqnPrefix"
+          , "\\crefname{listing}" ++ prefix "lstPrefix"
           ]
         cleverefCodelisting = [
             "\\makeatletter"
           , "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
           , "\\makeatother"
           ]
-        metaString s = fromMaybe "" $ lookupMeta s meta >>= toString
+        toLatex = writeLaTeX def . Pandoc nullMeta . return . Plain
+        metaString s = toLatex $ getMetaInlines s meta
+        metaList s = toLatex . getMetaList toInlines s meta
+        prefix s = "{" ++ metaList s 0 ++ "}" ++
+                   "{" ++ metaList s 1 ++ "}"
