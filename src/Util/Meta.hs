@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Util.Meta where
 
 import Text.Pandoc (readMarkdown)

@@ -39,8 +39,7 @@ executable pandoc-crossref
                      , Util.Options
                      , Util.Template
                      , Util.Util
-  -- other-extensions:
-  extensions: CPP
+  other-extensions: CPP
   build-depends:       base >=4.2 && <5
                      , pandoc >= 1.13 && <1.15
                      , mtl >= 1.1 && <2.3
@@ -67,7 +66,7 @@ Test-Suite test-pandoc-crossref
                      , Util.Options
                      , Util.Template
                      , Util.Util
-  extensions: CPP
+  other-extensions: CPP
   hs-source-dirs: ., src
   Build-Depends:   base >=4.2 && <5
                  , pandoc >= 1.13 && <1.15

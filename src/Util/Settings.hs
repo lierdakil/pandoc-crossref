@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Util.Settings (getSettings, defaultMeta) where
 
 import Text.Pandoc
