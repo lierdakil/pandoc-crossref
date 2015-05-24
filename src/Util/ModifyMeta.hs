@@ -20,14 +20,19 @@ modifyMeta opts meta
     headerInc (Just (MetaList x)) = MetaList $ x ++ incList
     headerInc (Just x) = x
     incList = map MetaString $
+        [ x | x <- floatnames] ++
         [ x | x <- codelisting, not $ useListings opts] ++
         [ x | x <- cleveref, useCleveref opts] ++
         [ x | x <- cleverefCodelisting, useCleveref opts && not (useListings opts)] ++
         []
       where
-        codelisting = [
+        floatnames = [
             "\\usepackage{float}"
-          , "\\floatstyle{ruled}"
+          , "\\floatname{figure}{"++metaString "figureTitle"++"}"
+          , "\\floatname{longtable}{"++metaString "tableTitle"++"}"
+          ]
+        codelisting = [
+            "\\floatstyle{ruled}"
           , "\\newfloat{codelisting}{h}{lop}"
           , "\\floatname{codelisting}{"++metaString "listingTitle"++"}"
           ]
