@@ -88,3 +88,5 @@ It's also possible to show lists of figures and tables, like this:
 \listoffigures
 
 \listoftables
+
+\listoflistings

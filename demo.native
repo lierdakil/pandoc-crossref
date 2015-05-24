@@ -44,4 +44,9 @@
  ,[Plain [Str "Third",Space,Str "figure"]]]
 ,Header 2 ("list-of-tables",[],[]) [Str "List",Space,Str "of",Space,Str "Tables"]
 ,OrderedList (1,DefaultStyle,DefaultDelim)
- [[Plain [Str "Table",Space,Str "example"]]]]
+ [[Plain [Str "Table",Space,Str "example"]]]
+,Header 1 ("",[],[]) [Str "List",Space,Str "of",Space,Str "Listings"]
+,OrderedList (1,DefaultStyle,DefaultDelim)
+ [[Plain [Str "Listing",Space,Str "caption"]]
+ ,[Plain [Str "Listing",Space,Str "caption"]]
+ ,[Plain [Str "Listing",Space,Str "caption"]]]]
