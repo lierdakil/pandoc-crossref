@@ -11,9 +11,11 @@ import Util.Util
 
 modifyMeta :: Options -> Meta -> Meta
 modifyMeta opts meta
+  | isFormat "latex" (outFormat opts)
   = setMeta "header-includes"
       (headerInc $ lookupMeta "header-includes" meta)
       meta
+  | otherwise = meta
   where
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = MetaList incList
