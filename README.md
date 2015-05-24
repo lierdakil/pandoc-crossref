@@ -4,7 +4,7 @@ pandoc-crossref is a pandoc filter for numbering figures, equations, tables and 
 
 Input file (like [demo.md][demo-md]) can be converted into [html][html], [latex][latex], [pdf][pdf], [md][md] or other formats.
 
-Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref pdf][cpdf], [cleveref latex][clatex], and listings package, e.g. [listings pdg][lpdf], [listings latex][llatex]
+Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref pdf][cpdf], [cleveref latex][clatex], and listings package, e.g. [listings pdf][lpdf], [listings latex][llatex]
 
 You can also enable per-chapter numbering (as with `--chapters` for latex output). You need to specify `-M chapters` for non-latex/pdf output however. Examples: [html][chap-html], [markdown][chap-markdown], [latex][chap-latex], [pdf][chap-pdf].
 
