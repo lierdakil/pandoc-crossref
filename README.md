@@ -79,12 +79,12 @@ There are a couple options to add code block labels. Those work only if code blo
 
 `caption` attribute will be treated as code block caption. If code block has both id and `caption` attributes, it will be treated as numbered code block.
 
-```markdown
-'''{#lst:code .haskell caption="Listing caption"}
+<pre>
+```{#lst:code .haskell caption="Listing caption"}
 main :: IO ()
 main = putStrLn "Hello World!"
-'''
 ```
+</pre>
 
 #### Table-style captions
 
@@ -92,39 +92,39 @@ Enabled with `codeBlockCaptions` metadata option. If code block is immediately
 adjacent to paragraph, starting with `Listing: ` or `: `, said paragraph will be
 treated as code block caption.
 
-```markdown
+<pre>
 Listing: Listing caption
 
-'''{#lst:code .haskell}
+```{#lst:code .haskell}
 main :: IO ()
 main = putStrLn "Hello World!"
-'''
 ```
+</pre>
 
 or
 
-```markdown
-'''{#lst:code .haskell}
+<pre>
+```{#lst:code .haskell}
 main :: IO ()
 main = putStrLn "Hello World!"
-'''
+```
 
 : Listing caption
-```
+</pre>
 
 #### Wrapping div
 
 Wrapping code block without label in a div with id `lst:...` and class, starting with `listing`, and adding paragraph before code block, but inside div, will treat said paragraph as code block caption.
 
-```markdown
+<pre>
 <div id="lst:code" class="listing">
 Listing caption
-'''{.haskell}
+```{.haskell}
 main :: IO ()
 main = putStrLn "Hello World!"
-'''
-</div>
 ```
+</div>
+</pre>
 
 ### References
 
