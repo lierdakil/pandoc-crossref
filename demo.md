@@ -9,7 +9,7 @@ tableTemplate: "*$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$"
 
 This is a demo file for pandoc-crossref. With this filter, you can cross-reference figures (see [@fig:figure1;@fig:figure2;@fig:figure3]), display equations (see @eq:eqn1) and tables (see [@tbl:table1])
 
-There is also support for code blocks, for example, [@lst:captionAttr; @lst:tableCaption1; @lst:tableCaption2; @lst:wrappingDiv]
+There is also support for code blocks, for example, [@lst:captionAttr; @lst:tableCaption; @lst:wrappingDiv]
 
 # Chapter 1. Figures
 
@@ -54,6 +54,8 @@ main :: IO ()
 main = putStrLn "Hello World!"
 ```
 
+\pagebreak
+
 ## Table-style captions
 
 Enabled with `codeBlockCaptions` metadata option. If code block is immediately
@@ -62,19 +64,10 @@ treated as code block caption.
 
 Listing: Listing caption
 
-```{#lst:tableCaption1 .haskell}
+```{#lst:tableCaption .haskell}
 main :: IO ()
 main = putStrLn "Hello World!"
 ```
-
-or
-
-```{#lst:tableCaption2 .haskell}
-main :: IO ()
-main = putStrLn "Hello World!"
-```
-
-: Listing caption
 
 ## Wrapping div
 
