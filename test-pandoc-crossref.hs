@@ -13,6 +13,7 @@ import qualified References.Blocks
 import qualified References.Refs
 import qualified References.List
 import qualified Util.Template
+import qualified Util.CodeBlockCaptions
 import qualified Data.Map as M
 import Data.Monoid
 
@@ -31,20 +32,32 @@ main = hspec $ do
         testBlocks (table' "Test table" "table")
         (table' "Table 1: Test table" [],
           def{tblRefs=M.fromList $ refRec' "tbl:table" 1 "Test table"})
+      it "Labels code blocks" $
+        testBlocks (codeBlock' "Test code block" "codeblock")
+        (codeBlockDiv "Listing 1: Test code block" "codeblock",
+          def{lstRefs=M.fromList $ refRec' "lst:codeblock" 1 "Test code block"})
+      it "Labels code block divs" $
+        testBlocks (codeBlockDiv "Test code block" "codeblock")
+        (codeBlockDiv "Listing 1: Test code block" "codeblock",
+          def{lstRefs=M.fromList $ refRec' "lst:codeblock" 1 "Test code block"})
 
     describe "References.Refs.replaceRefs" $ do
       it "References one image" $
         testRefs' "fig:" [1] [4] imgRefs' "fig.\160\&4"
       it "References multiple images" $
-        testRefs' "fig:" [1..3] [4..6] imgRefs' "fig.\160\&4-6"
+        testRefs' "fig:" [1..3] [4..6] imgRefs' "figs.\160\&4-6"
       it "References one equation" $
         testRefs' "eq:" [1] [4] eqnRefs' "eq.\160\&4"
       it "References multiple equations" $
-        testRefs' "eq:" [1..3] [4..6] eqnRefs' "eq.\160\&4-6"
+        testRefs' "eq:" [1..3] [4..6] eqnRefs' "eqns.\160\&4-6"
       it "References one table" $
         testRefs' "tbl:" [1] [4] tblRefs' "tbl.\160\&4"
       it "References multiple tables" $
-        testRefs' "tbl:" [1..3] [4..6] tblRefs' "tbl.\160\&4-6"
+        testRefs' "tbl:" [1..3] [4..6] tblRefs' "tbls.\160\&4-6"
+      it "References one listing" $
+        testRefs' "lst:" [1] [4] lstRefs' "lst.\160\&4"
+      it "References multiple listings" $
+        testRefs' "lst:" [1..3] [4..6] lstRefs' "lsts.\160\&4-6"
 
     describe "References.List.listOf" $ do
       it "Generates list of tables" $
@@ -55,6 +68,14 @@ main = hspec $ do
         testList (para $ rawInline "tex" "\\listoffigures")
                  def{imgRefs=M.fromList $ refRec' "fig:1" 4 "4" <> refRec' "fig:2" 5 "5" <> refRec' "fig:3" 6 "6"}
                  (header 1 (text "List of Figures") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
+
+    describe "Util.CodeBlockCaptions" $
+      it "Transforms table-style codeBlock captions to codeblock divs" $ do
+        let t x = testCBCaptions x (codeBlockDiv "Code Block" "cb")
+        t (codeBlockForTable "cb" <> paraText ": Code Block")
+        t (codeBlockForTable "cb" <> paraText "Listing: Code Block")
+        t (paraText ": Code Block" <> codeBlockForTable "cb")
+        t (paraText "Listing: Code Block" <> codeBlockForTable "cb")
 
     describe "Util.Template" $
       it "Applies templates" $
@@ -84,6 +105,9 @@ testBlocks arg res = runState (walkM (f defaultOptions) arg) def `shouldBe` res
 testRefs :: Blocks -> References -> Blocks -> Expectation
 testRefs bs st res = runState (bottomUpM (References.Refs.replaceRefs defaultOptions) (toList bs)) st `shouldBe` (toList res,st)
 
+testCBCaptions :: Blocks -> Blocks -> Expectation
+testCBCaptions bs res = runState (bottomUpM (Util.CodeBlockCaptions.codeBlockCaptions defaultOptions{cbCaptions=True}) (toList bs)) def `shouldBe` (toList res,def)
+
 testList :: Blocks -> References -> Blocks -> Expectation
 testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) st `shouldBe` (toList res,st)
 
@@ -97,6 +121,23 @@ table' :: String -> String -> Blocks
 table' title ref = table (text title <> ref' "tbl" ref) []
    [para $ str "H1", para $ str "H2"]
   [[para $ str "C1", para $ str "C2"]]
+
+codeBlock' :: String -> String -> Blocks
+codeBlock' title ref = codeBlockWith
+  ("lst:"++ref,["haskell"],[("caption",title)]) "main :: IO ()"
+
+codeBlockForTable :: String -> Blocks
+codeBlockForTable ref = codeBlockWith
+     ("lst:"++ref,["haskell"],[]) "main :: IO ()"
+
+paraText :: String -> Blocks
+paraText s = para $ text s
+
+codeBlockDiv :: String -> String -> Blocks
+codeBlockDiv title ref = divWith ("lst:"++ref, ["listing","haskell"],[]) $
+  para (text title) <>
+  codeBlockWith
+    ("",["haskell"],[]) "main :: IO ()"
 
 ref' :: String -> String -> Inlines
 ref' p n | null n  = mempty
