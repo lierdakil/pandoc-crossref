@@ -76,7 +76,7 @@ replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
           ]
 replaceBlocks opts
   (Div (label,"listing":_, [])
-    [Para caption, cb@(CodeBlock ([],classes,attrs) code)])
+    [Para caption, CodeBlock ([],classes,attrs) code])
   | not $ null label
   , "lst" `isPrefixOf` label
   = case outFormat opts of
@@ -89,7 +89,7 @@ replaceBlocks opts
           return $ Div nullAttr [
               RawBlock (Format "tex") "\\begin{codelisting}"
             , Para [RawInline (Format "tex") "\\caption",Span nullAttr caption]
-            , cb
+            , CodeBlock (label,classes,attrs) code
             , RawBlock (Format "tex") "\\end{codelisting}"
             ]
       _ -> do
