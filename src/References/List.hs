@@ -10,7 +10,7 @@ import Util.Util
 import Util.Options
 
 listOf :: Options -> [Block] -> WS [Block]
-listOf Options{outFormat=Just f} x | isFormat "latex" f = return x
+listOf Options{outFormat=f} x | isFormat "latex" f = return x
 listOf opts (Para [RawInline (Format "tex") "\\listoffigures"]:xs)
   = gets imgRefs >>= makeList (lofTitle opts) xs
 listOf opts (Para [RawInline (Format "tex") "\\listoftables"]:xs)

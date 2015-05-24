@@ -1,9 +1,13 @@
 module Util.Meta where
 
-import Text.Pandoc (readMarkdown,def)
+import Text.Pandoc (readMarkdown)
 import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Definition
 import Data.Maybe (fromMaybe)
+import Data.Default
+
+getMetaList :: (Default a) => (MetaValue -> Maybe a) -> String -> Meta -> Int -> a
+getMetaList f name meta i = fromMaybe def $ lookupMeta name meta >>= getList i >>= f
 
 getMetaBool :: String -> Meta -> Bool
 getMetaBool name meta = fromMaybe False $ lookupMeta name meta >>= toBool
@@ -44,3 +48,11 @@ toString (MetaString s) = Just s
 toString (MetaBlocks b) = Just $ stringify b
 toString (MetaInlines i) = Just $ stringify i
 toString _ = Nothing
+
+getList :: Int -> MetaValue -> Maybe MetaValue
+getList i (MetaList l) = l !!? i
+  where
+    list !!? index | index >= 0 && index < length list = Just $ list !! index
+                   | not $ null list = Just $ last list
+                   | otherwise = Nothing
+getList _ x = Just x

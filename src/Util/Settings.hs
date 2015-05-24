@@ -19,16 +19,19 @@ defaultMeta :: Meta
 defaultMeta = Meta $ M.fromList
   [ ("figureTitle"    , MetaInlines [Str "Figure"])
   , ("tableTitle"     , MetaInlines [Str "Table"])
+  , ("listingTitle"   , MetaInlines [Str "Listing"])
   , ("titleDelim"     , MetaInlines [Str ":"])
   , ("chapDelim"      , MetaInlines [Str "."])
   , ("rangeDelim"     , MetaInlines [Str "-"])
-  , ("figPrefix"      , MetaInlines [Str "fig."])
-  , ("eqnPrefix"      , MetaInlines [Str "eq."])
-  , ("tblPrefix"      , MetaInlines [Str "tbl."])
+  , ("figPrefix"      , MetaList [MetaInlines [Str "fig."], MetaInlines [Str "figs."]])
+  , ("eqnPrefix"      , MetaList [MetaInlines [Str "eq."], MetaInlines [Str "eqns."]])
+  , ("tblPrefix"      , MetaList [MetaInlines [Str "tbl."], MetaInlines [Str "tbls."]])
+  , ("lstPrefix"      , MetaList [MetaInlines [Str "lst."], MetaInlines [Str "lsts."]])
   , ("lofTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Figures"]])
   , ("lotTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Tables"]])
   , ("figureTemplate" , MetaInlines [var "figureTitle",Space,var "i",var "titleDelim",Space,var "t"])
   , ("tableTemplate"  , MetaInlines [var "tableTitle",Space,var "i",var "titleDelim",Space,var "t"])
+  , ("listingTemplate", MetaInlines [var "listingTitle",Space,var "i",var "titleDelim",Space,var "t"])
   , ("crossrefYaml"   , MetaString "pandoc-crossref.yaml")
   ]
   where var = Math DisplayMath

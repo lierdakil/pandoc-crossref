@@ -6,6 +6,8 @@ import Control.Monad.State
 import References
 import Util.Settings
 import Util.Options
+import Util.CodeBlockCaptions
+import Util.ModifyMeta
 
 main :: IO ()
 main = toJSONFilter go
@@ -15,8 +17,10 @@ go fmt (Pandoc meta bs) = do
   dtv <- getSettings meta
   let
     doWalk =
-      walkM (replaceBlocks opts) bs
+      bottomUpM (codeBlockCaptions opts) bs
+      >>= walkM (replaceBlocks opts)
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)
     opts = getOptions dtv fmt
-  return $ Pandoc meta $ evalState doWalk def
+    meta' = modifyMeta opts dtv
+  return $ Pandoc meta' $ evalState doWalk def

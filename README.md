@@ -8,7 +8,7 @@ Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref pdf][cpdf]
 
 You can also enable per-chapter numbering (as with `--chapters` for latex output). You need to specify `-M chapters` for non-latex/pdf output however. Examples: [html][chap-html], [markdown][chap-markdown], [latex][chap-latex], [pdf][chap-pdf].
 
-[demo-md]: http://lierdakil.github.io/pandoc-crossref/demo.md
+[demo-md]: https://raw.githubusercontent.com/lierdakil/pandoc-crossref/gh-pages/demo.md
 [html]: http://lierdakil.github.io/pandoc-crossref/output.html
 [latex]: http://lierdakil.github.io/pandoc-crossref/output.latex
 [pdf]: http://lierdakil.github.io/pandoc-crossref/output.pdf
@@ -28,7 +28,7 @@ This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.
 [1]: https://github.com/tomduck/pandoc-fignos
 [2]: https://github.com/tomduck/pandoc-eqnos
 
-This package tries to use latex labels and references if output type is latex.
+This package tries to use latex labels and references if output type is LaTeX. It also tries to supplement rudimentary LaTeX configuration that should mimic metadata configuration by setting `header-includes` variable.
 
 ## Syntax
 
@@ -71,6 +71,61 @@ a   b   c
 
 To label a table, append `{#tbl:label}` at the end of table caption (with `label` being something unique to reference this table by). Caption and label *must* be separated by at least one space.
 
+### Code Block labels
+
+There are a couple options to add code block labels. Those work only if code block id starts with `lst:`, e.g. `{#lst:label}`
+
+#### `caption` attribute
+
+`caption` attribute will be treated as code block caption. If code block has both id and `caption` attributes, it will be treated as numbered code block.
+
+```markdown
+'''{#lst:code .haskell caption="Listing caption"}
+main :: IO ()
+main = putStrLn "Hello World!"
+'''
+```
+
+#### Table-style captions
+
+Enabled with `codeBlockCaptions` metadata option. If code block is immediately
+adjacent to paragraph, starting with `Listing: ` or `: `, said paragraph will be
+treated as code block caption.
+
+```markdown
+Listing: Listing caption
+
+'''{#lst:code .haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+'''
+```
+
+or
+
+```markdown
+'''{#lst:code .haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+'''
+
+: Listing caption
+```
+
+#### Wrapping div
+
+Wrapping code block without label in a div with id `lst:...` and class, starting with `listing`, and adding paragraph before code block, but inside div, will treat said paragraph as code block caption.
+
+```markdown
+<div id="lst:code" class="listing">
+Listing caption
+'''{.haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+'''
+</div>
+```
+
 ### References
 
 ```markdown
@@ -106,20 +161,43 @@ There are several parameters that can be set via YAML metadata (either by passin
 
 Following variables are supported:
 
-* `cref`: if True, latex export will use `\cref` from cleveref package. It is user's responsibility to include relevant `\usepackage` directives in template
+* `cref`: if True, latex export will use `\cref` from cleveref package. Only relevant for LaTeX output. `\usepackage{cleveref}` will be automatically added to `header-includes`.
 * `chapter`: if True, number elements as `chapter.item`, and restart `item` on each first-level heading (as `--chapters` for latex/pdf output)
+* `listings`: if True, generate code blocks for `listings` package. Only relevant for LaTeX output. `\usepackage{listings}` will be automatically added to `header-includes`.
+* `codeBlockCaptions`: if True, parse table-style code block captions.
 * `figureTitle`, default `Figure`: Word(s) to prepend to figure titles, e.g. `Figure 1: Description`
 * `tableTitle`, default `Table`: Word(s) to prepend to table titles, e.g. `Table 1: Description`
+* `listingTitle`, default `Listing`: Word(s) to prepend to listing titles, e.g. `Listing 1: Description`
 * `titleDelimiter`, default `:`: What to put between object number and caption text.
-* `figPrefix`, default `fig.`: Prefix for references to figures, e.g. `fig. 1-3`
-* `eqnPrefix`, default `eq.`: Prefix for references to equations, e.g. `eq. 3,4`
-* `tblPrefix`, default `tbl.`: Prefix for references to tables, e.g. `tbl. 2`
+* `figPrefix`, default `fig.`, `figs.`: Prefix for references to figures, e.g. `figs. 1-3`
+* `eqnPrefix`, default `eq.`, `eqns.`: Prefix for references to equations, e.g. `eqns. 3,4`
+* `tblPrefix`, default `tbl.`, `tbls.`: Prefix for references to tables, e.g. `tbl. 2`
+* `lstPrefix`, default `lst.`, `lsts.`: Prefix for references to lists, e.g. `lsts. 2,5`
 * `chapDelim`, default `.`: Delimiter between chapter number and item number.
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
 * `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
 * `lotTitle`, default `# List of Tables`: Title for list of tables (lot)
 * `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions, see [Templates](#templates)
 * `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions, see [Templates](#templates)
+* `listingTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions, see [Templates](#templates)
+
+`figPrefix`, `eqnPrefix`, `tblPrefix`, `lstPrefix` can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.
+
+```yaml
+fixPrefix:
+  - "fig."
+  - "figs."
+```
+
+Will result in all single-value references prefixed with "fig.", and all reference groups of two and more prefixed with "figs.":
+
+```markdown
+[@fig:one] -> fig. 1
+[@fig:one; @fig:two] -> figs. 1, 2
+[@fig:one; @fig:two; @fig:three] -> figs. 1-3
+```
+
+They can be YAML strings as well. In that case, prefix would be the same regardless of number of references.
 
 ### Templates
 
