@@ -15,6 +15,8 @@ listOf opts (Para [RawInline (Format "tex") "\\listoffigures"]:xs)
   = gets imgRefs >>= makeList (lofTitle opts) xs
 listOf opts (Para [RawInline (Format "tex") "\\listoftables"]:xs)
   = gets tblRefs >>= makeList (lotTitle opts) xs
+listOf opts (Para [RawInline (Format "tex") "\\listoflistings"]:xs)
+  = gets lstRefs >>= makeList (lolTitle opts) xs
 listOf _ x = return x
 
 makeList :: [Block] -> [Block] -> M.Map String RefRec -> WS [Block]

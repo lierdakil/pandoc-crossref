@@ -34,6 +34,7 @@ defaultMeta = Meta $ M.fromList
   , ("lstPrefix"      , MetaList [MetaInlines [Str "lst."], MetaInlines [Str "lsts."]])
   , ("lofTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Figures"]])
   , ("lotTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Tables"]])
+  , ("lolTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Listings"]])
   , ("figureTemplate" , MetaInlines [var "figureTitle",Space,var "i",var "titleDelim",Space,var "t"])
   , ("tableTemplate"  , MetaInlines [var "tableTitle",Space,var "i",var "titleDelim",Space,var "t"])
   , ("listingTemplate", MetaInlines [var "listingTitle",Space,var "i",var "titleDelim",Space,var "t"])

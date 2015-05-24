@@ -24,7 +24,9 @@ modifyMeta opts meta
     headerInc (Just x) = x
     incList = map MetaString $
         floatnames ++
+        listnames  ++
         [ x | x <- codelisting, not $ useListings opts] ++
+        lolcommand ++
         [ x | x <- cleveref, useCleveref opts] ++
         [ x | x <- cleverefCodelisting, useCleveref opts && not (useListings opts)] ++
         []
@@ -35,12 +37,26 @@ modifyMeta opts meta
           , "\\renewcommand*\\tablename{"++metaString "tableTitle"++"}"
           , "}"
           ]
+        listnames = [
+            "\\AtBeginDocument{%"
+          , "\\renewcommand*\\listfigurename{"++metaString' "lofTitle"++"}"
+          , "\\renewcommand*\\listtablename{"++metaString' "lotTitle"++"}"
+          , "}"
+          ]
         codelisting = [
             "\\usepackage{float}"
           , "\\floatstyle{ruled}"
           , "\\newfloat{codelisting}{h}{lop}"
           , "\\floatname{codelisting}{"++metaString "listingTitle"++"}"
           ]
+        lolcommand
+          | useListings opts = [
+              "\\newcommand*\\listoflistings\\lstlistoflistings"
+            , "\\AtBeginDocument{%"
+            , "\\renewcommand*{\\lstlistlistingname}{"++metaString' "lolTitle"++"}"
+            , "}"
+            ]
+          | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++metaString' "lolTitle"++"}}"]
         cleveref = [
             "\\usepackage{cleveref}"
           , "\\crefname{figure}" ++ prefix "figPrefix"
@@ -55,6 +71,7 @@ modifyMeta opts meta
           ]
         toLatex = writeLaTeX def . Pandoc nullMeta . return . Plain
         metaString s = toLatex $ getMetaInlines s meta
+        metaString' s = toLatex [Str $ getMetaString s meta]
         metaList s = toLatex . getMetaList toInlines s meta
         prefix s = "{" ++ metaList s 0 ++ "}" ++
                    "{" ++ metaList s 1 ++ "}"

@@ -16,6 +16,7 @@ data Options = Options { useCleveref :: Bool
                        , rangeDelim  :: [Inline]
                        , lofTitle    :: [Block]
                        , lotTitle    :: [Block]
+                       , lolTitle    :: [Block]
                        , outFormat   :: Maybe Format
                        , figureTemplate :: Template
                        , tableTemplate  :: Template
@@ -37,6 +38,7 @@ getOptions dtv fmt =
     , rangeDelim  = getMetaInlines "rangeDelim" dtv
     , lofTitle    = getMetaBlock "lofTitle" dtv
     , lotTitle    = getMetaBlock "lotTitle" dtv
+    , lolTitle    = getMetaBlock "lolTitle" dtv
     , outFormat   = fmt
     , figureTemplate = makeTemplate dtv $ getMetaInlines "figureTemplate" dtv
     , tableTemplate  = makeTemplate dtv $ getMetaInlines "tableTemplate" dtv
