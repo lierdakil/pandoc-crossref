@@ -30,12 +30,14 @@ modifyMeta opts meta
         []
       where
         floatnames = [
-            "\\usepackage{float}"
-          , "\\floatname{figure}{"++metaString "figureTitle"++"}"
-          , "\\floatname{longtable}{"++metaString "tableTitle"++"}"
+            "\\AtBeginDocument{%"
+          , "\\renewcommand*\\figurename{"++metaString "figureTitle"++"}"
+          , "\\renewcommand*\\tablename{"++metaString "tableTitle"++"}"
+          , "}"
           ]
         codelisting = [
-            "\\floatstyle{ruled}"
+            "\\usepackage{float}"
+          , "\\floatstyle{ruled}"
           , "\\newfloat{codelisting}{h}{lop}"
           , "\\floatname{codelisting}{"++metaString "listingTitle"++"}"
           ]
