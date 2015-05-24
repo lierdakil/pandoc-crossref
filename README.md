@@ -4,7 +4,7 @@ pandoc-crossref is a pandoc filter for numbering figures, equations, tables and 
 
 Input file (like [demo.md][demo-md]) can be converted into [html][html], [latex][latex], [pdf][pdf], [md][md] or other formats.
 
-Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref pdf][cpdf], [cleveref latex][clatex]
+Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref pdf][cpdf], [cleveref latex][clatex], and listings package, e.g. [listings pdg][lpdf], [listings latex][llatex]
 
 You can also enable per-chapter numbering (as with `--chapters` for latex output). You need to specify `-M chapters` for non-latex/pdf output however. Examples: [html][chap-html], [markdown][chap-markdown], [latex][chap-latex], [pdf][chap-pdf].
 
@@ -19,6 +19,8 @@ You can also enable per-chapter numbering (as with `--chapters` for latex output
 [chap-pdf]:http://lierdakil.github.io/pandoc-crossref/output-chapters.pdf
 [clatex]: http://lierdakil.github.io/pandoc-crossref/output-cref.latex
 [cpdf]: http://lierdakil.github.io/pandoc-crossref/output-cref.pdf
+[llatex]: http://lierdakil.github.io/pandoc-crossref/output-listings.latex
+[lpdf]: http://lierdakil.github.io/pandoc-crossref/output-listings.pdf
 
 
 Tested with pandoc 1.13.2 and 1.14.
@@ -165,7 +167,7 @@ Following variables are supported:
 
 * `cref`: if True, latex export will use `\cref` from cleveref package. Only relevant for LaTeX output. `\usepackage{cleveref}` will be automatically added to `header-includes`.
 * `chapter`: if True, number elements as `chapter.item`, and restart `item` on each first-level heading (as `--chapters` for latex/pdf output)
-* `listings`: if True, generate code blocks for `listings` package. Only relevant for LaTeX output. `\usepackage{listings}` will be automatically added to `header-includes`.
+* `listings`: if True, generate code blocks for `listings` package. Only relevant for LaTeX output. `\usepackage{listings}` will be automatically added to `header-includes`. You need to specify `--listings` option as well.
 * `codeBlockCaptions`: if True, parse table-style code block captions.
 * `figureTitle`, default `Figure`: Word(s) to prepend to figure titles, e.g. `Figure 1: Description`
 * `tableTitle`, default `Table`: Word(s) to prepend to table titles, e.g. `Table 1: Description`
