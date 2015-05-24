@@ -21,7 +21,7 @@ You can also enable per-chapter numbering (as with `--chapters` for latex output
 [cpdf]: http://lierdakil.github.io/pandoc-crossref/output-cref.pdf
 
 
-Tested with pandoc 1.13.2.
+Tested with pandoc 1.13.2 and 1.14.
 
 This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.
 
