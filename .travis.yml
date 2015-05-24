@@ -22,7 +22,7 @@ before_install:
 
 install:
  - cabal-$CABALVER update
- - test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal-$CABALVER install && cd ..
+ - test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal-$CABALVER install && cd .. || true
  - cabal-$CABALVER install --only-dependencies --enable-tests
  - export PATH=$HOME/.cabal/bin:$PATH
 
