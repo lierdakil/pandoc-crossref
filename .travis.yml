@@ -5,8 +5,12 @@ env:
 # - GHCVER=6.12.3
  - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror"
  - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror"
- - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" # see note on Alex/Happy
+ - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror"
  - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS=""
+ - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER=master
+ - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER=master
+ - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER=master
+ - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER=master
 # - GHCVER=head  # see section about GHC HEAD snapshots
 
 # Note: the distinction between `before_install` and `install` is not important.
@@ -18,7 +22,7 @@ before_install:
 
 install:
  - cabal-$CABALVER update
- - git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal-$CABALVER install && cd ..
+ - test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal-$CABALVER install && cd ..
  - cabal-$CABALVER install --only-dependencies --enable-tests
  - export PATH=$HOME/.cabal/bin:$PATH
 

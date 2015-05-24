@@ -22,8 +22,13 @@ getMetaString :: String -> Meta -> String
 getMetaString name meta = fromMaybe [] $ lookupMeta name meta >>= toString
 
 toInlines :: MetaValue -> Maybe [Inline]
-toInlines (MetaString s) = return $ getInlines $
-  either (error . show) id $ readMarkdown def s
+toInlines (MetaString s) =
+#if MIN_VERSION_pandoc(1,14,0)
+  return $ getInlines $
+    either (error . show) id $ readMarkdown def s
+#else
+  return $ getInlines $ readMarkdown def s
+#endif
   where getInlines (Pandoc _ bs) = concatMap getInline bs
         getInline (Plain ils) = ils
         getInline (Para ils) = ils
@@ -38,8 +43,13 @@ toBool _ = Nothing
 toBlocks :: MetaValue -> Maybe [Block]
 toBlocks (MetaBlocks bs) = return bs
 toBlocks (MetaInlines ils) = return [Plain ils]
-toBlocks (MetaString s) = return $ getBlocks $
-  either (error . show) id $ readMarkdown def s
+toBlocks (MetaString s) =
+#if MIN_VERSION_pandoc(1,14,0)
+  return $ getBlocks $
+    either (error . show) id $ readMarkdown def s
+#else
+  return $ getBlocks $ readMarkdown def s
+#endif
   where getBlocks (Pandoc _ bs) = bs
 toBlocks _ = Nothing
 
