@@ -1,6 +1,7 @@
 module References.Blocks (replaceBlocks) where
 
 import Text.Pandoc.Definition
+import Text.Pandoc.Builder (text, toList)
 import Text.Pandoc.Shared (stringify, normalizeSpaces)
 import Control.Monad.State
 import Data.List
@@ -66,8 +67,9 @@ replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
             , RawBlock (Format "tex") "\\end{codelisting}"
             ]
       _ -> do
-        idxStr <- replaceAttr opts label [] lstRefs'
-        let caption' = applyTemplate idxStr [Str caption] $ listingTemplate opts
+        let cap = toList $ text caption
+        idxStr <- replaceAttr opts label cap lstRefs'
+        let caption' = applyTemplate idxStr cap $ listingTemplate opts
         return $ Div (label, "listing":classes, []) [
             Para caption'
           , CodeBlock ([], classes, attrs) code
@@ -91,7 +93,7 @@ replaceBlocks opts
             , RawBlock (Format "tex") "\\end{codelisting}"
             ]
       _ -> do
-        idxStr <- replaceAttr opts label [] lstRefs'
+        idxStr <- replaceAttr opts label caption lstRefs'
         let caption' = applyTemplate idxStr caption $ listingTemplate opts
         return $ Div (label, "listing":classes, []) [
             Para caption'
