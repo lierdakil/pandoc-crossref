@@ -21,7 +21,7 @@ replaceRefs opts (Cite cits _:xs)
   = (++ xs) `fmap` replaceRefs' prefix opts cits
   where
     replaceRefs' = case outFormat opts of
-                    Just f | isFormat "latex" f -> replaceRefsLatex
+                    f | isFormat "latex" f -> replaceRefsLatex
                     _                           -> replaceRefsOther
 replaceRefs _ x = return x
 

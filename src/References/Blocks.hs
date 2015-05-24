@@ -24,14 +24,14 @@ replaceBlocks opts (Para (Image alt img:c))
   = do
     idxStr <- replaceAttr opts label alt imgRefs'
     let alt' = case outFormat opts of
-          Just f | isFormat "latex" f ->
+          f | isFormat "latex" f ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
     return $ Para [Image alt' (fst img,"fig:")]
 replaceBlocks opts (Para (Math DisplayMath eq:c))
   | Just label <- getRefLabel "eq" c
   = case outFormat opts of
-      Just f | isFormat "latex" f ->
+      f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
         in return $ Para [RawInline (Format "tex") eqn]
       _ -> do
@@ -45,7 +45,7 @@ replaceBlocks opts (Table title align widths header cells)
     idxStr <- replaceAttr opts label (init title) tblRefs'
     let title' =
           case outFormat opts of
-              Just f | isFormat "latex" f ->
+              f | isFormat "latex" f ->
                 RawInline (Format "tex") ("\\label{"++label++"}") : init title
               _  -> applyTemplate idxStr (init title) $ tableTemplate opts
     return $ Table title' align widths header cells
@@ -54,7 +54,7 @@ replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
   , "lst" `isPrefixOf` label
   , Just caption <- lookup "caption" attrs
   = case outFormat opts of
-      Just f
+      f
         --if used with listings package,nothing shoud be done
         | isFormat "latex" f, useListings opts -> return cb
         --if not using listings, however, wrap it in a codelisting environment
@@ -78,7 +78,7 @@ replaceBlocks opts
   | not $ null label
   , "lst" `isPrefixOf` label
   = case outFormat opts of
-      Just f
+      f
         --if used with listings package, return code block with caption
         | isFormat "latex" f, useListings opts ->
           return $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
