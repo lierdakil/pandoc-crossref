@@ -72,7 +72,7 @@ replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
         let caption' = applyTemplate idxStr cap $ listingTemplate opts
         return $ Div (label, "listing":classes, []) [
             Para caption'
-          , CodeBlock ([], classes, attrs) code
+          , CodeBlock ([], classes, attrs \\ [("caption", caption)]) code
           ]
 replaceBlocks opts
   (Div (label,"listing":_, [])
