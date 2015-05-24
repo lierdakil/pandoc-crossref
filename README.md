@@ -28,7 +28,7 @@ This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.
 [1]: https://github.com/tomduck/pandoc-fignos
 [2]: https://github.com/tomduck/pandoc-eqnos
 
-This package tries to use latex labels and references if output type is latex.
+This package tries to use latex labels and references if output type is LaTeX. It also tries to supplement rudimentary LaTeX configuration that should mimic metadata configuration by setting `header-includes` variable.
 
 ## Syntax
 
@@ -169,10 +169,10 @@ Following variables are supported:
 * `tableTitle`, default `Table`: Word(s) to prepend to table titles, e.g. `Table 1: Description`
 * `listingTitle`, default `Listing`: Word(s) to prepend to listing titles, e.g. `Listing 1: Description`
 * `titleDelimiter`, default `:`: What to put between object number and caption text.
-* `figPrefix`, default `fig.`: Prefix for references to figures, e.g. `fig. 1-3`
-* `eqnPrefix`, default `eq.`: Prefix for references to equations, e.g. `eq. 3,4`
-* `tblPrefix`, default `tbl.`: Prefix for references to tables, e.g. `tbl. 2`
-* `lstPrefix`, default `lst.`: Prefix for references to lists, e.g. `lst. 2,5`
+* `figPrefix`, default `fig.`, `figs.`: Prefix for references to figures, e.g. `figs. 1-3`
+* `eqnPrefix`, default `eq.`, `eqns.`: Prefix for references to equations, e.g. `eqns. 3,4`
+* `tblPrefix`, default `tbl.`, `tbls.`: Prefix for references to tables, e.g. `tbl. 2`
+* `lstPrefix`, default `lst.`, `lsts.`: Prefix for references to lists, e.g. `lsts. 2,5`
 * `chapDelim`, default `.`: Delimiter between chapter number and item number.
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
 * `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
@@ -180,6 +180,24 @@ Following variables are supported:
 * `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions, see [Templates](#templates)
 * `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions, see [Templates](#templates)
 * `listingTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions, see [Templates](#templates)
+
+`figPrefix`, `eqnPrefix`, `tblPrefix`, `lstPrefix` can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.
+
+```yaml
+fixPrefix:
+  - "fig."
+  - "figs."
+```
+
+Will result in all single-value references prefixed with "fig.", and all reference groups of two and more prefixed with "figs.":
+
+```markdown
+[@fig:one] -> fig. 1
+[@fig:one; @fig:two] -> figs. 1, 2
+[@fig:one; @fig:two; @fig:three] -> figs. 1-3
+```
+
+They can be YAML strings as well. In that case, prefix would be the same regardless of number of references.
 
 ### Templates
 
