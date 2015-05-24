@@ -2,5 +2,6 @@ module Util.Util where
 
 import Text.Pandoc.Definition
 
-isFormat :: String -> Format -> Bool
-isFormat fmt (Format f) = takeWhile (`notElem` "+-") f == fmt
+isFormat :: String -> Maybe Format -> Bool
+isFormat fmt (Just (Format f)) = takeWhile (`notElem` "+-") f == fmt
+isFormat _ Nothing = False

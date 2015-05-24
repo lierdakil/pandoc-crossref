@@ -11,3 +11,6 @@ eqnRefs' new r@References{eqnRefs=old} = (old, r{eqnRefs=new})
 
 tblRefs' :: Accessor References RefMap
 tblRefs' new r@References{tblRefs=old} = (old, r{tblRefs=new})
+
+lstRefs' :: Accessor References RefMap
+lstRefs' new r@References{lstRefs=old} = (old, r{lstRefs=new})
