@@ -117,13 +117,13 @@ main = putStrLn "Hello World!"
 Wrapping code block without label in a div with id `lst:...` and class, starting with `listing`, and adding paragraph before code block, but inside div, will treat said paragraph as code block caption.
 
 <pre>
-<div id="lst:code" class="listing">
+&lt;div id="lst:code" class="listing"&gt;
 Listing caption
 ```{.haskell}
 main :: IO ()
 main = putStrLn "Hello World!"
 ```
-</div>
+&lt;/div&gt;
 </pre>
 
 ### References
