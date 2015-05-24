@@ -136,7 +136,9 @@ Reference syntax heavily relies on citation syntax. Basic reference is created b
 
 ### Lists
 
-It's possible to use raw latex commands `\listoffigures` and `\listoftables`, which will produce ordered list of figure/table titles, in order of appearance in document.
+It's possible to use raw latex commands `\listoffigures`, `\listoftables` and `listoflistings`, which will produce ordered list of figure/table/listings titles, in order of appearance in document.
+
+`\listoflistings` depends on other options, and is defined in preamble, so it will work reliably only with standalone/pdf output.
 
 ## Installation
 
@@ -177,6 +179,7 @@ Following variables are supported:
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
 * `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
 * `lotTitle`, default `# List of Tables`: Title for list of tables (lot)
+* `lolTitle`, default `# List of Listings`: Title for list of listings (lol)
 * `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions, see [Templates](#templates)
 * `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions, see [Templates](#templates)
 * `listingTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions, see [Templates](#templates)
