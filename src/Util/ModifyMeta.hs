@@ -59,19 +59,23 @@ modifyMeta opts meta
           | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++metaString' "lolTitle"++"}}"]
         cleveref = [
             "\\usepackage{cleveref}"
-          , "\\crefname{figure}" ++ prefix "figPrefix"
-          , "\\crefname{table}" ++ prefix "tblPrefix"
-          , "\\crefname{equation}" ++ prefix "eqnPrefix"
-          , "\\crefname{listing}" ++ prefix "lstPrefix"
+          , "\\crefname{figure}" ++ prefix figPrefix False
+          , "\\crefname{table}" ++ prefix tblPrefix False
+          , "\\crefname{equation}" ++ prefix eqnPrefix False
+          , "\\crefname{listing}" ++ prefix lstPrefix False
+          , "\\Crefname{figure}" ++ prefix figPrefix True
+          , "\\Crefname{table}" ++ prefix tblPrefix True
+          , "\\Crefname{equation}" ++ prefix eqnPrefix True
+          , "\\Crefname{listing}" ++ prefix lstPrefix True
           ]
         cleverefCodelisting = [
             "\\makeatletter"
           , "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
+          , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
           , "\\makeatother"
           ]
         toLatex = writeLaTeX def . Pandoc nullMeta . return . Plain
         metaString s = toLatex $ getMetaInlines s meta
         metaString' s = toLatex [Str $ getMetaString s meta]
-        metaList s = toLatex . getMetaList toInlines s meta
-        prefix s = "{" ++ metaList s 0 ++ "}" ++
-                   "{" ++ metaList s 1 ++ "}"
+        prefix f uc = "{" ++ toLatex (f opts uc 0) ++ "}" ++
+                      "{" ++ toLatex (f opts uc 1) ++ "}"
