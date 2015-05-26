@@ -4,6 +4,7 @@ import Text.Pandoc.Builder
 import Text.Pandoc.Walk
 import Text.Pandoc.Generic
 import Util.Options
+import Util.Util
 import Control.Monad.State
 import References.Types
 import Util.Settings
@@ -59,6 +60,24 @@ main = hspec $ do
       it "References multiple listings" $
         testRefs' "lst:" [1..3] [4..6] lstRefs' "lsts.\160\&4-6"
 
+    describe "References.Refs.replaceRefs capitalization" $ do
+      it "References one image" $
+        testRefs' "Fig:" [1] [4] imgRefs' "Fig.\160\&4"
+      it "References multiple images" $
+        testRefs' "Fig:" [1..3] [4..6] imgRefs' "Figs.\160\&4-6"
+      it "References one equation" $
+        testRefs' "Eq:" [1] [4] eqnRefs' "Eq.\160\&4"
+      it "References multiple equations" $
+        testRefs' "Eq:" [1..3] [4..6] eqnRefs' "Eqns.\160\&4-6"
+      it "References one table" $
+        testRefs' "Tbl:" [1] [4] tblRefs' "Tbl.\160\&4"
+      it "References multiple tables" $
+        testRefs' "Tbl:" [1..3] [4..6] tblRefs' "Tbls.\160\&4-6"
+      it "References one listing" $
+        testRefs' "Lst:" [1] [4] lstRefs' "Lst.\160\&4"
+      it "References multiple listings" $
+        testRefs' "Lst:" [1..3] [4..6] lstRefs' "Lsts.\160\&4-6"
+
     describe "References.List.listOf" $ do
       it "Generates list of tables" $
         testList (para $ rawInline "tex" "\\listoftables")
@@ -87,7 +106,7 @@ citeGen :: String -> [Int] -> Inlines
 citeGen p l = cite (mconcat $ map (cit . (p++) . show) l) mempty
 
 refGen :: String -> [Int] -> [Int] -> M.Map String RefRec
-refGen p l1 l2 = M.fromList $ mconcat $ zipWith refRec'' (((p++) . show) `map` l1) l2
+refGen p l1 l2 = M.fromList $ mconcat $ zipWith refRec'' (((uncapitalizeFirst p++) . show) `map` l1) l2
 
 refRec' :: String -> Int -> String -> [(String, RefRec)]
 refRec' ref i tit = [(ref, RefRec{refIndex=(0,i),refTitle=toList $ text tit})]
