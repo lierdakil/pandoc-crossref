@@ -11,9 +11,11 @@ This is a demo file for pandoc-crossref. With this filter, you can cross-referen
 
 There is also support for code blocks, for example, [@lst:captionAttr; @lst:tableCaption; @lst:wrappingDiv]
 
-It's also possible to capitalize reference prefixes, like this: [@Fig:figure1].
+It's possible to capitalize reference prefixes, like this: [@Fig:figure1].
 
 In case of multiple references, capitalization is determined by first reference. [@Fig:figure1; @fig:figure2] is capitalized, while [@fig:figure2; @Fig:figure1] is not.
+
+It is also possible to mix different references, like [@fig:figure1; @tbl:table1; @lst:captionAttr; @lst:tableCaption; @fig:figure2; @fig:figure3], which will be grouped in order they are specified. You can even intermix this with regular citations, although it's not recommended: [@fig:figure1; @tbl:table1; @unprocessedCitation]
 
 # Chapter 1. Figures
 

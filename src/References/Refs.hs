@@ -1,7 +1,7 @@
 module References.Refs (replaceRefs) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Shared (normalizeInlines)
+import Text.Pandoc.Shared (normalizeInlines, normalizeSpaces)
 import Control.Monad.State
 import Data.List
 import Data.Maybe
@@ -17,10 +17,23 @@ import Util.Options
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
 replaceRefs opts (Cite cits _:xs)
-  | Just prefix <- allCitsPrefix cits
-  = (++ xs) `fmap` replaceRefs' prefix opts cits
+  = (++ xs) `fmap` intercalate [Str ",", Space] `fmap`
+    mapM replaceRefs' (groupBy eqPrefix cits)
   where
-    replaceRefs' = case outFormat opts of
+    eqPrefix a b = uncurry (==) $
+      (uncapitalizeFirst . getLabelPrefix . citationId) <***> (a,b)
+    (<***>) = join (***)
+    replaceRefs' cits'
+      | Just prefix <- allCitsPrefix cits'
+      = replaceRefs'' prefix opts cits'
+      | otherwise = return [Cite cits' il']
+        where
+          il' = [Str "["]
+            ++intercalate [Str ";"] (map citationToInlines cits')
+            ++[Str "]"]
+          citationToInlines c = normalizeSpaces $
+            citationPrefix c ++ [Space, Str $ "@"++citationId c] ++ citationSuffix c
+    replaceRefs'' = case outFormat opts of
                     f | isFormat "latex" f -> replaceRefsLatex
                     _                      -> replaceRefsOther
 replaceRefs _ x = return x
