@@ -52,7 +52,7 @@ replaceBlocks opts (Table title align widths header cells)
     return $ Table title' align widths header cells
 replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
   | not $ null label
-  , "lst" `isPrefixOf` label
+  , "lst:" `isPrefixOf` label
   , Just caption <- lookup "caption" attrs
   = case outFormat opts of
       f
@@ -78,7 +78,7 @@ replaceBlocks opts
   (Div (label,"listing":_, [])
     [Para caption, CodeBlock ([],classes,attrs) code])
   | not $ null label
-  , "lst" `isPrefixOf` label
+  , "lst:" `isPrefixOf` label
   = case outFormat opts of
       f
         --if used with listings package, return code block with caption
