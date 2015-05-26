@@ -134,7 +134,9 @@ main = putStrLn "Hello World!"
 [@fig:label1;@fig:label2;...] or [@eq:label1;@eq:label2;...] or [@tbl:label1;@tbl:label2;...] or @fig:label or @eq:label or @tbl:label
 ```
 
-Reference syntax heavily relies on citation syntax. Basic reference is created by writing `@`, then basically desired label with prefix. It is also possible to reference a group of objects *of the same type*, by putting them into brackets with `;` as separator. Sequential reference numbers will be shortened, e.g. `1,2,3` will be shortened to `1-3`.
+Reference syntax heavily relies on citation syntax. Basic reference is created by writing `@`, then basically desired label with prefix. It is also possible to reference a group of objects, by putting them into brackets with `;` as separator. Similar objects will be grouped in order of them appearing in citation brackets, and sequential reference numbers will be shortened, e.g. `1,2,3` will be shortened to `1-3`.
+
+You can capitalize first reference character to get capitalized prefix, e.g. `[@Fig:label1]` will produce `Fig. ...` by default. Capitalized prefixes are derived automatically by capitalizing first letter of every word in non-capitalized prefix, unless overriden with metadata settings. See [Customization](#Customization) for more information.
 
 ### Lists
 
@@ -203,6 +205,8 @@ Will result in all single-value references prefixed with "fig.", and all referen
 ```
 
 They can be YAML strings as well. In that case, prefix would be the same regardless of number of references.
+
+They can also be used with first character capitalized, i.e. `FigPrefix`, etc. In this case, these settings will override default reference capitailzation settings.
 
 ### Templates
 
