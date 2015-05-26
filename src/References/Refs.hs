@@ -22,7 +22,7 @@ replaceRefs opts (Cite cits _:xs)
   where
     replaceRefs' = case outFormat opts of
                     f | isFormat "latex" f -> replaceRefsLatex
-                    _                           -> replaceRefsOther
+                    _                      -> replaceRefsOther
 replaceRefs _ x = return x
 
 -- accessors to state variables
@@ -34,7 +34,7 @@ accMap = M.fromList [("fig:",imgRefs')
                     ]
 
 -- accessors to options
-prefMap :: M.Map String (Options -> Int -> [Inline])
+prefMap :: M.Map String (Options -> Bool -> Int -> [Inline])
 prefMap = M.fromList [("fig:",figPrefix)
                      ,("eq:" ,eqnPrefix)
                      ,("tbl:",tblPrefix)
@@ -44,21 +44,20 @@ prefMap = M.fromList [("fig:",figPrefix)
 prefixes :: [String]
 prefixes = M.keys accMap
 
-getRefPrefix :: Options -> String -> Int -> [Inline]
-getRefPrefix opts prefix num
-  | null $ refprefix num = []
-  | otherwise   = refprefix num ++ [Str "\160"]
-  where refprefix = lookupUnsafe prefix prefMap opts
+getRefPrefix :: Options -> String -> Bool -> Int -> [Inline]
+getRefPrefix opts prefix capitalize num
+  | null refprefix = []
+  | otherwise   = refprefix ++ [Str "\160"]
+  where refprefix = lookupUnsafe prefix prefMap opts capitalize num
 
 lookupUnsafe :: Ord k => k -> M.Map k v -> v
-lookupUnsafe = (fromMaybe undefined .) . M.lookup
+lookupUnsafe = (fromJust .) . M.lookup
 
 allCitsPrefix :: [Citation] -> Maybe String
-allCitsPrefix cits = foldl f Nothing prefixes
+allCitsPrefix cits = find isCitationPrefix prefixes
   where
-  f x@(Just _) _ = x
-  f _ p | all (isPrefixOf p . citationId) cits = Just p
-  f _ _ = Nothing
+  isCitationPrefix p =
+    all (p `isPrefixOf`) $ map (uncapitalizeFirst . citationId) cits
 
 replaceRefsLatex :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsLatex prefix opts cits =
@@ -71,33 +70,33 @@ replaceRefsLatex prefix opts cits =
         else
           listLabels prefix "\\ref{" ", " "}" cits
     p | useCleveref opts = []
-      | otherwise = getRefPrefix opts prefix (length cits - 1)
+      | otherwise = getRefPrefix opts prefix cap (length cits - 1)
+    cap = isFirstUpper $ getLabelPrefix . citationId . head $ cits
 
 listLabels :: String -> String -> String -> String -> [Citation] -> String
-listLabels prefix p sep s = foldl' joinStr "" . mapMaybe (getLabel prefix)
-  where
-  joinStr acc i | null acc  = p++i++s
-                | otherwise = acc++sep++p++i++s
+listLabels prefix p sep s =
+  intercalate sep . map ((p ++) . (++ s) . (prefix++) . getLabelWithoutPrefix . citationId)
 
-getLabel :: String -> Citation -> Maybe String
-getLabel prefix Citation{citationId=cid}
-  | prefix `isPrefixOf` cid = Just cid
-  | otherwise = Nothing
+getLabelWithoutPrefix :: String -> String
+getLabelWithoutPrefix = drop 1 . dropWhile (/=':')
+
+getLabelPrefix :: String -> String
+getLabelPrefix = (++ ":") . takeWhile (/=':')
 
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
   let
     indices' = groupBy ((==) `on` (fmap fst . fst)) (sort indices)
-  return $ normalizeInlines $ getRefPrefix opts prefix (length cits - 1) ++ concatMap (makeIndices opts) indices'
+    cap = isFirstUpper $ getLabelPrefix . citationId . head $ cits
+  return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) ++ concatMap (makeIndices opts) indices'
 
 getRefIndex :: String -> Citation -> WS (Maybe (Int, Int), [Inline])
 getRefIndex prefix Citation{citationId=cid,citationSuffix=suf}
-  | prefix `isPrefixOf` cid
-  = (\x -> (x,suf)) `fmap` gets (fmap refIndex . M.lookup cid . getProp prop)
-  | otherwise = return (Nothing, suf)
+  = (\x -> (x,suf)) `fmap` gets (fmap refIndex . M.lookup lab . getProp prop)
   where
   prop = lookupUnsafe prefix accMap
+  lab = prefix ++ getLabelWithoutPrefix cid
 
 makeIndices :: Options -> [(Maybe (Int, Int), [Inline])] -> [Inline]
 makeIndices _ s | any (isNothing . fst) s = [Strong [Str "??"]]
