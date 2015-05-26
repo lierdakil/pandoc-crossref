@@ -79,12 +79,14 @@ replaceRefsLatex prefix opts cits =
     texcit =
       RawInline (Format "tex") $
       if useCleveref opts then
-        "\\cref{"++listLabels prefix "" "," "" cits++"}"
+        cref++"{"++listLabels prefix "" "," "" cits++"}"
         else
           listLabels prefix "\\ref{" ", " "}" cits
     p | useCleveref opts = []
       | otherwise = getRefPrefix opts prefix cap (length cits - 1)
     cap = isFirstUpper $ getLabelPrefix . citationId . head $ cits
+    cref | cap = "\\Cref"
+         | otherwise = "\\cref"
 
 listLabels :: String -> String -> String -> String -> [Citation] -> String
 listLabels prefix p sep s =
