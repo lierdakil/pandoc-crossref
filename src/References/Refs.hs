@@ -21,15 +21,16 @@ replaceRefs opts (Cite cits _:xs)
     mapM replaceRefs' (groupBy eqPrefix cits)
   where
     eqPrefix a b = uncurry (==) $
-      (uncapitalizeFirst . getLabelPrefix . citationId) <***> (a,b)
+      (fmap uncapitalizeFirst . getLabelPrefix . citationId) <***> (a,b)
     (<***>) = join (***)
     replaceRefs' cits'
       | Just prefix <- allCitsPrefix cits'
       = replaceRefs'' prefix opts cits'
       | otherwise = return [Cite cits' il']
         where
-          il' = [Str "["]
-            ++intercalate [Str ";"] (map citationToInlines cits')
+          il' =  normalizeInlines $
+              [Str "["]
+            ++intercalate [Str ";", Space] (map citationToInlines cits')
             ++[Str "]"]
           citationToInlines c = normalizeSpaces $
             citationPrefix c ++ [Space, Str $ "@"++citationId c] ++ citationSuffix c
@@ -84,7 +85,7 @@ replaceRefsLatex prefix opts cits =
           listLabels prefix "\\ref{" ", " "}" cits
     p | useCleveref opts = []
       | otherwise = getRefPrefix opts prefix cap (length cits - 1)
-    cap = isFirstUpper $ getLabelPrefix . citationId . head $ cits
+    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
     cref | cap = "\\Cref"
          | otherwise = "\\cref"
 
@@ -95,15 +96,18 @@ listLabels prefix p sep s =
 getLabelWithoutPrefix :: String -> String
 getLabelWithoutPrefix = drop 1 . dropWhile (/=':')
 
-getLabelPrefix :: String -> String
-getLabelPrefix = (++ ":") . takeWhile (/=':')
+getLabelPrefix :: String -> Maybe String
+getLabelPrefix lab
+  | uncapitalizeFirst p `elem` prefixes = Just p
+  | otherwise = Nothing
+  where p = (++ ":") . takeWhile (/=':') $ lab
 
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
   let
     indices' = groupBy ((==) `on` (fmap fst . fst)) (sort indices)
-    cap = isFirstUpper $ getLabelPrefix . citationId . head $ cits
+    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
   return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) ++ concatMap (makeIndices opts) indices'
 
 getRefIndex :: String -> Citation -> WS (Maybe (Int, Int), [Inline])
