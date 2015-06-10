@@ -17,6 +17,8 @@ import qualified Util.Template
 import qualified Util.CodeBlockCaptions
 import qualified Data.Map as M
 import Data.Monoid
+import Data.List
+import Control.Arrow
 
 main :: IO ()
 main = hspec $ do
@@ -102,8 +104,25 @@ main = hspec $ do
         in Util.Template.applyTemplate [Str "1"] [Str "title"] template `shouldBe`
            toList (str "Figure" <> str "1" <> str "title")
 
+    describe "Citation groups shouldn't be separated (#22 regression test)" $ do
+      it "Should not separate citation groups" $ do
+        let cits = para $ citeGen "" [1..3]
+        testRefs cits def cits
+
+      it "Should not separate citation groups with unknown prefix" $ do
+        let cits = para $ citeGen "unk:" [1..3]
+        testRefs cits def cits
+
+      it "Should not separate citation groups with different unknown prefixes" $ do
+        let cits = para $ cite (mconcat $ map (cit . uncurry (++) . second show) l) $ text $
+              "[" ++ intercalate "; " (map (("@"++) . uncurry (++) . second show) l) ++ "]"
+            l = zip ["unk1:", "unk2:"] [1,2::Int]
+        testRefs cits def cits
+
+
 citeGen :: String -> [Int] -> Inlines
-citeGen p l = cite (mconcat $ map (cit . (p++) . show) l) mempty
+citeGen p l = cite (mconcat $ map (cit . (p++) . show) l) $ text $
+  "[" ++ intercalate "; " (map (("@"++) . (p++) . show) l) ++ "]"
 
 refGen :: String -> [Int] -> [Int] -> M.Map String RefRec
 refGen p l1 l2 = M.fromList $ mconcat $ zipWith refRec'' (((uncapitalizeFirst p++) . show) `map` l1) l2
