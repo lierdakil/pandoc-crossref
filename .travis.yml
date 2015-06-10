@@ -3,14 +3,14 @@
 # The following enables several GHC versions to be tested; often it's enough to test only against the last release in a major GHC version. Feel free to omit lines listings versions you don't need/want testing for.
 env:
 # - GHCVER=6.12.3
- - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER="1.13"
- - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER="1.13"
- - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER="1.13"
- - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER="1.13"
- - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER="1.14"
- - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER="1.14"
- - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER="1.14"
- - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER="1.14"
+ - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER="<1.14"
+ - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER="<1.14"
+ - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER="<1.14"
+ - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER="<1.14"
+ - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER="<1.15"
+ - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER="<1.15"
+ - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER="<1.15"
+ - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER="<1.15"
  - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER=master
  - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER=master
  - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER=master
@@ -27,7 +27,7 @@ before_install:
 install:
  - cabal-$CABALVER update
  - test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal-$CABALVER install && cd .. || true
- - test "$PANDOCVER" = "master" && cabal-$CABALVER install --only-dependencies --enable-tests || cabal-$CABALVER install --only-dependencies --enable-tests --constraint=pandoc=="$PANDOCVER"
+ - test "$PANDOCVER" = "master" && cabal-$CABALVER install --only-dependencies --enable-tests || cabal-$CABALVER install --only-dependencies --enable-tests --constraint=pandoc"$PANDOCVER"
  - export PATH=$HOME/.cabal/bin:$PATH
 
 # Here starts the actual work to be performed for the package under test; any command which exits with a non-zero exit code causes the build to fail.
