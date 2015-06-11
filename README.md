@@ -208,6 +208,31 @@ They can be YAML strings as well. In that case, prefix would be the same regardl
 
 They can also be used with first character capitalized, i.e. `FigPrefix`, etc. In this case, these settings will override default reference capitailzation settings.
 
+#### LaTeX customization
+
+Support for above variables with LaTeX/PDF output is limited. In particular, the following variables are honored:
+
+* `figureTitle`
+* `tableTitle`
+* `listingTitle`
+* `lofTitle` -- ignores formatting
+* `lotTitle` -- ignores formatting
+* `lolTitle` -- ignores formatting
+* `*Prefix`, upper-/lowercase and single/plural form. Note that with cleveref output, if `*Prefix` is array, only first two items are used, and the rest is ignored.
+
+Templates are *not* supported.
+
+You can add arbitrary LaTeX commands to document header, however, using `header-includes` metadata field. Please bear in mind, that pandoc-crossref up to and including 0.1.2.1 requires `header-includes` to be YAML array, e.g.
+
+```yaml
+header-includes:
+    - "\\newcommand{\\pcdoc}{Pandoc-crossref documentation}"
+```
+
+This will be added *before* any customization applied by pandoc-crossref. For a complete list of what is added to template, consult [ModifyMeta.hs][ModifyMeta.hs].
+
+[ModifyMeta.hs]: https://github.com/lierdakil/pandoc-crossref/blob/master/src/Util/ModifyMeta.hs
+
 ### Templates
 
 pandoc-crossref supports advanced caption customization via caption templates. Templates are specified as YAML metadata variables (see [Customization](#customization)), and are parsed as default Pandoc Markdown. Variables are specified with display math syntax, i.e. `$$var$$` in a template will be replaced with value of variable `var`.
@@ -215,6 +240,8 @@ Variables can be specified in YAML metadata block, or from command line (with `-
 
 * `i` -- object number, possibly with chapter number (if `chapter=True`)
 * `t` -- object caption, as given in source Markdown
+
+Please note that at the moment, templates are not supported with LaTeX/PDF output.
 
 ### Settings file
 
