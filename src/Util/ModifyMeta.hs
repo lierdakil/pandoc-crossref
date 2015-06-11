@@ -19,9 +19,8 @@ modifyMeta opts meta
   where
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = MetaList incList
-    headerInc (Just x@(MetaString _)) = MetaList $ x:incList
     headerInc (Just (MetaList x)) = MetaList $ x ++ incList
-    headerInc (Just x) = x
+    headerInc (Just x) = MetaList $ x:incList
     incList = map MetaString $
         floatnames ++
         listnames  ++
