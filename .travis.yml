@@ -39,6 +39,10 @@ addons:
 before_install:
  - export PATH=/opt/ghc/$GHCVER/bin:$PATH
 
+cache:
+  directories:
+    - $HOME/.cabal
+
 install:
  - cabal-$CABALVER update
  - test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal-$CABALVER install && cd .. || true
@@ -51,5 +55,4 @@ script:
  - cabal-$CABALVER build --ghc-options=$GHCOPTS # this builds all libraries and executables (including tests/benchmarks)
  - cabal-$CABALVER check
  - cabal-$CABALVER test
- - cabal-$CABALVER install
  - bash check.sh
