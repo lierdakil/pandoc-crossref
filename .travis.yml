@@ -27,8 +27,13 @@ addons:
     sources:
       - hvr-ghc
     packages:
-      - cabal-install-$CABALVER
-      - ghc-$GHCVER
+      - cabal-install-1.16
+      - cabal-install-1.18
+      - cabal-install-1.22
+      - ghc-7.4.2
+      - ghc-7.6.3
+      - ghc-7.8.4
+      - ghc-7.10.1
 
 # Note: the distinction between `before_install` and `install` is not important.
 before_install:
