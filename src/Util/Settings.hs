@@ -39,5 +39,6 @@ defaultMeta = Meta $ M.fromList
   , ("tableTemplate"  , MetaInlines [var "tableTitle",Space,var "i",var "titleDelim",Space,var "t"])
   , ("listingTemplate", MetaInlines [var "listingTitle",Space,var "i",var "titleDelim",Space,var "t"])
   , ("crossrefYaml"   , MetaString "pandoc-crossref.yaml")
+  , ("chaptersDepth"  , MetaString "1")
   ]
   where var = Math DisplayMath

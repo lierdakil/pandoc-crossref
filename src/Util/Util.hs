@@ -2,6 +2,7 @@ module Util.Util where
 
 import Text.Pandoc.Definition
 import Data.Char (toUpper, toLower, isUpper)
+import Data.List (intercalate)
 
 isFormat :: String -> Maybe Format -> Bool
 isFormat fmt (Just (Format f)) = takeWhile (`notElem` "+-") f == fmt
@@ -18,3 +19,6 @@ uncapitalizeFirst [] = []
 isFirstUpper :: String -> Bool
 isFirstUpper (x:_) = isUpper x
 isFirstUpper [] = False
+
+chapPrefix :: [Inline] -> [Int] -> Int -> [Inline]
+chapPrefix delim chap index = intercalate delim (map (return . Str . show) (chap++[index]))

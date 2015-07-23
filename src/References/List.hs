@@ -24,7 +24,7 @@ makeList :: Options -> (Options -> [Block]) -> [Block] -> M.Map String RefRec ->
 makeList opts titlef xs refs
   = return $
       titlef opts ++
-      (if sepChapters opts
+      (if chapDepth opts > 0
         then Div ("", ["list"], []) (itemChap `map` refsSorted)
         else OrderedList style (item `map` refsSorted))
       : xs
@@ -33,9 +33,5 @@ makeList opts titlef xs refs
     compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j
     item = (:[]) . Plain . refTitle . snd
     itemChap = Para . uncurry ((. (Space :)) . (++)) . (numWithChap . refIndex &&& refTitle) . snd
-    numWithChap (c,i)
-      | c > 0 = s c : chapDelim opts ++ [s i]
-      | otherwise = [s i]
-      where
-        s = Str . show
+    numWithChap = uncurry $ chapPrefix (chapDelim opts)
     style = (1,DefaultStyle,DefaultDelim)

@@ -110,14 +110,14 @@ replaceRefsOther prefix opts cits = do
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
   return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) ++ concatMap (makeIndices opts) indices'
 
-getRefIndex :: String -> Citation -> WS (Maybe (Int, Int), [Inline])
+getRefIndex :: String -> Citation -> WS (Maybe ([Int], Int), [Inline])
 getRefIndex prefix Citation{citationId=cid,citationSuffix=suf}
   = (\x -> (x,suf)) `fmap` gets (fmap refIndex . M.lookup lab . getProp prop)
   where
   prop = lookupUnsafe prefix accMap
   lab = prefix ++ getLabelWithoutPrefix cid
 
-makeIndices :: Options -> [(Maybe (Int, Int), [Inline])] -> [Inline]
+makeIndices :: Options -> [(Maybe ([Int], Int), [Inline])] -> [Inline]
 makeIndices _ s | any (isNothing . fst) s = [Strong [Str "??"]]
 makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ map (A.first fromJust) $ filter (isJust . fst) s
   where
@@ -133,7 +133,4 @@ makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ map (A.firs
   f [w1,w2] = show' w2 ++ sep ++ show' w1 -- two values
   f (x:xs) = show' (last xs) ++ rangeDelim o ++ show' x -- shorten more than two values
   sep = [Str ", "]
-  show' ((c,n),suf) = (if sepChapters o && c>0
-                          then [Str $ show c] ++ chapDelim o ++ [Str $ show n]
-                          else [Str $ show n])
-                      ++ suf
+  show' ((c,n),suf) = chapPrefix (chapDelim o) c n ++ suf

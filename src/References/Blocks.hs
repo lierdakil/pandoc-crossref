@@ -15,11 +15,16 @@ import Util.Options
 import Util.Template
 
 replaceBlocks :: Options -> Block -> WS Block
-replaceBlocks opts x@(Header 1 (_, cls, _) _)
-  | sepChapters opts
+replaceBlocks _opts x@(Header n (_, cls, _) _)
   = do
     unless ("unnumbered" `elem` cls) $
-      modify (\r@References{curChap=cc} -> r{curChap=cc+1})
+      modify $ \r@References{curChap=cc} ->
+        let ln = length cc
+            inc l = init l ++ [last l + 1]
+            cc' | ln > n = inc $ take n cc
+                | ln == n = inc cc
+                | otherwise = cc ++ take (n-ln) [1,1..]
+        in r{curChap=cc'}
     return x
 replaceBlocks opts (Para (Image alt img:c))
   | Just label <- getRefLabel "fig" c
@@ -115,12 +120,10 @@ getRefLabel _ _ = Nothing
 replaceAttr :: Options -> String -> [Inline] -> Accessor References RefMap -> WS [Inline]
 replaceAttr o label title prop
   = do
-    chap  <- gets curChap
+    chap  <- take (chapDepth o) `fmap` gets curChap
     index <- (1+) `fmap` gets (M.size . M.filter ((==chap) . fst . refIndex) . getProp prop)
     modify $ modifyProp prop $ M.insert label RefRec {
       refIndex=(chap,index)
     , refTitle=normalizeSpaces title
     }
-    if sepChapters o && chap>0
-    then return $ Str (show chap) : chapDelim o ++ [Str (show index)]
-    else return [Str (show index)]
+    return $ chapPrefix (chapDelim o) chap index

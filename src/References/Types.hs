@@ -10,7 +10,7 @@ import Text.Pandoc.Definition
 import Control.Monad.State
 import Data.Default
 
-data RefRec = RefRec { refIndex :: (Int, Int)
+data RefRec = RefRec { refIndex :: ([Int], Int)
                      , refTitle :: [Inline]
                      } deriving (Show, Eq)
 
@@ -21,12 +21,12 @@ data References = References { imgRefs :: RefMap
                              , eqnRefs :: RefMap
                              , tblRefs :: RefMap
                              , lstRefs :: RefMap
-                             , curChap :: Int
+                             , curChap :: [Int]
                              } deriving (Show, Eq)
 
 --state monad
 type WS a = State References a
 
 instance Default References where
-  def = References n n n n 0
+  def = References n n n n []
     where n = M.empty

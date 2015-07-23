@@ -10,7 +10,7 @@ import Data.Default
 -- import Control.Monad.Identity
 
 data Options = Options { useCleveref :: Bool
-                       , sepChapters :: Bool
+                       , chapDepth   :: Int
                        , useListings :: Bool
                        , cbCaptions  :: Bool
                        , figPrefix   :: Bool -> Int -> [Inline]
@@ -32,7 +32,9 @@ getOptions :: Meta -> Maybe Format -> Options
 getOptions dtv fmt =
   Options {
       useCleveref = getMetaBool "cref" dtv
-    , sepChapters = getMetaBool "chapters" dtv
+    , chapDepth   = if getMetaBool "chapters" dtv
+        then read $ getMetaString "chaptersDepth" dtv
+        else 0
     , useListings = getMetaBool "listings" dtv
     , cbCaptions  = getMetaBool "codeBlockCaptions" dtv
     , figPrefix   = tryCapitalizeM (flip (getMetaList toInlines) dtv) "figPrefix"

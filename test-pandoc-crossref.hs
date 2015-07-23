@@ -128,7 +128,7 @@ refGen :: String -> [Int] -> [Int] -> M.Map String RefRec
 refGen p l1 l2 = M.fromList $ mconcat $ zipWith refRec'' (((uncapitalizeFirst p++) . show) `map` l1) l2
 
 refRec' :: String -> Int -> String -> [(String, RefRec)]
-refRec' ref i tit = [(ref, RefRec{refIndex=(0,i),refTitle=toList $ text tit})]
+refRec' ref i tit = [(ref, RefRec{refIndex=([],i),refTitle=toList $ text tit})]
 
 refRec'' :: String -> Int -> [(String, RefRec)]
 refRec'' ref i = refRec' ref i []
