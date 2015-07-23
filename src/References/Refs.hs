@@ -108,7 +108,7 @@ replaceRefsOther prefix opts cits = do
   let
     indices' = groupBy ((==) `on` (fmap fst . fst)) (sort indices)
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
-  return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) ++ concatMap (makeIndices opts) indices'
+  return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) ++ intercalate [Str ",", Space]  (makeIndices opts `map` indices')
 
 getRefIndex :: String -> Citation -> WS (Maybe ([Int], Int), [Inline])
 getRefIndex prefix Citation{citationId=cid,citationSuffix=suf}
@@ -132,5 +132,5 @@ makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ map (A.firs
   f [w] = show' w                    -- single value
   f [w1,w2] = show' w2 ++ sep ++ show' w1 -- two values
   f (x:xs) = show' (last xs) ++ rangeDelim o ++ show' x -- shorten more than two values
-  sep = [Str ", "]
+  sep = [Str ",", Space]
   show' ((c,n),suf) = chapPrefix (chapDelim o) c n ++ suf

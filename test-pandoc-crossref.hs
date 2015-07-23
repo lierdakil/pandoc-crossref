@@ -61,6 +61,8 @@ main = hspec $ do
         testRefs' "lst:" [1] [4] lstRefs' "lst.\160\&4"
       it "References multiple listings" $
         testRefs' "lst:" [1..3] [4..6] lstRefs' "lsts.\160\&4-6"
+      it "Separates references to different chapter items by a comma" $
+        testRefs'' "lst:" [1..6] (zip [1,1..] [4..6] ++ zip [2,2..] [7..9]) lstRefs' "lsts.\160\&1.4-1.6, 2.7-2.9"
 
     describe "References.Refs.replaceRefs capitalization" $ do
       it "References one image" $
@@ -127,14 +129,23 @@ citeGen p l = cite (mconcat $ map (cit . (p++) . show) l) $ text $
 refGen :: String -> [Int] -> [Int] -> M.Map String RefRec
 refGen p l1 l2 = M.fromList $ mconcat $ zipWith refRec'' (((uncapitalizeFirst p++) . show) `map` l1) l2
 
+refGen' :: String -> [Int] -> [(Int, Int)] -> M.Map String RefRec
+refGen' p l1 l2 = M.fromList $ mconcat $ zipWith refRec''' (((uncapitalizeFirst p++) . show) `map` l1) l2
+
 refRec' :: String -> Int -> String -> [(String, RefRec)]
 refRec' ref i tit = [(ref, RefRec{refIndex=([],i),refTitle=toList $ text tit})]
 
 refRec'' :: String -> Int -> [(String, RefRec)]
 refRec'' ref i = refRec' ref i []
 
+refRec''' :: String -> (Int, Int) -> [(String, RefRec)]
+refRec''' ref (c,i) = [(ref, RefRec{refIndex=([c],i),refTitle=toList $ text []})]
+
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen p l1 l2) def) (para $ text res)
+
+testRefs'' :: String -> [Int] -> [(Int, Int)] -> Accessor References (M.Map String RefRec) -> String -> Expectation
+testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen' p l1 l2) def) (para $ text res)
 
 testBlocks :: Blocks -> (Blocks, References) -> Expectation
 testBlocks arg res = runState (walkM (f defaultOptions) arg) def `shouldBe` res
