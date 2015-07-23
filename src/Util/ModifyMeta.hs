@@ -45,7 +45,9 @@ modifyMeta opts meta
         codelisting = [
             "\\usepackage{float}"
           , "\\floatstyle{ruled}"
-          , "\\newfloat{codelisting}{h}{lop}"
+          , "\\makeatletter"
+          , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
+          , "\\makeatother"
           , "\\floatname{codelisting}{"++metaString "listingTitle"++"}"
           ]
         lolcommand
