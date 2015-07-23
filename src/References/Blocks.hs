@@ -121,6 +121,6 @@ replaceAttr o label title prop
       refIndex=(chap,index)
     , refTitle=normalizeSpaces title
     }
-    if sepChapters o
+    if sepChapters o && chap>0
     then return $ Str (show chap) : chapDelim o ++ [Str (show index)]
     else return [Str (show index)]
