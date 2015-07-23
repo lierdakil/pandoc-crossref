@@ -116,7 +116,7 @@ replaceAttr :: Options -> String -> [Inline] -> Accessor References RefMap -> WS
 replaceAttr o label title prop
   = do
     chap  <- gets curChap
-    index <- (1+) `fmap` gets (M.size . getProp prop)
+    index <- (1+) `fmap` gets (M.size . M.filter ((==chap) . fst . refIndex) . getProp prop)
     modify $ modifyProp prop $ M.insert label RefRec {
       refIndex=(chap,index)
     , refTitle=normalizeSpaces title
