@@ -15,10 +15,11 @@ import Util.Options
 import Util.Template
 
 replaceBlocks :: Options -> Block -> WS Block
-replaceBlocks opts x@(Header 1 _ _)
+replaceBlocks opts x@(Header 1 (_, cls, _) _)
   | sepChapters opts
   = do
-    modify (\r@References{curChap=cc} -> r{curChap=cc+1})
+    unless ("unnumbered" `elem` cls) $
+      modify (\r@References{curChap=cc} -> r{curChap=cc+1})
     return x
 replaceBlocks opts (Para (Image alt img:c))
   | Just label <- getRefLabel "fig" c
