@@ -5,10 +5,13 @@ figureTitle: "Figure \\#"
 lofTitle: "## List of Figures"
 lotTitle: "## List of Tables"
 tableTemplate: "*$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$"
-chapters: true
 ---
 
 This is a demo file for pandoc-crossref. With this filter, you can cross-reference figures (see [@fig:figure1;@fig:figure2;@fig:figure3]), display equations (see @eq:eqn1) and tables (see [@tbl:table1])
+
+For immediate example, see @fig:figure0
+
+![A figure](img1.jpg){#fig:figure0}
 
 There is also support for code blocks, for example, [@lst:captionAttr; @lst:tableCaption; @lst:wrappingDiv]
 
@@ -17,8 +20,6 @@ It's possible to capitalize reference prefixes, like this: [@Fig:figure1].
 In case of multiple references, capitalization is determined by first reference. [@Fig:figure1; @fig:figure2] is capitalized, while [@fig:figure2; @Fig:figure1] is not.
 
 It is also possible to mix different references, like [@fig:figure1; @tbl:table1; @lst:captionAttr; @lst:tableCaption; @fig:figure2; @fig:figure3], which will be grouped in order they are specified. You can even intermix this with regular citations, although it's not recommended: [@fig:figure1; @tbl:table1; @unprocessedCitation]
-
-![A figure](img1.jpg){#fig:figure0}
 
 # Chapter 1. Figures
 
