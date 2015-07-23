@@ -32,6 +32,7 @@ defaultMeta = Meta $ M.fromList
   , ("eqnPrefix"      , MetaList [MetaInlines [Str "eq."], MetaInlines [Str "eqns."]])
   , ("tblPrefix"      , MetaList [MetaInlines [Str "tbl."], MetaInlines [Str "tbls."]])
   , ("lstPrefix"      , MetaList [MetaInlines [Str "lst."], MetaInlines [Str "lsts."]])
+  , ("secPrefix"      , MetaList [MetaInlines [Str "sec."], MetaInlines [Str "secs."]])
   , ("lofTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Figures"]])
   , ("lotTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Tables"]])
   , ("lolTitle"       , MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Listings"]])

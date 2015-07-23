@@ -45,6 +45,7 @@ accMap = M.fromList [("fig:",imgRefs')
                     ,("eq:" ,eqnRefs')
                     ,("tbl:",tblRefs')
                     ,("lst:",lstRefs')
+                    ,("sec:",secRefs')
                     ]
 
 -- accessors to options
@@ -53,6 +54,7 @@ prefMap = M.fromList [("fig:",figPrefix)
                      ,("eq:" ,eqnPrefix)
                      ,("tbl:",tblPrefix)
                      ,("lst:",lstPrefix)
+                     ,("sec:",secPrefix)
                      ]
 
 prefixes :: [String]

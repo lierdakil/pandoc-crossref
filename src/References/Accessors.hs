@@ -14,3 +14,6 @@ tblRefs' new r@References{tblRefs=old} = (old, r{tblRefs=new})
 
 lstRefs' :: Accessor References RefMap
 lstRefs' new r@References{lstRefs=old} = (old, r{lstRefs=new})
+
+secRefs' :: Accessor References RefMap
+secRefs' new r@References{secRefs=old} = (old, r{secRefs=new})

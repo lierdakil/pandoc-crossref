@@ -17,6 +17,7 @@ data Options = Options { useCleveref :: Bool
                        , eqnPrefix   :: Bool -> Int -> [Inline]
                        , tblPrefix   :: Bool -> Int -> [Inline]
                        , lstPrefix   :: Bool -> Int -> [Inline]
+                       , secPrefix   :: Bool -> Int -> [Inline]
                        , chapDelim   :: [Inline]
                        , rangeDelim  :: [Inline]
                        , lofTitle    :: [Block]
@@ -41,6 +42,7 @@ getOptions dtv fmt =
     , eqnPrefix   = tryCapitalizeM (flip (getMetaList toInlines) dtv) "eqnPrefix"
     , tblPrefix   = tryCapitalizeM (flip (getMetaList toInlines) dtv) "tblPrefix"
     , lstPrefix   = tryCapitalizeM (flip (getMetaList toInlines) dtv) "lstPrefix"
+    , secPrefix   = tryCapitalizeM (flip (getMetaList toInlines) dtv) "secPrefix"
     , chapDelim   = getMetaInlines "chapDelim" dtv
     , rangeDelim  = getMetaInlines "rangeDelim" dtv
     , lofTitle    = getMetaBlock "lofTitle" dtv

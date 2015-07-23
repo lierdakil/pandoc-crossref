@@ -15,9 +15,9 @@ import Util.Options
 import Util.Template
 
 replaceBlocks :: Options -> Block -> WS Block
-replaceBlocks _opts x@(Header n (_, cls, _) _)
+replaceBlocks _opts x@(Header n (label, cls, _) text')
   = do
-    unless ("unnumbered" `elem` cls) $
+    unless ("unnumbered" `elem` cls) $ do
       modify $ \r@References{curChap=cc} ->
         let ln = length cc
             inc l = init l ++ [last l + 1]
@@ -25,6 +25,9 @@ replaceBlocks _opts x@(Header n (_, cls, _) _)
                 | ln == n = inc cc
                 | otherwise = cc ++ take (n-ln) [1,1..]
         in r{curChap=cc'}
+      when ("sec:" `isPrefixOf` label) $ do
+        replaceAttrSec label text' secRefs'
+        return ()
     return x
 replaceBlocks opts (Para (Image alt img:c))
   | Just label <- getRefLabel "fig" c
@@ -127,3 +130,13 @@ replaceAttr o label title prop
     , refTitle=normalizeSpaces title
     }
     return $ chapPrefix (chapDelim o) chap index
+
+replaceAttrSec :: String -> [Inline] -> Accessor References RefMap -> WS ()
+replaceAttrSec label title prop
+  = do
+    chap  <- gets curChap
+    modify $ modifyProp prop $ M.insert label RefRec {
+      refIndex=(init chap,last chap)
+    , refTitle=normalizeSpaces title
+    }
+    return ()
