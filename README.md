@@ -77,6 +77,14 @@ To label a table, append `{#tbl:label}` at the end of table caption (with `label
 
 There are a couple options to add code block labels. Those work only if code block id starts with `lst:`, e.g. `{#lst:label}`
 
+### Section labels
+
+You can also reference sections of any level. Section labels use native pandoc syntax, but must start with "sec:", e.g.
+
+```markdown
+# Section {#sec:section}
+```
+
 #### `caption` attribute
 
 `caption` attribute will be treated as code block caption. If code block has both id and `caption` attributes, it will be treated as numbered code block.
@@ -179,6 +187,8 @@ Following variables are supported:
 * `eqnPrefix`, default `eq.`, `eqns.`: Prefix for references to equations, e.g. `eqns. 3,4`
 * `tblPrefix`, default `tbl.`, `tbls.`: Prefix for references to tables, e.g. `tbl. 2`
 * `lstPrefix`, default `lst.`, `lsts.`: Prefix for references to lists, e.g. `lsts. 2,5`
+* `secPrefix`, default `sec.`, `secs.`: Prefix for references to sections, e.g. `secs. 2,5`
+* `autoSectionLabels`, default `false`: Automatically prefix all section labels with `sec:`. Note that this messes with pandoc's automatic header references.
 * `chapDelim`, default `.`: Delimiter between chapter number and item number.
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
 * `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
