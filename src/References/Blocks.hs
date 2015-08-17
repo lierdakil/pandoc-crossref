@@ -15,7 +15,7 @@ import Util.Options
 import Util.Template
 
 replaceBlocks :: Options -> Block -> WS Block
-replaceBlocks opts x@(Header n (label, cls, attrs) text')
+replaceBlocks opts (Header n (label, cls, attrs) text')
   = do
     let label' = if autoSecLab opts && not ("sec:" `isPrefixOf` label)
                  then "sec:"++label
