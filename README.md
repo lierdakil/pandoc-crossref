@@ -85,6 +85,8 @@ You can also reference sections of any level. Section labels use native pandoc s
 # Section {#sec:section}
 ```
 
+You can also use `autoSectionLabels` variable to automatically prepend all section labels (automatically generated with pandoc included) with "sec:". Bear in mind that references can't contain periods, commas etc, so some auto-generated labels will still be unusable.
+
 #### `caption` attribute
 
 `caption` attribute will be treated as code block caption. If code block has both id and `caption` attributes, it will be treated as numbered code block.

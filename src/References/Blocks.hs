@@ -15,8 +15,11 @@ import Util.Options
 import Util.Template
 
 replaceBlocks :: Options -> Block -> WS Block
-replaceBlocks _opts x@(Header n (label, cls, _) text')
+replaceBlocks opts x@(Header n (label, cls, attrs) text')
   = do
+    let label' = if autoSecLab opts && not ("sec:" `isPrefixOf` label)
+                 then "sec:"++label
+                 else label
     unless ("unnumbered" `elem` cls) $ do
       modify $ \r@References{curChap=cc} ->
         let ln = length cc
@@ -25,10 +28,8 @@ replaceBlocks _opts x@(Header n (label, cls, _) text')
                 | ln == n = inc cc
                 | otherwise = cc ++ take (n-ln) [1,1..]
         in r{curChap=cc'}
-      when ("sec:" `isPrefixOf` label) $ do
-        replaceAttrSec label text' secRefs'
-        return ()
-    return x
+      when ("sec:" `isPrefixOf` label') $ replaceAttrSec label' text' secRefs'
+    return $ Header n (label', cls, attrs) text'
 replaceBlocks opts (Para (Image alt img:c))
   | Just label <- getRefLabel "fig" c
   = do

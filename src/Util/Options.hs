@@ -13,6 +13,7 @@ data Options = Options { useCleveref :: Bool
                        , chapDepth   :: Int
                        , useListings :: Bool
                        , cbCaptions  :: Bool
+                       , autoSecLab  :: Bool
                        , figPrefix   :: Bool -> Int -> [Inline]
                        , eqnPrefix   :: Bool -> Int -> [Inline]
                        , tblPrefix   :: Bool -> Int -> [Inline]
@@ -38,6 +39,7 @@ getOptions dtv fmt =
         else 0
     , useListings = getMetaBool "listings" dtv
     , cbCaptions  = getMetaBool "codeBlockCaptions" dtv
+    , autoSecLab  = getMetaBool "autoSectionLabels" dtv
     , figPrefix   = tryCapitalizeM (flip (getMetaList toInlines) dtv) "figPrefix"
     , eqnPrefix   = tryCapitalizeM (flip (getMetaList toInlines) dtv) "eqnPrefix"
     , tblPrefix   = tryCapitalizeM (flip (getMetaList toInlines) dtv) "tblPrefix"
