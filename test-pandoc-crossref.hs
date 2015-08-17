@@ -43,6 +43,11 @@ main = hspec $ do
         testBlocks (codeBlockDiv "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
           def{lstRefs=M.fromList $ refRec' "lst:codeblock" 1 "Test code block"})
+      it "Labels sections divs" $
+        testBlocks (section "Section Header" 1 "section")
+        (section "Section Header" 1 "section",
+          def{secRefs=M.fromList $ refRec' "sec:section" 1 "Section Header",
+              curChap=[1]})
 
     describe "References.Refs.replaceRefs" $ do
       it "References one image" $
@@ -61,6 +66,10 @@ main = hspec $ do
         testRefs' "lst:" [1] [4] lstRefs' "lst.\160\&4"
       it "References multiple listings" $
         testRefs' "lst:" [1..3] [4..6] lstRefs' "lsts.\160\&4-6"
+      it "References one section" $
+        testRefs' "sec:" [1] [4] secRefs' "sec.\160\&4"
+      it "References multiple sections" $
+        testRefs' "sec:" [1..3] [4..6] secRefs' "secs.\160\&4-6"
       it "Separates references to different chapter items by a comma" $
         testRefs'' "lst:" [1..6] (zip [1,1..] [4..6] ++ zip [2,2..] [7..9]) lstRefs' "lsts.\160\&1.4-1.6, 2.7-2.9"
 
@@ -81,6 +90,10 @@ main = hspec $ do
         testRefs' "Lst:" [1] [4] lstRefs' "Lst.\160\&4"
       it "References multiple listings" $
         testRefs' "Lst:" [1..3] [4..6] lstRefs' "Lsts.\160\&4-6"
+      it "References one listing" $
+        testRefs' "Sec:" [1] [4] secRefs' "Sec.\160\&4"
+      it "References multiple listings" $
+        testRefs' "Sec:" [1..3] [4..6] secRefs' "Secs.\160\&4-6"
 
     describe "References.List.listOf" $ do
       it "Generates list of tables" $
@@ -162,6 +175,9 @@ testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions)
 
 figure :: String -> String -> String -> String -> Blocks
 figure src title alt ref = para (image src title (text alt) <> ref' "fig" ref)
+
+section :: String -> Int -> String -> Blocks
+section text' level label = headerWith ("sec:" ++ label,[],[]) level (text text')
 
 equation :: String -> String -> Blocks
 equation eq ref = para (displayMath eq <> ref' "eq" ref)
