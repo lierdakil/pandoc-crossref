@@ -73,7 +73,7 @@ Test-Suite test-pandoc-crossref
   other-extensions: CPP
   hs-source-dirs: ., src
   Build-Depends:   base >=4.2 && <5
-                 , pandoc >= 1.13 && <1.15
+                 , pandoc >= 1.13 && <1.16
                  , mtl >= 1.1 && <2.3
                  , containers >= 0.1 && <0.6
                  , pandoc-types >= 1.12.4.1 && < 1.13
