@@ -178,7 +178,8 @@ There are several parameters that can be set via YAML metadata (either by passin
 Following variables are supported:
 
 * `cref`: if True, latex export will use `\cref` from cleveref package. Only relevant for LaTeX output. `\usepackage{cleveref}` will be automatically added to `header-includes`.
-* `chapter`: if True, number elements as `chapter.item`, and restart `item` on each first-level heading (as `--chapters` for latex/pdf output)
+* `chapters`: if True, number elements as `chapter.item`, and restart `item` on each first-level heading (as `--chapters` for latex/pdf output)
+* `chaptersDepth`, default `1`: header level to treat as "chapter". If `chaptersDepth>1`, then items will be prefixed with several numbers, corresponding to header numbers, e.g. `fig. 1.4.3`.
 * `listings`: if True, generate code blocks for `listings` package. Only relevant for LaTeX output. `\usepackage{listings}` will be automatically added to `header-includes`. You need to specify `--listings` option as well.
 * `codeBlockCaptions`: if True, parse table-style code block captions.
 * `figureTitle`, default `Figure`: Word(s) to prepend to figure titles, e.g. `Figure 1: Description`
