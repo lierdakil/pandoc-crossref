@@ -162,7 +162,7 @@ testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refG
 
 testBlocks :: Blocks -> (Blocks, References) -> Expectation
 testBlocks arg res = runState (walkM (f defaultOptions) arg) def `shouldBe` res
-  where f = References.Blocks.replaceBlocks
+  where f = (. References.Blocks.divBlocks) . References.Blocks.replaceBlocks
 
 testRefs :: Blocks -> References -> Blocks -> Expectation
 testRefs bs st res = runState (bottomUpM (References.Refs.replaceRefs defaultOptions) (toList bs)) st `shouldBe` (toList res,st)

@@ -17,7 +17,7 @@ go fmt (Pandoc meta bs) = do
   dtv <- getSettings meta
   let
     doWalk =
-      bottomUpM (codeBlockCaptions opts) bs
+      bottomUpM (codeBlockCaptions opts) (walk divBlocks bs)
       >>= walkM (replaceBlocks opts)
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)

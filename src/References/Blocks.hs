@@ -1,4 +1,4 @@
-module References.Blocks (replaceBlocks) where
+module References.Blocks (divBlocks, replaceBlocks) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder (text, toList)
@@ -30,8 +30,8 @@ replaceBlocks opts (Header n (label, cls, attrs) text')
         in r{curChap=cc'}
       when ("sec:" `isPrefixOf` label') $ replaceAttrSec label' text' secRefs'
     return $ Header n (label', cls, attrs) text'
-replaceBlocks opts (Para (Image alt img:c))
-  | Just label <- getRefLabel "fig" c
+replaceBlocks opts (Div (label,_,_) [Plain [Image alt img]])
+  | "fig:" `isPrefixOf` label
   = do
     idxStr <- replaceAttr opts label alt imgRefs'
     let alt' = case outFormat opts of
@@ -39,8 +39,8 @@ replaceBlocks opts (Para (Image alt img:c))
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
     return $ Para [Image alt' (fst img,"fig:")]
-replaceBlocks opts (Para (Math DisplayMath eq:c))
-  | Just label <- getRefLabel "eq" c
+replaceBlocks opts (Div (label,_,_) [Plain [Math DisplayMath eq]])
+  | "eq:" `isPrefixOf` label
   = case outFormat opts of
       f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
@@ -49,9 +49,9 @@ replaceBlocks opts (Para (Math DisplayMath eq:c))
         idxStr <- replaceAttr opts label [] eqnRefs'
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Para [Math DisplayMath eq']
-replaceBlocks opts (Table title align widths header cells)
+replaceBlocks opts (Div (label,_,_) [Table title align widths header cells])
   | not $ null title
-  , Just label <- getRefLabel "tbl" [last title]
+  , "tbl:" `isPrefixOf` label
   = do
     idxStr <- replaceAttr opts label (init title) tblRefs'
     let title' =
@@ -110,6 +110,19 @@ replaceBlocks opts
           , CodeBlock ([], classes, attrs) code
           ]
 replaceBlocks _ x = return x
+
+divBlocks :: Block -> Block
+divBlocks (Para (Image alt img:c))
+  | Just label <- getRefLabel "fig" c
+  = Div (label,[],[]) [Plain [Image alt (fst img, "fig:")]]
+divBlocks (Para (math@(Math DisplayMath _eq):c))
+  | Just label <- getRefLabel "eq" c
+  = Div (label,[],[]) [Plain [math]]
+divBlocks (table@(Table title _align _widths _header _cells))
+  | not $ null title
+  , Just label <- getRefLabel "tbl" [last title]
+  = Div (label,[],[]) [table]
+divBlocks x = x
 
 getRefLabel :: String -> [Inline] -> Maybe String
 getRefLabel _ [] = Nothing
