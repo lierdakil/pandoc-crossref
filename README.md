@@ -73,10 +73,6 @@ a   b   c
 
 To label a table, append `{#tbl:label}` at the end of table caption (with `label` being something unique to reference this table by). Caption and label *must* be separated by at least one space.
 
-### Code Block labels
-
-There are a couple options to add code block labels. Those work only if code block id starts with `lst:`, e.g. `{#lst:label}`
-
 ### Section labels
 
 You can also reference sections of any level. Section labels use native pandoc syntax, but must start with "sec:", e.g.
@@ -86,6 +82,10 @@ You can also reference sections of any level. Section labels use native pandoc s
 ```
 
 You can also use `autoSectionLabels` variable to automatically prepend all section labels (automatically generated with pandoc included) with "sec:". Bear in mind that references can't contain periods, commas etc, so some auto-generated labels will still be unusable.
+
+### Code Block labels
+
+There are a couple options to add code block labels. Those work only if code block id starts with `lst:`, e.g. `{#lst:label}`
 
 #### `caption` attribute
 
