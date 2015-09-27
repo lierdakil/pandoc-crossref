@@ -1,4 +1,4 @@
-module Util.Accessor (Accessor, setProp, getProp, modifyProp) where
+module Text.Pandoc.CrossRef.Util.Accessor (Accessor, setProp, getProp, modifyProp) where
 
 -- from data-accessor http://www.haskell.org/haskellwiki/Record_access
 -- Copyright (c) Henning Thielemann <haskell@henning-thielemann.de>, Luke Palmer <lrpalmer@gmail.com>

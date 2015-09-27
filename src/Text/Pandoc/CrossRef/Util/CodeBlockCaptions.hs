@@ -1,4 +1,4 @@
-module Util.CodeBlockCaptions
+module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
     (
     codeBlockCaptions
     ) where
@@ -7,8 +7,8 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Shared (normalizeSpaces)
 import Data.List (isPrefixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
-import References.Types
-import Util.Options
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Options
 
 codeBlockCaptions :: Options -> [Block] -> WS [Block]
 codeBlockCaptions opts x@(cb@(CodeBlock _ _):p@(Para _):xs)

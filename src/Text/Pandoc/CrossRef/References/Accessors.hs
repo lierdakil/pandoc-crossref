@@ -1,7 +1,7 @@
-module References.Accessors where
+module Text.Pandoc.CrossRef.References.Accessors where
 
-import References.Types
-import Util.Accessor
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Accessor
 
 imgRefs' :: Accessor References RefMap
 imgRefs' new r@References{imgRefs=old} = (old, r{imgRefs=new})

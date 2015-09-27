@@ -1,4 +1,4 @@
-module References.Types ( References(..)
+module Text.Pandoc.CrossRef.References.Types ( References(..)
                         , WS
                         , RefRec(..)
                         , RefMap

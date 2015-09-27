@@ -3,22 +3,23 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.Walk
 import Text.Pandoc.Generic
-import Util.Options
-import Util.Util
 import Control.Monad.State
-import References.Types
-import Util.Settings
-import Util.Accessor
-import References.Accessors
-import qualified References.Blocks
-import qualified References.Refs
-import qualified References.List
-import qualified Util.Template
-import qualified Util.CodeBlockCaptions
-import qualified Data.Map as M
 import Data.Monoid
 import Data.List
 import Control.Arrow
+import qualified Data.Map as M
+
+import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Settings
+import Text.Pandoc.CrossRef.Util.Accessor
+import Text.Pandoc.CrossRef.References.Accessors
+import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
+import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
+import qualified Text.Pandoc.CrossRef.References.List as References.List
+import qualified Text.Pandoc.CrossRef.Util.Template as Util.Template
+import qualified Text.Pandoc.CrossRef.Util.CodeBlockCaptions as Util.CodeBlockCaptions
 
 main :: IO ()
 main = hspec $ do

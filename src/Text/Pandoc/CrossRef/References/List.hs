@@ -1,4 +1,4 @@
-module References.List (listOf) where
+module Text.Pandoc.CrossRef.References.List (listOf) where
 
 import Text.Pandoc.Definition
 import Control.Monad.State
@@ -6,9 +6,9 @@ import Control.Arrow
 import Data.List
 import qualified Data.Map as M
 
-import References.Types
-import Util.Util
-import Util.Options
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Options
 
 listOf :: Options -> [Block] -> WS [Block]
 listOf Options{outFormat=f} x | isFormat "latex" f = return x

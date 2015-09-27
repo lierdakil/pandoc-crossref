@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP #-}
-module Util.Meta where
+module Text.Pandoc.CrossRef.Util.Meta where
 
 import Text.Pandoc (readMarkdown)
 import Text.Pandoc.Shared (stringify)

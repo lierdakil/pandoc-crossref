@@ -1,4 +1,4 @@
-module Util.Util where
+module Text.Pandoc.CrossRef.Util.Util where
 
 import Text.Pandoc.Definition
 import Data.Char (toUpper, toLower, isUpper)

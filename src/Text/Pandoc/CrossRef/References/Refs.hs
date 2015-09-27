@@ -1,4 +1,4 @@
-module References.Refs (replaceRefs) where
+module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared (normalizeInlines, normalizeSpaces)
@@ -9,11 +9,11 @@ import Data.Function
 import qualified Data.Map as M
 import Control.Arrow as A
 
-import Util.Accessor
-import References.Types
-import References.Accessors
-import Util.Util
-import Util.Options
+import Text.Pandoc.CrossRef.Util.Accessor
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Accessors
+import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Options
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
 replaceRefs opts (Cite cits _:xs)

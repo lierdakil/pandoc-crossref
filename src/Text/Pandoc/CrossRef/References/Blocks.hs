@@ -1,4 +1,4 @@
-module References.Blocks (divBlocks, replaceBlocks) where
+module Text.Pandoc.CrossRef.References.Blocks (divBlocks, replaceBlocks) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder (text, toList)
@@ -7,12 +7,12 @@ import Control.Monad.State
 import Data.List
 import qualified Data.Map as M
 
-import Util.Accessor
-import References.Types
-import References.Accessors
-import Util.Util
-import Util.Options
-import Util.Template
+import Text.Pandoc.CrossRef.Util.Accessor
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Accessors
+import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Template
 
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')

@@ -1,10 +1,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Util.Options (Options(..), getOptions) where
+module Text.Pandoc.CrossRef.Util.Options (Options(..), getOptions) where
 import Text.Pandoc.Definition
-import Util.Meta
-import Util.Template
-import Util.Util (capitalizeFirst)
+import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.Util (capitalizeFirst)
 import Text.Pandoc.Walk
 import Data.Default
 -- import Control.Monad.Identity
