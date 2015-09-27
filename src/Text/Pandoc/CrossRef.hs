@@ -1,4 +1,11 @@
-module Text.Pandoc.CrossRef where
+module Text.Pandoc.CrossRef (
+    getSettings
+  , crossRefBlocks
+  , crossRefMeta
+  , runCrossRef
+  , runCrossRefIO
+  , module SG
+  ) where
 
 import Control.Monad.State
 import qualified Control.Monad.Reader as R
@@ -11,6 +18,7 @@ import Text.Pandoc.CrossRef.Util.Settings
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.ModifyMeta
+import Text.Pandoc.CrossRef.Util.SettingsGen as SG
 
 data CrossRefEnv = CrossRefEnv {
                       creSettings :: Meta
@@ -18,9 +26,6 @@ data CrossRefEnv = CrossRefEnv {
                    }
 
 type CrossRefM a = R.Reader CrossRefEnv a
-
-getSettingsFromFile :: Meta -> IO Meta
-getSettingsFromFile = getSettings
 
 crossRefBlocks :: [Block] -> CrossRefM [Block]
 crossRefBlocks blocks = do
