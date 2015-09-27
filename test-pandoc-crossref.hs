@@ -6,6 +6,7 @@ import Text.Pandoc.Generic
 import Control.Monad.State
 import Data.List
 import Control.Arrow
+import Data.Monoid -- needed for ghc<7.10
 import qualified Data.Map as M
 
 import Text.Pandoc.CrossRef.Util.Options
