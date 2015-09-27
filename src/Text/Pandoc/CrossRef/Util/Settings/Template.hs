@@ -1,5 +1,5 @@
 {-# LANGUAGE QuasiQuotes, TemplateHaskell, RankNTypes, FlexibleInstances #-}
-module Text.Pandoc.CrossRef.Util.SettingsTemplate where
+module Text.Pandoc.CrossRef.Util.Settings.Template where
 
 import Language.Haskell.TH
 import Text.Pandoc

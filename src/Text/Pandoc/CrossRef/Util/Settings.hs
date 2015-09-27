@@ -5,7 +5,7 @@ import Text.Pandoc
 import Text.Pandoc.Builder
 import Control.Exception (handle,IOException)
 
-import Text.Pandoc.CrossRef.Util.SettingsGen as SettingsGen
+import Text.Pandoc.CrossRef.Util.Settings.Gen
 import Text.Pandoc.CrossRef.Util.Meta
 
 getSettings :: Meta -> IO Meta

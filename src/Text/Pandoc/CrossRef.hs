@@ -18,7 +18,7 @@ import Text.Pandoc.CrossRef.Util.Settings
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.ModifyMeta
-import Text.Pandoc.CrossRef.Util.SettingsGen as SG
+import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
 
 data CrossRefEnv = CrossRefEnv {
                       creSettings :: Meta
