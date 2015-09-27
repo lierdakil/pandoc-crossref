@@ -15,11 +15,12 @@ env:
     - 'GHCOPTS="-Werror" PANDOCVER="master"'
   global:
     - FILENAME="$TRAVIS_BRANCH-${TRAVIS_JOB_NUMBER##*.}.tgz"
+    - FILENAMEM="master-${TRAVIS_JOB_NUMBER##*.}.tgz"
     - secure: QQQhMe9eNn743ceHlrN/eM72RviXD9Qclhc2h4zr9wXz7c2ArTHEXCz8ovorR/ZS7OVr/WqoOIo6T0aqTotwiQ9Yd9YBs/Yd4idzyo73SsbFywomBr9SMrqXJXuQsxUZGIomtNeZiI8dI7MR9TLhl4T4oeYD1OPnq0yCWY0liOY=
     - secure: UHEU6mqOPdYPY7fxacz6/Y3XcqfTjfOU8C2qyRlRUJbSrohpR+8acyswZrEo+4z4OQdSzCmbyMWTw2f+DWKyy0kI4wib3TvOw/Y5rAhDRxllTLLdI+1/ApTv/Ma3qT9Zf8dj6ezbKuGvtXV55prComHQWCBx8O5VtgrMT/Vp3Nc=
 before_install:
   - echo "Trying cached $TRAVIS_REPO_SLUG/$FILENAME"
-  - ( curl -s --ftp-create-dirs --ftp-ssl --insecure -u $FTP_USER:$FTP_PASSWORD "ftp://livid.pp.ru:21548/$TRAVIS_REPO_SLUG/$FILENAME" | tar zx -C $HOME && rm -f $FILENAME ) || true
+  - ( curl -s --ftp-create-dirs --ftp-ssl --insecure -u $FTP_USER:$FTP_PASSWORD "ftp://livid.pp.ru:21548/$TRAVIS_REPO_SLUG/$FILENAME" | tar zx -C $HOME ) || ( curl -s --ftp-create-dirs --ftp-ssl --insecure -u $FTP_USER:$FTP_PASSWORD "ftp://livid.pp.ru:21548/$TRAVIS_REPO_SLUG/$FILENAMEM" | tar zx -C $HOME ) || true
   - find $HOME/.cabal/ $HOME/.ghc/ -type f | xargs sha1sum > $HOME/sha1sum.txt
 install:
   - 'test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal install && cd .. || true'
