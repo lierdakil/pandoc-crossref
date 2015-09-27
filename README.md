@@ -204,7 +204,7 @@ Following variables are supported:
 `figPrefix`, `eqnPrefix`, `tblPrefix`, `lstPrefix` can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.
 
 ```yaml
-fixPrefix:
+figPrefix:
   - "fig."
   - "figs."
 ```
