@@ -1,22 +1,20 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell #-}
+{-# LANGUAGE QuasiQuotes, TemplateHaskell, RankNTypes, FlexibleInstances #-}
 module Text.Pandoc.CrossRef.Util.SettingsTemplate where
 
 import Language.Haskell.TH
 import Text.Pandoc
+import Text.Pandoc.Builder
 
 genSetting :: String -> Q [Dec]
 genSetting name = do
-  sig <- [t| MetaValue -> Meta |]
+  sig <- [t| forall a. ToMetaValue a => a -> Meta |]
   return
     [ SigD func sig
     , FunD func [Clause [VarP value] (NormalB
-        (AppE (ConE $ mkName "Meta") (AppE (AppE (VarE (mkName "M.singleton")) (LitE (StringL name))) (VarE value)))
+        (AppE (ConE $ mkName "Meta")
+          (AppE (AppE (VarE (mkName "M.singleton")) (LitE (StringL name)))
+            (AppE (VarE (mkName "toMetaValue")) (VarE value))))
       ) []]]
   where
     func = mkName name
     value = mkName "value"
-
-genSettings :: [String] -> Q [Dec]
-genSettings = concatMapM genSetting
-  where
-    concatMapM f xs = fmap concat (mapM f xs)

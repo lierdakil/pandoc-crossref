@@ -6,26 +6,26 @@ import Text.Pandoc
 import qualified Data.Map as M
 
 import Text.Pandoc.CrossRef.Util.SettingsTemplate
+import Text.Pandoc.Builder
 
-$(genSettings
-    [ "figureTitle"
-    , "tableTitle"
-    , "listingTitle"
-    , "titleDelim"
-    , "chapDelim"
-    , "rangeDelim"
-    , "figPrefix"
-    , "eqnPrefix"
-    , "tblPrefix"
-    , "lstPrefix"
-    , "secPrefix"
-    , "lofTitle"
-    , "lotTitle"
-    , "lolTitle"
-    , "figureTemplate"
-    , "tableTemplate"
-    , "listingTemplate"
-    , "crossrefYaml"
-    , "chaptersDepth"
-    ]
-    )
+$(concat `fmap` mapM genSetting
+  [ "figureTitle"
+  , "tableTitle"
+  , "listingTitle"
+  , "titleDelim"
+  , "chapDelim"
+  , "rangeDelim"
+  , "figPrefix"
+  , "eqnPrefix"
+  , "tblPrefix"
+  , "lstPrefix"
+  , "secPrefix"
+  , "lofTitle"
+  , "lotTitle"
+  , "lolTitle"
+  , "figureTemplate"
+  , "tableTemplate"
+  , "listingTemplate"
+  , "crossrefYaml"
+  , "chaptersDepth"
+  ])

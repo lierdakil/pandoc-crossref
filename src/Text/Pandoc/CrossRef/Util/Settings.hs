@@ -2,8 +2,8 @@
 module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
 
 import Text.Pandoc
+import Text.Pandoc.Builder
 import Control.Exception (handle,IOException)
-import Data.Monoid
 
 import Text.Pandoc.CrossRef.Util.SettingsGen as SettingsGen
 import Text.Pandoc.CrossRef.Util.Meta
@@ -22,23 +22,23 @@ getSettings meta = do
 
 defaultMeta :: Meta
 defaultMeta =
-     figureTitle (MetaInlines [Str "Figure"])
-  <> tableTitle (MetaInlines [Str "Table"])
-  <> listingTitle (MetaInlines [Str "Listing"])
-  <> titleDelim (MetaInlines [Str ":"])
-  <> chapDelim (MetaInlines [Str "."])
-  <> rangeDelim (MetaInlines [Str "-"])
-  <> figPrefix (MetaList [MetaInlines [Str "fig."], MetaInlines [Str "figs."]])
-  <> eqnPrefix (MetaList [MetaInlines [Str "eq."], MetaInlines [Str "eqns."]])
-  <> tblPrefix (MetaList [MetaInlines [Str "tbl."], MetaInlines [Str "tbls."]])
-  <> lstPrefix (MetaList [MetaInlines [Str "lst."], MetaInlines [Str "lsts."]])
-  <> secPrefix (MetaList [MetaInlines [Str "sec."], MetaInlines [Str "secs."]])
-  <> lofTitle (MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Figures"]])
-  <> lotTitle (MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Tables"]])
-  <> lolTitle (MetaBlocks [Header 1 nullAttr [Str "List",Space,Str "of",Space,Str "Listings"]])
-  <> figureTemplate (MetaInlines [var "figureTitle",Space,var "i",var "titleDelim",Space,var "t"])
-  <> tableTemplate (MetaInlines [var "tableTitle",Space,var "i",var "titleDelim",Space,var "t"])
-  <> listingTemplate (MetaInlines [var "listingTitle",Space,var "i",var "titleDelim",Space,var "t"])
+     figureTitle (str "Figure")
+  <> tableTitle (str "Table")
+  <> listingTitle (str "Listing")
+  <> titleDelim (str ":")
+  <> chapDelim (str ".")
+  <> rangeDelim (str "-")
+  <> figPrefix ([str "fig.", str "figs."])
+  <> eqnPrefix ([str "eq." , str "eqns."])
+  <> tblPrefix ([str "tbl.", str "tbls."])
+  <> lstPrefix ([str "lst.", str "lsts."])
+  <> secPrefix ([str "sec.", str "secs."])
+  <> lofTitle (header 1 $ text "List of Figures")
+  <> lotTitle (header 1 $ text "List of Tables")
+  <> lolTitle (header 1 $ text "List of Listings")
+  <> figureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
+  <> tableTemplate (var "tableTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
+  <> listingTemplate (var "listingTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> crossrefYaml (MetaString "pandoc-crossref.yaml")
   <> chaptersDepth (MetaString "1")
-  where var = Math DisplayMath
+  where var = displayMath

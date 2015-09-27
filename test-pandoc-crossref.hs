@@ -4,7 +4,6 @@ import Text.Pandoc.Builder
 import Text.Pandoc.Walk
 import Text.Pandoc.Generic
 import Control.Monad.State
-import Data.Monoid
 import Data.List
 import Control.Arrow
 import qualified Data.Map as M
