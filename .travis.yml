@@ -1,59 +1,38 @@
-# NB: don't set `language: haskell` here
-
-# The following enables several GHC versions to be tested; often it's enough to test only against the last release in a major GHC version. Feel free to omit lines listings versions you don't need/want testing for.
+language: haskell
+ghc:
+  - '7.4'
+  - '7.6'
+  - '7.8'
+  - '7.10'
 sudo: false
+cache:
+  apt: true
 env:
-# - GHCVER=6.12.3
- - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER="<1.14"
- - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER="<1.14"
- - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER="<1.14"
- - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER="<1.14"
- - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER="<1.15"
- - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER="<1.15"
- - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER="<1.15"
- - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER="<1.15"
- - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER="<1.16"
- - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER="<1.16"
- - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER="<1.16"
- - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER="<1.16"
- - CABALVER=1.16 GHCVER=7.4.2 GHCOPTS="-Werror" PANDOCVER=master
- - CABALVER=1.18 GHCVER=7.6.3 GHCOPTS="-Werror" PANDOCVER=master
- - CABALVER=1.18 GHCVER=7.8.4 GHCOPTS="-Werror" PANDOCVER=master
- - CABALVER=1.22 GHCVER=7.10.1 GHCOPTS="" PANDOCVER=master
-# - GHCVER=head  # see section about GHC HEAD snapshots
-#
-addons:
-  apt:
-    sources:
-      - hvr-ghc
-    packages:
-      - cabal-install-1.16
-      - cabal-install-1.18
-      - cabal-install-1.22
-      - ghc-7.4.2
-      - ghc-7.6.3
-      - ghc-7.8.4
-      - ghc-7.10.1
-
-# Note: the distinction between `before_install` and `install` is not important.
+  matrix:
+    - 'GHCOPTS="-Werror" PANDOCVER="1.14"'
+    - 'GHCOPTS="-Werror" PANDOCVER="1.15"'
+    - 'GHCOPTS="-Werror" PANDOCVER="1.16"'
+    - 'GHCOPTS="-Werror" PANDOCVER="master"'
+  global:
+    - FILENAME="$TRAVIS_BRANCH-${TRAVIS_JOB_NUMBER##*.}.tgz"
+    - secure: QQQhMe9eNn743ceHlrN/eM72RviXD9Qclhc2h4zr9wXz7c2ArTHEXCz8ovorR/ZS7OVr/WqoOIo6T0aqTotwiQ9Yd9YBs/Yd4idzyo73SsbFywomBr9SMrqXJXuQsxUZGIomtNeZiI8dI7MR9TLhl4T4oeYD1OPnq0yCWY0liOY=
+    - secure: UHEU6mqOPdYPY7fxacz6/Y3XcqfTjfOU8C2qyRlRUJbSrohpR+8acyswZrEo+4z4OQdSzCmbyMWTw2f+DWKyy0kI4wib3TvOw/Y5rAhDRxllTLLdI+1/ApTv/Ma3qT9Zf8dj6ezbKuGvtXV55prComHQWCBx8O5VtgrMT/Vp3Nc=
 before_install:
- - export PATH=/opt/ghc/$GHCVER/bin:$PATH
-
-# Need something more sophisticated for cache
-#cache:
-#  directories:
-#    - $HOME/.cabal
-
+  - echo "Trying cached $TRAVIS_REPO_SLUG/$FILENAME"
+  - ( curl -s --ftp-create-dirs --ftp-ssl --insecure -u $FTP_USER:$FTP_PASSWORD "ftp://livid.pp.ru:21548/$TRAVIS_REPO_SLUG/$FILENAME" | tar zx -C $HOME && rm -f $FILENAME ) || true
+  - find $HOME/.cabal/ $HOME/.ghc/ -type f | xargs sha1sum > $HOME/sha1sum.txt
 install:
- - cabal-$CABALVER update
- - test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal-$CABALVER install && cd .. || true
- - test "$PANDOCVER" = "master" && cabal-$CABALVER install --only-dependencies --enable-tests || cabal-$CABALVER install --only-dependencies --enable-tests --constraint=pandoc"$PANDOCVER"
- - export PATH=$HOME/.cabal/bin:$PATH
-
-# Here starts the actual work to be performed for the package under test; any command which exits with a non-zero exit code causes the build to fail.
+  - 'test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal install && cd .. || true'
+  - 'test "$PANDOCVER" = "master" && cabal install --only-dependencies --enable-tests || cabal install --only-dependencies --enable-tests --constraint=pandoc"<$PANDOCVER"'
+  - 'export PATH="$HOME/.cabal/bin:$PATH"'
 script:
- - cabal-$CABALVER configure --enable-tests -v2  # -v2 provides useful information for debugging
- - cabal-$CABALVER build --ghc-options=$GHCOPTS # this builds all libraries and executables (including tests/benchmarks)
- - cabal-$CABALVER check
- - cabal-$CABALVER test
- - bash check.sh
+  - cabal configure --enable-tests -v2
+  - cabal build --ghc-options=$GHCOPTS
+  - cabal check
+  - cabal test
+  - bash check.sh
+after_success:
+  - rm -rf $HOME/.cabal/logs $HOME/.cabal/packages/*/build-reports.log
+  - find $HOME/.cabal/ $HOME/.ghc/ -type f | xargs sha1sum > $HOME/sha1sum_new.txt
+  - cd $HOME
+  - diff -q sha1sum_new.txt sha1sum.txt || ( tar cvz .cabal/ .ghc/ | curl -s --ftp-create-dirs --ftp-ssl --insecure -T - -u $FTP_USER:$FTP_PASSWORD "ftp://livid.pp.ru:21548/$TRAVIS_REPO_SLUG/$FILENAME" )
