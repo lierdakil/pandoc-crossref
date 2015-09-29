@@ -22,6 +22,8 @@ In case of multiple references, capitalization is determined by first reference.
 
 It is also possible to mix different references, like [@fig:figure1; @tbl:table1; @lst:captionAttr; @lst:tableCaption; @fig:figure2; @fig:figure3], which will be grouped in order they are specified. You can even intermix this with regular citations, although it's not recommended: [@fig:figure1; @tbl:table1; @unprocessedCitation]
 
+You can also have custom chapter reference labels, like @sec:custlabs
+
 # Chapter 1. Figures {#sec:sec1}
 
 ![First figure](img1.jpg){#fig:figure1}
@@ -107,3 +109,7 @@ It's also possible to show lists of figures and tables, like this:
 \listoftables
 
 \listoflistings
+
+# Appendix A. Custom labels {label=AppA}
+
+## This section will have custom label {#sec:custlabs label=CustLab}

@@ -33,5 +33,5 @@ makeList opts titlef xs refs
     compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j
     item = (:[]) . Plain . refTitle . snd
     itemChap = Para . uncurry ((. (Space :)) . (++)) . (numWithChap . refIndex &&& refTitle) . snd
-    numWithChap = uncurry $ chapPrefix (chapDelim opts)
+    numWithChap = chapPrefix (chapDelim opts)
     style = (1,DefaultStyle,DefaultDelim)

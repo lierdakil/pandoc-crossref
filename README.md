@@ -83,6 +83,30 @@ You can also reference sections of any level. Section labels use native pandoc s
 
 You can also use `autoSectionLabels` variable to automatically prepend all section labels (automatically generated with pandoc included) with "sec:". Bear in mind that references can't contain periods, commas etc, so some auto-generated labels will still be unusable.
 
+### Section reference labels
+
+***Not currently supported with LaTeX output***
+
+If you want to reference some section by a pre-defined label instead of by number, you can specify section attribute `label`, like this:
+
+```markdown
+# Section {label="Custom Label"}
+```
+
+This label will be used instead of section number in `chapters` output and when referencing section directly (with `@sec:section`).
+
+Note that with `chapters` output with depth>1, only given section will be referenced by custom label, e.g. with
+
+```markdown
+# Chapter 1.
+
+## Section with custom label {#sec:scl label="SCL"}
+
+![](figure.png){#fig:figure}
+```
+
+`@sec:scl` will translate into `sec. 1.SCL`, and `@fig:figure` into `fig. 1.SCL.1`
+
 ### Code Block labels
 
 There are a couple options to add code block labels. Those work only if code block id starts with `lst:`, e.g. `{#lst:label}`

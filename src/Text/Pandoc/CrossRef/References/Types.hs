@@ -2,6 +2,7 @@ module Text.Pandoc.CrossRef.References.Types ( References(..)
                         , WS
                         , RefRec(..)
                         , RefMap
+                        , Index
                         , def
                         ) where
 
@@ -10,7 +11,9 @@ import Text.Pandoc.Definition
 import Control.Monad.State
 import Data.Default
 
-data RefRec = RefRec { refIndex :: ([Int], Int)
+type Index = [(Int, Maybe String)]
+
+data RefRec = RefRec { refIndex :: Index
                      , refTitle :: [Inline]
                      } deriving (Show, Eq)
 
@@ -22,7 +25,7 @@ data References = References { imgRefs :: RefMap
                              , tblRefs :: RefMap
                              , lstRefs :: RefMap
                              , secRefs :: RefMap
-                             , curChap :: [Int]
+                             , curChap :: Index
                              } deriving (Show, Eq)
 
 --state monad

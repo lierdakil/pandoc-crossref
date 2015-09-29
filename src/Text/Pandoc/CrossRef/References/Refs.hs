@@ -108,31 +108,35 @@ replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix) cits
   let
-    indices' = groupBy ((==) `on` (fmap fst . fst)) (sort indices)
+    indices' = groupBy ((==) `on` (fmap init . fst)) (sort indices)
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
   return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) ++ intercalate [Str ",", Space]  (makeIndices opts `map` indices')
 
-getRefIndex :: String -> Citation -> WS (Maybe ([Int], Int), [Inline])
+getRefIndex :: String -> Citation -> WS (Maybe Index, [Inline])
 getRefIndex prefix Citation{citationId=cid,citationSuffix=suf}
   = (\x -> (x,suf)) `fmap` gets (fmap refIndex . M.lookup lab . getProp prop)
   where
   prop = lookupUnsafe prefix accMap
   lab = prefix ++ getLabelWithoutPrefix cid
 
-makeIndices :: Options -> [(Maybe ([Int], Int), [Inline])] -> [Inline]
+makeIndices :: Options -> [(Maybe Index, [Inline])] -> [Inline]
 makeIndices _ s | any (isNothing . fst) s = [Strong [Str "??"]]
 makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ map (A.first fromJust) $ filter (isJust . fst) s
   where
+  f2 :: [[(Index, [Inline])]] -> (Index, [Inline]) -> [[(Index, [Inline])]]
   f2 [] (i,suf) = [[(i,suf)]]
   f2 ([]:xs) (i,suf) = [(i,suf)]:xs
-  f2 l@(x@(((_,hx),sufp):_):xs) (i@(_,ni),suf)
+  f2 l@(x@((ix,sufp):_):xs) (i,suf)
     | not (null suf) || not (null sufp) = [(i,suf)]:l
     | ni-hx == 0 = l        -- remove duplicates
     | ni-hx == 1 = ((i,[]):x):xs -- group sequental
     | otherwise     = [(i,[])]:l    -- new group
+    where
+      hx = fst $ last ix
+      ni = fst $ last i
   f []  = []                          -- drop empty lists
   f [w] = show' w                    -- single value
   f [w1,w2] = show' w2 ++ sep ++ show' w1 -- two values
   f (x:xs) = show' (last xs) ++ rangeDelim o ++ show' x -- shorten more than two values
   sep = [Str ",", Space]
-  show' ((c,n),suf) = chapPrefix (chapDelim o) c n ++ suf
+  show' (i,suf) = chapPrefix (chapDelim o) i ++ suf

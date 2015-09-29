@@ -48,7 +48,7 @@ main = hspec $ do
         testBlocks (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
           def{secRefs=M.fromList $ refRec' "sec:section" 1 "Section Header",
-              curChap=[1]})
+              curChap=[(1,Nothing)]})
 
     describe "References.Refs.replaceRefs" $ do
       it "References one image" $
@@ -147,13 +147,13 @@ refGen' :: String -> [Int] -> [(Int, Int)] -> M.Map String RefRec
 refGen' p l1 l2 = M.fromList $ mconcat $ zipWith refRec''' (((uncapitalizeFirst p++) . show) `map` l1) l2
 
 refRec' :: String -> Int -> String -> [(String, RefRec)]
-refRec' ref i tit = [(ref, RefRec{refIndex=([],i),refTitle=toList $ text tit})]
+refRec' ref i tit = [(ref, RefRec{refIndex=[(i,Nothing)],refTitle=toList $ text tit})]
 
 refRec'' :: String -> Int -> [(String, RefRec)]
 refRec'' ref i = refRec' ref i []
 
 refRec''' :: String -> (Int, Int) -> [(String, RefRec)]
-refRec''' ref (c,i) = [(ref, RefRec{refIndex=([c],i),refTitle=toList $ text []})]
+refRec''' ref (c,i) = [(ref, RefRec{refIndex=[(c,Nothing), (i,Nothing)],refTitle=toList $ text []})]
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen p l1 l2) def) (para $ text res)

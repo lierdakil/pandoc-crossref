@@ -5,6 +5,7 @@
 ,Para [Str "It's",Space,Str "possible",Space,Str "to",Space,Str "capitalize",Space,Str "reference",Space,Str "prefixes,",Space,Str "like",Space,Str "this:",Space,Str "Fig.\160\&2",Str "."]
 ,Para [Str "In",Space,Str "case",Space,Str "of",Space,Str "multiple",Space,Str "references,",Space,Str "capitalization",Space,Str "is",Space,Str "determined",Space,Str "by",Space,Str "first",Space,Str "reference.",Space,Str "Figs.\160\&2,",Space,Str "3",Space,Str "is",Space,Str "capitalized,",Space,Str "while",Space,Str "figs.\160\&2,",Space,Str "3",Space,Str "is",Space,Str "not."]
 ,Para [Str "It",Space,Str "is",Space,Str "also",Space,Str "possible",Space,Str "to",Space,Str "mix",Space,Str "different",Space,Str "references,",Space,Str "like",Space,Str "fig.\160\&2",Str ",",Space,Str "tbl.\160\&1",Str ",",Space,Str "lsts.\160\&1,",Space,Str "2",Str ",",Space,Str "figs.\160\&3,",Space,Str "4",Str ",",Space,Str "which",Space,Str "will",Space,Str "be",Space,Str "grouped",Space,Str "in",Space,Str "order",Space,Str "they",Space,Str "are",Space,Str "specified.",Space,Str "You",Space,Str "can",Space,Str "even",Space,Str "intermix",Space,Str "this",Space,Str "with",Space,Str "regular",Space,Str "citations,",Space,Str "although",Space,Str "it's",Space,Str "not",Space,Str "recommended:",Space,Str "fig.\160\&2",Str ",",Space,Str "tbl.\160\&1",Str ",",Space,Cite [Citation {citationId = "unprocessedCitation", citationPrefix = [], citationSuffix = [], citationMode = NormalCitation, citationNoteNum = 0, citationHash = 0}] [Str "[@unprocessedCitation]"]]
+,Para [Str "You",Space,Str "can",Space,Str "also",Space,Str "have",Space,Str "custom",Space,Str "chapter",Space,Str "reference",Space,Str "labels,",Space,Str "like",Space,Str "sec.\160CustLabs"]
 ,Header 1 ("sec:sec1",[],[]) [Str "Chapter",Space,Str "1.",Space,Str "Figures"]
 ,Para [Image [Str "Figure",Space,Str "#",Space,Str "2:",Space,Str "First",Space,Str "figure"] ("img1.jpg","fig:")]
 ,Para [Image [Str "Figure",Space,Str "#",Space,Str "3:",Space,Str "Second",Space,Str "figure"] ("img2.jpg","fig:")]
@@ -58,4 +59,5 @@
 ,OrderedList (1,DefaultStyle,DefaultDelim)
  [[Plain [Str "Listing",Space,Str "caption"]]
  ,[Plain [Str "Listing",Space,Str "caption"]]
- ,[Plain [Str "Listing",Space,Str "caption"]]]]
+ ,[Plain [Str "Listing",Space,Str "caption"]]]
+,Header 1 ("sec:custlabs",[],[("label","CustLabs")]) [Str "CustLabs.",Space,Str "Custom",Space,Str "labels"]]

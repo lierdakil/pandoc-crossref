@@ -23,37 +23,38 @@ replaceBlocks opts (Header n (label, cls, attrs) text')
     unless ("unnumbered" `elem` cls) $ do
       modify $ \r@References{curChap=cc} ->
         let ln = length cc
-            inc l = init l ++ [last l + 1]
+            cl = lookup "label" attrs
+            inc l = init l ++ [(fst (last l) + 1, cl)]
             cc' | ln > n = inc $ take n cc
                 | ln == n = inc cc
-                | otherwise = cc ++ take (n-ln) [1,1..]
+                | otherwise = cc ++ take (n-ln-1) (zip [1,1..] $ repeat Nothing) ++ [(1,cl)]
         in r{curChap=cc'}
       when ("sec:" `isPrefixOf` label') $ replaceAttrSec label' text' secRefs'
     return $ Header n (label', cls, attrs) text'
-replaceBlocks opts (Div (label,_,_) [Plain [Image alt img]])
+replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
   | "fig:" `isPrefixOf` label
   = do
-    idxStr <- replaceAttr opts label alt imgRefs'
+    idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs'
     let alt' = case outFormat opts of
           f | isFormat "latex" f ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
     return $ Para [Image alt' (fst img,"fig:")]
-replaceBlocks opts (Div (label,_,_) [Plain [Math DisplayMath eq]])
+replaceBlocks opts (Div (label,_,attrs) [Plain [Math DisplayMath eq]])
   | "eq:" `isPrefixOf` label
   = case outFormat opts of
       f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
         in return $ Para [RawInline (Format "tex") eqn]
       _ -> do
-        idxStr <- replaceAttr opts label [] eqnRefs'
+        idxStr <- replaceAttr opts label (lookup "label" attrs) [] eqnRefs'
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Para [Math DisplayMath eq']
-replaceBlocks opts (Div (label,_,_) [Table title align widths header cells])
+replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , "tbl:" `isPrefixOf` label
   = do
-    idxStr <- replaceAttr opts label (init title) tblRefs'
+    idxStr <- replaceAttr opts label (lookup "label" attrs) (init title) tblRefs'
     let title' =
           case outFormat opts of
               f | isFormat "latex" f ->
@@ -78,7 +79,7 @@ replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
             ]
       _ -> do
         let cap = toList $ text caption
-        idxStr <- replaceAttr opts label cap lstRefs'
+        idxStr <- replaceAttr opts label (lookup "label" attrs) cap lstRefs'
         let caption' = applyTemplate idxStr cap $ listingTemplate opts
         return $ Div (label, "listing":classes, []) [
             Para caption'
@@ -103,7 +104,7 @@ replaceBlocks opts
             , RawBlock (Format "tex") "\\end{codelisting}"
             ]
       _ -> do
-        idxStr <- replaceAttr opts label caption lstRefs'
+        idxStr <- replaceAttr opts label (lookup "label" attrs) caption lstRefs'
         let caption' = applyTemplate idxStr caption $ listingTemplate opts
         return $ Div (label, "listing":classes, []) [
             Para caption'
@@ -134,23 +135,24 @@ getRefLabel tag ils
   = init `fmap` stripPrefix "{#" attr
 getRefLabel _ _ = Nothing
 
-replaceAttr :: Options -> String -> [Inline] -> Accessor References RefMap -> WS [Inline]
-replaceAttr o label title prop
+replaceAttr :: Options -> String -> Maybe String -> [Inline] -> Accessor References RefMap -> WS [Inline]
+replaceAttr o label refLabel title prop
   = do
     chap  <- take (chapDepth o) `fmap` gets curChap
-    index <- (1+) `fmap` gets (M.size . M.filter ((==chap) . fst . refIndex) . getProp prop)
+    i     <- (1+) `fmap` gets (M.size . M.filter ((==chap) . init . refIndex) . getProp prop)
+    let index = chap ++ [(i, refLabel)]
     modify $ modifyProp prop $ M.insert label RefRec {
-      refIndex=(chap,index)
+      refIndex= index
     , refTitle=normalizeSpaces title
     }
-    return $ chapPrefix (chapDelim o) chap index
+    return $ chapPrefix (chapDelim o) index
 
 replaceAttrSec :: String -> [Inline] -> Accessor References RefMap -> WS ()
 replaceAttrSec label title prop
   = do
-    chap  <- gets curChap
+    index  <- gets curChap
     modify $ modifyProp prop $ M.insert label RefRec {
-      refIndex=(init chap,last chap)
+      refIndex=index
     , refTitle=normalizeSpaces title
     }
     return ()
