@@ -2,13 +2,9 @@
 
 module Text.Pandoc.CrossRef.Util.Settings.Gen where
 
-import Text.Pandoc
-import qualified Data.Map as M
-
 import Text.Pandoc.CrossRef.Util.Settings.Template
-import Text.Pandoc.Builder
 
-$(concat `fmap` mapM genSetting
+concat `fmap` mapM genSetting
   [ "figureTitle"
   , "tableTitle"
   , "listingTitle"
@@ -28,4 +24,4 @@ $(concat `fmap` mapM genSetting
   , "listingTemplate"
   , "crossrefYaml"
   , "chaptersDepth"
-  ])
+  ]
