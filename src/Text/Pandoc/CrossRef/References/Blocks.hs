@@ -54,12 +54,12 @@ replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , "tbl:" `isPrefixOf` label
   = do
-    idxStr <- replaceAttr opts label (lookup "label" attrs) (init title) tblRefs'
+    idxStr <- replaceAttr opts label (lookup "label" attrs) title tblRefs'
     let title' =
           case outFormat opts of
               f | isFormat "latex" f ->
-                RawInline (Format "tex") ("\\label{"++label++"}") : init title
-              _  -> applyTemplate idxStr (init title) $ tableTemplate opts
+                RawInline (Format "tex") ("\\label{"++label++"}") : title
+              _  -> applyTemplate idxStr title $ tableTemplate opts
     return $ Table title' align widths header cells
 replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
   | not $ null label
@@ -119,10 +119,10 @@ divBlocks (Para (Image alt img:c))
 divBlocks (Para (math@(Math DisplayMath _eq):c))
   | Just label <- getRefLabel "eq" c
   = Div (label,[],[]) [Plain [math]]
-divBlocks (table@(Table title _align _widths _header _cells))
+divBlocks (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]
-  = Div (label,[],[]) [table]
+  = Div (label,[],[]) [Table (init title) align widths header cells]
 divBlocks x = x
 
 getRefLabel :: String -> [Inline] -> Maybe String
