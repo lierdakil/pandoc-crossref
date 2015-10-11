@@ -83,6 +83,8 @@ You can also reference sections of any level. Section labels use native pandoc s
 
 You can also use `autoSectionLabels` variable to automatically prepend all section labels (automatically generated with pandoc included) with "sec:". Bear in mind that references can't contain periods, commas etc, so some auto-generated labels will still be unusable.
 
+WARNING: With LaTeX output, you have to invoke pandoc with `--number-sections`, otherwise section labels won't work. It's also advised with other output formats, since with no numbers in section titles, it would be hard to navigate anyway.
+
 ### Section reference labels
 
 ***Not currently supported with LaTeX output***
