@@ -64,10 +64,12 @@ modifyMeta opts meta
           , "\\crefname{table}" ++ prefix tblPrefix False
           , "\\crefname{equation}" ++ prefix eqnPrefix False
           , "\\crefname{listing}" ++ prefix lstPrefix False
+          , "\\crefname{section}" ++ prefix secPrefix False
           , "\\Crefname{figure}" ++ prefix figPrefix True
           , "\\Crefname{table}" ++ prefix tblPrefix True
           , "\\Crefname{equation}" ++ prefix eqnPrefix True
           , "\\Crefname{listing}" ++ prefix lstPrefix True
+          , "\\Crefname{section}" ++ prefix secPrefix True
           ]
         cleverefCodelisting = [
             "\\makeatletter"
