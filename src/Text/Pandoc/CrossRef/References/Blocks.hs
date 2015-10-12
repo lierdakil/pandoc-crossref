@@ -39,7 +39,7 @@ replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
           f | isFormat "latex" f ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
-    return $ Para [Image alt' (fst img,"fig:")]
+    return $ Para [Image alt' img]
 replaceBlocks opts (Div (label,_,attrs) [Plain [Math DisplayMath eq]])
   | "eq:" `isPrefixOf` label
   = case outFormat opts of
@@ -113,9 +113,9 @@ replaceBlocks opts
 replaceBlocks _ x = return x
 
 divBlocks :: Block -> Block
-divBlocks (Para (Image alt img:c))
+divBlocks (Para (Image alt (img, title):c))
   | Just label <- getRefLabel "fig" c
-  = Div (label,[],[]) [Plain [Image alt (fst img, "fig:")]]
+  = Div (label,[],[]) [Plain [Image alt (img, "fig:" ++ title)]]
 divBlocks (Para (math@(Math DisplayMath _eq):c))
   | Just label <- getRefLabel "eq" c
   = Div (label,[],[]) [Plain [math]]
