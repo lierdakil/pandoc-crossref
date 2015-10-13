@@ -1,7 +1,8 @@
 {-# LANGUAGE CPP #-}
 module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
 
-import Text.Pandoc
+import Text.Pandoc hiding (readMarkdown)
+import Text.Pandoc.CrossRef.Util.Gap
 import Text.Pandoc.Builder
 import Control.Exception (handle,IOException)
 
@@ -13,11 +14,7 @@ getSettings meta = do
   let handler :: IOException -> IO String
       handler _ = return []
   yaml <- handle handler $ readFile (getMetaString "crossrefYaml" (meta <> defaultMeta))
-#if MIN_VERSION_pandoc(1,14,0)
-  let Pandoc dtve _ = either (error . show) id $ readMarkdown def ("---\n" ++ yaml ++ "\n---")
-#else
   let Pandoc dtve _ = readMarkdown def ("---\n" ++ yaml ++ "\n---")
-#endif
   return $ meta <> dtve <> defaultMeta
 
 defaultMeta :: Meta

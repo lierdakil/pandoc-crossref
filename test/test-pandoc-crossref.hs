@@ -1,15 +1,16 @@
 import Test.Hspec
-import Text.Pandoc.Definition
+import Text.Pandoc hiding (readMarkdown)
 import Text.Pandoc.Builder
 import Text.Pandoc.Walk
-import Text.Pandoc.Generic
 import Control.Monad.State
 import Data.List
 import Control.Arrow
 import Data.Monoid -- needed for ghc<7.10
 import qualified Data.Map as M
 
+import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Gap
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Settings
@@ -20,6 +21,9 @@ import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
 import qualified Text.Pandoc.CrossRef.References.List as References.List
 import qualified Text.Pandoc.CrossRef.Util.Template as Util.Template
 import qualified Text.Pandoc.CrossRef.Util.CodeBlockCaptions as Util.CodeBlockCaptions
+
+import qualified Native
+import Paths_pandoc_crossref
 
 main :: IO ()
 main = hspec $ do
@@ -134,6 +138,20 @@ main = hspec $ do
               "[" ++ intercalate "; " (map (("@"++) . uncurry (++) . second show) l) ++ "]"
             l = zip ["unk1:", "unk2:"] [1,2::Int]
         testRefs cits def cits
+
+    describe "Test files" $ do
+
+      it "demo.md matches demo.native" $ do
+        demomd <- readFile =<< getDataFileName "demo.md"
+        let Pandoc m b = readMarkdown def demomd
+        runCrossRef m Nothing crossRefBlocks b `shouldBe` Native.demo
+
+      it "demo.md with chapters matches demo-chapters.native" $ do
+        demomd <- readFile =<< getDataFileName "demo.md"
+        let Pandoc m b = readMarkdown def demomd
+            m' = setMeta "chapters" True m
+        runCrossRef m' Nothing crossRefBlocks b `shouldBe` Native.demochapters
+
 
 
 citeGen :: String -> [Int] -> Inlines
