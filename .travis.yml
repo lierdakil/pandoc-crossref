@@ -31,7 +31,6 @@ script:
   - cabal build --ghc-options=$GHCOPTS
   - cabal check
   - cabal test
-  - bash check.sh
 after_success:
   - rm -rf $HOME/.cabal/logs $HOME/.cabal/packages/*/build-reports.log
   - find $HOME/.cabal/ $HOME/.ghc/ -type f | xargs sha1sum > $HOME/sha1sum_new.txt
