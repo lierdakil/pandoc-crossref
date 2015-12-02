@@ -3,7 +3,7 @@ ghc:
   - '7.4'
   - '7.6'
   - '7.8'
-  - '7.10'
+  #- '7.10'
 sudo: false
 cache:
   apt: true
@@ -12,7 +12,7 @@ env:
     - 'GHCOPTS="-Werror" PANDOCVER="1.14"'
     - 'GHCOPTS="-Werror" PANDOCVER="1.15"'
     - 'GHCOPTS="-Werror" PANDOCVER="1.16"'
-    - 'GHCOPTS="-Werror" PANDOCVER="master"'
+    #- 'GHCOPTS="-Werror" PANDOCVER="master"'
   global:
     - FILENAME="$TRAVIS_BRANCH-${TRAVIS_JOB_NUMBER##*.}.tgz"
     - FILENAMEM="master-${TRAVIS_JOB_NUMBER##*.}.tgz"
