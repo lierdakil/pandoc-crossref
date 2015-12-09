@@ -1,6 +1,12 @@
-module Text.Pandoc.CrossRef.References.Blocks (divBlocks, replaceBlocks) where
+module Text.Pandoc.CrossRef.References.Blocks
+  ( divBlocks
+  , replaceBlocks
+  , spanInlines
+  , replaceInlines
+  ) where
 
 import Text.Pandoc.Definition
+import Text.Pandoc.Generic
 import Text.Pandoc.Builder (text, toList)
 import Text.Pandoc.Shared (stringify, normalizeSpaces)
 import Control.Monad.State
@@ -40,16 +46,6 @@ replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
     return $ Para [Image alt' img]
-replaceBlocks opts (Div (label,_,attrs) [Plain [Math DisplayMath eq]])
-  | "eq:" `isPrefixOf` label
-  = case outFormat opts of
-      f | isFormat "latex" f ->
-        let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
-        in return $ Para [RawInline (Format "tex") eqn]
-      _ -> do
-        idxStr <- replaceAttr opts label (lookup "label" attrs) [] eqnRefs'
-        let eq' = eq++"\\qquad("++stringify idxStr++")"
-        return $ Para [Math DisplayMath eq']
 replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , "tbl:" `isPrefixOf` label
@@ -110,20 +106,37 @@ replaceBlocks opts
             Para caption'
           , CodeBlock ([], classes, attrs) code
           ]
-replaceBlocks _ x = return x
+replaceBlocks opts x = bottomUpM (replaceInlines opts) x
+
+replaceInlines :: Options -> [Inline] -> WS [Inline]
+replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq]:ils')
+  | "eq:" `isPrefixOf` label
+  = case outFormat opts of
+      f | isFormat "latex" f ->
+        let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
+        in return $ RawInline (Format "tex") eqn : ils'
+      _ -> do
+        idxStr <- replaceAttr opts label (lookup "label" attrs) [] eqnRefs'
+        let eq' = eq++"\\qquad("++stringify idxStr++")"
+        return $ Math DisplayMath eq' : ils'
+replaceInlines _ x = return x
 
 divBlocks :: Block -> Block
 divBlocks (Para (Image alt (img, title):c))
   | Just label <- getRefLabel "fig" c
   = Div (label,[],[]) [Plain [Image alt (img, "fig:" ++ title)]]
-divBlocks (Para (math@(Math DisplayMath _eq):c))
-  | Just label <- getRefLabel "eq" c
-  = Div (label,[],[]) [Plain [math]]
 divBlocks (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]
   = Div (label,[],[]) [Table (init title) align widths header cells]
-divBlocks x = x
+divBlocks x = bottomUp spanInlines x
+
+spanInlines :: [Inline] -> [Inline]
+spanInlines (math@(Math DisplayMath _eq):ils)
+  | c:ils' <- dropWhile (==Space) ils
+  , Just label <- getRefLabel "eq" [c]
+  = Span (label,[],[]) [math]:ils'
+spanInlines x = x
 
 getRefLabel :: String -> [Inline] -> Maybe String
 getRefLabel _ [] = Nothing

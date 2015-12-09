@@ -7,6 +7,7 @@ import Data.List
 import Control.Arrow
 import Data.Monoid -- needed for ghc<7.10
 import qualified Data.Map as M
+import qualified Data.Default as Df
 
 import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
@@ -27,6 +28,42 @@ import Paths_pandoc_crossref
 
 main :: IO ()
 main = hspec $ do
+    describe "References.Blocks.replaceInlines" $ do
+      it "Labels equations" $
+        testInlines (equation' "a^2+b^2=c^2" "equation")
+        (equation' "a^2+b^2=c^2\\qquad(1)" [],
+          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+      it "Labels equations in the middle of text" $
+        testInlines (
+                text "This is an equation: "
+             <> equation' "a^2+b^2=c^2" "equation"
+             <> text " it should be labeled")
+        (
+           text "This is an equation: "
+        <> equation' "a^2+b^2=c^2\\qquad(1)" []
+        <> text " it should be labeled",
+          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+      it "Labels equations in the beginning of text" $
+        testInlines (
+                equation' "a^2+b^2=c^2" "equation"
+             <> text " it should be labeled")
+        (
+           equation' "a^2+b^2=c^2\\qquad(1)" []
+        <> text " it should be labeled",
+          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+      it "Labels equations in the end of text" $
+        testInlines (
+                text "This is an equation: "
+             <> equation' "a^2+b^2=c^2" "equation")
+        (
+           text "This is an equation: "
+        <> equation' "a^2+b^2=c^2\\qquad(1)" [],
+          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+
+    -- TODO:
+    -- describe "References.Blocks.spanInlines"
+    -- describe "References.Blocks.divBlocks"
+
     describe "References.Blocks.replaceBlocks" $ do
       it "Labels images" $
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
@@ -35,6 +72,32 @@ main = hspec $ do
       it "Labels equations" $
         testBlocks (equation "a^2+b^2=c^2" "equation")
         (equation "a^2+b^2=c^2\\qquad(1)" [],
+          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+      it "Labels equations in the middle of text" $
+        testBlocks (para $
+                text "This is an equation: "
+             <> equation' "a^2+b^2=c^2" "equation"
+             <> text " it should be labeled")
+        (para $
+           text "This is an equation: "
+        <> equation' "a^2+b^2=c^2\\qquad(1)" []
+        <> text " it should be labeled",
+          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+      it "Labels equations in the beginning of text" $
+        testBlocks (para $
+                equation' "a^2+b^2=c^2" "equation"
+             <> text " it should be labeled")
+        (para $
+           equation' "a^2+b^2=c^2\\qquad(1)" []
+        <> text " it should be labeled",
+          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+      it "Labels equations in the end of text" $
+        testBlocks (para $
+                text "This is an equation: "
+             <> equation' "a^2+b^2=c^2" "equation")
+        (para $
+           text "This is an equation: "
+        <> equation' "a^2+b^2=c^2\\qquad(1)" [],
           def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
       it "Labels tables" $
         testBlocks (table' "Test table" "table")
@@ -180,11 +243,18 @@ testRefs'' :: String -> [Int] -> [(Int, Int)] -> Accessor References (M.Map Stri
 testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen' p l1 l2) def) (para $ text res)
 
 testBlocks :: Blocks -> (Blocks, References) -> Expectation
-testBlocks arg res = runState (walkM (f defaultOptions) arg) def `shouldBe` res
-  where f = (. References.Blocks.divBlocks) . References.Blocks.replaceBlocks
+testBlocks = testState f def
+  where f = walkM $ References.Blocks.replaceBlocks defaultOptions . References.Blocks.divBlocks
+
+testInlines :: Inlines -> (Inlines, References) -> Expectation
+testInlines = testState (bottomUpM (References.Blocks.replaceInlines defaultOptions) . bottomUp References.Blocks.spanInlines) def
+
+testState :: (Eq s, Eq a1, Show s, Show a1, Df.Default s) =>
+               ([a] -> State s [a1]) -> s -> Many a -> (Many a1, s) -> Expectation
+testState f init' arg res = runState (f $ toList arg) init' `shouldBe` first toList res
 
 testRefs :: Blocks -> References -> Blocks -> Expectation
-testRefs bs st res = runState (bottomUpM (References.Refs.replaceRefs defaultOptions) (toList bs)) st `shouldBe` (toList res,st)
+testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, st)
 
 testCBCaptions :: Blocks -> Blocks -> Expectation
 testCBCaptions bs res = runState (bottomUpM (Util.CodeBlockCaptions.codeBlockCaptions defaultOptions{cbCaptions=True}) (toList bs)) def `shouldBe` (toList res,def)
@@ -199,7 +269,10 @@ section :: String -> Int -> String -> Blocks
 section text' level label = headerWith ("sec:" ++ label,[],[]) level (text text')
 
 equation :: String -> String -> Blocks
-equation eq ref = para (displayMath eq <> ref' "eq" ref)
+equation = (para .) . equation'
+
+equation' :: String -> String -> Inlines
+equation' eq ref = displayMath eq <> ref' "eq" ref
 
 table' :: String -> String -> Blocks
 table' title ref = table (text title <> ref' "tbl" ref) []
