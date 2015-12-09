@@ -195,7 +195,7 @@ Run pandoc with `--filter` option, passing path to pandoc-crossref executable, o
 
 `pandoc --filter pandoc-crossref`
 
-If you installed with cabal, it's most likely located in `$HOME/.cabal/bin` on \*NIX systems, or in `%AppData%\cabal\bin` on Windows.
+If you installed with cabal, it's most likely located in `$HOME/.cabal/bin` on \*NIX systems, `$HOME/Library/Haskell/bin` on Macs, or in `%AppData%\cabal\bin` on Windows.
 
 ### Customization
 
