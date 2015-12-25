@@ -56,8 +56,6 @@ $$ math $$ {#eq:label}
 
 To label a display equation, append `{#eq:label}` (with `label` being something unique to reference this equation by) immediately after math block.
 
-This only works if display math and label specification are in a paragraph of its own.
-
 Math block and label *can* be separated by one or more spaces.
 
 ### Table labels
