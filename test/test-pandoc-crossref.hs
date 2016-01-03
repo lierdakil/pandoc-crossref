@@ -24,12 +24,10 @@ import qualified Text.Pandoc.CrossRef.References.List as References.List
 import qualified Text.Pandoc.CrossRef.Util.Template as Util.Template
 import qualified Text.Pandoc.CrossRef.Util.CodeBlockCaptions as Util.CodeBlockCaptions
 
-#if MIN_VERSION_pandoc(1,16,0)
-import qualified Native16 as Native
-#else
-import qualified Native16 as Native
-#endif
+import qualified Native
 import Paths_pandoc_crossref
+
+import Prelude
 
 main :: IO ()
 main = hspec $ do

@@ -50,7 +50,7 @@ library
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
                      , pandoc-types >= 1.12.4.1 && < 1.17
-                     , yaml >= 0.8.8.2 && <0.9
+                     , yaml >= 0.8 && <0.9
                      , data-default >= 0.4 && <0.6
                      , bytestring >=0.9 && <0.11
   hs-source-dirs:      src
@@ -67,7 +67,7 @@ executable pandoc-crossref
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
                      , pandoc-types >= 1.12.4.1 && < 1.17
-                     , yaml >= 0.8.8.2 && <0.9
+                     , yaml >= 0.8 && <0.9
                      , data-default >= 0.4 && <0.6
                      , bytestring >=0.9 && <0.11
                      , pandoc-crossref
@@ -84,12 +84,12 @@ Test-Suite test-pandoc-crossref
                  , mtl >= 1.1 && <2.3
                  , containers >= 0.1 && <0.6
                  , pandoc-types >= 1.12.4.1 && < 1.17
-                 , yaml >= 0.8.8.2 && <0.9
+                 , yaml >= 0.8 && <0.9
                  , data-default >= 0.4 && <0.6
                  , bytestring >=0.9 && <0.11
                  , hspec
                  , process >=1 && <1.5
                  , pandoc-crossref
-  other-modules: Native, Native16
+  other-modules: Native
   Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
   Default-Language: Haskell2010
