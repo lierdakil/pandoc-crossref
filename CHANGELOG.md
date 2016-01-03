@@ -1,3 +1,11 @@
+## 0.1.6.1
+* Adjust package constraints to match Pandoc's
+* Pandoc 1.16 update
+* Added CHANGELOG.md
+* Update README.md
+* Add stack config file (#39  @hadim)
+* add info about where it might be installed on Macs (#40 from @msalganik)
+
 ## 0.1.6.0
 * Version bump
 * Update demo.md
