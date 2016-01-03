@@ -12,6 +12,7 @@ env:
     - 'GHCOPTS="-Werror" PANDOCVER="1.14"'
     - 'GHCOPTS="-Werror" PANDOCVER="1.15"'
     - 'GHCOPTS="-Werror" PANDOCVER="1.16"'
+    - 'GHCOPTS="-Werror" PANDOCVER="1.17"'
     #- 'GHCOPTS="-Werror" PANDOCVER="master"'
   global:
     - FILENAME="$TRAVIS_BRANCH-${TRAVIS_JOB_NUMBER##*.}.tgz"

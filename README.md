@@ -23,7 +23,7 @@ You can also enable per-chapter numbering (as with `--chapters` for latex output
 [lpdf]: http://lierdakil.github.io/pandoc-crossref/output-listings.pdf
 
 
-Tested with pandoc 1.13.2 and 1.14.
+Tested with pandoc from 1.13.2 to 1.16.0.
 
 This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.
 
@@ -46,7 +46,7 @@ To label an (implicit) figure, append `{#fig:label}` (with `label` being somethi
 
 This only works on implicit figures, i.e. an image occurring by itself in a paragraph (which will be rendered as a figure with caption by pandoc)
 
-Image block and label *can* be separated by one or more spaces.
+Image block and label *can not* be separated by spaces.
 
 ### Equation labels
 
