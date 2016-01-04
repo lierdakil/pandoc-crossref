@@ -1,3 +1,12 @@
+## 0.1.6.2
+* **NOTE**: GHC 7.4 is unsupported since this release. Should be still possible to build on it though with careful dependency management.
+* Merge pull request #44 from lierdakil/pandoc-1.16
+* Link travis badge to travis page
+* Make Travis happy
+* Update CHANGELOG
+* Version bump
+* README: Grammar
+
 ## 0.1.6.1
 * Adjust package constraints to match Pandoc's
 * Pandoc 1.16 update
