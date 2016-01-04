@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( divBlocks
   , replaceBlocks
@@ -37,6 +38,8 @@ replaceBlocks opts (Header n (label, cls, attrs) text')
         in r{curChap=cc'}
       when ("sec:" `isPrefixOf` label') $ replaceAttrSec label' text' secRefs'
     return $ Header n (label', cls, attrs) text'
+#if MIN_VERSION_pandoc(1,16,0)
+#else
 replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
   | "fig:" `isPrefixOf` label
   = do
@@ -46,6 +49,7 @@ replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
     return $ Para [Image alt' img]
+#endif
 replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , "tbl:" `isPrefixOf` label
@@ -119,12 +123,27 @@ replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq]:ils')
         idxStr <- replaceAttr opts label (lookup "label" attrs) [] eqnRefs'
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Math DisplayMath eq' : ils'
+#if MIN_VERSION_pandoc(1,16,0)
+replaceInlines opts (Image attr@(label,_,attrs) alt img:ils')
+  | "fig:" `isPrefixOf` label, "fig:" `isPrefixOf` snd img
+  = do
+    idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs'
+    let alt' = case outFormat opts of
+          f | isFormat "latex" f ->
+            RawInline (Format "tex") ("\\label{"++label++"}") : alt
+          _  -> applyTemplate idxStr alt $ figureTemplate opts
+    return $ Image attr alt' img : ils'
+#else
+#endif
 replaceInlines _ x = return x
 
 divBlocks :: Block -> Block
+#if MIN_VERSION_pandoc(1,16,0)
+#else
 divBlocks (Para (Image alt (img, title):c))
   | Just label <- getRefLabel "fig" c
   = Div (label,[],[]) [Plain [Image alt (img, "fig:" ++ title)]]
+#endif
 divBlocks (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]

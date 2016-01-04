@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 import Test.Hspec
 import Text.Pandoc hiding (readMarkdown)
 import Text.Pandoc.Builder
@@ -25,6 +26,8 @@ import qualified Text.Pandoc.CrossRef.Util.CodeBlockCaptions as Util.CodeBlockCa
 
 import qualified Native
 import Paths_pandoc_crossref
+
+import Prelude
 
 main :: IO ()
 main = hspec $ do
@@ -65,10 +68,17 @@ main = hspec $ do
     -- describe "References.Blocks.divBlocks"
 
     describe "References.Blocks.replaceBlocks" $ do
+#if MIN_VERSION_pandoc(1,16,0)
+      it "Labels images" $
+        testBlocks (figure "test.jpg" [] "Test figure" "figure")
+        (figure "test.jpg" [] "Figure 1: Test figure" "figure",
+          def{imgRefs=M.fromList $ refRec' "fig:figure" 1 "Test figure"})
+#else
       it "Labels images" $
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" "fig:" "Figure 1: Test figure" [],
           def{imgRefs=M.fromList $ refRec' "fig:figure" 1 "Test figure"})
+#endif
       it "Labels equations" $
         testBlocks (equation "a^2+b^2=c^2" "equation")
         (equation "a^2+b^2=c^2\\qquad(1)" [],
@@ -263,7 +273,11 @@ testList :: Blocks -> References -> Blocks -> Expectation
 testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) st `shouldBe` (toList res,st)
 
 figure :: String -> String -> String -> String -> Blocks
+#if MIN_VERSION_pandoc(1,16,0)
+figure src title alt ref = para (imageWith ("fig:" ++ ref, [], []) src ("fig:" ++ title) (text alt))
+#else
 figure src title alt ref = para (image src title (text alt) <> ref' "fig" ref)
+#endif
 
 section :: String -> Int -> String -> Blocks
 section text' level label = headerWith ("sec:" ++ label,[],[]) level (text text')

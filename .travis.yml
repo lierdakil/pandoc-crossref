@@ -1,30 +1,65 @@
 language: haskell
-ghc:
-  - '7.4'
-  - '7.6'
-  - '7.8'
-  #- '7.10'
 sudo: false
 cache:
   apt: true
+matrix:
+  fast_finish: true
+  include:
+    - env: GHCVER=7.6.3 PANDOCVER=1.13
+      compiler: ": #GHC 7.6.3"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.6.3], sources: [hvr-ghc]}}
+    - env: GHCVER=7.8.4 PANDOCVER=1.13
+      compiler: ": #GHC 7.8.4"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.8.4], sources: [hvr-ghc]}}
+    - env: GHCVER=7.10.2 PANDOCVER=1.13
+      compiler: ": #GHC 7.10.2"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.10.2], sources: [hvr-ghc]}}
+    - env: GHCVER=7.6.3 PANDOCVER=1.14
+      compiler: ": #GHC 7.6.3"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.6.3], sources: [hvr-ghc]}}
+    - env: GHCVER=7.8.4 PANDOCVER=1.14
+      compiler: ": #GHC 7.8.4"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.8.4], sources: [hvr-ghc]}}
+    - env: GHCVER=7.10.2 PANDOCVER=1.14
+      compiler: ": #GHC 7.10.2"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.10.2], sources: [hvr-ghc]}}
+    - env: GHCVER=7.10.2 PANDOCVER=1.15
+      compiler: ": #GHC 7.10.2"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.10.2], sources: [hvr-ghc]}}
+    - env: GHCVER=7.6.3 PANDOCVER=1.15
+      compiler: ": #GHC 7.6.3"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.6.3], sources: [hvr-ghc]}}
+    - env: GHCVER=7.8.4 PANDOCVER=1.15
+      compiler: ": #GHC 7.8.4"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.8.4], sources: [hvr-ghc]}}
+    - env: GHCVER=7.10.2 PANDOCVER=1.16
+      compiler: ": #GHC 7.10.2"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.10.2], sources: [hvr-ghc]}}
+    - env: GHCVER=7.6.3 PANDOCVER=1.16
+      compiler: ": #GHC 7.6.3"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.6.3], sources: [hvr-ghc]}}
+    - env: GHCVER=7.8.4 PANDOCVER=1.16
+      compiler: ": #GHC 7.8.4"
+      addons: {apt: {packages: [cabal-install-1.22, ghc-7.8.4], sources: [hvr-ghc]}}
 env:
-  matrix:
-    - 'GHCOPTS="-Werror" PANDOCVER="1.14"'
-    - 'GHCOPTS="-Werror" PANDOCVER="1.15"'
-    - 'GHCOPTS="-Werror" PANDOCVER="1.16"'
-    #- 'GHCOPTS="-Werror" PANDOCVER="master"'
   global:
-    - FILENAME="$TRAVIS_BRANCH-${TRAVIS_JOB_NUMBER##*.}.tgz"
-    - FILENAMEM="master-${TRAVIS_JOB_NUMBER##*.}.tgz"
+    - GHCOPTS=-Werror
+    - CABALVER=1.22
     - secure: QQQhMe9eNn743ceHlrN/eM72RviXD9Qclhc2h4zr9wXz7c2ArTHEXCz8ovorR/ZS7OVr/WqoOIo6T0aqTotwiQ9Yd9YBs/Yd4idzyo73SsbFywomBr9SMrqXJXuQsxUZGIomtNeZiI8dI7MR9TLhl4T4oeYD1OPnq0yCWY0liOY=
     - secure: UHEU6mqOPdYPY7fxacz6/Y3XcqfTjfOU8C2qyRlRUJbSrohpR+8acyswZrEo+4z4OQdSzCmbyMWTw2f+DWKyy0kI4wib3TvOw/Y5rAhDRxllTLLdI+1/ApTv/Ma3qT9Zf8dj6ezbKuGvtXV55prComHQWCBx8O5VtgrMT/Vp3Nc=
 before_install:
+  - 'export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH'
+  - 'export SLUG="$GHCVER-$CABALVER-$PANDOCVER"'
+  - 'export FILENAME="$TRAVIS_BRANCH-$SLUG.tgz"'
+  - 'export FILENAMEM="master-$SLUG.tgz"'
   - echo "Trying cached $TRAVIS_REPO_SLUG/$FILENAME"
   - ( curl -s --ftp-create-dirs --ftp-ssl --insecure -u $FTP_USER:$FTP_PASSWORD "ftp://livid.pp.ru:21548/$TRAVIS_REPO_SLUG/$FILENAME" | tar zx -C $HOME ) || ( curl -s --ftp-create-dirs --ftp-ssl --insecure -u $FTP_USER:$FTP_PASSWORD "ftp://livid.pp.ru:21548/$TRAVIS_REPO_SLUG/$FILENAMEM" | tar zx -C $HOME ) || true
   - find $HOME/.cabal/ $HOME/.ghc/ -type f | xargs sha1sum > $HOME/sha1sum.txt
+  - cabal update
+  - cabal --version
+  - ghc --version
 install:
-  - 'test "$PANDOCVER" = "master" && git clone https://github.com/jgm/pandoc && cd pandoc && git submodule init && git submodule update && cabal install && cd .. || true'
-  - 'test "$PANDOCVER" = "master" && cabal install --only-dependencies --enable-tests || cabal install --only-dependencies --enable-tests --constraint=pandoc"<$PANDOCVER"'
+  - 'cabal install -v2 --only-dependencies --enable-tests --constraint=pandoc"==$PANDOCVER.*"'
   - 'export PATH="$HOME/.cabal/bin:$PATH"'
 script:
   - cabal configure --enable-tests -v2

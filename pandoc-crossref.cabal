@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                pandoc-crossref
-version:             0.1.6.0
+version:             0.1.6.1
 synopsis:            Pandoc filter for cross-references
 description:         pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 license:             GPL-2
@@ -24,7 +24,7 @@ source-repository head
 source-repository this
   type: git
   location: https://github.com/lierdakil/pandoc-crossref
-  tag: v0.1.6.0
+  tag: v0.1.6.1
 
 library
   exposed-modules:     Text.Pandoc.CrossRef
@@ -46,10 +46,10 @@ library
                      , Text.Pandoc.CrossRef.Util.Settings.Template
                      , Text.Pandoc.CrossRef.Util.Gap
   build-depends:       base >=4.2 && <5
-                     , pandoc >= 1.13 && <1.16
+                     , pandoc >= 1.13 && <1.17
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
-                     , pandoc-types >= 1.12.4.1 && < 1.13
+                     , pandoc-types >= 1.12.4.1 && < 1.17
                      , yaml >= 0.8 && <0.9
                      , data-default >= 0.4 && <0.6
                      , bytestring >=0.9 && <0.11
@@ -63,10 +63,10 @@ library
 executable pandoc-crossref
   main-is:             pandoc-crossref.hs
   build-depends:       base >=4.2 && <5
-                     , pandoc >= 1.13 && <1.16
+                     , pandoc >= 1.13 && <1.17
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
-                     , pandoc-types >= 1.12.4.1 && < 1.13
+                     , pandoc-types >= 1.12.4.1 && < 1.17
                      , yaml >= 0.8 && <0.9
                      , data-default >= 0.4 && <0.6
                      , bytestring >=0.9 && <0.11
@@ -80,15 +80,15 @@ Test-Suite test-pandoc-crossref
   Main-Is:        test-pandoc-crossref.hs
   hs-source-dirs: test, src
   Build-Depends:   base >=4.2 && <5
-                 , pandoc >= 1.13 && <1.16
+                 , pandoc >= 1.13 && <1.17
                  , mtl >= 1.1 && <2.3
                  , containers >= 0.1 && <0.6
-                 , pandoc-types >= 1.12.4.1 && < 1.13
+                 , pandoc-types >= 1.12.4.1 && < 1.17
                  , yaml >= 0.8 && <0.9
                  , data-default >= 0.4 && <0.6
                  , bytestring >=0.9 && <0.11
                  , hspec
-                 , process >=1 && <1.3
+                 , process >=1 && <1.5
                  , pandoc-crossref
   other-modules: Native
   Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
