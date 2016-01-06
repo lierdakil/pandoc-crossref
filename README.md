@@ -296,6 +296,8 @@ loftitle: "# Lista de figuras"
 lotTitle: "# Lista de tablas"
 ```
 
+pandoc-crossref will send this data to pandoc wrapped in lines of `---`. The YAML file's first line should specify a variable; it will not pass the variables if it is `---` or a blank line.
+
 One could use this with pandoc-crossref as follows:
 
 `pandoc -F pandoc-crossref.hs -M "crossrefYaml=$HOME/misc/pandoc-crossref-es.yaml"`
