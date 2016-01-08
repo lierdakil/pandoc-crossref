@@ -99,7 +99,11 @@ replaceBlocks opts
         | isFormat "latex" f ->
           return $ Div nullAttr [
               RawBlock (Format "tex") "\\begin{codelisting}"
-            , Para [RawInline (Format "tex") "\\caption",Span nullAttr caption]
+            , Para [
+                RawInline (Format "tex") "\\caption{"
+              , Span nullAttr caption
+              , RawInline (Format "tex") "}"
+              ]
             , CodeBlock (label,classes,attrs) code
             , RawBlock (Format "tex") "\\end{codelisting}"
             ]
