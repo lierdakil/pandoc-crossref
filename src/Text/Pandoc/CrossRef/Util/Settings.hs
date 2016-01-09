@@ -25,11 +25,11 @@ defaultMeta =
   <> titleDelim (str ":")
   <> chapDelim (str ".")
   <> rangeDelim (str "-")
-  <> figPrefix ([str "fig.", str "figs."])
-  <> eqnPrefix ([str "eq." , str "eqns."])
-  <> tblPrefix ([str "tbl.", str "tbls."])
-  <> lstPrefix ([str "lst.", str "lsts."])
-  <> secPrefix ([str "sec.", str "secs."])
+  <> figPrefix [str "fig.", str "figs."]
+  <> eqnPrefix [str "eq." , str "eqns."]
+  <> tblPrefix [str "tbl.", str "tbls."]
+  <> lstPrefix [str "lst.", str "lsts."]
+  <> secPrefix [str "sec.", str "secs."]
   <> lofTitle (header 1 $ text "List of Figures")
   <> lotTitle (header 1 $ text "List of Tables")
   <> lolTitle (header 1 $ text "List of Listings")
