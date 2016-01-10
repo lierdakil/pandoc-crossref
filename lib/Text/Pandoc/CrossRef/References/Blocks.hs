@@ -24,6 +24,8 @@ import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
 import Prelude
 
+import Debug.Trace
+
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')
   = do
@@ -42,6 +44,36 @@ replaceBlocks opts (Header n (label, cls, attrs) text')
       when ("sec:" `isPrefixOf` label') $ replaceAttrSec label' text' secRefs
     return $ Header n (label', cls, attrs) text'
 #if MIN_VERSION_pandoc(1,16,0)
+-- subfigures
+replaceBlocks opts (Div (label,cls,attrs) images)
+  | "fig:" `isPrefixOf` label
+  , all isImage (init images)
+  , Para caption <- last images
+  = do
+    idxStr <- replaceAttr opts label (lookup "label" attrs) caption imgRefs'
+    let (cont, st) = runState (concatMapM runImages images) def
+        capt = applyTemplate idxStr caption $ figureTemplate opts
+    return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt, Para [Str $ show st]]
+  where
+    isImage (Para images') = all isImage' images'
+    isImage (Plain images') = all isImage' images'
+    isImage _ = False
+    isImage' Image{} = True
+    isImage' Space = True
+    isImage' SoftBreak = True
+    isImage' _ = False
+    runImages :: Block -> WS [Block]
+    runImages (Para images') = do
+      let opts' = opts{figureTemplate = makeTemplate nullMeta [Math DisplayMath "i"]}
+      mapM (replaceBlocks opts') $ concatMap mkFig images'
+    runImages (Plain images') = do
+      let opts' = opts{figureTemplate = makeTemplate nullMeta [Math DisplayMath "i"]}
+      mapM (replaceBlocks opts') $ concatMap mkFig images'
+    runImages x = return [x]
+    mkFig (Image a c (s,t)) = [Para [Image a c (s,"fig:"++t)]]
+    mkFig _ = []
+    concatMapM        :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
+    concatMapM f xs   =  liftM concat (mapM f xs)
 #else
 replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
   | "fig:" `isPrefixOf` label
