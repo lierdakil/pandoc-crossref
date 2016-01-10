@@ -14,6 +14,7 @@ import Text.Pandoc.Shared (stringify, normalizeSpaces)
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import Data.Maybe
+import Data.Monoid
 import qualified Data.Map as M
 
 import Data.Accessor
@@ -234,10 +235,10 @@ getRefLabel _ _ = Nothing
 replaceAttr :: Options -> String -> Maybe String -> [Inline] -> Accessor References RefMap -> WS [Inline]
 replaceAttr o label refLabel title prop
   = do
-    chap  <- take (chaptersDepth o) `fmap` get curChap
-    i     <- (1+) `fmap` (M.size . M.filter ((==chap) . init . refIndex) <$> get prop)
-    let index = chap ++ [(i, refLabel)]
-    modify prop $ M.insert label RefRec {
+    chap  <- take (chapDepth o) `fmap` gets curChap
+    i     <- (1+) `fmap` gets (M.size . M.filter ((==chap) . init . refIndex) . getProp prop)
+    let index = chap ++ [(i, refLabel <> customLabel o label i)]
+    modify $ modifyProp prop $ M.insert label RefRec {
       refIndex= index
     , refTitle=normalizeSpaces title
     , refSubfigure = Nothing

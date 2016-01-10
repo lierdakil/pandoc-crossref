@@ -38,6 +38,7 @@ library
                      , Text.Pandoc.CrossRef.Util.Options
                      , Text.Pandoc.CrossRef.Util.Template
                      , Text.Pandoc.CrossRef.Util.Util
+                     , Text.Pandoc.CrossRef.Util.CustomLabels
                      , Text.Pandoc.CrossRef.Util.CodeBlockCaptions
                      , Text.Pandoc.CrossRef.Util.ModifyMeta
                      , Text.Pandoc.CrossRef.Util.Settings.Gen
@@ -55,6 +56,7 @@ library
                      , data-accessor-template >= 0.2.1.12 && < 0.3.0.0
                      , data-accessor-transformers >= 0.2.1.7 && < 0.3.0.0
                      , template-haskell >= 2.7.0.0 && < 3.0.0.0
+                     , roman-numerals == 0.5.*
   hs-source-dirs:      lib
   Ghc-Options:         -Wall
   default-language:    Haskell2010
