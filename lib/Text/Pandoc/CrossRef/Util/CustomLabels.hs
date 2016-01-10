@@ -19,8 +19,8 @@ mkLabel i lt
   = Just $ show i
   | toString lt == Just "roman"
   = Just $ toRoman i
-  | Just (startWith:_) <- join $ stripPrefix "alpha " <$> toString lt
+  | Just (startWith:_) <- join $ stripPrefix "alpha " `fmap` toString lt
   = Just [[startWith..] !! (i-1)]
-  | Just val <- join $ toString <$> getList (i-1) lt
+  | Just val <- join $ toString `fmap` getList (i-1) lt
   = Just val
   | otherwise = Nothing

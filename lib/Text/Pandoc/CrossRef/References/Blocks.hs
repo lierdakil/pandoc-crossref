@@ -69,7 +69,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
                   , ("t", caption)
                   ]
         capt = applyTemplate' vars $ subfigureTemplate opts
-    lastRef <- fromJust . M.lookup label <$> gets imgRefs
+    lastRef <- fromJust . M.lookup label `fmap` gets imgRefs
     modify' $ \s -> s{
       imgRefs =
         M.union
