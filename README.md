@@ -251,7 +251,18 @@ Following variables are supported:
 * `lolTitle`, default `# List of Listings`: Title for list of listings (lol)
 * `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions, see [Templates](#templates)
 * `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions, see [Templates](#templates)
-* `listingTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions, see [Templates](#templates)
+* `listingTemplate`, default `\\[listingTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions, see [Templates](#templates)
+* `subfigureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]. \\[ccs\\]`: template for subfigure divs captions. See [Subfigures](#subfigures)
+* `subfigureChildTemplate`, default `\\[i\\]`: template for actual subfigure captions. See [Subfigures](#subfigures)
+* `ccsTemplate`, default `\\[i\\]\\[ccsLabelSep\\]\\[t\\]`: template for collected subfigure captions. See [Subfigures](#subfigures), [Templates](#templates)
+* `figLabels`, default unset: custom numbering scheme for figures. See [Custom Numbering Schemes](#custom-numbering-schemes)
+* `subfigLabels`, default `alpha a`: custom numbering scheme for subfigures. See [Custom Numbering Schemes](#custom-numbering-schemes)
+* `eqnLabels`, default unset: custom numbering scheme for equations. See [Custom Numbering Schemes](#custom-numbering-schemes)
+* `tblLabels`, default unset: custom numbering scheme for tables. See [Custom Numbering Schemes](#custom-numbering-schemes)
+* `lstLabels`, default unset: custom numbering scheme for listings. See [Custom Numbering Schemes](#custom-numbering-schemes)
+* `secLabels`, default unset: custom numbering scheme for sections. See [Custom Numbering Schemes](#custom-numbering-schemes)
+* `ccsDelim`, default `,&nbsp;`: delimiter for collected subfigure captions. See [Subfigures](#subfigures) and [Templates](#templates)
+* `ccsLabelSep`, default `&nbsp;—&nbsp;`: delimiter used between subfigure label and subfigure caption in collected captions. See [Subfigures](#subfigures) and [Templates](#templates)
 
 `figPrefix`, `eqnPrefix`, `tblPrefix`, `lstPrefix` can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.
 
@@ -305,6 +316,7 @@ Variables can be specified in YAML metadata block, or from command line (with `-
 
 * `i` -- object number, possibly with chapter number (if `chapter=True`)
 * `t` -- object caption, as given in source Markdown
+* `ccs` -- collected subfigure captions. Only applicable to `subfigureTemplate`. Collected captions will be separated by `ccsDelim` and individual captions will be printed with `ccsTemplate`. See [Subfigures](#subfigures)
 
 Please note that at the moment, templates are not supported with LaTeX/PDF output.
 
