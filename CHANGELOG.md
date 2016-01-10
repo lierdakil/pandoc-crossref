@@ -1,4 +1,4 @@
-## * Version bump
+## 0.1.6.3
 * Source code organization
 * Removed redundant brackets
 * Fix listing captions for pandoc-1.16 and up
