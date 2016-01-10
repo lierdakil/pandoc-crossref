@@ -93,8 +93,10 @@ replaceBlocks opts (Div (label,cls,attrs) images)
             }
       mapM (replaceBlocks opts') $ concatMap mkFig images'
     runImages x = return [x]
-    mkFig (Image a c (s,t)) = [Para [Image a c (s,"fig:"++t)]]
+    mkFig (Image (i,cs,a) c (s,t)) = [Para [Image (addFigPrefix i,cs,a) c (s,addFigPrefix t)]]
     mkFig _ = []
+    addFigPrefix t | "fig:" `isPrefixOf` t = t
+                   | otherwise = "fig:" ++ t
     concatMapM        :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
     concatMapM f xs   =  liftM concat (mapM f xs)
 #else
