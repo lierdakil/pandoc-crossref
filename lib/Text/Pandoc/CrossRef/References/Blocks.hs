@@ -26,6 +26,10 @@ import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
 import Prelude
 
+#if MIN_VERSION_pandoc(1,16,0) && __GLASGOW_HASKELL__ < 710
+import Control.Applicative ((<$>))
+#endif
+
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')
   = do
@@ -69,7 +73,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
                   , ("t", caption)
                   ]
         capt = applyTemplate' vars $ subfigureTemplate opts
-    lastRef <- fromJust . M.lookup label `fmap` gets imgRefs
+    lastRef <- fromJust . M.lookup label <$> gets imgRefs
     modify' $ \s -> s{
       imgRefs =
         M.union
