@@ -239,7 +239,7 @@ replaceAttr :: Options -> String -> Maybe String -> [Inline] -> Accessor Referen
 replaceAttr o label refLabel title prop
   = do
     chap  <- take (chapDepth o) `fmap` gets curChap
-    i     <- (1+) `fmap` gets (M.size . M.filter ((==chap) . init . refIndex) . getProp prop)
+    i     <- (1+) `fmap` gets (M.size . M.filter (ap ((&&) . (chap ==) . init . refIndex) (isNothing . refSubfigure)) . getProp prop)
     let index = chap ++ [(i, refLabel <> customLabel o label i)]
     modify $ modifyProp prop $ M.insert label RefRec {
       refIndex= index
