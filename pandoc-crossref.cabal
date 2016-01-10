@@ -97,6 +97,7 @@ Test-Suite test-pandoc-crossref
                  , data-accessor-template >= 0.2.1.12 && < 0.3.0.0
                  , data-accessor-transformers >= 0.2.1.7 && < 0.3.0.0
                  , template-haskell >= 2.7.0.0 && < 3.0.0.0
+                 , roman-numerals == 0.5.*
                  , pandoc-crossref
   other-modules: Native
   Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
