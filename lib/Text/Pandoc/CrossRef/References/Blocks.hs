@@ -52,7 +52,22 @@ replaceBlocks opts (Div (label,cls,attrs) images)
   = do
     idxStr <- replaceAttr opts label (lookup "label" attrs) caption imgRefs'
     let (cont, st) = runState (concatMapM runImages images) def
-        capt = applyTemplate idxStr caption $ figureTemplate opts
+        collectedCaptions =
+            intercalate [Str ",", Space]
+          $ map snd
+          $ M.toList
+          $ M.map collectCaps
+          $ imgRefs st
+        collectCaps v =
+              chapPrefix (chapDelim opts) (refIndex v)
+          ++  [Space, Str "—", Space]
+          ++  refTitle v
+        vars = M.fromDistinctAscList
+                  [ ("ccs", collectedCaptions)
+                  , ("i", idxStr)
+                  , ("t", caption)
+                  ]
+        capt = applyTemplate' vars $ figureTemplate opts
     return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt, Para [Str $ show st]]
   where
     isImage (Para images') = all isImage' images'
