@@ -1,3 +1,9 @@
+## * Version bump
+* Source code organization
+* Removed redundant brackets
+* Fix listing captions for pandoc-1.16 and up
+* restrictions on yaml settings - closes #45 (pull request #46 from @scoavoux)
+
 ## 0.1.6.2
 * **NOTE**: GHC 7.4 is unsupported since this release. Should be still possible to build on it though with careful dependency management.
 * Merge pull request #44 from lierdakil/pandoc-1.16
