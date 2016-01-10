@@ -86,10 +86,10 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     isImage' _ = False
     runImages :: Block -> WS [Block]
     runImages (Para images') = do
-      let opts' = opts{figureTemplate = makeTemplate nullMeta [Math DisplayMath "i"]}
-      mapM (replaceBlocks opts') $ concatMap mkFig images'
-    runImages (Plain images') = do
-      let opts' = opts{figureTemplate = makeTemplate nullMeta [Math DisplayMath "i"]}
+      let opts' = opts
+            { figureTemplate = makeTemplate nullMeta [Math DisplayMath "i"]
+            , customLabel = \r i -> customLabel opts ("sub"++r) i
+            }
       mapM (replaceBlocks opts') $ concatMap mkFig images'
     runImages x = return [x]
     mkFig (Image a c (s,t)) = [Para [Image a c (s,"fig:"++t)]]
