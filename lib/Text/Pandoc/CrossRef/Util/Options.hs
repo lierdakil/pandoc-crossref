@@ -24,4 +24,6 @@ data Options = Options { cref :: Bool
                        , tableTemplate  :: Template
                        , listingTemplate :: Template
                        , customLabel :: String -> Int -> Maybe String
+                       , ccsDelim :: [Inline]
+                       , ccsLabelSep :: [Inline]
                        }

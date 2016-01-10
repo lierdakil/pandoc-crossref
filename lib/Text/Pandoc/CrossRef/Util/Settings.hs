@@ -39,6 +39,8 @@ defaultMeta =
   <> crossrefYaml (MetaString "pandoc-crossref.yaml")
   <> chaptersDepth (MetaString "1")
   <> subfigureChildTemplate (var "i")
-  <> subfigureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> str "." <> var "ccs")
+  <> subfigureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> str "." <> space <> var "ccs")
   <> subfigLabels (MetaString "alpha a")
+  <> ccsDelim (str "," <> space)
+  <> ccsLabelSep (space <> str "—" <> space)
   where var = displayMath

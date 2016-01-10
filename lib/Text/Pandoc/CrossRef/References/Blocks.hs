@@ -53,14 +53,14 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     idxStr <- replaceAttr opts label (lookup "label" attrs) caption imgRefs'
     let (cont, st) = runState (concatMapM runImages images) def
         collectedCaptions =
-            intercalate [Str ",", Space]
+            intercalate (ccsDelim opts)
           $ map snd
           $ M.toList
           $ M.map collectCaps
           $ imgRefs st
         collectCaps v =
               chapPrefix (chapDelim opts) (refIndex v)
-          ++  [Space, Str "—", Space]
+          ++  ccsLabelSep opts
           ++  refTitle v
         vars = M.fromDistinctAscList
                   [ ("ccs", collectedCaptions)
