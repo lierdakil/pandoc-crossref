@@ -1,9 +1,15 @@
-module Text.Pandoc.CrossRef.Util.Template (Template,makeTemplate,applyTemplate) where
+module Text.Pandoc.CrossRef.Util.Template
+  ( Template
+  , makeTemplate
+  , applyTemplate
+  , applyTemplate'
+  ) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Generic
 import Text.Pandoc.Shared (normalizeInlines)
 import Data.Maybe
+import Data.Map as M
 import Text.Pandoc.CrossRef.Util.Meta
 
 type VarFunc = String -> Maybe MetaValue
@@ -17,10 +23,13 @@ makeTemplate dtv = Template . flip scan . scan (`lookupMeta` dtv)
   go _ x = x
   replaceVar val def' = fromMaybe def' $ val >>= toInlines
 
-applyTemplate :: [Inline] -> [Inline] -> Template -> [Inline]
-applyTemplate i t (Template g) =
+applyTemplate' :: Map String [Inline] -> Template -> [Inline]
+applyTemplate' vars (Template g) =
   normalizeInlines $ g internalVars
   where
-  internalVars "i" = Just $ MetaInlines i
-  internalVars "t" = Just $ MetaInlines t
+  internalVars x | Just v <- M.lookup x vars = Just $ MetaInlines v
   internalVars _   = Nothing
+
+applyTemplate :: [Inline] -> [Inline] -> Template -> [Inline]
+applyTemplate i t =
+  applyTemplate' (fromDistinctAscList [("i", i), ("t", t)])
