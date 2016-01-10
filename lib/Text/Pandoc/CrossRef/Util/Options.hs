@@ -21,6 +21,7 @@ data Options = Options { cref :: Bool
                        , figureTemplate :: Template
                        , subfigureTemplate :: Template
                        , subfigureChildTemplate :: Template
+                       , ccsTemplate :: Template
                        , tableTemplate  :: Template
                        , listingTemplate :: Template
                        , customLabel :: String -> Int -> Maybe String

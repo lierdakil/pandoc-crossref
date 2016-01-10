@@ -59,9 +59,10 @@ replaceBlocks opts (Div (label,cls,attrs) images)
           $ M.map collectCaps
           $ imgRefs st
         collectCaps v =
-              chapPrefix (chapDelim opts) (refIndex v)
-          ++  ccsLabelSep opts
-          ++  refTitle v
+              applyTemplate
+                (chapPrefix (chapDelim opts) (refIndex v))
+                (refTitle v)
+                (ccsTemplate opts)
         vars = M.fromDistinctAscList
                   [ ("ccs", collectedCaptions)
                   , ("i", idxStr)

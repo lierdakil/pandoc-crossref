@@ -43,4 +43,5 @@ defaultMeta =
   <> subfigLabels (MetaString "alpha a")
   <> ccsDelim (str "," <> space)
   <> ccsLabelSep (space <> str "—" <> space)
+  <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
   where var = displayMath
