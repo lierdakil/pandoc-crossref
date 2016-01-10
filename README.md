@@ -66,7 +66,6 @@ It's possible to group figures as subfigures. Basic syntax is as follows:
 <div id="fig:figureRef">
 ![subfigure 1 caption](image1.png){#fig:figureRefA}
 ![subfigure 2 caption](image2.png){#fig:figureRefB}
-...
 
 Caption of figure
 </div>
@@ -75,6 +74,23 @@ Caption of figure
 To sum up, subfigures are made with a div having a figure `id`. Contents of said div *must* consist of two paragraph. First paragraph contains subfigures themselves, with captions, images and (optionally) reference attributes. Second paragraph contains figure caption.
 
 Output is customizable, with metadata fields. See [Customization](#Customization) for more information.
+
+Default settings will produce the following equivalent Markdown from example above:
+
+```
+<div id="fig:figureRef" class="subfigures">
+
+![a](image1.png){#fig:figureRefA}
+
+![b](image2.png){#fig:figureRefB}
+
+Figure 1: Caption of figure. a — subfigure 1 caption, b — subfigure 2
+caption
+
+</div>
+```
+
+References to subfigures will be rendered as `figureNumber (subfigureNumber)`, e.g., in this particular example, `[@fig:figureRefA]` will produce `fig. 1 (a)`.
 
 ### Equation labels
 
