@@ -24,6 +24,8 @@ It is also possible to mix different references, like [@fig:figure1; @tbl:table1
 
 You can also have custom chapter reference labels, like @sec:custlabs
 
+Subfigures are supported, see [@fig:subfigures; @fig:subfigureB]
+
 # Chapter 1. Figures {#sec:sec1}
 
 ![First figure](img1.jpg){#fig:figure1}
@@ -33,6 +35,13 @@ You can also have custom chapter reference labels, like @sec:custlabs
 ![Third figure](img3.jpg){#fig:figure3}
 
 ![Unlabelled image](img1.jpg)
+
+<div id="fig:subfigures">
+![Subfigure a](img1.jpg)
+![Subfigure b](img1.jpg){#fig:subfigureB}
+
+Subfigures caption
+</div>
 
 # Chapter 2. Equations {#sec:sec2}
 
