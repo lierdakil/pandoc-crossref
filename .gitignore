@@ -1,5 +1,6 @@
 .stack-work
 .cabal-sandbox
+.pandoc-*
 dist
 cabal.sandbox.config
 mkcheck.sh
