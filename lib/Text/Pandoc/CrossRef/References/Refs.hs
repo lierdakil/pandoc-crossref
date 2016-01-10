@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Text.Pandoc.Definition
@@ -108,15 +109,25 @@ getLabelPrefix lab
 
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = do
-  indices <- mapM (getRefIndex prefix) cits
+  indices <- mapM (getRefIndex prefix opts) cits
   let
     indices' = groupBy ((==) `on` (fmap init . fst)) (sort indices)
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
   return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) ++ intercalate [Str ",", Space]  (makeIndices opts `map` indices')
 
-getRefIndex :: String -> Citation -> WS (Maybe Index, [Inline])
-getRefIndex prefix Citation{citationId=cid,citationSuffix=suf}
-  = (\x -> (x,suf)) `fmap` (fmap refIndex . M.lookup lab <$> get prop)
+getRefIndex :: String -> Options -> Citation -> WS (Maybe Index, [Inline])
+getRefIndex prefix opts Citation{citationId=cid,citationSuffix=suf}
+  = do
+    ref <- M.lookup lab <$> get prop
+    let sub = join $ refSubfigure <$> ref
+        idx = refIndex <$> ref
+        suf' | Just sub' <- sub =
+                    suf
+                ++  [Space, Str "("]
+                ++  makeIndices opts [(Just sub',[])]
+                ++  [Str ")"]
+             | otherwise = suf
+    return (idx ,suf')
   where
   prop = lookupUnsafe prefix accMap
   lab = prefix ++ getLabelWithoutPrefix cid
