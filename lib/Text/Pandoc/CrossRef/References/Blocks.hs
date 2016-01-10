@@ -13,6 +13,7 @@ import Text.Pandoc.Builder (text, toList)
 import Text.Pandoc.Shared (stringify, normalizeSpaces)
 import Control.Monad.State hiding (get, modify)
 import Data.List
+import Data.Maybe
 import qualified Data.Map as M
 
 import Data.Accessor
@@ -23,8 +24,6 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
 import Prelude
-
-import Debug.Trace
 
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')
@@ -68,7 +67,14 @@ replaceBlocks opts (Div (label,cls,attrs) images)
                   , ("t", caption)
                   ]
         capt = applyTemplate' vars $ figureTemplate opts
-    return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt, Para [Str $ show st]]
+    lastRef <- fromJust . M.lookup label <$> gets imgRefs
+    modify' $ \s -> s{
+      imgRefs =
+        M.union
+          (imgRefs s)
+          (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v}) $ imgRefs st)
+      }
+    return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
     isImage (Para images') = all isImage' images'
     isImage (Plain images') = all isImage' images'
@@ -234,6 +240,7 @@ replaceAttr o label refLabel title prop
     modify prop $ M.insert label RefRec {
       refIndex= index
     , refTitle=normalizeSpaces title
+    , refSubfigure = Nothing
     }
     return $ chapPrefix (chapDelim o) index
 
@@ -244,5 +251,6 @@ replaceAttrSec label title prop
     modify prop $ M.insert label RefRec {
       refIndex=index
     , refTitle=normalizeSpaces title
+    , refSubfigure = Nothing
     }
     return ()

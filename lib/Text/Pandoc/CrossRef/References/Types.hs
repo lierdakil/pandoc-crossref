@@ -11,6 +11,7 @@ type Index = [(Int, Maybe String)]
 
 data RefRec = RefRec { refIndex :: Index
                      , refTitle :: [Inline]
+                     , refSubfigure :: Maybe Index
                      } deriving (Show, Eq)
 
 type RefMap = M.Map String RefRec
