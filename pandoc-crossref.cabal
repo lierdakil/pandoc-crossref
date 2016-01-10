@@ -16,6 +16,7 @@ extra-doc-files:     README.md
                      BSD3.md
 cabal-version:       >=1.10
 data-files:          demo.md
+extra-source-files:  test/*.inc
 
 source-repository head
   type: git
