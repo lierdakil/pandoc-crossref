@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, FlexibleContexts #-}
 import Test.Hspec
 import Text.Pandoc hiding (readMarkdown)
 import Text.Pandoc.Builder
@@ -72,6 +72,62 @@ main = hspec $ do
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
           imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
+          def{imgRefs=M.fromList $ refRec' "fig:figure" 1 "Test figure"})
+      it "Labels subfigures" $
+        testBlocks (
+          divWith ("fig:subfigure",[],[]) (
+            para (
+                 figure' [] "test1.jpg" [] "Test figure 1" "figure1"
+              <> figure' [] "test2.jpg" [] "Test figure 2" "figure2"
+              )
+          <>para (text "figure caption")
+            ) <>
+          divWith ("fig:subfigure2",[],[]) (
+            para (
+                 figure' [] "test21.jpg" [] "Test figure 21" "figure21"
+              <> figure' [] "test22.jpg" [] "Test figure 22" "figure22"
+              )
+          <>para (text "figure caption 2")
+            )
+          )
+        (
+          divWith ("fig:subfigure",["subfigures"],[]) (
+               para (figure' "fig:" "test1.jpg" [] "a" "figure1")
+            <> para (figure' "fig:" "test2.jpg" [] "b" "figure2")
+            <> para (text "Figure 1: figure caption. a — Test figure 1, b — Test figure 2")
+            ) <>
+          divWith ("fig:subfigure2",["subfigures"],[]) (
+               para (figure' "fig:" "test21.jpg" [] "a" "figure21")
+            <> para (figure' "fig:" "test22.jpg" [] "b" "figure22")
+            <> para (text "Figure 2: figure caption 2. a — Test figure 21, b — Test figure 22")
+            )
+        , def
+            { imgRefs = M.fromList [("fig:figure1",RefRec {
+                                            refIndex = [(1,Nothing)],
+                                            refTitle = [Str "Test",Space,Str "figure",Space,Str "1"],
+                                            refSubfigure = Just [(1, Just "a")]}),
+                                    ("fig:figure2",RefRec {
+                                            refIndex = [(1,Nothing)],
+                                            refTitle = [Str "Test",Space,Str "figure",Space,Str "2"],
+                                            refSubfigure = Just [(2, Just "b")]}),
+                                    ("fig:subfigure",RefRec {
+                                            refIndex = [(1,Nothing)],
+                                            refTitle = [Str "figure",Space,Str "caption"],
+                                            refSubfigure = Nothing}),
+                                    ("fig:figure21",RefRec {
+                                            refIndex = [(2,Nothing)],
+                                            refTitle = [Str "Test",Space,Str "figure",Space,Str "21"],
+                                            refSubfigure = Just [(1, Just "a")]}),
+                                    ("fig:figure22",RefRec {
+                                            refIndex = [(2,Nothing)],
+                                            refTitle = [Str "Test",Space,Str "figure",Space,Str "22"],
+                                            refSubfigure = Just [(2, Just "b")]}),
+                                    ("fig:subfigure2",RefRec {
+                                            refIndex = [(2,Nothing)],
+                                            refTitle = [Str "figure",Space,Str "caption",Space,Str "2"],
+                                            refSubfigure = Nothing})
+                                   ]
+            })
 #else
       it "Labels images" $
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
@@ -253,7 +309,7 @@ testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGe
 
 testBlocks :: Blocks -> (Blocks, References) -> Expectation
 testBlocks = testState f def
-  where f = walkM $ References.Blocks.replaceBlocks defaultOptions . References.Blocks.divBlocks
+  where f = walkM (References.Blocks.replaceBlocks defaultOptions) . walk References.Blocks.divBlocks
 
 testInlines :: Inlines -> (Inlines, References) -> Expectation
 testInlines = testState (bottomUpM (References.Blocks.replaceInlines defaultOptions) . bottomUp References.Blocks.spanInlines) def
@@ -272,10 +328,13 @@ testList :: Blocks -> References -> Blocks -> Expectation
 testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) st `shouldBe` (toList res,st)
 
 figure :: String -> String -> String -> String -> Blocks
+figure = (((para .) .) .) . figure' "fig:"
+
+figure' :: String -> String -> String -> String -> String -> Inlines
 #if MIN_VERSION_pandoc(1,16,0)
-figure src title alt ref = para (imageWith ("fig:" ++ ref, [], []) src ("fig:" ++ title) (text alt))
+figure' p src title alt ref = imageWith ("fig:" ++ ref, [], []) src (p ++ title) (text alt)
 #else
-figure src title alt ref = para (image src title (text alt) <> ref' "fig" ref)
+figure' _ src title alt ref = image src title (text alt) <> ref' "fig" ref
 #endif
 
 section :: String -> Int -> String -> Blocks
