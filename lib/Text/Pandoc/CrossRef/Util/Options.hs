@@ -19,6 +19,8 @@ data Options = Options { cref :: Bool
                        , lolTitle    :: [Block]
                        , outFormat   :: Maybe Format
                        , figureTemplate :: Template
+                       , subfigureTemplate :: Template
+                       , subfigureChildTemplate :: Template
                        , tableTemplate  :: Template
                        , listingTemplate :: Template
                        , customLabel :: String -> Int -> Maybe String

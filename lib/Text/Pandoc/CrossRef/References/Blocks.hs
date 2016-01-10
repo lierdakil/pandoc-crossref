@@ -67,7 +67,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
                   , ("i", idxStr)
                   , ("t", caption)
                   ]
-        capt = applyTemplate' vars $ figureTemplate opts
+        capt = applyTemplate' vars $ subfigureTemplate opts
     lastRef <- fromJust . M.lookup label <$> gets imgRefs
     modify' $ \s -> s{
       imgRefs =
@@ -87,7 +87,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     runImages :: Block -> WS [Block]
     runImages (Para images') = do
       let opts' = opts
-            { figureTemplate = makeTemplate nullMeta [Math DisplayMath "i"]
+            { figureTemplate = subfigureChildTemplate opts
             , customLabel = \r i -> customLabel opts ("sub"++r) i
             }
       mapM (replaceBlocks opts') $ concatMap mkFig images'

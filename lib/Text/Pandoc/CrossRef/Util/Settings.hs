@@ -38,4 +38,7 @@ defaultMeta =
   <> listingTemplate (var "listingTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> crossrefYaml (MetaString "pandoc-crossref.yaml")
   <> chaptersDepth (MetaString "1")
+  <> subfigureChildTemplate (var "i")
+  <> subfigureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> str "." <> var "ccs")
+  <> subfigLabels (MetaString "alpha a")
   where var = displayMath
