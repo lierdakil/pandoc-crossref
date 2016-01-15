@@ -32,6 +32,12 @@ This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.
 
 This package tries to use latex labels and references if output type is LaTeX. It also tries to supplement rudimentary LaTeX configuration that should mimic metadata configuration by setting `header-includes` variable.
 
+## Caveats
+
+### LaTeX output and `--include-in-header`
+
+pandoc-crossref uses metadata variable `header-includes` to add LaTeX definitions to output. However, Pandoc's command line option `--include-in-header`/`-H` overrides this variable. If you need to use `--include-in-header`, add pandoc-crossref-specific definitions as well. See [LaTeX customization](#latex-customization) for more information.
+
 ## Syntax
 
 Syntax is loosely based on discussion in <https://github.com/jgm/pandoc/issues/813>
