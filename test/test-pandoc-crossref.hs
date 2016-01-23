@@ -16,8 +16,7 @@ import Text.Pandoc.CrossRef.Util.Gap
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Settings
-import Data.Accessor
-import Text.Pandoc.CrossRef.References.Accessors
+import Data.Accessor hiding ((=:))
 import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
 import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
 import qualified Text.Pandoc.CrossRef.References.List as References.List
@@ -35,7 +34,7 @@ main = hspec $ do
       it "Labels equations" $
         testInlines (equation' "a^2+b^2=c^2" "equation")
         (equation' "a^2+b^2=c^2\\qquad(1)" [],
-          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the middle of text" $
         testInlines (
                 text "This is an equation: "
@@ -45,7 +44,7 @@ main = hspec $ do
            text "This is an equation: "
         <> equation' "a^2+b^2=c^2\\qquad(1)" []
         <> text " it should be labeled",
-          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the beginning of text" $
         testInlines (
                 equation' "a^2+b^2=c^2" "equation"
@@ -53,7 +52,7 @@ main = hspec $ do
         (
            equation' "a^2+b^2=c^2\\qquad(1)" []
         <> text " it should be labeled",
-          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the end of text" $
         testInlines (
                 text "This is an equation: "
@@ -61,7 +60,7 @@ main = hspec $ do
         (
            text "This is an equation: "
         <> equation' "a^2+b^2=c^2\\qquad(1)" [],
-          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
 
     -- TODO:
     -- describe "References.Blocks.spanInlines"
@@ -72,17 +71,17 @@ main = hspec $ do
       it "Labels images" $
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
-          def{imgRefs=M.fromList $ refRec' "fig:figure" 1 "Test figure"})
+          imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
 #else
       it "Labels images" $
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" "fig:" "Figure 1: Test figure" [],
-          def{imgRefs=M.fromList $ refRec' "fig:figure" 1 "Test figure"})
+          imgRefs =: M.fromList (refRec' "fig:figure" 1 "Test figure") $ def)
 #endif
       it "Labels equations" $
         testBlocks (equation "a^2+b^2=c^2" "equation")
         (equation "a^2+b^2=c^2\\qquad(1)" [],
-          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the middle of text" $
         testBlocks (para $
                 text "This is an equation: "
@@ -92,7 +91,7 @@ main = hspec $ do
            text "This is an equation: "
         <> equation' "a^2+b^2=c^2\\qquad(1)" []
         <> text " it should be labeled",
-          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the beginning of text" $
         testBlocks (para $
                 equation' "a^2+b^2=c^2" "equation"
@@ -100,7 +99,7 @@ main = hspec $ do
         (para $
            equation' "a^2+b^2=c^2\\qquad(1)" []
         <> text " it should be labeled",
-          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the end of text" $
         testBlocks (para $
                 text "This is an equation: "
@@ -108,79 +107,79 @@ main = hspec $ do
         (para $
            text "This is an equation: "
         <> equation' "a^2+b^2=c^2\\qquad(1)" [],
-          def{eqnRefs=M.fromList $ refRec'' "eq:equation" 1})
+          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels tables" $
         testBlocks (table' "Test table" "table")
         (table' "Table 1: Test table" [],
-          def{tblRefs=M.fromList $ refRec' "tbl:table" 1 "Test table"})
+          tblRefs =: M.fromList $ refRec' "tbl:table" 1 "Test table")
       it "Labels code blocks" $
         testBlocks (codeBlock' "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          def{lstRefs=M.fromList $ refRec' "lst:codeblock" 1 "Test code block"})
+          lstRefs =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
       it "Labels code block divs" $
         testBlocks (codeBlockDiv "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          def{lstRefs=M.fromList $ refRec' "lst:codeblock" 1 "Test code block"})
+          lstRefs =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
       it "Labels sections divs" $
         testBlocks (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
-          def{secRefs=M.fromList $ refRec' "sec:section" 1 "Section Header",
-              curChap=[(1,Nothing)]})
+          secRefs ^= M.fromList (refRec' "sec:section" 1 "Section Header")
+          $ curChap =: [(1,Nothing)])
 
     describe "References.Refs.replaceRefs" $ do
       it "References one image" $
-        testRefs' "fig:" [1] [4] imgRefs' "fig.\160\&4"
+        testRefs' "fig:" [1] [4] imgRefs "fig.\160\&4"
       it "References multiple images" $
-        testRefs' "fig:" [1..3] [4..6] imgRefs' "figs.\160\&4-6"
+        testRefs' "fig:" [1..3] [4..6] imgRefs "figs.\160\&4-6"
       it "References one equation" $
-        testRefs' "eq:" [1] [4] eqnRefs' "eq.\160\&4"
+        testRefs' "eq:" [1] [4] eqnRefs "eq.\160\&4"
       it "References multiple equations" $
-        testRefs' "eq:" [1..3] [4..6] eqnRefs' "eqns.\160\&4-6"
+        testRefs' "eq:" [1..3] [4..6] eqnRefs "eqns.\160\&4-6"
       it "References one table" $
-        testRefs' "tbl:" [1] [4] tblRefs' "tbl.\160\&4"
+        testRefs' "tbl:" [1] [4] tblRefs "tbl.\160\&4"
       it "References multiple tables" $
-        testRefs' "tbl:" [1..3] [4..6] tblRefs' "tbls.\160\&4-6"
+        testRefs' "tbl:" [1..3] [4..6] tblRefs "tbls.\160\&4-6"
       it "References one listing" $
-        testRefs' "lst:" [1] [4] lstRefs' "lst.\160\&4"
+        testRefs' "lst:" [1] [4] lstRefs "lst.\160\&4"
       it "References multiple listings" $
-        testRefs' "lst:" [1..3] [4..6] lstRefs' "lsts.\160\&4-6"
+        testRefs' "lst:" [1..3] [4..6] lstRefs "lsts.\160\&4-6"
       it "References one section" $
-        testRefs' "sec:" [1] [4] secRefs' "sec.\160\&4"
+        testRefs' "sec:" [1] [4] secRefs "sec.\160\&4"
       it "References multiple sections" $
-        testRefs' "sec:" [1..3] [4..6] secRefs' "secs.\160\&4-6"
+        testRefs' "sec:" [1..3] [4..6] secRefs "secs.\160\&4-6"
       it "Separates references to different chapter items by a comma" $
-        testRefs'' "lst:" [1..6] (zip [1,1..] [4..6] ++ zip [2,2..] [7..9]) lstRefs' "lsts.\160\&1.4-1.6, 2.7-2.9"
+        testRefs'' "lst:" [1..6] (zip [1,1..] [4..6] ++ zip [2,2..] [7..9]) lstRefs "lsts.\160\&1.4-1.6, 2.7-2.9"
 
     describe "References.Refs.replaceRefs capitalization" $ do
       it "References one image" $
-        testRefs' "Fig:" [1] [4] imgRefs' "Fig.\160\&4"
+        testRefs' "Fig:" [1] [4] imgRefs "Fig.\160\&4"
       it "References multiple images" $
-        testRefs' "Fig:" [1..3] [4..6] imgRefs' "Figs.\160\&4-6"
+        testRefs' "Fig:" [1..3] [4..6] imgRefs "Figs.\160\&4-6"
       it "References one equation" $
-        testRefs' "Eq:" [1] [4] eqnRefs' "Eq.\160\&4"
+        testRefs' "Eq:" [1] [4] eqnRefs "Eq.\160\&4"
       it "References multiple equations" $
-        testRefs' "Eq:" [1..3] [4..6] eqnRefs' "Eqns.\160\&4-6"
+        testRefs' "Eq:" [1..3] [4..6] eqnRefs "Eqns.\160\&4-6"
       it "References one table" $
-        testRefs' "Tbl:" [1] [4] tblRefs' "Tbl.\160\&4"
+        testRefs' "Tbl:" [1] [4] tblRefs "Tbl.\160\&4"
       it "References multiple tables" $
-        testRefs' "Tbl:" [1..3] [4..6] tblRefs' "Tbls.\160\&4-6"
+        testRefs' "Tbl:" [1..3] [4..6] tblRefs "Tbls.\160\&4-6"
       it "References one listing" $
-        testRefs' "Lst:" [1] [4] lstRefs' "Lst.\160\&4"
+        testRefs' "Lst:" [1] [4] lstRefs "Lst.\160\&4"
       it "References multiple listings" $
-        testRefs' "Lst:" [1..3] [4..6] lstRefs' "Lsts.\160\&4-6"
+        testRefs' "Lst:" [1..3] [4..6] lstRefs "Lsts.\160\&4-6"
       it "References one listing" $
-        testRefs' "Sec:" [1] [4] secRefs' "Sec.\160\&4"
+        testRefs' "Sec:" [1] [4] secRefs "Sec.\160\&4"
       it "References multiple listings" $
-        testRefs' "Sec:" [1..3] [4..6] secRefs' "Secs.\160\&4-6"
+        testRefs' "Sec:" [1..3] [4..6] secRefs "Secs.\160\&4-6"
 
     describe "References.List.listOf" $ do
       it "Generates list of tables" $
         testList (para $ rawInline "tex" "\\listoftables")
-                 def{tblRefs=M.fromList $ refRec' "tbl:1" 4 "4" <> refRec' "tbl:2" 5 "5" <> refRec' "tbl:3" 6 "6"}
+                 (tblRefs =: M.fromList $ refRec' "tbl:1" 4 "4" <> refRec' "tbl:2" 5 "5" <> refRec' "tbl:3" 6 "6")
                  (header 1 (text "List of Tables") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
       it "Generates list of figures" $
         testList (para $ rawInline "tex" "\\listoffigures")
-                 def{imgRefs=M.fromList $ refRec' "fig:1" 4 "4" <> refRec' "fig:2" 5 "5" <> refRec' "fig:3" 6 "6"}
+                 (imgRefs =: M.fromList $ refRec' "fig:1" 4 "4" <> refRec' "fig:2" 5 "5" <> refRec' "fig:3" 6 "6")
                  (header 1 (text "List of Figures") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
 
     describe "Util.CodeBlockCaptions" $
@@ -328,3 +327,7 @@ defCit = Citation{citationId = ""
 
 cit :: String -> [Citation]
 cit r = [defCit{citationId=r}]
+
+infixr 0 =:
+(=:) :: Df.Default r => Accessor r a -> a -> r
+a =: b = a ^= b $ def

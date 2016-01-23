@@ -12,7 +12,6 @@ import Control.Arrow as A
 import Data.Accessor
 import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.References.Accessors
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Control.Applicative
@@ -44,11 +43,11 @@ replaceRefs _ x = return x
 
 -- accessors to state variables
 accMap :: M.Map String (Accessor References RefMap)
-accMap = M.fromList [("fig:",imgRefs')
-                    ,("eq:" ,eqnRefs')
-                    ,("tbl:",tblRefs')
-                    ,("lst:",lstRefs')
-                    ,("sec:",secRefs')
+accMap = M.fromList [("fig:",imgRefs)
+                    ,("eq:" ,eqnRefs)
+                    ,("tbl:",tblRefs)
+                    ,("lst:",lstRefs)
+                    ,("sec:",secRefs)
                     ]
 
 -- accessors to options

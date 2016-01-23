@@ -29,7 +29,6 @@ source-repository this
 library
   exposed-modules:     Text.Pandoc.CrossRef
   other-modules:       Text.Pandoc.CrossRef.References
-                     , Text.Pandoc.CrossRef.References.Accessors
                      , Text.Pandoc.CrossRef.References.Blocks
                      , Text.Pandoc.CrossRef.References.List
                      , Text.Pandoc.CrossRef.References.Refs
@@ -53,6 +52,7 @@ library
                      , data-default >= 0.4 && <0.6
                      , bytestring >=0.9 && <0.11
                      , data-accessor >= 0.2.2.7 && < 0.3.0.0
+                     , data-accessor-template >= 0.2.1.12 && < 0.3.0.0
                      , data-accessor-transformers >= 0.2.1.7 && < 0.3.0.0
   hs-source-dirs:      lib
   Ghc-Options:         -Wall
@@ -91,6 +91,7 @@ Test-Suite test-pandoc-crossref
                  , hspec
                  , process >=1 && <1.5
                  , data-accessor >= 0.2.2.7 && < 0.3.0.0
+                 , data-accessor-template >= 0.2.1.12 && < 0.3.0.0
                  , data-accessor-transformers >= 0.2.1.7 && < 0.3.0.0
                  , pandoc-crossref
   other-modules: Native

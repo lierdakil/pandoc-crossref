@@ -1,15 +1,11 @@
-module Text.Pandoc.CrossRef.References.Types ( References(..)
-                        , WS
-                        , RefRec(..)
-                        , RefMap
-                        , Index
-                        , def
-                        ) where
+{-# LANGUAGE TemplateHaskell #-}
+module Text.Pandoc.CrossRef.References.Types where
 
 import qualified Data.Map as M
 import Text.Pandoc.Definition
 import Control.Monad.State
 import Data.Default
+import Data.Accessor.Template
 
 type Index = [(Int, Maybe String)]
 
@@ -20,12 +16,12 @@ data RefRec = RefRec { refIndex :: Index
 type RefMap = M.Map String RefRec
 
 -- state data type
-data References = References { imgRefs :: RefMap
-                             , eqnRefs :: RefMap
-                             , tblRefs :: RefMap
-                             , lstRefs :: RefMap
-                             , secRefs :: RefMap
-                             , curChap :: Index
+data References = References { imgRefs_ :: RefMap
+                             , eqnRefs_ :: RefMap
+                             , tblRefs_ :: RefMap
+                             , lstRefs_ :: RefMap
+                             , secRefs_ :: RefMap
+                             , curChap_ :: Index
                              } deriving (Show, Eq)
 
 --state monad
@@ -34,3 +30,5 @@ type WS a = State References a
 instance Default References where
   def = References n n n n n []
     where n = M.empty
+
+deriveAccessors ''References
