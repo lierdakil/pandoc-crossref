@@ -16,7 +16,7 @@ import Text.Pandoc.CrossRef.Util.Gap
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Settings
-import Text.Pandoc.CrossRef.Util.Accessor
+import Data.Accessor
 import Text.Pandoc.CrossRef.References.Accessors
 import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
 import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
@@ -247,10 +247,10 @@ refRec''' :: String -> (Int, Int) -> [(String, RefRec)]
 refRec''' ref (c,i) = [(ref, RefRec{refIndex=[(c,Nothing), (i,Nothing)],refTitle=toList $ text []})]
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
-testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen p l1 l2) def) (para $ text res)
+testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen p l1 l2) def) (para $ text res)
 
 testRefs'' :: String -> [Int] -> [(Int, Int)] -> Accessor References (M.Map String RefRec) -> String -> Expectation
-testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setProp prop (refGen' p l1 l2) def) (para $ text res)
+testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen' p l1 l2) def) (para $ text res)
 
 testBlocks :: Blocks -> (Blocks, References) -> Expectation
 testBlocks = testState f def

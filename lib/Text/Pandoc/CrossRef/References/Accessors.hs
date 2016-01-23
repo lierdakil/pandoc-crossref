@@ -1,19 +1,35 @@
+{-# LANGUAGE RecordWildCards #-}
 module Text.Pandoc.CrossRef.References.Accessors where
 
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.Util.Accessor
+import Data.Accessor
 
 imgRefs' :: Accessor References RefMap
-imgRefs' new r@References{imgRefs=old} = (old, r{imgRefs=new})
+imgRefs' = accessor
+  (\References{..} -> imgRefs)
+  (\a r -> r{imgRefs=a})
 
 eqnRefs' :: Accessor References RefMap
-eqnRefs' new r@References{eqnRefs=old} = (old, r{eqnRefs=new})
+eqnRefs' = accessor
+  (\References{..} -> eqnRefs)
+  (\a r -> r{eqnRefs=a})
 
 tblRefs' :: Accessor References RefMap
-tblRefs' new r@References{tblRefs=old} = (old, r{tblRefs=new})
+tblRefs' = accessor
+  (\References{..} -> tblRefs)
+  (\a r -> r{tblRefs=a})
 
 lstRefs' :: Accessor References RefMap
-lstRefs' new r@References{lstRefs=old} = (old, r{lstRefs=new})
+lstRefs' = accessor
+  (\References{..} -> lstRefs)
+  (\a r -> r{lstRefs=a})
 
 secRefs' :: Accessor References RefMap
-secRefs' new r@References{secRefs=old} = (old, r{secRefs=new})
+secRefs' = accessor
+  (\References{..} -> secRefs)
+  (\a r -> r{secRefs=a})
+
+curChap' :: Accessor References Index
+curChap' = accessor
+  (\References{..} -> curChap)
+  (\a r -> r{curChap=a})

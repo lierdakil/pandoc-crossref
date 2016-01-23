@@ -2,14 +2,15 @@ module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared (normalizeInlines, normalizeSpaces)
-import Control.Monad.State
+import Control.Monad.State hiding (get, modify)
 import Data.List
 import Data.Maybe
 import Data.Function
 import qualified Data.Map as M
 import Control.Arrow as A
 
-import Text.Pandoc.CrossRef.Util.Accessor
+import Data.Accessor
+import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Accessors
 import Text.Pandoc.CrossRef.Util.Util
@@ -114,7 +115,7 @@ replaceRefsOther prefix opts cits = do
 
 getRefIndex :: String -> Citation -> WS (Maybe Index, [Inline])
 getRefIndex prefix Citation{citationId=cid,citationSuffix=suf}
-  = (\x -> (x,suf)) `fmap` gets (fmap refIndex . M.lookup lab . getProp prop)
+  = (\x -> (x,suf)) `fmap` (fmap refIndex . M.lookup lab <$> get prop)
   where
   prop = lookupUnsafe prefix accMap
   lab = prefix ++ getLabelWithoutPrefix cid
