@@ -22,6 +22,8 @@ import Text.Pandoc.CrossRef.References.Accessors
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
+import Control.Applicative
+import Prelude
 
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')

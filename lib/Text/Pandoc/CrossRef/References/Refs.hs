@@ -15,6 +15,8 @@ import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Accessors
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
+import Control.Applicative
+import Prelude
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
 replaceRefs opts (Cite cits _:xs)
