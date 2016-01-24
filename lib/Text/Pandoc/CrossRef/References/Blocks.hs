@@ -25,10 +25,8 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
 import Prelude
+#if MIN_VERSION_pandoc(1,16,0)
 import Data.Default
-
-#if MIN_VERSION_pandoc(1,16,0) && __GLASGOW_HASKELL__ < 710
-import Control.Applicative ((<$>))
 #endif
 
 replaceBlocks :: Options -> Block -> WS Block

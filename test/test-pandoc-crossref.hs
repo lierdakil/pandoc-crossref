@@ -130,7 +130,7 @@ main = hspec $ do
       it "Labels images" $
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" "fig:" "Figure 1: Test figure" [],
-          imgRefs =: M.fromList (refRec' "fig:figure" 1 "Test figure") $ def)
+          imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
 #endif
       it "Labels equations" $
         testBlocks (equation "a^2+b^2=c^2" "equation")
