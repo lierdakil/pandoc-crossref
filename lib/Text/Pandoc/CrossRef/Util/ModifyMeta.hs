@@ -22,6 +22,7 @@ modifyMeta opts meta
     headerInc (Just (MetaList x)) = MetaList $ x ++ incList
     headerInc (Just x) = MetaList $ x:incList
     incList = map MetaString $
+        subfig ++
         floatnames ++
         listnames  ++
         [ x | x <- codelisting, not $ listings opts] ++
@@ -30,6 +31,9 @@ modifyMeta opts meta
         [ x | x <- cleverefCodelisting, cref opts && not (listings opts)] ++
         []
       where
+        subfig = [
+            "\\usepackage{subfig}"
+          ]
         floatnames = [
             "\\AtBeginDocument{%"
           , "\\renewcommand*\\figurename{"++metaString "figureTitle"++"}"

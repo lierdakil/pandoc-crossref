@@ -206,7 +206,7 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img)
         idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
         case outFormat opts of
           f | isFormat "latex" f ->
-            return $ latexFigure "subfigure" label' alt (fst img)
+            return $ latexSubFigure label' alt (fst img)
           _  ->
             let alt' = applyTemplate idxStr alt $ figureTemplate opts
             in return $ Image (label', cls, attrs) alt' img
@@ -277,16 +277,12 @@ replaceAttrSec label title prop
     }
     return ()
 
-latexFigure :: String -> String -> [Inline] -> String -> Inline
-latexFigure env label caption src =
+latexSubFigure :: String -> [Inline] -> String -> Inline
+latexSubFigure label caption src =
   Span stopAttr $
-    [ RawInline (Format "tex") $ "\\begin{" ++ env ++ "}{}"
-    , RawInline (Format "tex") $ "\t\\includegraphics{" ++ src ++ "}"
-    , RawInline (Format "tex") $ "\t\\caption{" ]
-    ++ caption ++
-    [ RawInline (Format "tex") $ "}"
-    , RawInline (Format "tex") $ "\t\\label{"++label++"}"
-    , RawInline (Format "tex") $ "\\end{"++env++"}"]
+    [ RawInline (Format "tex") $ "\\subfloat[" ] ++ caption ++
+    [ RawInline (Format "tex") $ "]{\\includegraphics{" ++ src ++ "}\\label{"
+      ++ label ++ "}}"]
 
 stopAttr :: Attr
 stopAttr = ([], ["crossref-stop"], [])
