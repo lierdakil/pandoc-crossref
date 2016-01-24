@@ -36,4 +36,8 @@ everywhereM' :: Monad m => GenericQ Bool -> GenericM m -> GenericM m
 -- Top-down order is also reflected in order of do-actions
 everywhereM' q f x
   | q x = f x
-  | otherwise = f x >>= gmapM (everywhereM' q f)
+  | otherwise = do
+    x' <- f x
+    if q x'
+    then return x'
+    else gmapM (everywhereM' q f) x'

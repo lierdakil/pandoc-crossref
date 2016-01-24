@@ -30,8 +30,9 @@ replaceAll opts =
   $ mkM (replaceBlocks opts . divBlocks)
     `extM` (mapM (replaceInlines opts) . spanInlines)
   where
-    isSubfig (Div (label,_,_) _)
+    isSubfig (Div (label,cls,_) _)
       | "fig:" `isPrefixOf` label = True
+      | "crossref-stop" `elem` cls = True
     isSubfig _ = False
 
 replaceBlocks :: Options -> Block -> WS Block
@@ -83,7 +84,17 @@ replaceBlocks opts (Div (label,cls,attrs) images)
           old
           (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
           $ imgRefs_ st)
-    return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
+    case outFormat opts of
+          f | isFormat "latex" f ->
+            return $ Div stopAttr $
+              [ RawBlock (Format "tex") $ "\\begin{figure}" ]
+              ++ cont ++
+              [ Para $ [RawInline (Format "tex") $ "\t\\caption{"
+                       , Span stopAttr caption
+                       , RawInline (Format "tex") $ "}"]
+              , RawBlock (Format "tex") $ "\t\\label{"++label++"}"
+              , RawBlock (Format "tex") $ "\\end{figure}"]
+          _  -> return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
     isImage (Para images') = all isImage' images'
     isImage (Plain images') = all isImage' images'
@@ -128,7 +139,7 @@ replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
         | isFormat "latex" f, listings opts -> return cb
         --if not using listings, however, wrap it in a codelisting environment
         | isFormat "latex" f ->
-          return $ Div nullAttr [
+          return $ Div stopAttr [
               RawBlock (Format "tex")
                 $ "\\begin{codelisting}\n\\caption{"++caption++"}"
             , cb
@@ -154,11 +165,11 @@ replaceBlocks opts
           return $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
         --if not using listings, however, wrap it in a codelisting environment
         | isFormat "latex" f ->
-          return $ Div nullAttr [
+          return $ Div stopAttr [
               RawBlock (Format "tex") "\\begin{codelisting}"
             , Para [
                 RawInline (Format "tex") "\\caption{"
-              , Span nullAttr caption
+              , Span stopAttr caption
               , RawInline (Format "tex") "}"
               ]
             , CodeBlock (label,classes,attrs) code
@@ -193,11 +204,12 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img)
         let label' | "fig:" `isPrefixOf` label = label
                    | otherwise  = "fig:" ++ label
         idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
-        let alt' = case outFormat opts of
-              f | isFormat "latex" f ->
-                RawInline (Format "tex") ("\\label{"++label++"}") : alt
-              _  -> applyTemplate idxStr alt $ figureTemplate opts
-        return $ Image (label', cls, attrs) alt' img
+        case outFormat opts of
+          f | isFormat "latex" f ->
+            return $ latexFigure "subfigure" label' alt (fst img)
+          _  ->
+            let alt' = applyTemplate idxStr alt $ figureTemplate opts
+            in return $ Image (label', cls, attrs) alt' img
        | "fig:" `isPrefixOf` label -> do
         idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
         let alt' = case outFormat opts of
@@ -264,3 +276,17 @@ replaceAttrSec label title prop
     , refSubfigure = Nothing
     }
     return ()
+
+latexFigure :: String -> String -> [Inline] -> String -> Inline
+latexFigure env label caption src =
+  Span stopAttr $
+    [ RawInline (Format "tex") $ "\\begin{" ++ env ++ "}{}"
+    , RawInline (Format "tex") $ "\t\\includegraphics{" ++ src ++ "}"
+    , RawInline (Format "tex") $ "\t\\caption{" ]
+    ++ caption ++
+    [ RawInline (Format "tex") $ "}"
+    , RawInline (Format "tex") $ "\t\\label{"++label++"}"
+    , RawInline (Format "tex") $ "\\end{"++env++"}"]
+
+stopAttr :: Attr
+stopAttr = ([], ["crossref-stop"], [])
