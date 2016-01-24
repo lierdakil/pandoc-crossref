@@ -27,7 +27,7 @@ import Prelude
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')
   = do
-    let label' = if autoSecLab opts && not ("sec:" `isPrefixOf` label)
+    let label' = if autoSectionLabels opts && not ("sec:" `isPrefixOf` label)
                  then "sec:"++label
                  else label
     unless ("unnumbered" `elem` cls) $ do
@@ -71,7 +71,7 @@ replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
   = case outFormat opts of
       f
         --if used with listings package,nothing shoud be done
-        | isFormat "latex" f, useListings opts -> return cb
+        | isFormat "latex" f, listings opts -> return cb
         --if not using listings, however, wrap it in a codelisting environment
         | isFormat "latex" f ->
           return $ Div nullAttr [
@@ -96,7 +96,7 @@ replaceBlocks opts
   = case outFormat opts of
       f
         --if used with listings package, return code block with caption
-        | isFormat "latex" f, useListings opts ->
+        | isFormat "latex" f, listings opts ->
           return $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
         --if not using listings, however, wrap it in a codelisting environment
         | isFormat "latex" f ->
@@ -181,7 +181,7 @@ getRefLabel _ _ = Nothing
 replaceAttr :: Options -> String -> Maybe String -> [Inline] -> Accessor References RefMap -> WS [Inline]
 replaceAttr o label refLabel title prop
   = do
-    chap  <- take (chapDepth o) `fmap` get curChap
+    chap  <- take (chaptersDepth o) `fmap` get curChap
     i     <- (1+) `fmap` (M.size . M.filter ((==chap) . init . refIndex) <$> get prop)
     let index = chap ++ [(i, refLabel)]
     modify prop $ M.insert label RefRec {

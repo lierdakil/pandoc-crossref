@@ -24,10 +24,10 @@ modifyMeta opts meta
     incList = map MetaString $
         floatnames ++
         listnames  ++
-        [ x | x <- codelisting, not $ useListings opts] ++
+        [ x | x <- codelisting, not $ listings opts] ++
         lolcommand ++
-        [ x | x <- cleveref, useCleveref opts] ++
-        [ x | x <- cleverefCodelisting, useCleveref opts && not (useListings opts)] ++
+        [ x | x <- cleveref, cref opts] ++
+        [ x | x <- cleverefCodelisting, cref opts && not (listings opts)] ++
         []
       where
         floatnames = [
@@ -51,7 +51,7 @@ modifyMeta opts meta
           , "\\floatname{codelisting}{"++metaString "listingTitle"++"}"
           ]
         lolcommand
-          | useListings opts = [
+          | listings opts = [
               "\\newcommand*\\listoflistings\\lstlistoflistings"
             , "\\AtBeginDocument{%"
             , "\\renewcommand*{\\lstlistlistingname}{"++metaString' "lolTitle"++"}"

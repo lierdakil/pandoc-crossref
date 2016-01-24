@@ -266,7 +266,7 @@ testRefs :: Blocks -> References -> Blocks -> Expectation
 testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, st)
 
 testCBCaptions :: Blocks -> Blocks -> Expectation
-testCBCaptions bs res = runState (bottomUpM (Util.CodeBlockCaptions.codeBlockCaptions defaultOptions{cbCaptions=True}) (toList bs)) def `shouldBe` (toList res,def)
+testCBCaptions bs res = runState (bottomUpM (Util.CodeBlockCaptions.mkCodeBlockCaptions defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}) (toList bs)) def `shouldBe` (toList res,def)
 
 testList :: Blocks -> References -> Blocks -> Expectation
 testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) st `shouldBe` (toList res,st)

@@ -24,7 +24,7 @@ makeList :: Options -> (Options -> [Block]) -> [Block] -> M.Map String RefRec ->
 makeList opts titlef xs refs
   = return $
       titlef opts ++
-      (if chapDepth opts > 0
+      (if chaptersDepth opts > 0
         then Div ("", ["list"], []) (itemChap `map` refsSorted)
         else OrderedList style (item `map` refsSorted))
       : xs

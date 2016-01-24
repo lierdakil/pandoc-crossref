@@ -1,11 +1,13 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, FlexibleContexts #-}
 module Text.Pandoc.CrossRef.Util.Meta where
 
 import Text.Pandoc.CrossRef.Util.Gap
+import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Definition
 import Data.Maybe (fromMaybe)
 import Data.Default
+import Text.Pandoc.Walk
 
 getMetaList :: (Default a) => (MetaValue -> Maybe a) -> String -> Meta -> Int -> a
 getMetaList f name meta i = fromMaybe def $ lookupMeta name meta >>= getList i >>= f
@@ -57,3 +59,16 @@ getList i (MetaList l) = l !!? i
                    | not $ null list = Just $ last list
                    | otherwise = Nothing
 getList _ x = Just x
+
+tryCapitalizeM :: (Functor m, Monad m, Walkable Inline a, Default a, Eq a) =>
+        (String -> m a) -> String -> Bool -> m a
+tryCapitalizeM f varname capitalize
+  | capitalize = do
+    res <- f (capitalizeFirst varname)
+    case res of
+      xs | xs == def -> f varname >>= walkM capStrFst
+         | otherwise -> return xs
+  | otherwise  = f varname
+  where
+    capStrFst (Str s) = return $ Str $ capitalizeFirst s
+    capStrFst x = return x

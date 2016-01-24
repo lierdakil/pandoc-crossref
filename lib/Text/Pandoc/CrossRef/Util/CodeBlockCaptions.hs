@@ -1,6 +1,6 @@
 module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
     (
-    codeBlockCaptions
+    mkCodeBlockCaptions
     ) where
 
 import Text.Pandoc.Definition
@@ -10,16 +10,16 @@ import Data.Maybe (fromMaybe)
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
 
-codeBlockCaptions :: Options -> [Block] -> WS [Block]
-codeBlockCaptions opts x@(cb@(CodeBlock _ _):p@(Para _):xs)
+mkCodeBlockCaptions :: Options -> [Block] -> WS [Block]
+mkCodeBlockCaptions opts x@(cb@(CodeBlock _ _):p@(Para _):xs)
   = return $ fromMaybe x $ orderAgnostic opts $ p:cb:xs
-codeBlockCaptions opts x@(p@(Para _):cb@(CodeBlock _ _):xs)
+mkCodeBlockCaptions opts x@(p@(Para _):cb@(CodeBlock _ _):xs)
   = return $ fromMaybe x $ orderAgnostic opts $ p:cb:xs
-codeBlockCaptions _ x = return x
+mkCodeBlockCaptions _ x = return x
 
 orderAgnostic :: Options -> [Block] -> Maybe [Block]
 orderAgnostic opts (Para ils:CodeBlock (label,classes,attrs) code:xs)
-  | cbCaptions opts
+  | codeBlockCaptions opts
   , Just caption <- getCodeBlockCaption ils
   , not $ null label
   , "lst" `isPrefixOf` label
