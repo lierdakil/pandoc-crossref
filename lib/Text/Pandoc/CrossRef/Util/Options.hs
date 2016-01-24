@@ -12,6 +12,11 @@ data Options = Options { cref :: Bool
                        , tblPrefix   :: Bool -> Int -> [Inline]
                        , lstPrefix   :: Bool -> Int -> [Inline]
                        , secPrefix   :: Bool -> Int -> [Inline]
+                       , figPrefixTemplate :: Template
+                       , eqnPrefixTemplate :: Template
+                       , tblPrefixTemplate :: Template
+                       , lstPrefixTemplate :: Template
+                       , secPrefixTemplate :: Template
                        , chapDelim   :: [Inline]
                        , rangeDelim  :: [Inline]
                        , lofTitle    :: [Block]

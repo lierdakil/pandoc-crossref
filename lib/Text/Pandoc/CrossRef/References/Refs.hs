@@ -13,6 +13,7 @@ import Control.Arrow as A
 import Data.Accessor
 import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Control.Applicative
@@ -52,22 +53,24 @@ accMap = M.fromList [("fig:",imgRefs)
                     ]
 
 -- accessors to options
-prefMap :: M.Map String (Options -> Bool -> Int -> [Inline])
-prefMap = M.fromList [("fig:",figPrefix)
-                     ,("eq:" ,eqnPrefix)
-                     ,("tbl:",tblPrefix)
-                     ,("lst:",lstPrefix)
-                     ,("sec:",secPrefix)
+prefMap :: M.Map String (Options -> Bool -> Int -> [Inline], Options -> Template)
+prefMap = M.fromList [("fig:",(figPrefix, figPrefixTemplate))
+                     ,("eq:" ,(eqnPrefix, eqnPrefixTemplate))
+                     ,("tbl:",(tblPrefix, tblPrefixTemplate))
+                     ,("lst:",(lstPrefix, lstPrefixTemplate))
+                     ,("sec:",(secPrefix, secPrefixTemplate))
                      ]
 
 prefixes :: [String]
 prefixes = M.keys accMap
 
-getRefPrefix :: Options -> String -> Bool -> Int -> [Inline]
-getRefPrefix opts prefix capitalize num
-  | null refprefix = []
-  | otherwise   = refprefix ++ [Str "\160"]
-  where refprefix = lookupUnsafe prefix prefMap opts capitalize num
+getRefPrefix :: Options -> String -> Bool -> Int -> [Inline] -> [Inline]
+getRefPrefix opts prefix capitalize num cit =
+  applyTemplate' (M.fromDistinctAscList [("i", cit), ("p", refprefix)])
+        $ reftempl opts
+  where (refprefixf, reftempl) = lookupUnsafe prefix prefMap
+        refprefix = refprefixf opts capitalize num
+
 
 lookupUnsafe :: Ord k => k -> M.Map k v -> v
 lookupUnsafe = (fromJust .) . M.lookup
@@ -80,7 +83,7 @@ allCitsPrefix cits = find isCitationPrefix prefixes
 
 replaceRefsLatex :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsLatex prefix opts cits =
-  return $ p ++ [texcit]
+  return $ p [texcit]
   where
     texcit =
       RawInline (Format "tex") $
@@ -88,7 +91,7 @@ replaceRefsLatex prefix opts cits =
         cref'++"{"++listLabels prefix "" "," "" cits++"}"
         else
           listLabels prefix "\\ref{" ", " "}" cits
-    p | cref opts = []
+    p | cref opts = id
       | otherwise = getRefPrefix opts prefix cap (length cits - 1)
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
     cref' | cap = "\\Cref"
@@ -113,7 +116,7 @@ replaceRefsOther prefix opts cits = do
   let
     indices' = groupBy ((==) `on` (fmap init . fst)) (sort indices)
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
-  return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) ++ intercalate [Str ",", Space]  (makeIndices opts `map` indices')
+  return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) $ intercalate [Str ",", Space]  (makeIndices opts `map` indices')
 
 getRefIndex :: String -> Options -> Citation -> WS (Maybe Index, [Inline])
 getRefIndex prefix opts Citation{citationId=cid,citationSuffix=suf}
