@@ -23,4 +23,4 @@ mkLabel i lt
   = Just [[startWith..] !! (i-1)]
   | Just val <- join $ toString `fmap` getList (i-1) lt
   = Just val
-  | otherwise = Nothing
+  | otherwise = error $ "Unknown numeration type: " ++ show lt
