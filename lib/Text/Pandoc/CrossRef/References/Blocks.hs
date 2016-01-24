@@ -107,7 +107,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
 replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
   | "fig:" `isPrefixOf` label
   = do
-    idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs'
+    idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
     let alt' = case outFormat opts of
           f | isFormat "latex" f ->
             RawInline (Format "tex") ("\\label{"++label++"}") : alt
