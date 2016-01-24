@@ -10,6 +10,7 @@ import Language.Haskell.TH.Syntax hiding (Inline)
 import Data.List
 import Control.Monad
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.CustomLabels (customLabel)
 
 namedFields :: Con -> [VarStrictType]
 namedFields (RecC _ fs) = fs
@@ -57,6 +58,7 @@ makeCon' t accName = do
     boolT <- [t|$(conT t) -> Bool|]
     intT <- [t|$(conT t) -> Int|]
     tmplT <- [t|$(conT t) -> Template|]
+    clT <- [t|$(conT t) -> String -> Int -> Maybe String|]
     let varName | Name (OccName n) _ <- accName = liftString n
     let dtv = return $ VarE $ mkName "dtv"
     body <-
@@ -67,6 +69,7 @@ makeCon' t accName = do
       | t' == inlT -> [|getMetaInlines $(varName) $(dtv)|]
       | t' == blkT -> [|getMetaBlock $(varName) $(dtv)|]
       | t' == tmplT -> [|makeTemplate $(dtv) $ getMetaInlines $(varName) $(dtv)|]
+      | t' == clT -> [|customLabel $(dtv)|]
       | t' == fmtT -> return $ VarE $ mkName "fmt"
       | otherwise -> fail $ show t'
     return [(accName, body)]

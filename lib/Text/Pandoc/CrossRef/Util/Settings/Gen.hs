@@ -16,6 +16,7 @@ fmap concat $ mapM (makeAcc . mkName)
   , "listingTitle"
   , "titleDelim"
   , "crossrefYaml"
+  , "subfigLabels"
   ]
 
 getOptions :: Meta -> Maybe Format -> Options

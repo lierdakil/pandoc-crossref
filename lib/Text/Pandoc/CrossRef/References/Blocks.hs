@@ -25,6 +25,7 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
 import Prelude
+import Data.Default
 
 #if MIN_VERSION_pandoc(1,16,0) && __GLASGOW_HASKELL__ < 710
 import Control.Applicative ((<$>))
@@ -54,14 +55,14 @@ replaceBlocks opts (Div (label,cls,attrs) images)
   , all isImage (init images)
   , Para caption <- last images
   = do
-    idxStr <- replaceAttr opts label (lookup "label" attrs) caption imgRefs'
+    idxStr <- replaceAttr opts label (lookup "label" attrs) caption imgRefs
     let (cont, st) = runState (concatMapM runImages images) def
         collectedCaptions =
             intercalate (ccsDelim opts)
           $ map snd
           $ M.toList
           $ M.map collectCaps
-          $ imgRefs st
+          $ imgRefs_ st
         collectCaps v =
               applyTemplate
                 (chapPrefix (chapDelim opts) (refIndex v))
@@ -73,13 +74,12 @@ replaceBlocks opts (Div (label,cls,attrs) images)
                   , ("t", caption)
                   ]
         capt = applyTemplate' vars $ subfigureTemplate opts
-    lastRef <- fromJust . M.lookup label <$> gets imgRefs
-    modify $ \s -> s{
-      imgRefs =
+    lastRef <- fromJust . M.lookup label <$> get imgRefs
+    modify imgRefs $ \old ->
         M.union
-          (imgRefs s)
-          (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v}) $ imgRefs st)
-      }
+          old
+          (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
+          $ imgRefs_ st)
     return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
     isImage (Para images') = all isImage' images'
@@ -242,10 +242,10 @@ getRefLabel _ _ = Nothing
 replaceAttr :: Options -> String -> Maybe String -> [Inline] -> Accessor References RefMap -> WS [Inline]
 replaceAttr o label refLabel title prop
   = do
-    chap  <- take (chapDepth o) `fmap` gets curChap
-    i     <- (1+) `fmap` gets (M.size . M.filter (ap ((&&) . (chap ==) . init . refIndex) (isNothing . refSubfigure)) . getProp prop)
+    chap  <- take (chaptersDepth o) `fmap` get curChap
+    i     <- (1+) `fmap` (M.size . M.filter (ap ((&&) . (chap ==) . init . refIndex) (isNothing . refSubfigure)) <$> get prop)
     let index = chap ++ [(i, refLabel <> customLabel o label i)]
-    modify $ modifyProp prop $ M.insert label RefRec {
+    modify prop $ M.insert label RefRec {
       refIndex= index
     , refTitle=normalizeSpaces title
     , refSubfigure = Nothing

@@ -72,7 +72,6 @@ main = hspec $ do
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
           imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
-          def{imgRefs=M.fromList $ refRec' "fig:figure" 1 "Test figure"})
       it "Labels subfigures" $
         testBlocks (
           divWith ("fig:subfigure",[],[]) (
@@ -101,8 +100,7 @@ main = hspec $ do
             <> para (figure' "fig:" "test22.jpg" [] "b" "figure22")
             <> para (text "Figure 2: figure caption 2. a — Test figure 21, b — Test figure 22")
             )
-        , def
-            { imgRefs = M.fromList [("fig:figure1",RefRec {
+        , imgRefs =: M.fromList [("fig:figure1",RefRec {
                                             refIndex = [(1,Nothing)],
                                             refTitle = [Str "Test",Space,Str "figure",Space,Str "1"],
                                             refSubfigure = Just [(1, Just "a")]}),
@@ -127,7 +125,7 @@ main = hspec $ do
                                             refTitle = [Str "figure",Space,Str "caption",Space,Str "2"],
                                             refSubfigure = Nothing})
                                    ]
-            })
+            )
 #else
       it "Labels images" $
         testBlocks (figure "test.jpg" [] "Test figure" "figure")
