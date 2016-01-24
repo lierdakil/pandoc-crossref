@@ -199,8 +199,8 @@ replaceInlines opts x@(Image attr@(label,_,attrs) alt img)
     else do
       idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
       let alt' = case outFormat opts of
-            -- f | isFormat "latex" f ->
-              -- RawInline (Format "tex") ("\\label{"++label++"}") : alt
+            f | isFormat "latex" f ->
+              RawInline (Format "tex") ("\\label{"++label++"}") : alt
             _  -> applyTemplate idxStr alt $ figureTemplate opts
       return $ Image attr alt' img
 #else
