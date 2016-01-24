@@ -16,7 +16,7 @@ customLabel meta ref i
 mkLabel :: Int -> MetaValue -> Maybe String
 mkLabel i lt
   | toString lt == Just "arabic"
-  = Just $ show i
+  = Nothing
   | toString lt == Just "roman"
   = Just $ toRoman i
   | Just (startWith:_) <- join $ stripPrefix "alpha " `fmap` toString lt

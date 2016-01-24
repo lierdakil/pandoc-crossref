@@ -253,7 +253,7 @@ Following variables are supported:
 * `figureTitle`, default `Figure`: Word(s) to prepend to figure titles, e.g. `Figure 1: Description`
 * `tableTitle`, default `Table`: Word(s) to prepend to table titles, e.g. `Table 1: Description`
 * `listingTitle`, default `Listing`: Word(s) to prepend to listing titles, e.g. `Listing 1: Description`
-* `titleDelimiter`, default `:`: What to put between object number and caption text.
+* `titleDelim`, default `:`: What to put between object number and caption text.
 * `figPrefix`, default `fig.`, `figs.`: Prefix for references to figures, e.g. `figs. 1-3`
 * `eqnPrefix`, default `eq.`, `eqns.`: Prefix for references to equations, e.g. `eqns. 3,4`
 * `tblPrefix`, default `tbl.`, `tbls.`: Prefix for references to tables, e.g. `tbl. 2`

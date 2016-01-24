@@ -19,7 +19,18 @@ getSettings meta = do
 
 defaultMeta :: Meta
 defaultMeta =
-     figureTitle (str "Figure")
+     cref (MetaBool False)
+  <> chapters (MetaBool False)
+  <> chaptersDepth (MetaString "1")
+  <> listings (MetaBool False)
+  <> codeBlockCaptions (MetaBool False)
+  <> autoSectionLabels (MetaBool False)
+  <> figLabels (MetaString "arabic")
+  <> eqnLabels (MetaString "arabic")
+  <> tblLabels (MetaString "arabic")
+  <> lstLabels (MetaString "arabic")
+  <> secLabels (MetaString "arabic")
+  <> figureTitle (str "Figure")
   <> tableTitle (str "Table")
   <> listingTitle (str "Listing")
   <> titleDelim (str ":")
