@@ -38,6 +38,7 @@ Subfigures are supported, see [@fig:subfigures; @fig:subfigureB]
 
 <div id="fig:subfigures">
 ![Subfigure a](img1.jpg)
+
 ![Subfigure b](img1.jpg){#fig:subfigureB}
 
 Subfigures caption

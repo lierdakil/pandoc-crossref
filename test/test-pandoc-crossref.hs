@@ -2,7 +2,6 @@
 import Test.Hspec
 import Text.Pandoc hiding (readMarkdown)
 import Text.Pandoc.Builder
-import Text.Pandoc.Walk
 import Control.Monad.State
 import Data.List
 import Control.Arrow
@@ -32,11 +31,11 @@ main :: IO ()
 main = hspec $ do
     describe "References.Blocks.replaceInlines" $ do
       it "Labels equations" $
-        testInlines (equation' "a^2+b^2=c^2" "equation")
+        testAll (equation' "a^2+b^2=c^2" "equation")
         (equation' "a^2+b^2=c^2\\qquad(1)" [],
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the middle of text" $
-        testInlines (
+        testAll (
                 text "This is an equation: "
              <> equation' "a^2+b^2=c^2" "equation"
              <> text " it should be labeled")
@@ -46,7 +45,7 @@ main = hspec $ do
         <> text " it should be labeled",
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the beginning of text" $
-        testInlines (
+        testAll (
                 equation' "a^2+b^2=c^2" "equation"
              <> text " it should be labeled")
         (
@@ -54,7 +53,7 @@ main = hspec $ do
         <> text " it should be labeled",
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the end of text" $
-        testInlines (
+        testAll (
                 text "This is an equation: "
              <> equation' "a^2+b^2=c^2" "equation")
         (
@@ -69,23 +68,19 @@ main = hspec $ do
     describe "References.Blocks.replaceBlocks" $ do
 #if MIN_VERSION_pandoc(1,16,0)
       it "Labels images" $
-        testBlocks (figure "test.jpg" [] "Test figure" "figure")
+        testAll (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
           imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
       it "Labels subfigures" $
-        testBlocks (
+        testAll (
           divWith ("fig:subfigure",[],[]) (
-            para (
-                 figure' [] "test1.jpg" [] "Test figure 1" "figure1"
-              <> figure' [] "test2.jpg" [] "Test figure 2" "figure2"
-              )
+            para (figure' "fig:" "test1.jpg" [] "Test figure 1" "figure1")
+          <>para (figure' "fig:" "test2.jpg" [] "Test figure 2" "figure2")
           <>para (text "figure caption")
             ) <>
           divWith ("fig:subfigure2",[],[]) (
-            para (
-                 figure' [] "test21.jpg" [] "Test figure 21" "figure21"
-              <> figure' [] "test22.jpg" [] "Test figure 22" "figure22"
-              )
+            para (figure' "fig:" "test21.jpg" [] "Test figure 21" "figure21")
+          <>para (figure' "fig:" "test22.jpg" [] "Test figure 22" "figure22")
           <>para (text "figure caption 2")
             )
           )
@@ -128,16 +123,16 @@ main = hspec $ do
             )
 #else
       it "Labels images" $
-        testBlocks (figure "test.jpg" [] "Test figure" "figure")
+        testAll (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" "fig:" "Figure 1: Test figure" [],
           imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
 #endif
       it "Labels equations" $
-        testBlocks (equation "a^2+b^2=c^2" "equation")
+        testAll (equation "a^2+b^2=c^2" "equation")
         (equation "a^2+b^2=c^2\\qquad(1)" [],
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the middle of text" $
-        testBlocks (para $
+        testAll (para $
                 text "This is an equation: "
              <> equation' "a^2+b^2=c^2" "equation"
              <> text " it should be labeled")
@@ -147,7 +142,7 @@ main = hspec $ do
         <> text " it should be labeled",
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the beginning of text" $
-        testBlocks (para $
+        testAll (para $
                 equation' "a^2+b^2=c^2" "equation"
              <> text " it should be labeled")
         (para $
@@ -155,7 +150,7 @@ main = hspec $ do
         <> text " it should be labeled",
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the end of text" $
-        testBlocks (para $
+        testAll (para $
                 text "This is an equation: "
              <> equation' "a^2+b^2=c^2" "equation")
         (para $
@@ -163,19 +158,19 @@ main = hspec $ do
         <> equation' "a^2+b^2=c^2\\qquad(1)" [],
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels tables" $
-        testBlocks (table' "Test table" "table")
+        testAll (table' "Test table" "table")
         (table' "Table 1: Test table" [],
           tblRefs =: M.fromList $ refRec' "tbl:table" 1 "Test table")
       it "Labels code blocks" $
-        testBlocks (codeBlock' "Test code block" "codeblock")
+        testAll (codeBlock' "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
           lstRefs =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
       it "Labels code block divs" $
-        testBlocks (codeBlockDiv "Test code block" "codeblock")
+        testAll (codeBlockDiv "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
           lstRefs =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
       it "Labels sections divs" $
-        testBlocks (section "Section Header" 1 "section")
+        testAll (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
           secRefs ^= M.fromList (refRec' "sec:section" 1 "Section Header")
           $ curChap =: [(1,Nothing)])
@@ -305,12 +300,9 @@ testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen
 testRefs'' :: String -> [Int] -> [(Int, Int)] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen' p l1 l2) def) (para $ text res)
 
-testBlocks :: Blocks -> (Blocks, References) -> Expectation
-testBlocks = testState f def
-  where f = walkM (References.Blocks.replaceBlocks defaultOptions) . walk References.Blocks.divBlocks
-
-testInlines :: Inlines -> (Inlines, References) -> Expectation
-testInlines = testState (bottomUpM (References.Blocks.replaceInlines defaultOptions) . bottomUp References.Blocks.spanInlines) def
+testAll :: (Eq a, Data a, Show a) => Many a -> (Many a, References) -> Expectation
+testAll = testState f def
+  where f = References.Blocks.replaceAll defaultOptions
 
 testState :: (Eq s, Eq a1, Show s, Show a1, Df.Default s) =>
                ([a] -> State s [a1]) -> s -> Many a -> (Many a1, s) -> Expectation

@@ -1,14 +1,9 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, Rank2Types, MultiWayIf #-}
 module Text.Pandoc.CrossRef.References.Blocks
-  ( divBlocks
-  , replaceBlocks
-  , spanInlines
-  , replaceInlines
+  ( replaceAll
   ) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Generic
-import Text.Pandoc.Walk
 import Text.Pandoc.Builder (text, toList)
 import Text.Pandoc.Shared (stringify, normalizeSpaces)
 import Control.Monad.State hiding (get, modify)
@@ -28,6 +23,16 @@ import Prelude
 #if MIN_VERSION_pandoc(1,16,0)
 import Data.Default
 #endif
+
+replaceAll :: Data a => Options -> a -> WS a
+replaceAll opts =
+  everywhereM' (mkQ False isSubfig)
+  $ mkM (replaceBlocks opts . divBlocks)
+    `extM` (mapM (replaceInlines opts) . spanInlines)
+  where
+    isSubfig (Div (label,_,_) _)
+      | "fig:" `isPrefixOf` label = True
+    isSubfig _ = False
 
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')
@@ -54,7 +59,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
   , Para caption <- last images
   = do
     idxStr <- replaceAttr opts label (lookup "label" attrs) caption imgRefs
-    let (cont, st) = runState (concatMapM runImages images) def
+    let (cont, st) = runState (replaceAll opts' $ init images) (subFig ^= True $ def)
         collectedCaptions =
             intercalate (ccsDelim opts)
           $ map snd
@@ -87,20 +92,10 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     isImage' Space = True
     isImage' SoftBreak = True
     isImage' _ = False
-    runImages :: Block -> WS [Block]
-    runImages (Para images') = do
-      let opts' = opts
-            { figureTemplate = subfigureChildTemplate opts
-            , customLabel = \r i -> customLabel opts ("sub"++r) i
-            }
-      mapM (replaceBlocks opts') $ concatMap mkFig images'
-    runImages x = return [x]
-    mkFig (Image (i,cs,a) c (s,t)) = [Para [Image (addFigPrefix i,cs,a) c (s,addFigPrefix t)]]
-    mkFig _ = []
-    addFigPrefix t | "fig:" `isPrefixOf` t = t
-                   | otherwise = "fig:" ++ t
-    concatMapM        :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
-    concatMapM f xs   =  liftM concat (mapM f xs)
+    opts' = opts
+              { figureTemplate = subfigureChildTemplate opts
+              , customLabel = \r i -> customLabel opts ("sub"++r) i
+              }
 #else
 replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
   | "fig:" `isPrefixOf` label
@@ -176,7 +171,7 @@ replaceBlocks opts
             Para caption'
           , CodeBlock ([], classes, attrs) code
           ]
-replaceBlocks opts x = walkM (replaceInlines opts) x
+replaceBlocks _ x = return x
 
 replaceInlines :: Options -> Inline -> WS Inline
 replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq])
@@ -190,19 +185,28 @@ replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq])
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Math DisplayMath eq'
 #if MIN_VERSION_pandoc(1,16,0)
-replaceInlines opts x@(Image attr@(label,_,attrs) alt img)
-  | "fig:" `isPrefixOf` label, "fig:" `isPrefixOf` snd img
+replaceInlines opts x@(Image attr@(label,cls,attrs) alt img)
+  | "fig:" `isPrefixOf` snd img
   = do
-    hasLab <- M.member label <$> (get imgRefs)
-    if hasLab
-    then return x
-    else do
-      idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
-      let alt' = case outFormat opts of
-            f | isFormat "latex" f ->
-              RawInline (Format "tex") ("\\label{"++label++"}") : alt
-            _  -> applyTemplate idxStr alt $ figureTemplate opts
-      return $ Image attr alt' img
+    sf <- get subFig
+    if | sf -> do
+        let label' | "fig:" `isPrefixOf` label = label
+                   | otherwise  = "fig:" ++ label
+        idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
+        let alt' = case outFormat opts of
+              f | isFormat "latex" f ->
+                RawInline (Format "tex") ("\\label{"++label++"}") : alt
+              _  -> applyTemplate idxStr alt $ figureTemplate opts
+        return $ Image (label', cls, attrs) alt' img
+       | "fig:" `isPrefixOf` label -> do
+        idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
+        let alt' = case outFormat opts of
+              f | isFormat "latex" f ->
+                RawInline (Format "tex") ("\\label{"++label++"}") : alt
+              _  -> applyTemplate idxStr alt $ figureTemplate opts
+        return $ Image attr alt' img
+       | otherwise ->
+        return x
 #else
 #endif
 replaceInlines _ x = return x
@@ -218,7 +222,7 @@ divBlocks (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]
   = Div (label,[],[]) [Table (init title) align widths header cells]
-divBlocks x = bottomUp spanInlines x
+divBlocks x = x
 
 spanInlines :: [Inline] -> [Inline]
 spanInlines (math@(Math DisplayMath _eq):ils)

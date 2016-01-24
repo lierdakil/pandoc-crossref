@@ -62,7 +62,6 @@ module Text.Pandoc.CrossRef (
 import Control.Monad.State
 import qualified Control.Monad.Reader as R
 import Text.Pandoc
-import Text.Pandoc.Walk
 import Data.Monoid ((<>))
 
 import Text.Pandoc.CrossRef.References
@@ -89,8 +88,8 @@ crossRefBlocks blocks = do
   opts <- R.asks creOptions
   let
     doWalk =
-      bottomUpM (mkCodeBlockCaptions opts) (walk divBlocks blocks)
-      >>= walkM (replaceBlocks opts)
+      bottomUpM (mkCodeBlockCaptions opts) blocks
+      >>= replaceAll opts
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)
   return $ evalState doWalk def
