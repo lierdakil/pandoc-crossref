@@ -46,7 +46,7 @@ library
                      , Text.Pandoc.CrossRef.Util.Settings.Template
                      , Text.Pandoc.CrossRef.Util.Gap
   build-depends:       base >=4.2 && <5
-                     , pandoc >= 1.13 && <1.17
+                     , pandoc >= 1.16 && <1.17
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
                      , pandoc-types >= 1.12.4.1 && < 1.17
@@ -69,7 +69,7 @@ library
 executable pandoc-crossref
   main-is:             pandoc-crossref.hs
   build-depends:       base >=4.2 && <5
-                     , pandoc >= 1.13 && <1.17
+                     , pandoc >= 1.16 && <1.17
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
                      , pandoc-types >= 1.12.4.1 && < 1.17
@@ -86,7 +86,7 @@ Test-Suite test-pandoc-crossref
   Main-Is:        test-pandoc-crossref.hs
   hs-source-dirs: test, lib
   Build-Depends:   base >=4.2 && <5
-                 , pandoc >= 1.13 && <1.17
+                 , pandoc >= 1.16 && <1.17
                  , mtl >= 1.1 && <2.3
                  , containers >= 0.1 && <0.6
                  , pandoc-types >= 1.12.4.1 && < 1.17
