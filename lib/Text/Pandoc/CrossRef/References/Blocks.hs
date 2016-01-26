@@ -24,7 +24,7 @@ import Data.Default
 
 replaceAll :: Data a => Options -> a -> WS a
 replaceAll opts =
-    everywhereMBut' (mkQ False isSubfig) (mkM (replaceBlocks opts) `extM` (replaceInlines opts))
+    everywhereMBut' (mkQ False isSubfig) (mkM (replaceBlocks opts) `extM` replaceInlines opts)
   . everywhere' (mkT divBlocks `extT` spanInlines)
   where
     isSubfig (Div (label,cls,_) _)
@@ -83,13 +83,13 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     case outFormat opts of
           f | isFormat "latex" f ->
             return $ Div stopAttr $
-              [ RawBlock (Format "tex") $ "\\begin{figure}" ]
+              [ RawBlock (Format "tex") "\\begin{figure}" ]
               ++ cont ++
-              [ Para $ [RawInline (Format "tex") $ "\t\\caption{"
+              [ Para [RawInline (Format "tex") "\t\\caption{"
                        , Span stopAttr caption
-                       , RawInline (Format "tex") $ "}"]
+                       , RawInline (Format "tex") "}"]
               , RawBlock (Format "tex") $ "\t\\label{"++label++"}"
-              , RawBlock (Format "tex") $ "\\end{figure}"]
+              , RawBlock (Format "tex") "\\end{figure}"]
           _  -> return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
     isImage (Para images') = all isImage' images'
@@ -256,7 +256,7 @@ replaceAttrSec label title prop
 latexSubFigure :: String -> [Inline] -> String -> Inline
 latexSubFigure label caption src =
   Span stopAttr $
-    [ RawInline (Format "tex") $ "\\subfloat[" ] ++ caption ++
+    [ RawInline (Format "tex") "\\subfloat[" ] ++ caption ++
     [ RawInline (Format "tex") $ "]{\\includegraphics{" ++ src ++ "}\\label{"
       ++ label ++ "}}"]
 
