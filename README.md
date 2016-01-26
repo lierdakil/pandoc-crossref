@@ -38,6 +38,14 @@ This package tries to use latex labels and references if output type is LaTeX. I
 
 pandoc-crossref uses metadata variable `header-includes` to add LaTeX definitions to output. However, Pandoc's command line option `--include-in-header`/`-H` overrides this variable. If you need to use `--include-in-header`, add pandoc-crossref-specific definitions as well. See [LaTeX customization](#latex-customization) for more information.
 
+### pandoc-citeproc and pandoc-crossref
+
+Since pandoc-crossref uses the same citation syntax as pandoc-citeproc, you *have* to run former *before* latter. For example:
+
+```
+pandoc -F pandoc-crossref -F pandoc-citeproc file.md -o file.html
+```
+
 ## Syntax
 
 Syntax is loosely based on discussion in <https://github.com/jgm/pandoc/issues/813>
