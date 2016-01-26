@@ -92,7 +92,6 @@ replaceBlocks opts (Div (label,cls,attrs) images)
               , RawBlock (Format "tex") $ "\\end{figure}"]
           _  -> return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
-#if MIN_VERSION_pandoc(1,16,0)
     isImage (Para images') = all isImage' images'
     isImage (Plain images') = all isImage' images'
     isImage _ = False
@@ -100,40 +99,10 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     isImage' Space = True
     isImage' SoftBreak = True
     isImage' _ = False
-#else
-    isImage (Div (l, _, _) _) = "fig:" `isPrefixOf` l
-    isImage _ = False
-#endif
     opts' = opts
               { figureTemplate = subfigureChildTemplate opts
               , customLabel = \r i -> customLabel opts ("sub"++r) i
               }
-#if MIN_VERSION_pandoc(1,16,0)
-#else
-replaceBlocks opts x@(Div (label,_,attrs) [Plain [Image alt img]])
-  | "fig:" `isPrefixOf` snd img
-  = do
-    sf <- get subFig
-    if | sf -> do
-        let label' | "fig:" `isPrefixOf` label = label
-                   | otherwise  = "fig:" ++ label
-        idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
-        case outFormat opts of
-          f | isFormat "latex" f ->
-            return $ Para [latexSubFigure label' alt (fst img)]
-          _  ->
-            let alt' = applyTemplate idxStr alt $ figureTemplate opts
-            in return $ Para[Image alt' img]
-       | "fig:" `isPrefixOf` label -> do
-        idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
-        let alt' = case outFormat opts of
-              f | isFormat "latex" f ->
-                RawInline (Format "tex") ("\\label{"++label++"}") : alt
-              _  -> applyTemplate idxStr alt $ figureTemplate opts
-        return $ Para [Image alt' img]
-       | otherwise ->
-        return x
-#endif
 replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , "tbl:" `isPrefixOf` label
@@ -211,7 +180,6 @@ replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq])
         idxStr <- replaceAttr opts label (lookup "label" attrs) [] eqnRefs
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Math DisplayMath eq'
-#if MIN_VERSION_pandoc(1,16,0)
 replaceInlines opts x@(Image attr@(label,cls,attrs) alt img)
   | "fig:" `isPrefixOf` snd img
   = do
@@ -235,17 +203,9 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img)
         return $ Image attr alt' img
        | otherwise ->
         return x
-#else
-#endif
 replaceInlines _ x = return x
 
 divBlocks :: Block -> Block
-#if MIN_VERSION_pandoc(1,16,0)
-#else
-divBlocks (Para (Image alt (img, title):c))
-  | Just label <- getRefLabel "fig" c
-  = Div (label,[],[]) [Plain [Image alt (img, "fig:" ++ title)]]
-#endif
 divBlocks (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]

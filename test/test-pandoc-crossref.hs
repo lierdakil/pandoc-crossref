@@ -66,7 +66,6 @@ main = hspec $ do
     -- describe "References.Blocks.divBlocks"
 
     describe "References.Blocks.replaceBlocks" $ do
-#if MIN_VERSION_pandoc(1,16,0)
       it "Labels images" $
         testAll (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
@@ -121,12 +120,6 @@ main = hspec $ do
                                             refSubfigure = Nothing})
                                    ]
             )
-#else
-      it "Labels images" $
-        testAll (figure "test.jpg" [] "Test figure" "figure")
-        (figure "test.jpg" "fig:" "Figure 1: Test figure" [],
-          imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
-#endif
       it "Labels equations" $
         testAll (equation "a^2+b^2=c^2" "equation")
         (equation "a^2+b^2=c^2\\qquad(1)" [],
@@ -321,11 +314,7 @@ figure :: String -> String -> String -> String -> Blocks
 figure = (((para .) .) .) . figure' "fig:"
 
 figure' :: String -> String -> String -> String -> String -> Inlines
-#if MIN_VERSION_pandoc(1,16,0)
 figure' p src title alt ref = imageWith ("fig:" ++ ref, [], []) src (p ++ title) (text alt)
-#else
-figure' _ src title alt ref = image src title (text alt) <> ref' "fig" ref
-#endif
 
 section :: String -> Int -> String -> Blocks
 section text' level label = headerWith ("sec:" ++ label,[],[]) level (text text')
