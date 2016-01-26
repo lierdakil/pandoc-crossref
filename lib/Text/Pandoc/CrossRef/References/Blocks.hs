@@ -20,9 +20,7 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
 import Prelude
-#if MIN_VERSION_pandoc(1,16,0)
 import Data.Default
-#endif
 
 replaceAll :: Data a => Options -> a -> WS a
 replaceAll opts =
@@ -52,7 +50,6 @@ replaceBlocks opts (Header n (label, cls, attrs) text')
         in cc'
       when ("sec:" `isPrefixOf` label') $ replaceAttrSec label' text' secRefs
     return $ Header n (label', cls, attrs) text'
-#if MIN_VERSION_pandoc(1,16,0)
 -- subfigures
 replaceBlocks opts (Div (label,cls,attrs) images)
   | "fig:" `isPrefixOf` label
@@ -101,22 +98,39 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     isImage _ = False
     isImage' Image{} = True
     isImage' Space = True
+#if MIN_VERSION_pandoc(1,16,0)
     isImage' SoftBreak = True
+#endif
     isImage' _ = False
     opts' = opts
               { figureTemplate = subfigureChildTemplate opts
               , customLabel = \r i -> customLabel opts ("sub"++r) i
               }
+#if MIN_VERSION_pandoc(1,16,0)
 #else
-replaceBlocks opts (Div (label,_,attrs) [Plain [Image alt img]])
+replaceBlocks opts x@(Div (label,_,attrs) [Plain [Image alt img]])
   | "fig:" `isPrefixOf` label
   = do
-    idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
-    let alt' = case outFormat opts of
+    sf <- get subFig
+    if | sf -> do
+        let label' | "fig:" `isPrefixOf` label = label
+                   | otherwise  = "fig:" ++ label
+        idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
+        case outFormat opts of
           f | isFormat "latex" f ->
-            RawInline (Format "tex") ("\\label{"++label++"}") : alt
-          _  -> applyTemplate idxStr alt $ figureTemplate opts
-    return $ Para [Image alt' img]
+            return $ Para [latexSubFigure label' alt (fst img)]
+          _  ->
+            let alt' = applyTemplate idxStr alt $ figureTemplate opts
+            in return $ Para[Image alt' img]
+       | "fig:" `isPrefixOf` label -> do
+        idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
+        let alt' = case outFormat opts of
+              f | isFormat "latex" f ->
+                RawInline (Format "tex") ("\\label{"++label++"}") : alt
+              _  -> applyTemplate idxStr alt $ figureTemplate opts
+        return $ Para [Image alt' img]
+       | otherwise ->
+        return x
 #endif
 replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
   | not $ null title

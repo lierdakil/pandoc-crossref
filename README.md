@@ -56,22 +56,19 @@ Image block and label *can not* be separated by spaces.
 
 #### Subfigures
 
-***NOT SUPPORTED WITH LATEX RIGHT NOW***
-
-***Only with pandoc-1.16 and up***
-
 It's possible to group figures as subfigures. Basic syntax is as follows:
 
 ```
 <div id="fig:figureRef">
 ![subfigure 1 caption](image1.png){#fig:figureRefA}
+
 ![subfigure 2 caption](image2.png){#fig:figureRefB}
 
 Caption of figure
 </div>
 ```
 
-To sum up, subfigures are made with a div having a figure `id`. Contents of said div *must* consist of two paragraph. First paragraph contains subfigures themselves, with captions, images and (optionally) reference attributes. Second paragraph contains figure caption.
+To sum up, subfigures are made with a div having a figure `id`. Contents of said div consist of several paragraphs. All but last paragraphs contain one subfigure each, with captions, images and (optionally) reference attributes. Last paragraph contains figure caption.
 
 Output is customizable, with metadata fields. See [Customization](#Customization) for more information.
 
