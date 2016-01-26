@@ -31,13 +31,13 @@ chapPrefix :: [Inline] -> Index -> [Inline]
 chapPrefix delim index = intercalate delim (map (return . Str . uncurry (fromMaybe . show)) index)
 
 -- | Monadic variation on everywhere'
-everywhereM' :: Monad m => GenericQ Bool -> GenericM m -> GenericM m
+everywhereMBut' :: Monad m => GenericQ Bool -> GenericM m -> GenericM m
 
 -- Top-down order is also reflected in order of do-actions
-everywhereM' q f x
+everywhereMBut' q f x
   | q x = f x
   | otherwise = do
     x' <- f x
     if q x'
     then return x'
-    else gmapM (everywhereM' q f) x'
+    else gmapM (everywhereMBut' q f) x'

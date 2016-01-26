@@ -24,9 +24,8 @@ import Data.Default
 
 replaceAll :: Data a => Options -> a -> WS a
 replaceAll opts =
-  everywhereM' (mkQ False isSubfig)
-  $ mkM (replaceBlocks opts . divBlocks)
-    `extM` (mapM (replaceInlines opts) . spanInlines)
+    everywhereMBut' (mkQ False isSubfig) (mkM (replaceBlocks opts) `extM` (replaceInlines opts))
+  . everywhere' (mkT divBlocks `extT` spanInlines)
   where
     isSubfig (Div (label,cls,_) _)
       | "fig:" `isPrefixOf` label = True
@@ -93,15 +92,18 @@ replaceBlocks opts (Div (label,cls,attrs) images)
               , RawBlock (Format "tex") $ "\\end{figure}"]
           _  -> return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
+#if MIN_VERSION_pandoc(1,16,0)
     isImage (Para images') = all isImage' images'
     isImage (Plain images') = all isImage' images'
     isImage _ = False
-    isImage' Image{} = True
+    isImage' (Image (l, _, _) _ _) = "fig:" `isPrefixOf` l
     isImage' Space = True
-#if MIN_VERSION_pandoc(1,16,0)
     isImage' SoftBreak = True
-#endif
     isImage' _ = False
+#else
+    isImage (Div (l, _, _) _) = "fig:" `isPrefixOf` l
+    isImage _ = False
+#endif
     opts' = opts
               { figureTemplate = subfigureChildTemplate opts
               , customLabel = \r i -> customLabel opts ("sub"++r) i
@@ -109,7 +111,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
 #if MIN_VERSION_pandoc(1,16,0)
 #else
 replaceBlocks opts x@(Div (label,_,attrs) [Plain [Image alt img]])
-  | "fig:" `isPrefixOf` label
+  | "fig:" `isPrefixOf` snd img
   = do
     sf <- get subFig
     if | sf -> do
