@@ -1,3 +1,12 @@
+## 0.1.6.5
+- *REALLY* fix #53
+- Fix #57
+
+## 0.1.6.4
+* Fix #53
+* Use data-accessor package
+* Update README.md
+
 ## 0.1.6.3
 * Source code organization
 * Removed redundant brackets
