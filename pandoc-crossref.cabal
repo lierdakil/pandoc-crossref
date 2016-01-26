@@ -58,7 +58,7 @@ library
                      , data-accessor-transformers >= 0.2.1.6 && < 0.3.0.0
                      , template-haskell >= 2.7.0.0 && < 3.0.0.0
                      , roman-numerals == 0.5.*
-                     , syb >= 0.5 && < 0.7
+                     , syb >= 0.4 && < 0.7
   hs-source-dirs:      lib
   Ghc-Options:         -Wall
   default-language:    Haskell2010
@@ -100,7 +100,7 @@ Test-Suite test-pandoc-crossref
                  , data-accessor-transformers >= 0.2.1.6 && < 0.3.0.0
                  , template-haskell >= 2.7.0.0 && < 3.0.0.0
                  , roman-numerals == 0.5.*
-                 , syb >= 0.5 && < 0.7
+                 , syb >= 0.4 && < 0.7
                  , pandoc-crossref
   other-modules: Native
   Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
