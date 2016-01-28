@@ -95,7 +95,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     isImage (Para images') = all isImage' images'
     isImage (Plain images') = all isImage' images'
     isImage _ = False
-    isImage' (Image (l, _, _) _ _) = "fig:" `isPrefixOf` l
+    isImage' (Image _ _ s) = "fig:" `isPrefixOf` snd s
     isImage' Space = True
     isImage' SoftBreak = True
     isImage' _ = False
