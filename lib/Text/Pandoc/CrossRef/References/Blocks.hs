@@ -85,10 +85,9 @@ replaceBlocks opts (Div (label,cls,attrs) images)
             return $ Div stopAttr $
               [ RawBlock (Format "tex") "\\begin{figure}" ]
               ++ cont ++
-              [ Para [RawInline (Format "tex") "\t\\caption{"
-                       , Span stopAttr caption
-                       , RawInline (Format "tex") "}"]
-              , RawBlock (Format "tex") $ "\t\\label{"++label++"}"
+              [ Para [RawInline (Format "tex") "\\caption"
+                       , Span stopAttr caption]
+              , RawBlock (Format "tex") $ "\\label{"++label++"}"
               , RawBlock (Format "tex") "\\end{figure}"]
           _  -> return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
@@ -153,9 +152,8 @@ replaceBlocks opts
           return $ Div stopAttr [
               RawBlock (Format "tex") "\\begin{codelisting}"
             , Para [
-                RawInline (Format "tex") "\\caption{"
+                RawInline (Format "tex") "\\caption"
               , Span stopAttr caption
-              , RawInline (Format "tex") "}"
               ]
             , CodeBlock (label,classes,attrs) code
             , RawBlock (Format "tex") "\\end{codelisting}"
@@ -180,7 +178,7 @@ replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq])
         idxStr <- replaceAttr opts label (lookup "label" attrs) [] eqnRefs
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Math DisplayMath eq'
-replaceInlines opts x@(Image attr@(label,cls,attrs) alt img)
+replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
   | "fig:" `isPrefixOf` snd img
   = do
     sf <- get subFig
@@ -190,10 +188,12 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img)
         idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
         case outFormat opts of
           f | isFormat "latex" f ->
-            return $ latexSubFigure label' alt (fst img)
+            return $ latexSubFigure x label
           _  ->
             let alt' = applyTemplate idxStr alt $ figureTemplate opts
-            in return $ Image (label', cls, attrs) alt' img
+                tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
+                     | otherwise = tit
+            in return $ Image (label, cls, attrs) alt' (src, tit')
        | "fig:" `isPrefixOf` label -> do
         idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
         let alt' = case outFormat opts of
@@ -253,12 +253,22 @@ replaceAttrSec label title prop
     }
     return ()
 
-latexSubFigure :: String -> [Inline] -> String -> Inline
-latexSubFigure label caption src =
-  Span stopAttr $
-    [ RawInline (Format "tex") "\\subfloat[" ] ++ caption ++
-    [ RawInline (Format "tex") $ "]{\\includegraphics{" ++ src ++ "}\\label{"
-      ++ label ++ "}}"]
+latexSubFigure :: Inline -> String -> Inline
+latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
+  let
+    title' = fromMaybe title $ stripPrefix "fig:" title
+    texlabel | null label = []
+             | otherwise = "\\label{" ++ label ++ "}"
+    texalt | "nocaption" `elem` cls  = []
+           | otherwise =
+              [ RawInline (Format "tex") "["] ++ alt ++ [ RawInline (Format "tex") "]"]
+    img = Image (label, cls, attrs) alt (src, title')
+  in Span stopAttr $
+      [ RawInline (Format "tex") "\\subfloat" ] ++ texalt ++
+      [ RawInline (Format "tex") "{" ] ++
+      [img] ++
+      [ RawInline (Format "tex") $ texlabel ++ "}"]
+latexSubFigure x _ = x
 
 stopAttr :: Attr
 stopAttr = ([], ["crossref-stop"], [])

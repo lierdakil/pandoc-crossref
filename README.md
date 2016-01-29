@@ -97,6 +97,8 @@ caption
 
 References to subfigures will be rendered as `figureNumber (subfigureNumber)`, e.g., in this particular example, `[@fig:figureRefA]` will produce `fig. 1 (a)`.
 
+You can add `nocaption` class to an image to suppress subfigure caption altogether. Note that it will still be counted.
+
 ### Equation labels
 
 ```markdown
