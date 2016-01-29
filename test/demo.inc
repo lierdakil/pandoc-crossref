@@ -13,7 +13,7 @@
   ,Para [Image ("fig:figure3",[],[]) [Str "Figure",Space,Str "#",Space,Str "4:",Space,Str "Third",Space,Str "figure"] ("img3.jpg","fig:")]
   ,Para [Image ("",[],[]) [Str "Unlabelled",Space,Str "image"] ("img1.jpg","fig:")]
   ,Div ("fig:subfigures",["subfigures"],[])
-   [Para [Image ("fig:",[],[]) [Str "a"] ("img1.jpg","fig:")]
+   [Para [Image ([],[],[]) [Str "a"] ("img1.jpg","fig:")]
    ,Para [Image ("fig:subfigureB",[],[]) [Str "b"] ("img1.jpg","fig:")]
    ,Para [Str "Figure",Space,Str "#",Space,Str "5:",Space,Str "Subfigures",Space,Str "caption.",Space,Str "a",Space,Str "\8212",Space,Str "Subfigure",Space,Str "a,",Space,Str "b",Space,Str "\8212",Space,Str "Subfigure",Space,Str "b"]]
   ,Header 1 ("sec:sec2",[],[]) [Str "Chapter",Space,Str "2.",Space,Str "Equations"]
