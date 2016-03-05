@@ -1,3 +1,14 @@
+## 0.2.0.0
+
+* **NOTE** Only pandoc-1.16 supported since this release
+* README updates
+* Subfigures!
+* Use SYB for walking AST
+* Custom subfigure labels
+* Custom numbering schemes
+* Allow arbitrary internal vars in template
+* Extensive TemplateHaskell derivations
+
 ## 0.1.6.4
 * Fix #53
 * Use data-accessor package
