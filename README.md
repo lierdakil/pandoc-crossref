@@ -25,7 +25,7 @@ You can also enable per-chapter numbering (as with `--chapters` for latex output
 
 Tested with Pandoc 1.16.0.
 
-**NOTE**: pandoc-crossref versions 2.0 and up only support pandoc v1.16. You can still file issues with older versions, but please don't expect more than an occasional bugfix. Thank you for understanding.
+**NOTE**: pandoc-crossref versions 0.2.0 and up only support pandoc v1.16. You can still file issues with older versions, but please don't expect more than an occasional bugfix. Thank you for understanding.
 
 This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.
 
