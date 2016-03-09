@@ -1,0 +1,35 @@
+cache:
+- "c:\\sr" # stack root, short paths == fewer problems
+- "c:\\stack\\.stack-work"
+- "C:\\Users\\appveyor\\AppData\\Local\\Programs\\stack"
+
+clone_folder: "c:\\stack"
+environment:
+  global:
+    STACK_ROOT: "c:\\sr"
+
+before_build:
+- curl -ostack.zip -L --insecure http://www.stackage.org/stack/windows-i386
+- 7z x stack.zip stack.exe
+- stack setup > nul
+
+build_script:
+- echo "" | stack --no-terminal build
+
+after_build:
+- ps: Push-AppveyorArtifact "$(.\\stack.exe path --local-install-root)\bin\pandoc-crossref.exe"
+
+test_script:
+# The ugly echo "" hack is to avoid complaints about 0 being an invalid file
+# descriptor
+- echo "" | stack --no-terminal test
+
+deploy:
+  description: 'Description'
+  provider: GitHub
+  auth_token:
+    secure: mYPFGSbgJZ0H2bp6I9vMWvJdgVNUKplWpiPCV3W4sbUwte0jRK56L/8Rts6trCQ7
+  artifact: /.*/
+  draft: true
+  on:
+    appveyor_repo_tag: true        # deploy on tag push only
