@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts #-}
 import Test.Hspec
 import Text.Pandoc hiding (readMarkdown)
 import Text.Pandoc.Builder

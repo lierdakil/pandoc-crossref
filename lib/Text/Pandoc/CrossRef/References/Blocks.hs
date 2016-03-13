@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, Rank2Types, MultiWayIf #-}
+{-# LANGUAGE Rank2Types, MultiWayIf #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where

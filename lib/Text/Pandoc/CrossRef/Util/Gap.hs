@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 module Text.Pandoc.CrossRef.Util.Gap where
 
 import qualified Text.Pandoc as P

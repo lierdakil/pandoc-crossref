@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Text.Pandoc.CrossRef.Util.Meta where
 
 import Text.Pandoc.CrossRef.Util.Gap

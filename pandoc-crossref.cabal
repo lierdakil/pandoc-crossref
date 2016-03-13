@@ -62,9 +62,6 @@ library
   hs-source-dirs:      lib
   Ghc-Options:         -Wall
   default-language:    Haskell2010
-  other-extensions:    RankNTypes
-                     , CPP
-                     , FlexibleContexts
 
 executable pandoc-crossref
   main-is:             pandoc-crossref.hs

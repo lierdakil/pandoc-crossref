@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
 
 import Text.Pandoc hiding (readMarkdown)
