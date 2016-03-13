@@ -240,6 +240,20 @@ cabal update
 cabal install pandoc-crossref
 ```
 
+However, I highly recommend you use a sandbox for installation, e.g.
+
+```bash
+cabal update
+mkdir pandoc-crossref
+cd pandoc-crossref
+cabal sandbox init
+cabal install pandoc-crossref
+```
+
+This will get `pandoc-crossref` installed into `.cabal-sandbox/bin`. Pandoc will also be built, if it's not installed as a Haskell library system-wide. You might also want to install `pandoc-citeproc` in the same sandbox, if that's the case (`cabal install pandoc-citeproc`).
+
+For Windows users, there is a pre-built executable available at [releases page](https://github.com/lierdakil/pandoc-crossref/releases/latest). Bear in mind that it is a product of an automated build script, and as such, provided as-is, with zero guarantees.
+
 ## Usage
 
 Run pandoc with `--filter` option, passing path to pandoc-crossref executable, or simply `pandoc-crossref`, if it's in PATH:
