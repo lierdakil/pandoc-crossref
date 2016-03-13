@@ -9,7 +9,7 @@ environment:
     STACK_ROOT: "c:\\sr"
 
 before_build:
-- curl -ostack.zip -L --insecure http://www.stackage.org/stack/windows-i386
+- appveyor DownloadFile http://www.stackage.org/stack/windows-i386 -FileName stack.zip
 - 7z x stack.zip stack.exe
 - stack setup > nul
 
