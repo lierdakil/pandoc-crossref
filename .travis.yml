@@ -22,6 +22,13 @@ matrix:
         - hvr-ghc
         packages:
         - ghc-7.10.3
+  - env: GHCVER=7.10.3 STACK_YAML=stack-pandoc-1.17.yaml GHCOPTS=-Werror
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-7.10.3
 
 before_install:
 # Download and unpack the stack executable
