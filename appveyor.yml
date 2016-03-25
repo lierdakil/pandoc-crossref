@@ -22,10 +22,11 @@ build_script:
 - echo "" | stack --no-terminal build
 
 after_build:
-  - ps: 7z a C:\\pandoc-crossref-$PANDOCVER.zip "$(.\\stack.exe path --local-install-root)\\bin\\pandoc-crossref.exe"
+  - ps: 7z a "pandoc-crossref-$env:PANDOCVER.zip" "$(.\\stack.exe path --local-install-root)\\bin\\pandoc-crossref.exe"
 
 artifacts:
-  - path: 'C:\\*.zip'
+  - path: pandoc-crossref-$(PANDOCVER).zip
+    name: exe
 
 test_script:
 # The ugly echo "" hack is to avoid complaints about 0 being an invalid file
