@@ -99,6 +99,25 @@ Test-Suite test-pandoc-crossref
                  , roman-numerals == 0.5.*
                  , syb >= 0.4 && < 0.7
                  , pandoc-crossref
-  other-modules: Native
+  other-modules:
+                Native
+                Paths_pandoc_crossref
+                Text.Pandoc.CrossRef
+                Text.Pandoc.CrossRef.References
+                Text.Pandoc.CrossRef.References.Blocks
+                Text.Pandoc.CrossRef.References.List
+                Text.Pandoc.CrossRef.References.Refs
+                Text.Pandoc.CrossRef.References.Types
+                Text.Pandoc.CrossRef.Util.CodeBlockCaptions
+                Text.Pandoc.CrossRef.Util.CustomLabels
+                Text.Pandoc.CrossRef.Util.Gap
+                Text.Pandoc.CrossRef.Util.Meta
+                Text.Pandoc.CrossRef.Util.ModifyMeta
+                Text.Pandoc.CrossRef.Util.Options
+                Text.Pandoc.CrossRef.Util.Settings
+                Text.Pandoc.CrossRef.Util.Settings.Gen
+                Text.Pandoc.CrossRef.Util.Settings.Template
+                Text.Pandoc.CrossRef.Util.Template
+                Text.Pandoc.CrossRef.Util.Util
   Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
   Default-Language: Haskell2010
