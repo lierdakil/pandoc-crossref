@@ -1,5 +1,10 @@
-## 0.2.0.0
+## 0.2.0.1
+* Add modules to test-suite in .cabal
+* Allow builds with pandoc 1.17
+* Update stack resolver & deps
+* Remove obsolete CPP language extensions
 
+## 0.2.0.0
 * **NOTE** Only pandoc-1.16 supported since this release
 * README updates
 * Subfigures!
