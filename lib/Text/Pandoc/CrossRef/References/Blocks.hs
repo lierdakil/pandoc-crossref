@@ -24,13 +24,16 @@ import Data.Default
 
 replaceAll :: Data a => Options -> a -> WS a
 replaceAll opts =
-    everywhereMBut' (mkQ False isSubfig) (mkM (replaceBlocks opts) `extM` replaceInlines opts)
+    everywhereMBut' (mkQ False isSubfig `extQ` isSubfig') (mkM (replaceBlocks opts) `extM` replaceInlines opts)
   . everywhere' (mkT divBlocks `extT` spanInlines)
   where
     isSubfig (Div (label,cls,_) _)
       | "fig:" `isPrefixOf` label = True
       | "crossref-stop" `elem` cls = True
     isSubfig _ = False
+    isSubfig' (Span (_,cls,_) _)
+      | "crossref-stop" `elem` cls = True
+    isSubfig' _ = False
 
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')
@@ -52,7 +55,6 @@ replaceBlocks opts (Header n (label, cls, attrs) text')
 -- subfigures
 replaceBlocks opts (Div (label,cls,attrs) images)
   | "fig:" `isPrefixOf` label
-  , all isImage (init images)
   , Para caption <- last images
   = do
     idxStr <- replaceAttr opts label (lookup "label" attrs) caption imgRefs
@@ -91,13 +93,6 @@ replaceBlocks opts (Div (label,cls,attrs) images)
               , RawBlock (Format "tex") "\\end{figure}"]
           _  -> return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
-    isImage (Para images') = all isImage' images'
-    isImage (Plain images') = all isImage' images'
-    isImage _ = False
-    isImage' (Image _ _ s) = "fig:" `isPrefixOf` snd s
-    isImage' Space = True
-    isImage' SoftBreak = True
-    isImage' _ = False
     opts' = opts
               { figureTemplate = subfigureChildTemplate opts
               , customLabel = \r i -> customLabel opts ("sub"++r) i
