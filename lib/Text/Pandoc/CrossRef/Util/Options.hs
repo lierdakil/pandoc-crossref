@@ -32,4 +32,5 @@ data Options = Options { cref :: Bool
                        , customLabel :: String -> Int -> Maybe String
                        , ccsDelim :: [Inline]
                        , ccsLabelSep :: [Inline]
+                       , tableEqns :: Bool
                        }

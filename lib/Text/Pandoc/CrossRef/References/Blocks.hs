@@ -160,6 +160,12 @@ replaceBlocks opts
             Para caption'
           , CodeBlock ([], classes, attrs) code
           ]
+replaceBlocks opts (Para [Span (label, _, attrs) [Math DisplayMath eq]])
+  | not $ isFormat "latex" (outFormat opts)
+  , tableEqns opts
+  = do
+    idxStr <- replaceAttr opts label (lookup "label" attrs) [] eqnRefs
+    return $ Table [] [AlignCenter, AlignRight] [0.9, 0.1] [] [[[Plain [Math DisplayMath eq]], [Plain [Math DisplayMath $ "(" ++ stringify idxStr ++ ")"]]]]
 replaceBlocks _ x = return x
 
 replaceInlines :: Options -> Inline -> WS Inline

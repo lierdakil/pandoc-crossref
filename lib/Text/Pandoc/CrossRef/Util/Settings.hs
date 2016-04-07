@@ -59,4 +59,5 @@ defaultMeta =
   <> ccsDelim (str "," <> space)
   <> ccsLabelSep (space <> str "—" <> space)
   <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
+  <> tableEqns (MetaBool False)
   where var = displayMath
