@@ -1,3 +1,10 @@
+## 0.2.1.0
+* Replace _ in LaTeX references with ux5f
+* Allow data-default 0.6 (pull request #67 from @felixonmars)
+* tableEqns option wraps numbered eqns into tables
+* Allow arbitrary formatting in subfigures
+* Update changelog
+
 ## 0.2.0.1
 * Add modules to test-suite in .cabal
 * Allow builds with pandoc 1.17
