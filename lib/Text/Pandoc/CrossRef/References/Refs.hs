@@ -86,7 +86,7 @@ replaceRefsLatex prefix opts cits =
   return $ p [texcit]
   where
     texcit =
-      RawInline (Format "tex") $
+      RawInline (Format "tex") $ replace '_' "ux5f" $
       if cref opts then
         cref'++"{"++listLabels prefix "" "," "" cits++"}"
         else
@@ -96,6 +96,8 @@ replaceRefsLatex prefix opts cits =
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
     cref' | cap = "\\Cref"
           | otherwise = "\\cref"
+    replace old new = intercalate new . split old
+    split a = filter (/=[a]) . groupBy ((&&) `on` (/= a))
 
 listLabels :: String -> String -> String -> String -> [Citation] -> String
 listLabels prefix p sep s =
