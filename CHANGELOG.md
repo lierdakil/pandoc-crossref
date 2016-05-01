@@ -1,3 +1,6 @@
+## 0.2.1.1
+* Only apply ux5f substitution to sections
+
 ## 0.2.1.0
 * Replace _ in LaTeX references with ux5f
 * Allow data-default 0.6 (pull request #67 from @felixonmars)
