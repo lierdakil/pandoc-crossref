@@ -1,3 +1,6 @@
+## 0.2.1.2
+* Remove figure label hack for pandoc-1.17
+
 ## 0.2.1.1
 * Only apply ux5f substitution to sections
 
