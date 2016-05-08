@@ -35,6 +35,7 @@ matrix:
         - ghc-7.10.3
 
 before_install:
+- unset CC
 # Download and unpack the stack executable
 - export PATH=/opt/ghc/$GHCVER/bin:$PATH
 - mkdir -p ~/.local/bin
