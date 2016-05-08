@@ -1,3 +1,4 @@
+language: c
 sudo: false
 
 # Caching so the next build will be fast too.
@@ -9,6 +10,7 @@ cache:
 matrix:
   include:
   - env: GHCVER=7.8.4 STACK_YAML=stack-7.8.yaml GHCOPTS=-Werror
+    compiler: ': #GHC 7.8.4 Pandoc 1.16'
     addons:
       apt:
         sources:
@@ -16,6 +18,7 @@ matrix:
         packages:
         - ghc-7.8.4
   - env: GHCVER=7.10.3 STACK_YAML=stack.yaml GHCOPTS=-Werror
+    compiler: ': #GHC 7.10.3 Pandoc 1.16'
     addons:
       apt:
         sources:
@@ -23,6 +26,7 @@ matrix:
         packages:
         - ghc-7.10.3
   - env: GHCVER=7.10.3 STACK_YAML=stack-pandoc-1.17.yaml GHCOPTS=-Werror
+    compiler: ': #GHC 7.10.3 Pandoc 1.17'
     addons:
       apt:
         sources:
