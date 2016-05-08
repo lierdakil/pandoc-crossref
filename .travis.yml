@@ -6,6 +6,7 @@ cache:
   apt: true
   directories:
   - $HOME/.stack
+  - $TRAVIS_BUILD_DIR/.stack-work/install
 
 matrix:
   include:
