@@ -1,4 +1,4 @@
-{-# LANGUAGE Rank2Types, MultiWayIf #-}
+{-# LANGUAGE Rank2Types, MultiWayIf, CPP #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
@@ -199,7 +199,11 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
         idxStr <- replaceAttr opts label (lookup "label" attrs) alt imgRefs
         let alt' = case outFormat opts of
               f | isFormat "latex" f ->
+#if MIN_VERSION_pandoc(1,17,0)
+                alt
+#else
                 RawInline (Format "tex") ("\\label{"++label++"}") : alt
+#endif
               _  -> applyTemplate idxStr alt $ figureTemplate opts
         return $ Image attr alt' img
        | otherwise ->
