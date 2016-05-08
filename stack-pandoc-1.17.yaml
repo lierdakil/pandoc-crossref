@@ -6,4 +6,4 @@ extra-deps:
 - data-accessor-template-0.2.1.12
 - data-accessor-transformers-0.2.1.7
 - roman-numerals-0.5.1.5
-resolver: nightly-2016-03-24
+resolver: nightly-2016-05-07
