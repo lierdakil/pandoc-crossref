@@ -295,7 +295,11 @@ main = hspec $ do
         it "Tbl labels" $
           table' "A table" "some_table1"
             <> para (citeGen "tbl:some_table" [1])
+#if MIN_VERSION_pandoc(1,17,0)
             `test` "\\begin{longtable}[]{@{}@{}}\n\\caption{\\label{tbl:someux5ftable1}A table }\\tabularnewline\n\\toprule\n\\tabularnewline\n\\midrule\n\\endfirsthead\n\\toprule\n\\tabularnewline\n\\midrule\n\\endhead\n\\tabularnewline\n\\bottomrule\n\\end{longtable}\n\ntbl.~\\ref{tbl:someux5ftable1}"
+#else
+            `test` "\\begin{longtable}[c]{@{}@{}}\n\\caption{\\label{tbl:someux5ftable1}A table }\\tabularnewline\n\\toprule\n\\tabularnewline\n\\midrule\n\\endfirsthead\n\\toprule\n\\tabularnewline\n\\midrule\n\\endhead\n\\tabularnewline\n\\bottomrule\n\\end{longtable}\n\ntbl.~\\ref{tbl:someux5ftable1}"
+#endif
 
         it "Code block labels" $ do
           codeBlock' "A code block" "some_codeblock1"
