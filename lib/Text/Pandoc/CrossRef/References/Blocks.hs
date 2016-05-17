@@ -89,7 +89,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
               ++ cont ++
               [ Para [RawInline (Format "tex") "\\caption"
                        , Span stopAttr caption]
-              , RawBlock (Format "tex") $ "\\label{"++label++"}"
+              , RawBlock (Format "tex") $ mkLaTeXLabel label
               , RawBlock (Format "tex") "\\end{figure}"]
           _  -> return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
   where
@@ -105,7 +105,7 @@ replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
     let title' =
           case outFormat opts of
               f | isFormat "latex" f ->
-                RawInline (Format "tex") ("\\label{"++label++"}") : title
+                RawInline (Format "tex") (mkLaTeXLabel label) : title
               _  -> applyTemplate idxStr title $ tableTemplate opts
     return $ Table title' align widths header cells
 replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
@@ -173,7 +173,7 @@ replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq])
   | "eq:" `isPrefixOf` label
   = case outFormat opts of
       f | isFormat "latex" f ->
-        let eqn = "\\begin{equation}"++eq++"\\label{"++label++"}\\end{equation}"
+        let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
         in return $ RawInline (Format "tex") eqn
       _ -> do
         idxStr <- replaceAttr opts label (lookup "label" attrs) [] eqnRefs
@@ -202,7 +202,7 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
 #if MIN_VERSION_pandoc(1,17,0)
                 alt
 #else
-                RawInline (Format "tex") ("\\label{"++label++"}") : alt
+                RawInline (Format "tex") (mkLaTeXLabel label) : alt
 #endif
               _  -> applyTemplate idxStr alt $ figureTemplate opts
         return $ Image attr alt' img
@@ -263,7 +263,7 @@ latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
   let
     title' = fromMaybe title $ stripPrefix "fig:" title
     texlabel | null label = []
-             | otherwise = "\\label{" ++ label ++ "}"
+             | otherwise = mkLaTeXLabel label
     texalt | "nocaption" `elem` cls  = []
            | otherwise =
               [ RawInline (Format "tex") "["] ++ alt ++ [ RawInline (Format "tex") "]"]

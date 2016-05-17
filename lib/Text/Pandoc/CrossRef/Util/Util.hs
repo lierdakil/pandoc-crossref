@@ -10,6 +10,8 @@ import Data.Char (toUpper, toLower, isUpper)
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import Data.Generics
+import Text.Pandoc.Writers.LaTeX
+import Data.Default
 
 isFormat :: String -> Maybe Format -> Bool
 isFormat fmt (Just (Format f)) = takeWhile (`notElem` "+-") f == fmt
@@ -41,3 +43,11 @@ everywhereMBut' q f x
     if q x'
     then return x'
     else gmapM (everywhereMBut' q f) x'
+
+mkLaTeXLabel :: String -> String
+mkLaTeXLabel l = "\\label{" ++ mkLaTeXLabel' l ++ "}"
+
+mkLaTeXLabel' :: String -> String
+mkLaTeXLabel' l =
+  let ll = writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []]
+  in takeWhile (/='}') . drop 1 . dropWhile (/='{') $ ll
