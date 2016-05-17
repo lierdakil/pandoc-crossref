@@ -1,3 +1,9 @@
+## 0.2.1.3
+* Bump nightly resolver
+* Use Pandoc to generate LaTeX labels
+* Rudimentary LaTeX tests
+* Fixing broken references in README (pull request #68 from @wladston)
+
 ## 0.2.1.2
 * Remove figure label hack for pandoc-1.17
 
