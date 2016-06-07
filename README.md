@@ -266,47 +266,46 @@ If you installed with cabal, it's most likely located in `$HOME/.cabal/bin` on \
 
 There are several parameters that can be set via YAML metadata (either by passing `-M` to `pandoc`, or by setting it in source markdown)
 
-Following variables are supported:
+A list of variables follows.
+
+#### General options
 
 * `cref`: if True, latex export will use `\cref` from cleveref package. Only relevant for LaTeX output. `\usepackage{cleveref}` will be automatically added to `header-includes`.
 * `chapters`: if True, number elements as `chapter.item`, and restart `item` on each first-level heading (as `--chapters` for latex/pdf output)
 * `chaptersDepth`, default `1`: header level to treat as "chapter". If `chaptersDepth>1`, then items will be prefixed with several numbers, corresponding to header numbers, e.g. `fig. 1.4.3`.
 * `listings`: if True, generate code blocks for `listings` package. Only relevant for LaTeX output. `\usepackage{listings}` will be automatically added to `header-includes`. You need to specify `--listings` option as well.
 * `codeBlockCaptions`: if True, parse table-style code block captions.
+* `autoSectionLabels`, default `false`: Automatically prefix all section labels with `sec:`. Note that this messes with pandoc's automatic header references.
+
+#### Item title format
+
 * `figureTitle`, default `Figure`: Word(s) to prepend to figure titles, e.g. `Figure 1: Description`
 * `tableTitle`, default `Table`: Word(s) to prepend to table titles, e.g. `Table 1: Description`
 * `listingTitle`, default `Listing`: Word(s) to prepend to listing titles, e.g. `Listing 1: Description`
 * `titleDelim`, default `:`: What to put between object number and caption text.
+
+##### Subfigure-specific
+
+See [Subfigures](#subfigures)
+
+* `ccsDelim`, default `,&nbsp;`: delimiter for collected subfigure captions. See [Subfigures](#subfigures) and [Templates](#templates)
+* `ccsLabelSep`, default `&nbsp;—&nbsp;`: delimiter used between subfigure label and subfigure caption in collected captions. See [Subfigures](#subfigures) and [Templates](#templates)
+
+#### List titles
+
+* `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
+* `lotTitle`, default `# List of Tables`: Title for list of tables (lot)
+* `lolTitle`, default `# List of Listings`: Title for list of listings (lol)
+
+#### Reference format
+
 * `figPrefix`, default `fig.`, `figs.`: Prefix for references to figures, e.g. `figs. 1-3`
 * `eqnPrefix`, default `eq.`, `eqns.`: Prefix for references to equations, e.g. `eqns. 3,4`
 * `tblPrefix`, default `tbl.`, `tbls.`: Prefix for references to tables, e.g. `tbl. 2`
 * `lstPrefix`, default `lst.`, `lsts.`: Prefix for references to lists, e.g. `lsts. 2,5`
 * `secPrefix`, default `sec.`, `secs.`: Prefix for references to sections, e.g. `secs. 2,5`
-* `autoSectionLabels`, default `false`: Automatically prefix all section labels with `sec:`. Note that this messes with pandoc's automatic header references.
 * `chapDelim`, default `.`: Delimiter between chapter number and item number.
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
-* `lofTitle`, default `# List of Figures`: Title for list of figures (lof)
-* `lotTitle`, default `# List of Tables`: Title for list of tables (lot)
-* `lolTitle`, default `# List of Listings`: Title for list of listings (lol)
-* `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions, see [Templates](#templates)
-* `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions, see [Templates](#templates)
-* `listingTemplate`, default `\\[listingTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions, see [Templates](#templates)
-* `subfigureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]. \\[ccs\\]`: template for subfigure divs captions. See [Subfigures](#subfigures)
-* `subfigureChildTemplate`, default `\\[i\\]`: template for actual subfigure captions. See [Subfigures](#subfigures)
-* `ccsTemplate`, default `\\[i\\]\\[ccsLabelSep\\]\\[t\\]`: template for collected subfigure captions. See [Subfigures](#subfigures), [Templates](#templates)
-* `figLabels`, default unset: custom numbering scheme for figures. See [Custom Numbering Schemes](#custom-numbering-schemes)
-* `subfigLabels`, default `alpha a`: custom numbering scheme for subfigures. See [Custom Numbering Schemes](#custom-numbering-schemes)
-* `eqnLabels`, default unset: custom numbering scheme for equations. See [Custom Numbering Schemes](#custom-numbering-schemes)
-* `tblLabels`, default unset: custom numbering scheme for tables. See [Custom Numbering Schemes](#custom-numbering-schemes)
-* `lstLabels`, default unset: custom numbering scheme for listings. See [Custom Numbering Schemes](#custom-numbering-schemes)
-* `secLabels`, default unset: custom numbering scheme for sections. See [Custom Numbering Schemes](#custom-numbering-schemes)
-* `ccsDelim`, default `,&nbsp;`: delimiter for collected subfigure captions. See [Subfigures](#subfigures) and [Templates](#templates)
-* `ccsLabelSep`, default `&nbsp;—&nbsp;`: delimiter used between subfigure label and subfigure caption in collected captions. See [Subfigures](#subfigures) and [Templates](#templates)
-* `figPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- figure reference template, see [Templates](#templates)
-* `eqnPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- equation reference template, see [Templates](#templates)
-* `tblPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- table reference template, see [Templates](#templates)
-* `lstPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- listing reference template, see [Templates](#templates)
-* `secPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- section reference template, see [Templates](#templates)
 
 `figPrefix`, `eqnPrefix`, `tblPrefix`, `lstPrefix` can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.
 
@@ -327,6 +326,43 @@ Will result in all single-value references prefixed with "fig.", and all referen
 They can be YAML strings as well. In that case, prefix would be the same regardless of number of references.
 
 They can also be used with first character capitalized, i.e. `FigPrefix`, etc. In this case, these settings will override default reference capitailzation settings.
+
+#### Custom numbering
+
+See [Custom Numbering Schemes](#custom-numbering-schemes)
+
+* `figLabels`, default unset: custom numbering scheme for figures.
+* `subfigLabels`, default `alpha a`: custom numbering scheme for subfigures.
+* `eqnLabels`, default unset: custom numbering scheme for equations.
+* `tblLabels`, default unset: custom numbering scheme for tables.
+* `lstLabels`, default unset: custom numbering scheme for listings.
+* `secLabels`, default unset: custom numbering scheme for sections.
+
+#### Item title templates
+
+See [Templates](#templates)
+
+* `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions
+* `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions
+* `listingTemplate`, default `\\[listingTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions
+
+##### Subfigure templates
+
+See [Subfigures](#subfigures)
+
+* `subfigureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]. \\[ccs\\]`: template for subfigure divs captions.
+* `subfigureChildTemplate`, default `\\[i\\]`: template for actual subfigure captions.
+* `ccsTemplate`, default `\\[i\\]\\[ccsLabelSep\\]\\[t\\]`: template for collected subfigure captions.
+
+#### Reference templates
+
+See [Templates](#templates)
+
+* `figPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- figure reference template
+* `eqnPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- equation reference template
+* `tblPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- table reference template
+* `lstPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- listing reference template
+* `secPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- section reference template
 
 #### LaTeX customization
 
