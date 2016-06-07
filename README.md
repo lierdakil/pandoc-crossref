@@ -362,6 +362,8 @@ Variables can be specified in YAML metadata block, or from command line (with `-
 * `t` -- object caption, as given in source Markdown
 * `ccs` -- collected subfigure captions. Only applicable to `subfigureTemplate`. Collected captions will be separated by `ccsDelim` and individual captions will be printed with `ccsTemplate`. See [Subfigures](#subfigures)
 
+`xPrefixTemplate`, where `x` is `fig`, `eqn`, etc, are a special case. Those don't have `t` variable, since there is no caption in source markdown, but instead have `p` variable, that binds to relevant `xPrefix`. This is done this way, since actual prefix vaule can depend on `i`.
+
 Please note that at the moment, templates are not supported with LaTeX/PDF output.
 
 ### Custom Numbering Schemes
@@ -400,3 +402,19 @@ pandoc-crossref will send this data to pandoc wrapped in lines of `---`. The YAM
 One could use this with pandoc-crossref as follows:
 
 `pandoc -F pandoc-crossref.hs -M "crossrefYaml=$HOME/misc/pandoc-crossref-es.yaml"`
+
+# License
+
+This software is licensed under GNU GPL 2. See [LICENSE.md](https://github.com/lierdakil/pandoc-crossref/blob/master/LICENSE.md) for details.
+
+© 2016 Nikolay Yakimov et al
+
+Contributors (per GPL, holders of copyright on their respective contributions):
+* Nikolay Yakimov
+* Wlad
+* scoavoux
+* Matthew Salganik
+* Hadrien Mary
+* Felix Yan
+* Chris Black
+* Bart Mesuere
