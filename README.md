@@ -302,6 +302,11 @@ Following variables are supported:
 * `secLabels`, default unset: custom numbering scheme for sections. See [Custom Numbering Schemes](#custom-numbering-schemes)
 * `ccsDelim`, default `,&nbsp;`: delimiter for collected subfigure captions. See [Subfigures](#subfigures) and [Templates](#templates)
 * `ccsLabelSep`, default `&nbsp;—&nbsp;`: delimiter used between subfigure label and subfigure caption in collected captions. See [Subfigures](#subfigures) and [Templates](#templates)
+* `figPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- figure reference template, see [Templates](#templates)
+* `eqnPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- equation reference template, see [Templates](#templates)
+* `tblPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- table reference template, see [Templates](#templates)
+* `lstPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- listing reference template, see [Templates](#templates)
+* `secPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- section reference template, see [Templates](#templates)
 
 `figPrefix`, `eqnPrefix`, `tblPrefix`, `lstPrefix` can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.
 
