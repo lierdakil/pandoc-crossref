@@ -359,6 +359,21 @@ Variables can be specified in YAML metadata block, or from command line (with `-
 
 Please note that at the moment, templates are not supported with LaTeX/PDF output.
 
+### Custom Numbering Schemes
+
+It's possible to use other numbering schemes apart from arabic. This is controlled by several metadata options, consult [Customization](#customization) for a list. Possible values are:
+
+- `arabic` -- arabic numbers (1, 2, 3 ...)
+- `roman` -- roman numbers (I, II, III, IV, ...)
+- `alpha x`, where `x` is first letter to start from. This will work for any letter, but will use UTF-8 codepage to determine what's next, so using something strange is not advised. For example, you can safely use `alpha a` to get lowercase latin letters for 26 figures. After that, it will get weird (since basic latin alphabet has 26 letters). Specifically, it will go into characters space (`{`, `|`, `}`, etc). You can consult http://www.fileformat.info/info/unicode/block/basic_latin/utf8test.htm for general idea on letter progression.
+- list of strings. You can define a YAML array for numbers. Mapping is 1:1. For example,
+    ```yaml
+    figLabels: [α, β, γ, 1, 2, 3, I, II, III]
+    ```
+    will give first figure label 'α', second -- 'β', etc.
+
+    Note that it will repeat last item in list indefinitely if there are more images than items in list.
+
 ### Settings file
 
 It is also possible to set variables used by pandoc-crossref with a separate YAML file. If a given variable is not set in metadata, then pandoc-crossref will attempt to read it from file specified by `crossrefYaml` metadata variable, or, if not set, from `pandoc-crossref.yaml` from current working directory. This allows for reusable configurations. One possible application is ad-hoc internationalization.
