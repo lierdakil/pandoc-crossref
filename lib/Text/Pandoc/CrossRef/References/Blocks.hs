@@ -159,7 +159,7 @@ replaceBlocks opts
               RawBlock (Format "tex") "\\begin{codelisting}"
             , Para [
                 RawInline (Format "tex") "\\caption"
-              , Span stopAttr caption
+              , Span stopAttr [Span nullAttr caption] -- stopAttr will be stripped
               ]
             , CodeBlock (label,classes,attrs) code
             , RawBlock (Format "tex") "\\end{codelisting}"
