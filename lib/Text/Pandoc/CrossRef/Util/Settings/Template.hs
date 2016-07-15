@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell, RankNTypes, ViewPatterns, UnicodeSyntax, MultiWayIf #-}
+{-# LANGUAGE TemplateHaskell, RankNTypes, ViewPatterns, MultiWayIf #-}
 module Text.Pandoc.CrossRef.Util.Settings.Template where
 
 import Text.Pandoc.Definition
@@ -17,7 +17,7 @@ namedFields (RecC _ fs) = fs
 namedFields (ForallC _ _ c) = namedFields c
 namedFields _ = []
 
-fromRecDef :: ∀ t a r. Name -> t -> (Name -> Name -> Q [a]) -> (t -> [a] -> r) -> Q r
+fromRecDef :: forall t a r. Name -> t -> (Name -> Name -> Q [a]) -> (t -> [a] -> r) -> Q r
 fromRecDef t cname f c = do
   info <- reify t
   reified <- case info of

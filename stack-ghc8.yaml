@@ -1,0 +1,9 @@
+flags: {}
+extra-package-dbs: []
+packages:
+- '.'
+extra-deps:
+- data-accessor-template-0.2.1.13
+- data-accessor-transformers-0.2.1.7
+- roman-numerals-0.5.1.5
+resolver: nightly-2016-07-14
