@@ -1,3 +1,17 @@
+## 0.2.2.0
+* Add ghc-8 to tests/builds
+* Ghc-8 support
+* Minor lint
+* Remove UnicodeSyntax
+* Update tests for pandoc 1.17.1
+* Remove obsolete CPP
+* Remove old yamls/tests
+* Bump stack resolver and extra-deps
+* [README] Structure variables list
+* Add licensing information to readme
+* xPrefixTemplate docs
+* Custom numbering readme
+
 ## 0.2.1.3
 * Bump nightly resolver
 * Use Pandoc to generate LaTeX labels
