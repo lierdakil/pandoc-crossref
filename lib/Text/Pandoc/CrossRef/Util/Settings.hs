@@ -61,4 +61,5 @@ defaultMeta =
   <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
   <> tableEqns (MetaBool False)
   <> autoEqnLabels (MetaBool False)
+  <> subfigGrid (MetaBool False)
   where var = displayMath

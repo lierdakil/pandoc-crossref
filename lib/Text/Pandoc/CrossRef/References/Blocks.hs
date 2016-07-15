@@ -99,15 +99,53 @@ replaceBlocks opts (Div (label,cls,attrs) images)
               [ RawBlock (Format "tex") "\\begin{figure}" ]
               ++ cont ++
               [ Para [RawInline (Format "tex") "\\caption"
-                       , Span stopAttr caption]
+                       , Span stopAttr [Span nullAttr caption]] -- stopAttr will be stripped
               , RawBlock (Format "tex") $ mkLaTeXLabel label
               , RawBlock (Format "tex") "\\end{figure}"]
-          _  -> return $ Div (label, "subfigures":cls, attrs) $ cont ++ [Para capt]
+          _  -> return $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
   where
     opts' = opts
               { figureTemplate = subfigureChildTemplate opts
               , customLabel = \r i -> customLabel opts ("sub"++r) i
               }
+    toTable :: [Block] -> [Inline] -> [Block]
+    toTable blks capt
+      | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, Para capt]
+      | otherwise = blks ++ [Para capt]
+      where
+        align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
+              | otherwise = error "Misformatted subfigures block"
+        widths | Para ils:_ <- blks
+               , ws <- mapMaybe getWidth ils
+               = if | all (== 0) ws -> replicate (length ws) $ 0.99 / fromIntegral (length ws)
+                    | otherwise -> fixZeros ws
+               | otherwise = error "Misformatted subfigures block"
+        getWidth (Image (_id, _class, as) _ _)
+          = Just $ maybe 0 percToDouble $ lookup "width" as
+        getWidth _ = Nothing
+        fixZeros ws
+          = let (lz, lnz) = partition (== 0) ws
+                nz = length lz
+                sw = sum lnz
+                rzw = (0.99 - sw) / fromIntegral nz
+                rep [] = []
+                rep (0:xs) = rzw:rep xs
+                rep (x:xs) = x:rep xs
+            in rep ws
+        percToDouble :: String -> Double
+        percToDouble percs
+          | '%' <- last percs
+          , perc <- read $ init percs
+          = perc/100.0
+          | otherwise = error "Only percent allowed in subfigure width!"
+        blkToRow :: Block -> [[Block]]
+        blkToRow (Para inls) = mapMaybe inlToCell inls
+        blkToRow x = [[x]]
+        inlToCell :: Inline -> Maybe [Block]
+        inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
+        inlToCell _ = Nothing
+        setW as = ("width", "100%"):filter ((/="width") . fst) as
+
 replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , "tbl:" `isPrefixOf` label
@@ -213,7 +251,8 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
           _  ->
             let alt' = applyTemplate idxStr alt $ figureTemplate opts
                 tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
-                     | otherwise = tit
+                     | "fig:" `isPrefixOf` tit = tit
+                     | otherwise = "fig:" ++ tit
             in return $ Image (label, cls, attrs) alt' (src, tit')
        | "fig:" `isPrefixOf` label && "fig:" `isPrefixOf` tit -> do
         idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) alt imgRefs

@@ -34,4 +34,5 @@ data Options = Options { cref :: Bool
                        , ccsLabelSep :: [Inline]
                        , tableEqns :: Bool
                        , autoEqnLabels :: Bool
+                       , subfigGrid :: Bool
                        }
