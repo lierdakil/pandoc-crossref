@@ -176,7 +176,7 @@ replaceBlocks opts (Para [Span (label, _, attrs) [Math DisplayMath eq]])
   , tableEqns opts
   = do
     idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) [] eqnRefs
-    return $ Div stopAttr [Table [] [AlignCenter, AlignRight] [0.9,0.1] [] [[[Plain [Math DisplayMath eq]], [Plain [Math DisplayMath $ "(" ++ stringify idxStr ++ ")"]]]]]
+    return $ Div stopAttr [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq]], [Plain [Math DisplayMath $ "(" ++ stringify idxStr ++ ")"]]]]]
 replaceBlocks _ x = return x
 
 replaceInlines :: Options -> Inline -> WS Inline
