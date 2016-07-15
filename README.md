@@ -111,6 +111,8 @@ To label a display equation, append `{#eq:label}` (with `label` being something 
 
 Math block and label *can* be separated by one or more spaces.
 
+You can also number all display equations with `autoEqnLabels` metadata setting (see below). Note, however, that you won't be able to reference equations without explicit labels.
+
 ### Table labels
 
 ```markdown
@@ -276,6 +278,7 @@ A list of variables follows.
 * `listings`: if True, generate code blocks for `listings` package. Only relevant for LaTeX output. `\usepackage{listings}` will be automatically added to `header-includes`. You need to specify `--listings` option as well.
 * `codeBlockCaptions`: if True, parse table-style code block captions.
 * `autoSectionLabels`, default `false`: Automatically prefix all section labels with `sec:`. Note that this messes with pandoc's automatic header references.
+* `autoEqnLabels`, default `false`: Automatically number all display equations (i.e. ones defined using `$$...$$`/`\[...\]`). Note that you won't be able to reference equations without explicit labels.
 
 #### Item title format
 
