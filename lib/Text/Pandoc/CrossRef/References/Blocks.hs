@@ -24,7 +24,8 @@ import Data.Default
 
 replaceAll :: Data a => Options -> a -> WS a
 replaceAll opts =
-    everywhereMBut' (mkQ False isSubfig `extQ` isSubfig') (mkM (replaceBlocks opts) `extM` replaceInlines opts)
+    fmap (everywhere' (mkT clearStopAttrDivs `extT` clearStopAttrSpans))
+  . everywhereMBut' (mkQ False isSubfig `extQ` isSubfig') (mkM (replaceBlocks opts) `extM` replaceInlines opts)
   . everywhere' (mkT divBlocks `extT` spanInlines)
   where
     isSubfig (Div (label,cls,_) _)
@@ -34,6 +35,16 @@ replaceAll opts =
     isSubfig' (Span (_,cls,_) _)
       | "crossref-stop" `elem` cls = True
     isSubfig' _ = False
+
+clearStopAttrSpans :: [Inline] -> [Inline]
+clearStopAttrSpans (Span ([], ["crossref-stop"], []) ils:xs)
+  = ils ++ xs
+clearStopAttrSpans xs = xs
+
+clearStopAttrDivs :: [Block] -> [Block]
+clearStopAttrDivs (Div ([], ["crossref-stop"], []) bls:xs)
+  = bls ++ xs
+clearStopAttrDivs xs = xs
 
 replaceBlocks :: Options -> Block -> WS Block
 replaceBlocks opts (Header n (label, cls, attrs) text')
@@ -165,7 +176,7 @@ replaceBlocks opts (Para [Span (label, _, attrs) [Math DisplayMath eq]])
   , tableEqns opts
   = do
     idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) [] eqnRefs
-    return $ Table [] [AlignCenter, AlignRight] [0.9, 0.1] [] [[[Plain [Math DisplayMath eq]], [Plain [Math DisplayMath $ "(" ++ stringify idxStr ++ ")"]]]]
+    return $ Div stopAttr [Table [] [AlignCenter, AlignRight] [0.9,0.1] [] [[[Plain [Math DisplayMath eq]], [Plain [Math DisplayMath $ "(" ++ stringify idxStr ++ ")"]]]]]
 replaceBlocks _ x = return x
 
 replaceInlines :: Options -> Inline -> WS Inline
