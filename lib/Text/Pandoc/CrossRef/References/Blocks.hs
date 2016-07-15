@@ -201,7 +201,6 @@ replaceInlines opts (Math DisplayMath eq)
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Math DisplayMath eq'
 replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
-  | "fig:" `isPrefixOf` snd img
   = do
     sf <- get subFig
     if | sf -> do
@@ -216,7 +215,7 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
                 tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
                      | otherwise = tit
             in return $ Image (label, cls, attrs) alt' (src, tit')
-       | "fig:" `isPrefixOf` label -> do
+       | "fig:" `isPrefixOf` label && "fig:" `isPrefixOf` tit -> do
         idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) alt imgRefs
         let alt' = case outFormat opts of
               f | isFormat "latex" f -> alt
