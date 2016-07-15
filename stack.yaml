@@ -3,7 +3,7 @@ extra-package-dbs: []
 packages:
 - '.'
 extra-deps:
-- data-accessor-template-0.2.1.12
+- data-accessor-template-0.2.1.13
 - data-accessor-transformers-0.2.1.7
 - roman-numerals-0.5.1.5
-resolver: lts-5.6
+resolver: lts-6.7
