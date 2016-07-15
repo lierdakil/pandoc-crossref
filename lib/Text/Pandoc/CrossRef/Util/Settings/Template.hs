@@ -8,7 +8,6 @@ import qualified Data.Map as M
 import Language.Haskell.TH hiding (Inline)
 import Language.Haskell.TH.Syntax hiding (Inline)
 import Data.List
-import Control.Monad
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.CustomLabels (customLabel)
 
@@ -27,7 +26,7 @@ fromRecDef t cname f c = do
                DataD _ _ params cons' _ -> return (params, cons')
                NewtypeD _ _ params con' _ -> return (params, [con'])
                _ -> fail "No cons"
-  decs <- liftM concat . mapM (\ (name,_,_) -> f t name) . nub $ concatMap namedFields cons
+  decs <- fmap concat . mapM (\ (name,_,_) -> f t name) . nub $ concatMap namedFields cons
   return $ c cname decs
 
 nameDeriveSetters :: Name -> Q [Dec]
