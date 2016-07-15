@@ -276,32 +276,32 @@ main = hspec $ do
         it "Section labels" $
           headerWith ("sec:section_label1", [], []) 1 (text "Section")
             <> para (citeGen "sec:section_label" [1])
-            `test` "\\section{Section}\\label{sec:sectionux5flabel1}\n\nsec.~\\ref{sec:sectionux5flabel1}"
+            `test` "\\section{Section}\\label{sec:section_label1}\n\nsec.~\\ref{sec:section_label1}"
 
         it "Image labels" $
           figure "img.png" [] "Title" "figure_label1"
             <> para (citeGen "fig:figure_label" [1])
-            `test` "\\begin{figure}[htbp]\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figureux5flabel1}\n\\end{figure}\n\nfig.~\\ref{fig:figureux5flabel1}"
+            `test` "\\begin{figure}[htbp]\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
 
         it "Eqn labels" $
           equation "x^2" "some_equation1"
             <> para (citeGen "eq:some_equation" [1])
-            `test` "\\begin{equation}x^2\\label{eq:someux5fequation1}\\end{equation}\n\neq.~\\ref{eq:someux5fequation1}"
+            `test` "\\begin{equation}x^2\\label{eq:some_equation1}\\end{equation}\n\neq.~\\ref{eq:some_equation1}"
 
         it "Tbl labels" $
           table' "A table" "some_table1"
             <> para (citeGen "tbl:some_table" [1])
-            `test` "\\begin{longtable}[]{@{}@{}}\n\\caption{\\label{tbl:someux5ftable1}A table }\\tabularnewline\n\\toprule\n\\tabularnewline\n\\midrule\n\\endfirsthead\n\\toprule\n\\tabularnewline\n\\midrule\n\\endhead\n\\tabularnewline\n\\bottomrule\n\\end{longtable}\n\ntbl.~\\ref{tbl:someux5ftable1}"
+            `test` "\\begin{longtable}[]{@{}@{}}\n\\caption{\\label{tbl:some_table1}A table }\\tabularnewline\n\\toprule\n\\tabularnewline\n\\midrule\n\\endfirsthead\n\\toprule\n\\tabularnewline\n\\midrule\n\\endhead\n\\tabularnewline\n\\bottomrule\n\\end{longtable}\n\ntbl.~\\ref{tbl:some_table1}"
 
         it "Code block labels" $ do
           codeBlock' "A code block" "some_codeblock1"
             <> para (citeGen "lst:some_codeblock" [1])
-            `test` "\\begin{codelisting}\n\\caption{A code block}\n\n\\hypertarget{lst:someux5fcodeblock1}{\\label{lst:someux5fcodeblock1}}\n\\begin{verbatim}\nmain :: IO ()\n\\end{verbatim}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:someux5fcodeblock1}"
+            `test` "\\begin{codelisting}\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{\\label{lst:some_codeblock1}}\n\\begin{verbatim}\nmain :: IO ()\n\\end{verbatim}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
           let test1 = test' $ setMeta "codeBlockCaptions" True nullMeta
               infixr 5 `test1`
           codeBlockForTable "some_codeblock1" <> paraText ": A code block"
             <> para (citeGen "lst:some_codeblock" [1])
-            `test1` "\\begin{codelisting}\n\n\\caption{A code block}\n\n\\hypertarget{lst:someux5fcodeblock1}{\\label{lst:someux5fcodeblock1}}\n\\begin{verbatim}\nmain :: IO ()\n\\end{verbatim}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:someux5fcodeblock1}"
+            `test1` "\\begin{codelisting}\n\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{\\label{lst:some_codeblock1}}\n\\begin{verbatim}\nmain :: IO ()\n\\end{verbatim}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
 
 citeGen :: String -> [Int] -> Inlines
 citeGen p l = cite (mconcat $ map (cit . (p++) . show) l) $ text $
