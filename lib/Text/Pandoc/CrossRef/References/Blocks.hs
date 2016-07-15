@@ -116,9 +116,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
         align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
               | otherwise = error "Misformatted subfigures block"
         widths | Para ils:_ <- blks
-               , ws <- mapMaybe getWidth ils
-               = if | all (== 0) ws -> replicate (length ws) $ 0.99 / fromIntegral (length ws)
-                    | otherwise -> fixZeros ws
+               = fixZeros $ mapMaybe getWidth ils
                | otherwise = error "Misformatted subfigures block"
         getWidth (Image (_id, _class, as) _ _)
           = Just $ maybe 0 percToDouble $ lookup "width" as
