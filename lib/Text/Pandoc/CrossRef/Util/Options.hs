@@ -33,4 +33,5 @@ data Options = Options { cref :: Bool
                        , ccsDelim :: [Inline]
                        , ccsLabelSep :: [Inline]
                        , tableEqns :: Bool
+                       , autoEqnLabels :: Bool
                        }
