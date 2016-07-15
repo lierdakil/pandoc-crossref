@@ -1,7 +1,7 @@
 cache:
-- 'c:\\sr -> stack-7.8.yaml, stack-pandoc-1.17.yaml, stack.yaml'
-- 'c:\\stack\\.stack-work -> stack-7.8.yaml, stack-pandoc-1.17.yaml, stack.yaml'
-- 'C:\\Users\\appveyor\\AppData\\Local\\Programs\\stack -> stack-7.8.yaml, stack-pandoc-1.17.yaml, stack.yaml'
+- 'c:\\sr -> stack.yaml'
+- 'c:\\stack\\.stack-work -> stack.yaml'
+- 'C:\\Users\\appveyor\\AppData\\Local\\Programs\\stack -> stack.yaml'
 
 clone_folder: "c:\\stack"
 environment:
@@ -9,8 +9,6 @@ environment:
     STACK_ROOT: "c:\\sr"
   matrix:
     - STACK_YAML: "stack.yaml"
-      PANDOCVER: "1.16"
-    - STACK_YAML: "stack-pandoc-1.17.yaml"
       PANDOCVER: "1.17"
 
 before_build:
