@@ -10,6 +10,10 @@ environment:
   matrix:
     - STACK_YAML: "stack.yaml"
       PANDOCVER: "1.17"
+      GHCVER: "7"
+    - STACK_YAML: "stack-ghc8.yaml"
+      PANDOCVER: "1.17"
+      GHCVER: "8"
 
 before_build:
 - appveyor DownloadFile http://www.stackage.org/stack/windows-i386 -FileName stack.zip
@@ -20,10 +24,10 @@ build_script:
 - echo "" | stack --no-terminal build
 
 after_build:
-  - ps: 7z a "pandoc-crossref-$env:PANDOCVER.zip" "$(.\\stack.exe path --local-install-root)\\bin\\pandoc-crossref.exe"
+  - ps: 7z a "pandoc-crossref-$env:PANDOCVER-ghc$env:GHCVER.zip" "$(.\\stack.exe path --local-install-root)\\bin\\pandoc-crossref.exe"
 
 artifacts:
-  - path: pandoc-crossref-$(PANDOCVER).zip
+  - path: pandoc-crossref-$(PANDOCVER)-ghc$(GHCVER).zip
     name: exe
 
 test_script:
