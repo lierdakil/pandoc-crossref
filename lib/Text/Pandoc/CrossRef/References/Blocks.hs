@@ -74,6 +74,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
             intercalate (ccsDelim opts)
           $ map (collectCaps . snd)
           $ sortOn (refIndex . snd)
+          $ filter (not . null . refTitle . snd)
           $ M.toList
           $ imgRefs_ st
         collectCaps v =
