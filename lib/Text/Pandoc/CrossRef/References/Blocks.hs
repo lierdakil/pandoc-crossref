@@ -72,9 +72,9 @@ replaceBlocks opts (Div (label,cls,attrs) images)
     let (cont, st) = runState (replaceAll opts' $ init images) (subFig ^= True $ def)
         collectedCaptions =
             intercalate (ccsDelim opts)
-          $ map snd
+          $ map (collectCaps . snd)
+          $ sortOn (refIndex . snd)
           $ M.toList
-          $ M.map collectCaps
           $ imgRefs_ st
         collectCaps v =
               applyTemplate
