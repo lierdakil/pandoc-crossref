@@ -7,6 +7,7 @@ import Control.Exception (handle,IOException)
 
 import Text.Pandoc.CrossRef.Util.Settings.Gen
 import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.Util.PandocOrphans()
 
 getSettings :: Meta -> IO Meta
 getSettings meta = do
@@ -18,17 +19,17 @@ getSettings meta = do
 
 defaultMeta :: Meta
 defaultMeta =
-     cref (MetaBool False)
-  <> chapters (MetaBool False)
-  <> chaptersDepth (MetaString "1")
-  <> listings (MetaBool False)
-  <> codeBlockCaptions (MetaBool False)
-  <> autoSectionLabels (MetaBool False)
-  <> figLabels (MetaString "arabic")
-  <> eqnLabels (MetaString "arabic")
-  <> tblLabels (MetaString "arabic")
-  <> lstLabels (MetaString "arabic")
-  <> secLabels (MetaString "arabic")
+     cref False
+  <> chapters False
+  <> chaptersDepth "1"
+  <> listings False
+  <> codeBlockCaptions False
+  <> autoSectionLabels False
+  <> figLabels "arabic"
+  <> eqnLabels "arabic"
+  <> tblLabels "arabic"
+  <> lstLabels "arabic"
+  <> secLabels "arabic"
   <> figureTitle (str "Figure")
   <> tableTitle (str "Table")
   <> listingTitle (str "Listing")
@@ -51,15 +52,15 @@ defaultMeta =
   <> figureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> tableTemplate (var "tableTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> listingTemplate (var "listingTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
-  <> crossrefYaml (MetaString "pandoc-crossref.yaml")
-  <> chaptersDepth (MetaString "1")
+  <> crossrefYaml "pandoc-crossref.yaml"
+  <> chaptersDepth "1"
   <> subfigureChildTemplate (var "i")
   <> subfigureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> str "." <> space <> var "ccs")
-  <> subfigLabels (MetaString "alpha a")
+  <> subfigLabels "alpha a"
   <> ccsDelim (str "," <> space)
   <> ccsLabelSep (space <> str "—" <> space)
   <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
-  <> tableEqns (MetaBool False)
-  <> autoEqnLabels (MetaBool False)
-  <> subfigGrid (MetaBool False)
+  <> tableEqns False
+  <> autoEqnLabels False
+  <> subfigGrid False
   where var = displayMath
