@@ -241,9 +241,10 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
   = do
     sf <- get subFig
     if | sf -> do
-        let label' | "fig:" `isPrefixOf` label = label
-                   | otherwise  = "fig:" ++ label
-        idxStr <- replaceAttr opts (Just label') (lookup "label" attrs) alt imgRefs
+        let label' | "fig:" `isPrefixOf` label = Just label
+                   | null label = Nothing
+                   | otherwise  = Just $ "fig:" ++ label
+        idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
         case outFormat opts of
           f | isFormat "latex" f ->
             return $ latexSubFigure x label
