@@ -68,7 +68,7 @@ replaceBlocks opts (Div (label,cls,attrs) images)
   | "fig:" `isPrefixOf` label
   , Para caption <- last images
   = do
-    idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) caption imgRefs
+    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption imgRefs
     let (cont, st) = runState (replaceAll opts' $ init images) (subFig ^= True $ def)
         collectedCaptions =
             intercalate (ccsDelim opts)
@@ -149,7 +149,7 @@ replaceBlocks opts (Div (label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , "tbl:" `isPrefixOf` label
   = do
-    idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) title tblRefs
+    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) title tblRefs
     let title' =
           case outFormat opts of
               f | isFormat "latex" f ->
@@ -174,7 +174,7 @@ replaceBlocks opts cb@(CodeBlock (label, classes, attrs) code)
             ]
       _ -> do
         let cap = toList $ text caption
-        idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) cap lstRefs
+        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) cap lstRefs
         let caption' = applyTemplate idxStr cap $ listingTemplate opts
         return $ Div (label, "listing":classes, []) [
             Para caption'
@@ -202,7 +202,7 @@ replaceBlocks opts
             , RawBlock (Format "tex") "\\end{codelisting}"
             ]
       _ -> do
-        idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) caption lstRefs
+        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption lstRefs
         let caption' = applyTemplate idxStr caption $ listingTemplate opts
         return $ Div (label, "listing":classes, []) [
             Para caption'
@@ -212,7 +212,7 @@ replaceBlocks opts (Para [Span (label, _, attrs) [Math DisplayMath eq]])
   | not $ isFormat "latex" (outFormat opts)
   , tableEqns opts
   = do
-    idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) [] eqnRefs
+    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) [] eqnRefs
     return $ Div stopAttr [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq]], [Plain [Math DisplayMath $ "(" ++ stringify idxStr ++ ")"]]]]]
 replaceBlocks _ x = return x
 
@@ -224,7 +224,7 @@ replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq])
         let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
         in return $ RawInline (Format "tex") eqn
       _ -> do
-        idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) [] eqnRefs
+        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) [] eqnRefs
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Math DisplayMath eq'
 replaceInlines opts (Math DisplayMath eq)
@@ -234,16 +234,16 @@ replaceInlines opts (Math DisplayMath eq)
         let eqn = "\\begin{equation}"++eq++"\\end{equation}"
         in return $ RawInline (Format "tex") eqn
       _ -> do
-        idxStr <- replaceAttr opts Nothing Nothing [] eqnRefs
+        idxStr <- replaceAttr opts (Left "eq") Nothing [] eqnRefs
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Math DisplayMath eq'
 replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
   = do
     sf <- get subFig
     if | sf -> do
-        let label' | "fig:" `isPrefixOf` label = Just label
-                   | null label = Nothing
-                   | otherwise  = Just $ "fig:" ++ label
+        let label' | "fig:" `isPrefixOf` label = Right label
+                   | null label = Left "fig"
+                   | otherwise  = Right $ "fig:" ++ label
         idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
         case outFormat opts of
           f | isFormat "latex" f ->
@@ -255,7 +255,7 @@ replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
                      | otherwise = "fig:" ++ tit
             in return $ Image (label, cls, attrs) alt' (src, tit')
        | "fig:" `isPrefixOf` label && "fig:" `isPrefixOf` tit -> do
-        idxStr <- replaceAttr opts (Just label) (lookup "label" attrs) alt imgRefs
+        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) alt imgRefs
         let alt' = case outFormat opts of
               f | isFormat "latex" f -> alt
               _  -> applyTemplate idxStr alt $ figureTemplate opts
@@ -288,13 +288,13 @@ getRefLabel tag ils
   = init `fmap` stripPrefix "{#" attr
 getRefLabel _ _ = Nothing
 
-replaceAttr :: Options -> Maybe String -> Maybe String -> [Inline] -> Accessor References RefMap -> WS [Inline]
+replaceAttr :: Options -> Either String String -> Maybe String -> [Inline] -> Accessor References RefMap -> WS [Inline]
 replaceAttr o label refLabel title prop
   = do
     chap  <- take (chaptersDepth o) `fmap` get curChap
     i     <- (1+) `fmap` (M.size . M.filter (ap ((&&) . (chap ==) . init . refIndex) (isNothing . refSubfigure)) <$> get prop)
     let index = chap ++ [(i, refLabel <> customLabel o label' i)]
-        label' = fromMaybe (show index) label
+        label' = either (++ ':':show index) id label
     hasLabel <- M.member label' <$> get prop
     when hasLabel $
       error $ "Duplicate label: " ++ label'
