@@ -122,15 +122,11 @@ replaceBlocks opts (Div (label,cls,attrs) images)
         getWidth (Image (_id, _class, as) _ _)
           = Just $ maybe 0 percToDouble $ lookup "width" as
         getWidth _ = Nothing
+        fixZeros :: [Double] -> [Double]
         fixZeros ws
-          = let (lz, lnz) = partition (== 0) ws
-                nz = length lz
-                sw = sum lnz
-                rzw = (0.99 - sw) / fromIntegral nz
-                rep [] = []
-                rep (0:xs) = rzw:rep xs
-                rep (x:xs) = x:rep xs
-            in rep ws
+          = let nz = length $ filter (/= 0) ws
+                rzw = (0.99 - sum ws) / fromIntegral nz
+            in map (\x -> if x == 0 then rzw else x) ws
         percToDouble :: String -> Double
         percToDouble percs
           | '%' <- last percs
