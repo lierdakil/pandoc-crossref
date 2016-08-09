@@ -64,7 +64,7 @@ Image block and label *can not* be separated by spaces.
 
 It's possible to group figures as subfigures. Basic syntax is as follows:
 
-```
+```markdown
 <div id="fig:figureRef">
 ![subfigure 1 caption](image1.png){#fig:figureRefA}
 
@@ -76,11 +76,13 @@ Caption of figure
 
 To sum up, subfigures are made with a div having a figure `id`. Contents of said div consist of several paragraphs. All but last paragraphs contain one subfigure each, with captions, images and (optionally) reference attributes. Last paragraph contains figure caption.
 
+If you put more than one figure in the paragraph, those will still be rendered, but Pandoc will omit subfigure caption in most outputs (but it will work as expected with LaTeX). You can use output-specific hacks to work around that, or use `subfigGrid` (see below).
+
 Output is customizable, with metadata fields. See [Customization](#customization) for more information.
 
 Default settings will produce the following equivalent Markdown from example above:
 
-```
+```markdown
 <div id="fig:figureRef" class="subfigures">
 
 ![a](image1.png){#fig:figureRefA}
@@ -97,6 +99,44 @@ References to subfigures will be rendered as `figureNumber (subfigureNumber)`, e
 
 You can add `nocaption` class to an image to suppress subfigure caption altogether. Note that it will still be counted.
 
+##### Subfigure grid
+
+If you need to align subfigures in a grid, and using output format styles is not an option, you can use `subfigGrid` option. That will typeset subfigures inside a table.
+
+Rows are formed by different paragraphs, with each image in a separate column.
+
+Column widths will be taken from `width` attributes of corresponding images, e.g.
+
+```markdown
+<div id="fig:coolFig">
+![caption a](coolfiga.png){#fig:cfa width=30%}
+![caption b](coolfigb.png){#fig:cfb width=60%}
+![caption c](coolfigb.png){#fig:cfc width=10%}
+
+![caption d](coolfigd.png){#fig:cfd}
+![caption e](coolfige.png){#fig:cfe}
+![caption f](coolfigf.png){#fig:cff}
+
+Cool figure!
+</div>
+```
+
+will produce a table with columns of 30%, 60% and 10% respectively.
+
+Only first row of images is considered for table width computation, other rows are completely ignored.
+
+*Anything* except images is silently ignored. So any text, spaces, soft line breaks etc will silently disappear from output. That doesn't apply to caption paragraph, obviously.
+
+All images will have width attribute automatically set to `100%` in order to fill whole column.
+
+Specifying width in anything but `%` will throw an error.
+
+If width for some images in first row is not specified, those will span equally in the remaining space.
+
+If width isn't specified for any image in first row, those will span equally on 99% of page width (due to Pandoc otherwise omitting width attribute for table).
+
+This option is ignored with LaTeX output, but paragraph breaks should produce similar effect, so images should be typeset correctly. TL;DR you don't need `subfigGrid` enabled for it to work with LaTeX, but you can still enable it.
+
 ### Equation labels
 
 ```markdown
@@ -108,6 +148,8 @@ To label a display equation, append `{#eq:label}` (with `label` being something 
 Math block and label *can* be separated by one or more spaces.
 
 You can also number all display equations with `autoEqnLabels` metadata setting (see below). Note, however, that you won't be able to reference equations without explicit labels.
+
+Equations numbers will be typeset inside math with `\qquad` before them. If you want to use tables instead, use `tableEqns` option.  Depending on output format, tables might work better or worse than `\qquad`.
 
 ### Table labels
 
@@ -275,6 +317,7 @@ A list of variables follows.
 * `codeBlockCaptions`: if True, parse table-style code block captions.
 * `autoSectionLabels`, default `false`: Automatically prefix all section labels with `sec:`. Note that this messes with pandoc's automatic header references.
 * `autoEqnLabels`, default `false`: Automatically number all display equations (i.e. ones defined using `$$...$$`/`\[...\]`). Note that you won't be able to reference equations without explicit labels.
+* `tableEqns`, default `false`: Typeset equations and equation numbers in tables instead of embedding numbers into equations themselves. Depending on output format, this might work better or worse.
 
 #### Item title format
 
@@ -289,6 +332,7 @@ See [Subfigures](#subfigures)
 
 * `ccsDelim`, default `,&nbsp;`: delimiter for collected subfigure captions. See [Subfigures](#subfigures) and [Templates](#templates)
 * `ccsLabelSep`, default `&nbsp;—&nbsp;`: delimiter used between subfigure label and subfigure caption in collected captions. See [Subfigures](#subfigures) and [Templates](#templates)
+* `subfigGrid`, default `false`. If true, typeset subfigures inside a table. Ignored with LaTeX output. See [Subfigures](#subfigures)
 
 #### List titles
 
