@@ -27,7 +27,7 @@ replaceAll opts =
     fmap (everywhere' (mkT clearStopAttrDivs `extT` clearStopAttrSpans))
   . everywhereMBut' (mkQ False isSubfig `extQ` isSubfig') (mkM (replaceBlocks opts) `extM` replaceInlines opts)
   . runSplitMath
-  . everywhere' (mkT divBlocks `extT` spanInlines)
+  . everywhereBut (mkQ False isSubfig `extQ` isSubfig') (mkT divBlocks `extT` spanInlines opts)
   where
     isSubfig (Div (label,cls,_) _)
       | "fig:" `isPrefixOf` label = True
@@ -36,7 +36,9 @@ replaceAll opts =
     isSubfig' (Span (_,cls,_) _)
       | "crossref-stop" `elem` cls = True
     isSubfig' _ = False
-    runSplitMath | tableEqns opts = everywhere' (mkT (splitMath opts))
+    runSplitMath | tableEqns opts
+                 , not $ isFormat "latex" (outFormat opts)
+                 = everywhere' (mkT (splitMath opts))
                  | otherwise = id
 
 clearStopAttrSpans :: [Inline] -> [Inline]
@@ -209,36 +211,32 @@ replaceBlocks opts
             Para caption'
           , CodeBlock ([], classes, attrs) code
           ]
-replaceBlocks opts (Para [Span (label, _, attrs) [Math DisplayMath eq]])
+replaceBlocks opts (Para [Span attrs [Math DisplayMath eq]])
   | not $ isFormat "latex" (outFormat opts)
   , tableEqns opts
   = do
-    let label' | null label = Left "eq"
-               | otherwise = Right label
-    idxStr <- replaceAttr opts label' (lookup "label" attrs) [] eqnRefs
-    return $ Div stopAttr [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq]], [Plain [Math DisplayMath $ "(" ++ stringify idxStr ++ ")"]]]]]
+    (eq', idx) <- replaceEqn opts attrs eq
+    return $ Div stopAttr [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
 replaceBlocks _ x = return x
 
+replaceEqn :: Options -> Attr -> String -> WS (String, String)
+replaceEqn opts (label, _, attrs) eq = do
+  let label' | null label = Left "eq"
+             | otherwise = Right label
+  idxStr <- replaceAttr opts label' (lookup "label" attrs) [] eqnRefs
+  let eq' | tableEqns opts = eq
+          | otherwise = eq++"\\qquad("++stringify idxStr++")"
+  return (eq', stringify idxStr)
+
 replaceInlines :: Options -> Inline -> WS Inline
-replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq])
-  | "eq:" `isPrefixOf` label
+replaceInlines opts (Span attrs@(label,_,_) [Math DisplayMath eq])
+  | "eq:" `isPrefixOf` label || null label && autoEqnLabels opts
   = case outFormat opts of
       f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
         in return $ RawInline (Format "tex") eqn
       _ -> do
-        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) [] eqnRefs
-        let eq' = eq++"\\qquad("++stringify idxStr++")"
-        return $ Math DisplayMath eq'
-replaceInlines opts (Math DisplayMath eq)
-  | autoEqnLabels opts && not (tableEqns opts)
-  = case outFormat opts of
-      f | isFormat "latex" f ->
-        let eqn = "\\begin{equation}"++eq++"\\end{equation}"
-        in return $ RawInline (Format "tex") eqn
-      _ -> do
-        idxStr <- replaceAttr opts (Left "eq") Nothing [] eqnRefs
-        let eq' = eq++"\\qquad("++stringify idxStr++")"
+        (eq', _) <- replaceEqn opts attrs eq
         return $ Math DisplayMath eq'
 replaceInlines opts x@(Image attr@(label,cls,attrs) alt img@(src, tit))
   = do
@@ -292,12 +290,14 @@ splitMath opts (Para ils:xs)
     dropSpaces = dropWhile (\x -> x == Space || x == SoftBreak)
 splitMath _ xs = xs
 
-spanInlines :: [Inline] -> [Inline]
-spanInlines (math@(Math DisplayMath _eq):ils)
+spanInlines :: Options -> [Inline] -> [Inline]
+spanInlines opts (math@(Math DisplayMath _eq):ils)
   | c:ils' <- dropWhile (==Space) ils
   , Just label <- getRefLabel "eq" [c]
   = Span (label,[],[]) [math]:ils'
-spanInlines x = x
+  | autoEqnLabels opts
+  = Span stopAttr [math]:ils
+spanInlines _ x = x
 
 getRefLabel :: String -> [Inline] -> Maybe String
 getRefLabel _ [] = Nothing

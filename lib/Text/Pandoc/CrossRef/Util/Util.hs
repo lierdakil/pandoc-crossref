@@ -45,7 +45,9 @@ everywhereMBut' q f x
     else gmapM (everywhereMBut' q f) x'
 
 mkLaTeXLabel :: String -> String
-mkLaTeXLabel l = "\\label{" ++ mkLaTeXLabel' l ++ "}"
+mkLaTeXLabel l
+ | null l = []
+ | otherwise = "\\label{" ++ mkLaTeXLabel' l ++ "}"
 
 mkLaTeXLabel' :: String -> String
 mkLaTeXLabel' l =
