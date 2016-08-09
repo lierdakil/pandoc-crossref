@@ -26,6 +26,7 @@ replaceAll :: Data a => Options -> a -> WS a
 replaceAll opts =
     fmap (everywhere' (mkT clearStopAttrDivs `extT` clearStopAttrSpans))
   . everywhereMBut' (mkQ False isSubfig `extQ` isSubfig') (mkM (replaceBlocks opts) `extM` replaceInlines opts)
+  . runSplitMath
   . everywhere' (mkT divBlocks `extT` spanInlines)
   where
     isSubfig (Div (label,cls,_) _)
@@ -35,6 +36,8 @@ replaceAll opts =
     isSubfig' (Span (_,cls,_) _)
       | "crossref-stop" `elem` cls = True
     isSubfig' _ = False
+    runSplitMath | tableEqns opts = everywhere' (mkT (splitMath opts))
+                 | otherwise = id
 
 clearStopAttrSpans :: [Inline] -> [Inline]
 clearStopAttrSpans (Span ([], ["crossref-stop"], []) ils:xs)
@@ -210,7 +213,9 @@ replaceBlocks opts (Para [Span (label, _, attrs) [Math DisplayMath eq]])
   | not $ isFormat "latex" (outFormat opts)
   , tableEqns opts
   = do
-    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) [] eqnRefs
+    let label' | null label = Left "eq"
+               | otherwise = Right label
+    idxStr <- replaceAttr opts label' (lookup "label" attrs) [] eqnRefs
     return $ Div stopAttr [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq]], [Plain [Math DisplayMath $ "(" ++ stringify idxStr ++ ")"]]]]]
 replaceBlocks _ x = return x
 
@@ -226,7 +231,7 @@ replaceInlines opts (Span (label,_,attrs) [Math DisplayMath eq])
         let eq' = eq++"\\qquad("++stringify idxStr++")"
         return $ Math DisplayMath eq'
 replaceInlines opts (Math DisplayMath eq)
-  | autoEqnLabels opts
+  | autoEqnLabels opts && not (tableEqns opts)
   = case outFormat opts of
       f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++"\\end{equation}"
@@ -268,6 +273,24 @@ divBlocks (Table title align widths header cells)
   , Just label <- getRefLabel "tbl" [last title]
   = Div (label,[],[]) [Table (init title) align widths header cells]
 divBlocks x = x
+
+splitMath :: Options -> [Block] -> [Block]
+splitMath opts (Para ils:xs)
+  | [Math DisplayMath _] <- ils
+  , autoEqnLabels opts
+  = Para [Span nullAttr ils]:xs
+  | length ils > 1 = map Para (split [] [] ils) ++ xs
+  where
+    split res acc [] = reverse (reverse acc : res)
+    split res acc (x@(Span _ [Math DisplayMath _]):ys) =
+      split ([x] : reverse (dropSpaces acc) : res)
+            [] (dropSpaces ys)
+    split res acc (x@(Math DisplayMath _):ys) | autoEqnLabels opts =
+      split ([Span nullAttr [x]] : reverse (dropSpaces acc) : res)
+            [] (dropSpaces ys)
+    split res acc (y:ys) = split res (y:acc) ys
+    dropSpaces = dropWhile (\x -> x == Space || x == SoftBreak)
+splitMath _ xs = xs
 
 spanInlines :: [Inline] -> [Inline]
 spanInlines (math@(Math DisplayMath _eq):ils)
