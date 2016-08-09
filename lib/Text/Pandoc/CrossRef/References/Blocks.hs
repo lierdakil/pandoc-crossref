@@ -124,9 +124,11 @@ replaceBlocks opts (Div (label,cls,attrs) images)
         getWidth _ = Nothing
         fixZeros :: [Double] -> [Double]
         fixZeros ws
-          = let nz = length $ filter (/= 0) ws
+          = let nz = length $ filter (== 0) ws
                 rzw = (0.99 - sum ws) / fromIntegral nz
-            in map (\x -> if x == 0 then rzw else x) ws
+            in if nz>0
+               then map (\x -> if x == 0 then rzw else x) ws
+               else ws
         percToDouble :: String -> Double
         percToDouble percs
           | '%' <- last percs
