@@ -1,0 +1,37 @@
+This is a test file with some referenced equations, line \[ this \]
+
+Some equations might be inside of text, \[ for example \] this one.
+
+Some equations might be on start of paragraphs:
+
+\[ start \] of paragraph.
+
+Other might be on separate paragraphs of their own:
+
+\[ separate \]
+
+Some of those can be labelled:
+
+This is a test file with some referenced equations, line
+\begin{equation} this \label{eq:0}\end{equation}
+
+Some equations might be inside of text,
+\begin{equation} for example \label{eq:1}\end{equation} this one.
+
+Some equations might be on start of paragraphs:
+
+\begin{equation} start \label{eq:2}\end{equation} of paragraph.
+
+Other might be on separate paragraphs of their own:
+
+\begin{equation} separate \label{eq:3}\end{equation}
+
+Then they can be referenced:
+
+Individually eq.~\ref{eq:0}, eq.~\ref{eq:1}, eq.~\ref{eq:2},
+eq.~\ref{eq:3}
+
+Or in groups eqns.~\ref{eq:0}, \ref{eq:1}, \ref{eq:3}
+
+Groups will be compacted
+eqns.~\ref{eq:0}, \ref{eq:1}, \ref{eq:3}, \ref{eq:2}

@@ -17,6 +17,19 @@ extra-doc-files:     README.md
 cabal-version:       >=1.10
 data-files:          demo.md
 extra-source-files:  test/*.inc
+                     test/m2m/equations/*.md
+                     test/m2m/equations-auto/*.md
+                     test/m2m/equations-tables/*.md
+                     test/m2m/equations-tables-auto/*.md
+                     test/m2m/subfigures/*.md
+                     test/m2m/subfigures-grid/*.md
+                     test/m2m/equations/*.tex
+                     test/m2m/equations-auto/*.tex
+                     test/m2m/equations-tables/*.tex
+                     test/m2m/equations-tables-auto/*.tex
+                     test/m2m/subfigures/*.tex
+                     test/m2m/subfigures-grid/*.tex
+
 
 source-repository head
   type: git
@@ -129,5 +142,18 @@ Test-Suite test-pandoc-crossref
                 Text.Pandoc.CrossRef.Util.Template
                 Text.Pandoc.CrossRef.Util.Util
                 Text.Pandoc.CrossRef.Util.PandocOrphans
+  Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
+  Default-Language: Haskell2010
+
+Test-Suite test-integrative
+  Type:           exitcode-stdio-1.0
+  Main-Is:        test-integrative.hs
+  hs-source-dirs: test
+  Build-Depends:   base >=4.2 && <5
+                 , hspec
+                 , pandoc
+                 , filepath
+                 , directory
+                 , pandoc-crossref
   Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
   Default-Language: Haskell2010
