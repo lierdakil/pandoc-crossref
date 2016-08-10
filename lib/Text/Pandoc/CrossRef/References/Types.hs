@@ -23,14 +23,13 @@ data References = References { imgRefs_ :: RefMap
                              , lstRefs_ :: RefMap
                              , secRefs_ :: RefMap
                              , curChap_ :: Index
-                             , subFig_  :: Bool
                              } deriving (Show, Eq)
 
 --state monad
 type WS a = State References a
 
 instance Default References where
-  def = References n n n n n [] False
+  def = References n n n n n []
     where n = M.empty
 
 deriveAccessors ''References

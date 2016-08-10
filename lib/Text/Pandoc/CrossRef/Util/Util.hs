@@ -32,17 +32,12 @@ isFirstUpper [] = False
 chapPrefix :: [Inline] -> Index -> [Inline]
 chapPrefix delim index = intercalate delim (map (return . Str . uncurry (fromMaybe . show)) index)
 
--- | Monadic variation on everywhere'
-everywhereMBut' :: Monad m => GenericQ Bool -> GenericM m -> GenericM m
-
--- Top-down order is also reflected in order of do-actions
-everywhereMBut' q f x
-  | q x = f x
-  | otherwise = do
-    x' <- f x
-    if q x'
-    then return x'
-    else gmapM (everywhereMBut' q f) x'
+runReplace :: (Monad m) => GenericM m -> GenericM m
+runReplace f x = do
+  x' <- f x
+  if x' `geq` x
+  then gmapM (runReplace f) x'
+  else return x'
 
 mkLaTeXLabel :: String -> String
 mkLaTeXLabel l
