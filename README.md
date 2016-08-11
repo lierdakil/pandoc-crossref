@@ -44,6 +44,18 @@ Since pandoc-crossref uses the same citation syntax as pandoc-citeproc, you *hav
 pandoc -F pandoc-crossref -F pandoc-citeproc file.md -o file.html
 ```
 
+### Note on leading/trailing spaces in metadata options
+
+Leading and trailing spaces in YAML metadata will most likely be stripped by either YAML parser or Pandoc itself. If you need leading and/or trailing spaces in pandoc-crossref metadata variables, use html entity for space instead, i.e. `&#32;`. For example, if you want reference ranges to be delimited by a dash with spaces (e.g. `2 - 5`), include the following in YAML metadata:
+
+```yaml
+rangeDelim: '&#32;-&#32;'
+```
+
+or pass `-MrangeDelim='&#32;-&#32;'` to pandoc on command line.
+
+You can use other html entites of course, like `&nbsp;` etc.
+
 ## Syntax
 
 Syntax is loosely based on discussion in <https://github.com/jgm/pandoc/issues/813>
