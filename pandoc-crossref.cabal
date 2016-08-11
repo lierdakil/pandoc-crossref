@@ -23,12 +23,14 @@ extra-source-files:  test/*.inc
                      test/m2m/equations-tables-auto/*.md
                      test/m2m/subfigures/*.md
                      test/m2m/subfigures-grid/*.md
+                     test/m2m/subfigures-ccsDelim/*.md
                      test/m2m/equations/*.tex
                      test/m2m/equations-auto/*.tex
                      test/m2m/equations-tables/*.tex
                      test/m2m/equations-tables-auto/*.tex
                      test/m2m/subfigures/*.tex
                      test/m2m/subfigures-grid/*.tex
+                     test/m2m/subfigures-ccsDelim/*.tex
 
 
 source-repository head
