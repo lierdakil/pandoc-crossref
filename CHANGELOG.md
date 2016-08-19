@@ -1,3 +1,18 @@
+## 0.2.3.0
+* More tests
+* Major code cleanup, simplification
+* Make tableEqns work for inline display math
+* Documentation update
+* Fix custom numbering of auto eqns/auto subfigs
+* Filter out empties from collected subfigure captions
+* Properly sort collected subfigure captions
+* Simplify default settings
+* subfigGrid -- allows to typeset subfigures in a table in non-LaTeX output (LaTeX can typeset subfigures by itself)
+* Fix codelisting caption in LaTeX output
+* tableEqns -- allows to typeset numbered display math with 100%-wide tables. Primarily useful in docx, epub.
+* Option to auto-label equations
+* Error on duplicate labels
+
 ## 0.2.2.0
 * Add ghc-8 to tests/builds
 * Ghc-8 support
