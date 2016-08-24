@@ -31,3 +31,5 @@ Individually @eq:0, @eq:1, @eq:2, @eq:3
 Or in groups [@eq:0; @eq:1; @eq:3]
 
 Groups will be compacted [@eq:0; @eq:1; @eq:3; @eq:2]
+
+Unknown references will print labels [@eq:0; @eq:none; @eq:3; @eq:2]

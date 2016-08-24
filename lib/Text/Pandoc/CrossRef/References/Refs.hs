@@ -5,6 +5,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Shared (normalizeInlines, normalizeSpaces)
 import Control.Monad.State hiding (get, modify)
 import Data.List
+import qualified Data.List.HT as HT
 import Data.Maybe
 import Data.Function
 import qualified Data.Map as M
@@ -114,20 +115,19 @@ replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = do
   indices <- mapM (getRefIndex prefix opts) cits
   let
-    indices' = groupBy ((==) `on` (fmap init . fst)) (sort indices)
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
-  return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) $ intercalate [Str ",", Space]  (makeIndices opts `map` indices')
+  return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) (makeIndices opts indices)
 
-getRefIndex :: String -> Options -> Citation -> WS (Maybe Index, [Inline])
+getRefIndex :: String -> Options -> Citation -> WS (Either String Index, [Inline])
 getRefIndex prefix opts Citation{citationId=cid,citationSuffix=suf}
   = do
-    ref <- M.lookup lab <$> get prop
-    let sub = join $ refSubfigure <$> ref
+    ref <- maybe (Left lab) Right . M.lookup lab <$> get prop
+    let sub = refSubfigure <$> ref
         idx = refIndex <$> ref
-        suf' | Just sub' <- sub =
+        suf' | Right (Just sub') <- sub =
                     suf
                 ++  [Space, Str "("]
-                ++  makeIndices opts [(Just sub',[])]
+                ++  makeIndices opts [(Right sub',[])]
                 ++  [Str ")"]
              | otherwise = suf
     return (idx ,suf')
@@ -135,24 +135,24 @@ getRefIndex prefix opts Citation{citationId=cid,citationSuffix=suf}
   prop = lookupUnsafe prefix accMap
   lab = prefix ++ getLabelWithoutPrefix cid
 
-makeIndices :: Options -> [(Maybe Index, [Inline])] -> [Inline]
-makeIndices _ s | any (isNothing . fst) s = [Strong [Str "??"]]
-makeIndices o s = intercalate sep $ reverse $ map f $ foldl' f2 [] $ map (A.first fromJust) $ filter (isJust . fst) s
+makeIndices :: Options -> [(Either String Index, [Inline])] -> [Inline]
+makeIndices o s = intercalate sep $ map f $ HT.groupBy g $ sort $ nub s
   where
-  f2 :: [[(Index, [Inline])]] -> (Index, [Inline]) -> [[(Index, [Inline])]]
-  f2 [] (i,suf) = [[(i,suf)]]
-  f2 ([]:xs) (i,suf) = [(i,suf)]:xs
-  f2 l@(x@((ix,sufp):_):xs) (i,suf)
-    | not (null suf) || not (null sufp) = [(i,suf)]:l
-    | ni-hx == 0 = l        -- remove duplicates
-    | ni-hx == 1 = ((i,[]):x):xs -- group sequental
-    | otherwise     = [(i,[])]:l    -- new group
-    where
-      hx = fst $ last ix
-      ni = fst $ last i
+  g :: (Either String Index, [Inline]) -> (Either String Index, [Inline]) -> Bool
+  g a b = all (null . snd) [a, b] &&
+          either (const False) id ((liftM2 follows `on` fst) b a)
+  follows :: Index -> Index -> Bool
+  follows a b
+    | Just (ai, al) <- HT.viewR a
+    , Just (bi, bl) <- HT.viewR b
+    = ai == bi && A.first (+1) bl == al
+  follows _ _ = False
+  f :: [(Either String Index, [Inline])] -> [Inline]
   f []  = []                          -- drop empty lists
   f [w] = show' w                    -- single value
-  f [w1,w2] = show' w2 ++ sep ++ show' w1 -- two values
-  f (x:xs) = show' (last xs) ++ rangeDelim o ++ show' x -- shorten more than two values
+  f [w1,w2] = show' w1 ++ sep ++ show' w2 -- two values
+  f (x:xs) = show' x ++ rangeDelim o ++ show' (last xs) -- shorten more than two values
   sep = [Str ",", Space]
-  show' (i,suf) = chapPrefix (chapDelim o) i ++ suf
+  show' :: (Either String Index, [Inline]) -> [Inline]
+  show' (Right i,suf) = chapPrefix (chapDelim o) i ++ suf
+  show' (Left l,suf) = Strong [Str $ "¿" ++ l ++ "?"] : suf

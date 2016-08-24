@@ -75,6 +75,7 @@ library
                      , template-haskell >= 2.7.0.0 && < 3.0.0.0
                      , roman-numerals == 0.5.*
                      , syb >= 0.4 && < 0.7
+                     , utility-ht >= 0.0.11 && < 0.1.0
   hs-source-dirs:      lib
   if impl(ghc >= 8.0.1)
     hs-source-dirs:      ghc-8
@@ -123,6 +124,7 @@ Test-Suite test-pandoc-crossref
                  , roman-numerals == 0.5.*
                  , syb >= 0.4 && < 0.7
                  , pandoc-crossref
+                 , utility-ht >= 0.0.11 && < 0.1.0
   other-modules:
                 Native
                 Paths_pandoc_crossref
