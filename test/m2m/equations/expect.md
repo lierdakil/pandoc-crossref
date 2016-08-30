@@ -35,3 +35,5 @@ Or in groups eqns. 1, 2, 4
 Groups will be compacted eqns. 1-4
 
 Unknown references will print labels eqns. **¿eq:none?**, 1, 3, 4
+
+Reference prefix will override default prefix Equation 1, eqns. 3, 4

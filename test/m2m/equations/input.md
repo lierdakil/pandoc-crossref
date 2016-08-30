@@ -33,3 +33,5 @@ Or in groups [@eq:0; @eq:1; @eq:3]
 Groups will be compacted [@eq:0; @eq:1; @eq:3; @eq:2]
 
 Unknown references will print labels [@eq:0; @eq:none; @eq:3; @eq:2]
+
+Reference prefix will override default prefix [Equation @eq:0; @eq:3; @eq:2]

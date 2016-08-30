@@ -83,7 +83,15 @@ allCitsPrefix cits = find isCitationPrefix prefixes
     all (p `isPrefixOf`) $ map (uncapitalizeFirst . citationId) cits
 
 replaceRefsLatex :: String -> Options -> [Citation] -> WS [Inline]
-replaceRefsLatex prefix opts cits =
+replaceRefsLatex prefix opts cits
+  | cref opts
+  = replaceRefsLatex' prefix opts cits
+  | otherwise
+  = normalizeInlines . intercalate [Str ",", Space] <$>
+      mapM (replaceRefsLatex' prefix opts) (groupBy ((==) `on` citationPrefix) cits)
+
+replaceRefsLatex' :: String -> Options -> [Citation] -> WS [Inline]
+replaceRefsLatex' prefix opts cits =
   return $ p [texcit]
   where
     texcit =
@@ -93,7 +101,9 @@ replaceRefsLatex prefix opts cits =
         else
           listLabels prefix "\\ref{" ", " "}" cits
     p | cref opts = id
-      | otherwise = getRefPrefix opts prefix cap (length cits - 1)
+      | all null $ map citationPrefix cits
+      = getRefPrefix opts prefix cap (length cits - 1)
+      | otherwise = ((citationPrefix (head cits) ++ [Space]) ++)
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
     cref' | cap = "\\Cref"
           | otherwise = "\\cref"
@@ -112,11 +122,20 @@ getLabelPrefix lab
   where p = (++ ":") . takeWhile (/=':') $ lab
 
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
-replaceRefsOther prefix opts cits = do
+replaceRefsOther prefix opts cits =
+  normalizeInlines . intercalate [Str ",", Space] <$>
+    mapM (replaceRefsOther' prefix opts) (groupBy ((==) `on` citationPrefix) cits)
+
+replaceRefsOther' :: String -> Options -> [Citation] -> WS [Inline]
+replaceRefsOther' prefix opts cits = do
   indices <- mapM (getRefIndex prefix opts) cits
   let
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
-  return $ normalizeInlines $ getRefPrefix opts prefix cap (length cits - 1) (makeIndices opts indices)
+    writePrefix | all null $ map citationPrefix cits
+                = getRefPrefix opts prefix cap (length cits - 1)
+                | otherwise
+                = ((citationPrefix (head cits) ++ [Space]) ++)
+  return $ normalizeInlines $ writePrefix (makeIndices opts indices)
 
 getRefIndex :: String -> Options -> Citation -> WS (Either String Index, [Inline])
 getRefIndex prefix opts Citation{citationId=cid,citationSuffix=suf}
