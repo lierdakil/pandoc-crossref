@@ -299,7 +299,7 @@ replaceAttr :: Options -> Either String String -> Maybe String -> [Inline] -> Ac
 replaceAttr o label refLabel title prop
   = do
     chap  <- take (chaptersDepth o) `fmap` get curChap
-    i     <- (1+) `fmap` (M.size . M.filter (ap ((&&) . (chap ==) . init . refIndex) (isNothing . refSubfigure)) <$> get prop)
+    i     <- (1+) `fmap` (M.size . M.filter (\x -> (chap == init (refIndex x)) && isNothing (refSubfigure x)) <$> get prop)
     let index = chap ++ [(i, refLabel <> customLabel o label' i)]
         label' = either (++ ':':show index) id label
     hasLabel <- M.member label' <$> get prop
