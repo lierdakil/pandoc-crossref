@@ -88,7 +88,7 @@ replaceRefsLatex prefix opts cits
   = replaceRefsLatex' prefix opts cits
   | otherwise
   = normalizeInlines . intercalate [Str ",", Space] <$>
-      mapM (replaceRefsLatex' prefix opts) (groupBy ((==) `on` citationPrefix) cits)
+      mapM (replaceRefsLatex' prefix opts) (groupBy citationGroupPred cits)
 
 replaceRefsLatex' :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsLatex' prefix opts cits =
@@ -101,6 +101,8 @@ replaceRefsLatex' prefix opts cits =
         else
           listLabels prefix "\\ref{" ", " "}" cits
     p | cref opts = id
+      | all (==SuppressAuthor) $ map citationMode cits
+      = id
       | all null $ map citationPrefix cits
       = getRefPrefix opts prefix cap (length cits - 1)
       | otherwise = ((citationPrefix (head cits) ++ [Space]) ++)
@@ -124,14 +126,19 @@ getLabelPrefix lab
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits =
   normalizeInlines . intercalate [Str ",", Space] <$>
-    mapM (replaceRefsOther' prefix opts) (groupBy ((==) `on` citationPrefix) cits)
+    mapM (replaceRefsOther' prefix opts) (groupBy citationGroupPred cits)
+
+citationGroupPred :: Citation -> Citation -> Bool
+citationGroupPred = (==) `on` liftM2 (,) citationPrefix citationMode
 
 replaceRefsOther' :: String -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther' prefix opts cits = do
   indices <- mapM (getRefIndex prefix opts) cits
   let
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
-    writePrefix | all null $ map citationPrefix cits
+    writePrefix | all (==SuppressAuthor) $ map citationMode cits
+                = id
+                | all null $ map citationPrefix cits
                 = getRefPrefix opts prefix cap (length cits - 1)
                 | otherwise
                 = ((citationPrefix (head cits) ++ [Space]) ++)
