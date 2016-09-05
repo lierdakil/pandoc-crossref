@@ -100,14 +100,17 @@ replaceRefsLatex' prefix opts cits =
         cref'++"{"++listLabels prefix "" "," "" cits++"}"
         else
           listLabels prefix "\\ref{" ", " "}" cits
+    suppressAuthor = all (==SuppressAuthor) $ map citationMode cits
+    noPrefix = all null $ map citationPrefix cits
     p | cref opts = id
-      | all (==SuppressAuthor) $ map citationMode cits
+      | suppressAuthor
       = id
-      | all null $ map citationPrefix cits
+      | noPrefix
       = getRefPrefix opts prefix cap (length cits - 1)
       | otherwise = ((citationPrefix (head cits) ++ [Space]) ++)
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
-    cref' | cap = "\\Cref"
+    cref' | suppressAuthor = "\\labelcref"
+          | cap = "\\Cref"
           | otherwise = "\\cref"
 
 listLabels :: String -> String -> String -> String -> [Citation] -> String
