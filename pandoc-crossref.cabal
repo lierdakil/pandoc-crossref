@@ -61,7 +61,7 @@ library
                        Text.Pandoc.CrossRef.Util.Settings.Template
                        Text.Pandoc.CrossRef.Util.Gap
                        Text.Pandoc.CrossRef.Util.PandocOrphans
-  build-depends:       base >=4.2 && <5
+  build-depends:       base >=4.8 && <5
                      , pandoc >= 1.17.1 && <1.18
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
@@ -86,7 +86,7 @@ library
 
 executable pandoc-crossref
   main-is:             pandoc-crossref.hs
-  build-depends:       base >=4.2 && <5
+  build-depends:       base >=4.8 && <5
                      , pandoc >= 1.17.1 && <1.18
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
@@ -107,7 +107,7 @@ Test-Suite test-pandoc-crossref
     hs-source-dirs:      ghc-8
   else
     hs-source-dirs:      ghc-7
-  Build-Depends:   base >=4.2 && <5
+  Build-Depends:   base >=4.8 && <5
                  , pandoc >= 1.17.1 && <1.18
                  , mtl >= 1.1 && <2.3
                  , containers >= 0.1 && <0.6
@@ -153,7 +153,7 @@ Test-Suite test-integrative
   Type:           exitcode-stdio-1.0
   Main-Is:        test-integrative.hs
   hs-source-dirs: test
-  Build-Depends:   base >=4.2 && <5
+  Build-Depends:   base >=4.8 && <5
                  , hspec
                  , pandoc
                  , filepath
