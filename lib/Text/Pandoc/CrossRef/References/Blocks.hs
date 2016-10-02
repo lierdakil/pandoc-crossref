@@ -58,7 +58,7 @@ replaceBlock opts (Header n (label, cls, attrs) text')
         return ()
     cc <- get curChap
     let textCC | numberSections opts
-               , sectionsDepth opts < 0 || n < if sectionsDepth opts == 0 then chaptersDepth opts + 2 else sectionsDepth opts
+               , sectionsDepth opts < 0 || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
                , "unnumbered" `notElem` cls
                = Str (intercalate "." $ map show' cc) : Space : text'
                | otherwise = text'
