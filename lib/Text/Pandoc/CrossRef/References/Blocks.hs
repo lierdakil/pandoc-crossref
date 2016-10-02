@@ -55,7 +55,6 @@ replaceBlock opts (Header n (label, cls, attrs) text')
         , refTitle=normalizeSpaces text'
         , refSubfigure = Nothing
         }
-        return ()
     cc <- get curChap
     let textCC | numberSections opts
                , sectionsDepth opts < 0 || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
