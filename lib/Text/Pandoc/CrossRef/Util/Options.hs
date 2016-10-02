@@ -7,6 +7,8 @@ data Options = Options { cref :: Bool
                        , listings :: Bool
                        , codeBlockCaptions  :: Bool
                        , autoSectionLabels  :: Bool
+                       , numberSections  :: Bool
+                       , sectionsDepth  :: Int
                        , figPrefix   :: Bool -> Int -> [Inline]
                        , eqnPrefix   :: Bool -> Int -> [Inline]
                        , tblPrefix   :: Bool -> Int -> [Inline]

@@ -56,7 +56,15 @@ replaceBlock opts (Header n (label, cls, attrs) text')
         , refSubfigure = Nothing
         }
         return ()
-    return $ Header n (label', cls, attrs) text'
+    cc <- get curChap
+    let textCC | numberSections opts
+               , sectionsDepth opts < 0 || n < if sectionsDepth opts == 0 then chaptersDepth opts + 2 else sectionsDepth opts
+               , "unnumbered" `notElem` cls
+               = Str (intercalate "." $ map show' cc) : Space : text'
+               | otherwise = text'
+        show' (_, Just s) = s
+        show' (i, Nothing) = show i
+    return $ Header n (label', cls, attrs) textCC
 -- subfigures
 replaceBlock opts (Div (label,cls,attrs) images)
   | "fig:" `isPrefixOf` label

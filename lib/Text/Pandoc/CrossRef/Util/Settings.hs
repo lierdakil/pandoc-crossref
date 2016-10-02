@@ -25,6 +25,8 @@ defaultMeta =
   <> listings False
   <> codeBlockCaptions False
   <> autoSectionLabels False
+  <> numberSections False
+  <> sectionsDepth "0"
   <> figLabels "arabic"
   <> eqnLabels "arabic"
   <> tblLabels "arabic"
