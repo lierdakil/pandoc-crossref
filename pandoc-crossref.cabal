@@ -62,10 +62,10 @@ library
                        Text.Pandoc.CrossRef.Util.Gap
                        Text.Pandoc.CrossRef.Util.PandocOrphans
   build-depends:       base >=4.8 && <5
-                     , pandoc >= 1.17.1 && <1.18
+                     , pandoc >= 1.17.1 && <1.19
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
-                     , pandoc-types >= 1.16 && < 1.17
+                     , pandoc-types >= 1.16 && < 1.18
                      , yaml >= 0.8 && <0.9
                      , data-default >= 0.4 && <0.8
                      , bytestring >=0.9 && <0.11
@@ -87,10 +87,10 @@ library
 executable pandoc-crossref
   main-is:             pandoc-crossref.hs
   build-depends:       base >=4.8 && <5
-                     , pandoc >= 1.17.1 && <1.18
+                     , pandoc >= 1.17.1 && <1.19
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
-                     , pandoc-types >= 1.16 && < 1.17
+                     , pandoc-types >= 1.16 && < 1.18
                      , yaml >= 0.8 && <0.9
                      , data-default >= 0.4 && <0.8
                      , bytestring >=0.9 && <0.11
@@ -108,10 +108,10 @@ Test-Suite test-pandoc-crossref
   else
     hs-source-dirs:      ghc-7
   Build-Depends:   base >=4.8 && <5
-                 , pandoc >= 1.17.1 && <1.18
+                 , pandoc >= 1.17.1 && <1.19
                  , mtl >= 1.1 && <2.3
                  , containers >= 0.1 && <0.6
-                 , pandoc-types >= 1.16 && < 1.17
+                 , pandoc-types >= 1.16 && < 1.18
                  , yaml >= 0.8 && <0.9
                  , data-default >= 0.4 && <0.8
                  , bytestring >=0.9 && <0.11
