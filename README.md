@@ -277,6 +277,20 @@ Reference syntax heavily relies on citation syntax. Basic reference is created b
 
 You can capitalize first reference character to get capitalized prefix, e.g. `[@Fig:label1]` will produce `Fig. ...` by default. Capitalized prefixes are derived automatically by capitalizing first letter of every word in non-capitalized prefix, unless overriden with metadata settings. See [Customization](#customization) for more information.
 
+#### Custom prefix per-reference
+
+It's possible to provide your own prefix per-reference, f.ex. `[Prefix @reference]` will replace default prefix (`fig.`/`sec.`/etc) with prefix verbatim, e.g. `[Prefix @fig:1]` will be rendered as `Prefix 1` instead of `fig. 1`.
+
+In citation group, citations with the same prefix will be grouped. So, for example `[A @fig:1; A @fig:2; B @fig:3]` will turn into `A 1, 2, B 3`. It can be used to an advantage, although it's a bit more cumbersome than it should be, e.g. `[Appendices @sec:A1; Appendices @sec:A2; Appendices @sec:A3]` will turn into `Appendices @A1-@A3` (with `@A1` and `@A3` being relevant section numbers). Note that non-contiguous sequences of identical prefixes *will not* be grouped.
+
+***Not supported with cleferef LaTeX output.***
+
+#### Prefix suppression
+
+Prepending `-` before `@`, like so `[-@citation]`, will suppress default prefix, e.g. `[-@fig:1]` will produce just `1` (or whatever number it happens to be) without `fig.` prefix.
+
+In citation group, citations with and without prefixes will be in different groups. So `[-@fig:1; @fig:2; -@fig:3]` will be rendered as `1, fig. 2, 3`, so be careful with this feature. Again, non-contiguous sequences are not grouped together.
+
 ### Lists
 
 It's possible to use raw latex commands `\listoffigures`, `\listoftables` and `listoflistings`, which will produce ordered list of figure/table/listings titles, in order of appearance in document.
