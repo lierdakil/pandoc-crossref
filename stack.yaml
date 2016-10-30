@@ -1,6 +1,4 @@
-flags:
-  pandoc:
-    https: false
+flags: {}
 extra-package-dbs: []
 packages:
 - '.'
@@ -9,4 +7,6 @@ extra-deps:
 - data-accessor-transformers-0.2.1.7
 - pandoc-1.17.2
 - roman-numerals-0.5.1.5
+- http-client-tls-0.3.3
+- http-client-0.5.3.3
 resolver: lts-6.20
