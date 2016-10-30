@@ -26,6 +26,22 @@ matrix:
         - hvr-ghc
         packages:
         - ghc-8.0.1
+  - env: GHCVER=7.10.3 STACK_YAML=stack-pandoc118.yaml GHCOPTS=-Werror
+    compiler: ': #GHC 7.10.3 Pandoc 1.18'
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-7.10.3
+  - env: GHCVER=8.0.1 STACK_YAML=stack-ghc8-pandoc118.yaml GHCOPTS=-Werror
+    compiler: ': #GHC 8.0.1 Pandoc 1.18'
+    addons:
+      apt:
+        sources:
+        - hvr-ghc
+        packages:
+        - ghc-8.0.1
 
 before_install:
 - unset CC

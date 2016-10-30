@@ -14,6 +14,12 @@ environment:
     - STACK_YAML: "stack-ghc8.yaml"
       PANDOCVER: "1.17"
       GHCVER: "8"
+    - STACK_YAML: "stack-pandoc118.yaml"
+      PANDOCVER: "1.18"
+      GHCVER: "7"
+    - STACK_YAML: "stack-ghc8-pandoc118.yaml"
+      PANDOCVER: "1.18"
+      GHCVER: "8"
 
 before_build:
 - appveyor DownloadFile http://www.stackage.org/stack/windows-i386 -FileName stack.zip
