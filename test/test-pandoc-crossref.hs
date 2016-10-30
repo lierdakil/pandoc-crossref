@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, CPP #-}
 import Test.Hspec
 import Text.Pandoc hiding (readMarkdown)
 import Text.Pandoc.Builder
@@ -281,7 +281,11 @@ main = hspec $ do
         it "Image labels" $
           figure "img.png" [] "Title" "figure_label1"
             <> para (citeGen "fig:figure_label" [1])
+#if MIN_VERSION_pandoc(1,18,0)
+            `test` "\\begin{figure}\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
+#else
             `test` "\\begin{figure}[htbp]\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
+#endif
 
         it "Eqn labels" $
           equation "x^2" "some_equation1"
