@@ -188,6 +188,20 @@ You can also use `autoSectionLabels` variable to automatically prepend all secti
 
 WARNING: With LaTeX output, you have to invoke pandoc with `--number-sections`, otherwise section labels won't work. It's also advised with other output formats, since with no numbers in section titles, it would be hard to navigate anyway.
 
+#### Section numbering
+
+Pandoc doesn't properly support numbering sections in some output formats, and section reference labels (see below).
+
+You can let pandoc-crossref handle section numbering instedad. This is done via `numberSections` and `sectionsDepth` metadata options.
+
+`numberSections` controls if pandoc-crossref handles numbering sections, while `sectionsDepth` controls what sections are numbered.
+
+Set `sectionsDepth` to `0` to make section numbering consistent with `chaptersDepth`.
+
+If `sectionsDepth` value is lesser than `0`, all sections will be numbered.
+
+Otherwise, only header levels up to and including `sectionsDepth` will be numbered.
+
 ### Section reference labels
 
 ***Not currently supported with LaTeX output***
@@ -339,6 +353,11 @@ A list of variables follows.
 * `cref`: if True, latex export will use `\cref` from cleveref package. Only relevant for LaTeX output. `\usepackage{cleveref}` will be automatically added to `header-includes`.
 * `chapters`: if True, number elements as `chapter.item`, and restart `item` on each first-level heading (as `--chapters` for latex/pdf output)
 * `chaptersDepth`, default `1`: header level to treat as "chapter". If `chaptersDepth>1`, then items will be prefixed with several numbers, corresponding to header numbers, e.g. `fig. 1.4.3`.
+* `numberSections`, default `false`: if True, pandoc-crossref will prepend section number to section titles (as counted by pandoc-crossref itself).
+* `sectionsDepth`, default `0`:
+    - sectionsDepth < 0 -- number all sections
+    - sectionsDepth == 0 -- be consistent with `chaptersDepths`
+    - sectionsDepth > 0 -- number section levels up to and including `sectionsDepth`
 * `listings`: if True, generate code blocks for `listings` package. Only relevant for LaTeX output. `\usepackage{listings}` will be automatically added to `header-includes`. You need to specify `--listings` option as well.
 * `codeBlockCaptions`: if True, parse table-style code block captions.
 * `autoSectionLabels`, default `false`: Automatically prefix all section labels with `sec:`. Note that this messes with pandoc's automatic header references.
