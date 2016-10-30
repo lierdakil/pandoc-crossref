@@ -1,13 +1,13 @@
-flags:
-  pandoc:
-    https: false
+flags: {}
 extra-package-dbs: []
 packages:
 - '.'
 extra-deps:
 - data-accessor-template-0.2.1.13
 - data-accessor-transformers-0.2.1.7
-- pandoc-1.18
 - roman-numerals-0.5.1.5
-- pandoc-types-1.17
+- pandoc-1.18
+- pandoc-types-1.17.0.4
+- doctemplates-0.1.0.2
+- texmath-0.8.6.7
 resolver: lts-6.20
