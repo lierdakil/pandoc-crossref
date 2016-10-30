@@ -32,12 +32,44 @@ isFirstUpper [] = False
 chapPrefix :: [Inline] -> Index -> [Inline]
 chapPrefix delim index = intercalate delim (map (return . Str . uncurry (fromMaybe . show)) index)
 
-runReplace :: (Monad m) => GenericM m -> GenericM m
+data ReplacedResult a = Replaced Bool a | NotReplaced Bool
+type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))
+newtype RR m a = RR {unRR :: a -> m (ReplacedResult a)}
+
+runReplace :: (Monad m) => GenRR m -> GenericM m
 runReplace f x = do
-  x' <- f x
-  if x' `geq` x
-  then gmapM (runReplace f) x'
-  else return x'
+  res <- f x
+  case res of
+    Replaced True x' -> gmapM (runReplace f) x'
+    Replaced False x' -> return x'
+    NotReplaced True -> gmapM (runReplace f) x
+    NotReplaced False -> return x
+
+mkRR :: (Monad m, Typeable a, Typeable b)
+     => (b -> m (ReplacedResult b))
+     -> (a -> m (ReplacedResult a))
+mkRR = extRR (const noReplaceRecurse)
+
+extRR :: ( Monad m, Typeable a, Typeable b)
+     => (a -> m (ReplacedResult a))
+     -> (b -> m (ReplacedResult b))
+     -> (a -> m (ReplacedResult a))
+extRR def' ext = unRR (RR def' `ext0` RR ext)
+
+replaceRecurse :: Monad m => a -> m (ReplacedResult a)
+replaceRecurse = return . Replaced True
+
+replaceNoRecurse :: Monad m => a -> m (ReplacedResult a)
+replaceNoRecurse = return . Replaced False
+
+noReplace :: Monad m => Bool -> m (ReplacedResult a)
+noReplace recurse = return $ NotReplaced recurse
+
+noReplaceRecurse :: Monad m => m (ReplacedResult a)
+noReplaceRecurse = noReplace True
+
+noReplaceNoRecurse :: Monad m => m (ReplacedResult a)
+noReplaceNoRecurse = noReplace False
 
 mkLaTeXLabel :: String -> String
 mkLaTeXLabel l

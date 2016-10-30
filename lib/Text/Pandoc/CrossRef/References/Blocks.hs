@@ -24,7 +24,7 @@ import Data.Default
 
 replaceAll :: (Data a) => Options -> a -> WS a
 replaceAll opts =
-    runReplace (mkM (replaceBlock opts) `extM` replaceInline opts)
+    runReplace (mkRR (replaceBlock opts) `extRR` replaceInline opts)
   . runSplitMath
   . everywhere (mkT divBlocks `extT` spanInlines opts)
   where
@@ -33,7 +33,7 @@ replaceAll opts =
                  = everywhere (mkT splitMath)
                  | otherwise = id
 
-replaceBlock :: Options -> Block -> WS Block
+replaceBlock :: Options -> Block -> WS (ReplacedResult Block)
 replaceBlock opts (Header n (label, cls, attrs) text')
   = do
     let label' = if autoSectionLabels opts && not ("sec:" `isPrefixOf` label)
@@ -63,14 +63,14 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                | otherwise = text'
         show' (_, Just s) = s
         show' (i, Nothing) = show i
-    return $ Header n (label', cls, attrs) textCC
+    replaceNoRecurse $ Header n (label', cls, attrs) textCC
 -- subfigures
 replaceBlock opts (Div (label,cls,attrs) images)
   | "fig:" `isPrefixOf` label
   , Para caption <- last images
   = do
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption imgRefs
-    let (cont, st) = runState (runReplace (mkM $ replaceSubfigs opts') $ init images) def
+    let (cont, st) = runState (runReplace (mkRR $ replaceSubfigs opts') $ init images) def
         collectedCaptions =
             intercalate (ccsDelim opts)
           $ map (collectCaps . snd)
@@ -97,14 +97,14 @@ replaceBlock opts (Div (label,cls,attrs) images)
           $ imgRefs_ st)
     case outFormat opts of
           f | isFormat "latex" f ->
-            return $ Div nullAttr $
+            replaceNoRecurse $ Div nullAttr $
               [ RawBlock (Format "tex") "\\begin{figure}" ]
               ++ cont ++
               [ Para [RawInline (Format "tex") "\\caption"
                        , Span nullAttr caption]
               , RawBlock (Format "tex") $ mkLaTeXLabel label
               , RawBlock (Format "tex") "\\end{figure}"]
-          _  -> return $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
+          _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
   where
     opts' = opts
               { figureTemplate = subfigureChildTemplate opts
@@ -153,7 +153,7 @@ replaceBlock opts (Div (label,_,attrs) [Table title align widths header cells])
               f | isFormat "latex" f ->
                 RawInline (Format "tex") (mkLaTeXLabel label) : title
               _  -> applyTemplate idxStr title $ tableTemplate opts
-    return $ Table title' align widths header cells
+    replaceNoRecurse $ Table title' align widths header cells
 replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   | not $ null label
   , "lst:" `isPrefixOf` label
@@ -161,10 +161,10 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   = case outFormat opts of
       f
         --if used with listings package,nothing shoud be done
-        | isFormat "latex" f, listings opts -> return cb
+        | isFormat "latex" f, listings opts -> noReplaceNoRecurse
         --if not using listings, however, wrap it in a codelisting environment
         | isFormat "latex" f ->
-          return $ Div nullAttr [
+          replaceNoRecurse $ Div nullAttr [
               RawBlock (Format "tex")
                 $ "\\begin{codelisting}\n\\caption{"++caption++"}"
             , cb
@@ -174,7 +174,7 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
         let cap = toList $ text caption
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) cap lstRefs
         let caption' = applyTemplate idxStr cap $ listingTemplate opts
-        return $ Div (label, "listing":classes, []) [
+        replaceNoRecurse $ Div (label, "listing":classes, []) [
             Para caption'
           , CodeBlock ([], classes, attrs \\ [("caption", caption)]) code
           ]
@@ -187,10 +187,10 @@ replaceBlock opts
       f
         --if used with listings package, return code block with caption
         | isFormat "latex" f, listings opts ->
-          return $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
+          replaceNoRecurse $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
         --if not using listings, however, wrap it in a codelisting environment
         | isFormat "latex" f ->
-          return $ Div nullAttr [
+          replaceNoRecurse $ Div nullAttr [
               RawBlock (Format "tex") "\\begin{codelisting}"
             , Para [
                 RawInline (Format "tex") "\\caption"
@@ -202,7 +202,7 @@ replaceBlock opts
       _ -> do
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption lstRefs
         let caption' = applyTemplate idxStr caption $ listingTemplate opts
-        return $ Div (label, "listing":classes, []) [
+        replaceNoRecurse $ Div (label, "listing":classes, []) [
             Para caption'
           , CodeBlock ([], classes, attrs) code
           ]
@@ -211,8 +211,8 @@ replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
   , tableEqns opts
   = do
     (eq', idx) <- replaceEqn opts attrs eq
-    return $ Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]
-replaceBlock _ x = return x
+    replaceNoRecurse $ Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]
+replaceBlock _ _ = noReplaceRecurse
 
 replaceEqn :: Options -> Attr -> String -> WS (String, String)
 replaceEqn opts (label, _, attrs) eq = do
@@ -223,16 +223,16 @@ replaceEqn opts (label, _, attrs) eq = do
           | otherwise = eq++"\\qquad("++stringify idxStr++")"
   return (eq', stringify idxStr)
 
-replaceInline :: Options -> Inline -> WS Inline
+replaceInline :: Options -> Inline -> WS (ReplacedResult Inline)
 replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
   | "eq:" `isPrefixOf` label || null label && autoEqnLabels opts
   = case outFormat opts of
       f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
-        in return $ RawInline (Format "tex") eqn
+        in replaceNoRecurse $ RawInline (Format "tex") eqn
       _ -> do
         (eq', _) <- replaceEqn opts attrs eq
-        return $ Math DisplayMath eq'
+        replaceNoRecurse $ Math DisplayMath eq'
 replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
   | "fig:" `isPrefixOf` label && "fig:" `isPrefixOf` tit
   = do
@@ -240,11 +240,11 @@ replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
     let alt' = case outFormat opts of
           f | isFormat "latex" f -> alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
-    return $ Image attr alt' img
-replaceInline _ x = return x
+    replaceNoRecurse $ Image attr alt' img
+replaceInline _ _ = noReplaceRecurse
 
-replaceSubfigs :: Options -> [Inline] -> WS [Inline]
-replaceSubfigs opts = fmap concat . mapM (replaceSubfig opts)
+replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
+replaceSubfigs opts = (replaceNoRecurse . concat =<<) . mapM (replaceSubfig opts)
 
 replaceSubfig :: Options -> Inline -> WS [Inline]
 replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
