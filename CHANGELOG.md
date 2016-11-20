@@ -1,3 +1,20 @@
+## 0.2.4.0
+* Index templates
+* Link cross-references
+* Enable https flag on main stack.yaml
+* Fix stack.yaml configs
+* Add pandoc-1.18 to tests; allow pandoc-1.18 in dep
+* Eschew geq
+* Update ghc8 resolver
+* Number sections
+* Fix base dependency to >= 4.8
+* Support for `supressAuthor` in cleveref tex output
+* Treat cit. SuppressAuthor as 'suppress prefix'
+* Update stack resolver
+* Support citation prefixes (override default prefix)
+* Use lambda instead of `ap`
+* Simplify makeIndices, better missed index reports
+
 ## 0.2.3.0
 * More tests
 * Major code cleanup, simplification
