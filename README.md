@@ -291,6 +291,10 @@ Reference syntax heavily relies on citation syntax. Basic reference is created b
 
 You can capitalize first reference character to get capitalized prefix, e.g. `[@Fig:label1]` will produce `Fig. ...` by default. Capitalized prefixes are derived automatically by capitalizing first letter of every word in non-capitalized prefix, unless overriden with metadata settings. See [Customization](#customization) for more information.
 
+#### Linking references
+
+To make references into hyperlinks to referenced element, enable `linkReferences` metadata option. This has no effect on LaTeX output, since in this case, hyperlinking references is handled with `hyperref` LaTeX package.
+
 #### Custom prefix per-reference
 
 It's possible to provide your own prefix per-reference, f.ex. `[Prefix @reference]` will replace default prefix (`fig.`/`sec.`/etc) with prefix verbatim, e.g. `[Prefix @fig:1]` will be rendered as `Prefix 1` instead of `fig. 1`.
@@ -394,6 +398,7 @@ See [Subfigures](#subfigures)
 * `secPrefix`, default `sec.`, `secs.`: Prefix for references to sections, e.g. `secs. 2,5`
 * `chapDelim`, default `.`: Delimiter between chapter number and item number.
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
+* `linkReferences`, default `false`: Make references hyperlinks to the referenced element
 
 `figPrefix`, `eqnPrefix`, `tblPrefix`, `lstPrefix` can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.
 
@@ -451,6 +456,8 @@ See [Templates](#templates)
 * `tblPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- table reference template
 * `lstPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- listing reference template
 * `secPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- section reference template
+* `refIndexTemplate`, default `\\[i\\]\\[suf\\]` -- individual reference index template
+* `subfigureRefIndexTemplate`, default `\\[i\\]\\[suf\\] (\\[s\\])` -- subfigure reference index template
 
 #### LaTeX customization
 
@@ -484,7 +491,12 @@ Variables can be specified in YAML metadata block, or from command line (with `-
 
 * `i` -- object number, possibly with chapter number (if `chapter=True`)
 * `t` -- object caption, as given in source Markdown
+
+Also there is a number of specific variables that are meaningful only in certain contexts:
+
 * `ccs` -- collected subfigure captions. Only applicable to `subfigureTemplate`. Collected captions will be separated by `ccsDelim` and individual captions will be printed with `ccsTemplate`. See [Subfigures](#subfigures)
+* `suf` -- reference suffix, applicable to `refIndexTemplate`, `subfigureRefIndexTemplate`
+* `s` -- subfigure index, applicable to `subfigureRefIndexTemplate`
 
 `xPrefixTemplate`, where `x` is `fig`, `eqn`, etc, are a special case. Those don't have `t` variable, since there is no caption in source markdown, but instead have `p` variable, that binds to relevant `xPrefix`. This is done this way, since actual prefix vaule can depend on `i`.
 
