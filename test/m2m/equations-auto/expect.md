@@ -1,32 +1,32 @@
 This is a test file with some referenced equations, line
-$$ this \qquad(1)$$
+<span>$$ this \qquad(1)$$</span>
 
-Some equations might be inside of text, $$ for example \qquad(2)$$ this
-one.
+Some equations might be inside of text,
+<span>$$ for example \qquad(2)$$</span> this one.
 
 Some equations might be on start of paragraphs:
 
-$$ start \qquad(3)$$ of paragraph.
+<span>$$ start \qquad(3)$$</span> of paragraph.
 
 Other might be on separate paragraphs of their own:
 
-$$ separate \qquad(4)$$
+<span>$$ separate \qquad(4)$$</span>
 
 Some of those can be labelled:
 
-This is a test file with some referenced equations, line
-$$ this \qquad(5)$$
+This is a test file with some referenced equations, line <span
+id="eq:0">$$ this \qquad(5)$$</span>
 
-Some equations might be inside of text, $$ for example \qquad(6)$$ this
-one.
+Some equations might be inside of text, <span
+id="eq:1">$$ for example \qquad(6)$$</span> this one.
 
 Some equations might be on start of paragraphs:
 
-$$ start \qquad(7)$$ of paragraph.
+<span id="eq:2">$$ start \qquad(7)$$</span> of paragraph.
 
 Other might be on separate paragraphs of their own:
 
-$$ separate \qquad(8)$$
+<span id="eq:3">$$ separate \qquad(8)$$</span>
 
 Then they can be referenced:
 

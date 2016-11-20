@@ -12,19 +12,19 @@ $$ separate $$
 
 Some of those can be labelled:
 
-This is a test file with some referenced equations, line
-$$ this \qquad(1)$$
+This is a test file with some referenced equations, line <span
+id="eq:0">$$ this \qquad(1)$$</span>
 
-Some equations might be inside of text, $$ for example \qquad(2)$$ this
-one.
+Some equations might be inside of text, <span
+id="eq:1">$$ for example \qquad(2)$$</span> this one.
 
 Some equations might be on start of paragraphs:
 
-$$ start \qquad(3)$$ of paragraph.
+<span id="eq:2">$$ start \qquad(3)$$</span> of paragraph.
 
 Other might be on separate paragraphs of their own:
 
-$$ separate \qquad(4)$$
+<span id="eq:3">$$ separate \qquad(4)$$</span>
 
 Then they can be referenced:
 
@@ -34,7 +34,7 @@ Or in groups eqns. 1, 2, 4
 
 Groups will be compacted eqns. 1-4
 
-Unknown references will print labels eqns. **¿eq:none?**, 1, 3, 4
+Unknown references will print labels eqns. 1, 3, 4, **¿eq:none?**
 
 Reference prefix will override default prefix Equation 1, eqns. 3, 4
 
