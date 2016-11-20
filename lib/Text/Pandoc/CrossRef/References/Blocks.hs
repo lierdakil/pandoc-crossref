@@ -143,7 +143,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
         inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
         inlToCell _ = Nothing
         setW as = ("width", "100%"):filter ((/="width") . fst) as
-replaceBlock opts (Div (label,_,attrs) [Table title align widths header cells])
+replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , "tbl:" `isPrefixOf` label
   = do
@@ -153,7 +153,7 @@ replaceBlock opts (Div (label,_,attrs) [Table title align widths header cells])
               f | isFormat "latex" f ->
                 RawInline (Format "tex") (mkLaTeXLabel label) : title
               _  -> applyTemplate idxStr title $ tableTemplate opts
-    replaceNoRecurse $ Table title' align widths header cells
+    replaceNoRecurse $ Div divOps [Table title' align widths header cells]
 replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   | not $ null label
   , "lst:" `isPrefixOf` label
@@ -211,7 +211,7 @@ replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
   , tableEqns opts
   = do
     (eq', idx) <- replaceEqn opts attrs eq
-    replaceNoRecurse $ Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]
+    replaceNoRecurse $ Div attrs [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
 replaceBlock _ _ = noReplaceRecurse
 
 replaceEqn :: Options -> Attr -> String -> WS (String, String)
@@ -232,7 +232,7 @@ replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
         in replaceNoRecurse $ RawInline (Format "tex") eqn
       _ -> do
         (eq', _) <- replaceEqn opts attrs eq
-        replaceNoRecurse $ Math DisplayMath eq'
+        replaceNoRecurse $ Span attrs [Math DisplayMath eq']
 replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
   | "fig:" `isPrefixOf` label && "fig:" `isPrefixOf` tit
   = do

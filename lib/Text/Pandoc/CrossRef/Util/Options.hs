@@ -37,4 +37,5 @@ data Options = Options { cref :: Bool
                        , tableEqns :: Bool
                        , autoEqnLabels :: Bool
                        , subfigGrid :: Bool
+                       , linkReferences :: Bool
                        }

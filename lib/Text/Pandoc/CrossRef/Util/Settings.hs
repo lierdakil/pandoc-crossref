@@ -65,4 +65,5 @@ defaultMeta =
   <> tableEqns False
   <> autoEqnLabels False
   <> subfigGrid False
+  <> linkReferences False
   where var = displayMath
