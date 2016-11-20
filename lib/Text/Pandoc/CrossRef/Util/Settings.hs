@@ -48,6 +48,8 @@ defaultMeta =
   <> tblPrefixTemplate (var "p" <> str "\160" <> var "i")
   <> lstPrefixTemplate (var "p" <> str "\160" <> var "i")
   <> secPrefixTemplate (var "p" <> str "\160" <> var "i")
+  <> refIndexTemplate (var "i" <> var "suf")
+  <> subfigureRefIndexTemplate (var "i" <> var "suf" <> space <> str "(" <> var "s" <> str ")")
   <> lofTitle (header 1 $ text "List of Figures")
   <> lotTitle (header 1 $ text "List of Tables")
   <> lolTitle (header 1 $ text "List of Listings")

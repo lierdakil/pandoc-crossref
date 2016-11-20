@@ -19,6 +19,8 @@ data Options = Options { cref :: Bool
                        , tblPrefixTemplate :: Template
                        , lstPrefixTemplate :: Template
                        , secPrefixTemplate :: Template
+                       , refIndexTemplate :: Template
+                       , subfigureRefIndexTemplate :: Template
                        , chapDelim   :: [Inline]
                        , rangeDelim  :: [Inline]
                        , lofTitle    :: [Block]

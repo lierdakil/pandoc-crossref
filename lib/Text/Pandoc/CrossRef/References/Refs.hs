@@ -147,44 +147,70 @@ replaceRefsOther' prefix opts cits = do
                 = ((citationPrefix (head cits) ++ [Space]) ++)
   return $ normalizeInlines $ writePrefix (makeIndices opts indices)
 
-getRefIndex :: String -> Options -> Citation -> WS ((String, Maybe Index), [Inline])
-getRefIndex prefix opts Citation{citationId=cid,citationSuffix=suf}
+data RefData = RefData { rdLabel :: String
+                       , rdIdx :: Maybe Index
+                       , rdSubfig :: Maybe Index
+                       , rdSuffix :: [Inline]
+                       } deriving (Eq)
+
+instance Ord RefData where
+  (<=) = (<=) `on` rdIdx
+
+getRefIndex :: String -> Options -> Citation -> WS RefData
+getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
   = do
     ref <- M.lookup lab <$> get prop
     let sub = refSubfigure <$> ref
         idx = refIndex <$> ref
-        suf' | Just (Just sub') <- sub =
-                    suf
-                ++  [Space, Str "("]
-                ++  makeIndices opts [((lab, Just sub'),[])]
-                ++  [Str ")"]
-             | otherwise = suf
-    return ((lab, idx),suf')
+    return RefData
+      { rdLabel = lab
+      , rdIdx = idx
+      , rdSubfig = join sub
+      , rdSuffix = suf
+      }
   where
   prop = lookupUnsafe prefix accMap
   lab = prefix ++ getLabelWithoutPrefix cid
 
-makeIndices :: Options -> [((String, Maybe Index), [Inline])] -> [Inline]
+makeIndices :: Options -> [RefData] -> [Inline]
 makeIndices o s = intercalate sep $ map f $ HT.groupBy g $ sort $ nub s
   where
-  g :: ((String, Maybe Index), [Inline]) -> ((String, Maybe Index), [Inline]) -> Bool
-  g a b = all (null . snd) [a, b] &&
-          fromMaybe False ((liftM2 follows `on` snd . fst) b a)
+  g :: RefData -> RefData -> Bool
+  g a b = all (null . rdSuffix) [a, b] && (
+            all (isNothing . rdSubfig) [a, b] &&
+            fromMaybe False ((liftM2 follows `on` rdIdx) b a) ||
+            rdIdx a == rdIdx b &&
+            fromMaybe False ((liftM2 follows `on` rdSubfig) b a)
+          )
   follows :: Index -> Index -> Bool
   follows a b
     | Just (ai, al) <- HT.viewR a
     , Just (bi, bl) <- HT.viewR b
     = ai == bi && A.first (+1) bl == al
   follows _ _ = False
-  f :: [((String, Maybe Index), [Inline])] -> [Inline]
+  f :: [RefData] -> [Inline]
   f []  = []                          -- drop empty lists
   f [w] = show' w                    -- single value
   f [w1,w2] = show' w1 ++ sep ++ show' w2 -- two values
   f (x:xs) = show' x ++ rangeDelim o ++ show' (last xs) -- shorten more than two values
   sep = [Str ",", Space]
-  show' :: ((String, Maybe Index), [Inline]) -> [Inline]
-  show' ((l, Just i),suf)
+  show' :: RefData -> [Inline]
+  show' RefData{rdLabel=l, rdIdx=Just i, rdSubfig = sub, rdSuffix = suf}
     | linkReferences o = [Link nullAttr txt ('#':l,[])]
     | otherwise = txt
-    where txt = chapPrefix (chapDelim o) i ++ suf
-  show' ((l, Nothing),suf) = Strong [Str $ "¿" ++ l ++ "?"] : suf
+    where
+      txt
+        | Just sub' <- sub
+        = let vars = M.fromDistinctAscList
+                      [ ("i", chapPrefix (chapDelim o) i)
+                      , ("s", chapPrefix (chapDelim o) sub')
+                      , ("suf", suf)
+                      ]
+          in applyTemplate' vars $ subfigureRefIndexTemplate o
+        | otherwise
+        = let vars = M.fromDistinctAscList
+                      [ ("i", chapPrefix (chapDelim o) i)
+                      , ("suf", suf)
+                      ]
+          in applyTemplate' vars $ refIndexTemplate o
+  show' RefData{rdLabel=l, rdIdx=Nothing, rdSuffix = suf} = Strong [Str $ "¿" ++ l ++ "?"] : suf
