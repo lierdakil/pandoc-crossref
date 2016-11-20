@@ -34,8 +34,11 @@ Or in groups eqns. 1, 2, 4
 
 Groups will be compacted eqns. 1-4
 
-Unknown references will print labels eqns. 1, 3, 4, **¿eq:none?**
+Unknown references will print labels eqns. **¿eq:none?**, 1, 3, 4
 
 Reference prefix will override default prefix Equation 1, eqns. 3, 4
 
 References with `-` prepended won't have prefix at all: 1, 2, eqns. 3, 4
+
+References with suffix will have suffix printed after index
+(configurable): eqns. 1, 2 suffix, 3

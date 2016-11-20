@@ -38,3 +38,6 @@ Reference prefix will override default prefix [Equation @eq:0; @eq:3; @eq:2]
 
 References with `-` prepended won't have prefix at all:
 [-@eq:0; -@eq:1; @eq:2; @eq:3]
+
+References with suffix will have suffix printed after index (configurable):
+[@eq:0; @eq:1 suffix; @eq:2]
