@@ -32,7 +32,7 @@ main = hspec $ do
     describe "References.Blocks.replaceInlines" $ do
       it "Labels equations" $
         testAll (equation' "a^2+b^2=c^2" "equation")
-        (equation' "a^2+b^2=c^2\\qquad(1)" [],
+        (spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the middle of text" $
         testAll (
@@ -41,7 +41,7 @@ main = hspec $ do
              <> text " it should be labeled")
         (
            text "This is an equation: "
-        <> equation' "a^2+b^2=c^2\\qquad(1)" []
+        <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the beginning of text" $
@@ -49,7 +49,7 @@ main = hspec $ do
                 equation' "a^2+b^2=c^2" "equation"
              <> text " it should be labeled")
         (
-           equation' "a^2+b^2=c^2\\qquad(1)" []
+           spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the end of text" $
@@ -58,7 +58,7 @@ main = hspec $ do
              <> equation' "a^2+b^2=c^2" "equation")
         (
            text "This is an equation: "
-        <> equation' "a^2+b^2=c^2\\qquad(1)" [],
+        <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
 
     -- TODO:
@@ -122,7 +122,7 @@ main = hspec $ do
             )
       it "Labels equations" $
         testAll (equation "a^2+b^2=c^2" "equation")
-        (equation "a^2+b^2=c^2\\qquad(1)" [],
+        (para $ spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the middle of text" $
         testAll (para $
@@ -131,7 +131,7 @@ main = hspec $ do
              <> text " it should be labeled")
         (para $
            text "This is an equation: "
-        <> equation' "a^2+b^2=c^2\\qquad(1)" []
+        <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the beginning of text" $
@@ -139,7 +139,7 @@ main = hspec $ do
                 equation' "a^2+b^2=c^2" "equation"
              <> text " it should be labeled")
         (para $
-           equation' "a^2+b^2=c^2\\qquad(1)" []
+           spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the end of text" $
@@ -148,11 +148,11 @@ main = hspec $ do
              <> equation' "a^2+b^2=c^2" "equation")
         (para $
            text "This is an equation: "
-        <> equation' "a^2+b^2=c^2\\qquad(1)" [],
+        <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
           eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels tables" $
         testAll (table' "Test table" "table")
-        (table' "Table 1: Test table" [],
+        (divWith ("tbl:table", [], []) $ table' "Table 1: Test table" [],
           tblRefs =: M.fromList $ refRec' "tbl:table" 1 "Test table")
       it "Labels code blocks" $
         testAll (codeBlock' "Test code block" "codeblock")
@@ -295,7 +295,7 @@ main = hspec $ do
         it "Tbl labels" $
           table' "A table" "some_table1"
             <> para (citeGen "tbl:some_table" [1])
-            `test` "\\begin{longtable}[]{@{}@{}}\n\\caption{\\label{tbl:some_table1}A table }\\tabularnewline\n\\toprule\n\\tabularnewline\n\\midrule\n\\endfirsthead\n\\toprule\n\\tabularnewline\n\\midrule\n\\endhead\n\\tabularnewline\n\\bottomrule\n\\end{longtable}\n\ntbl.~\\ref{tbl:some_table1}"
+            `test` "\\hypertarget{tbl:some_table1}{}\n\\begin{longtable}[]{@{}@{}}\n\\caption{\\label{tbl:some_table1}A table }\\tabularnewline\n\\toprule\n\\tabularnewline\n\\midrule\n\\endfirsthead\n\\toprule\n\\tabularnewline\n\\midrule\n\\endhead\n\\tabularnewline\n\\bottomrule\n\\end{longtable}\n\ntbl.~\\ref{tbl:some_table1}"
 
         it "Code block labels" $ do
           codeBlock' "A code block" "some_codeblock1"
