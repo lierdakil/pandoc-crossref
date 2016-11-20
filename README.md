@@ -1,4 +1,4 @@
-# pandoc-crossref filter [![Build Status](https://travis-ci.org/lierdakil/pandoc-crossref.svg?branch=master)](https://travis-ci.org/lierdakil/pandoc-crossref)
+# pandoc-crossref filter [![Build Status](https://travis-ci.org/lierdakil/pandoc-crossref.svg?branch=master)](https://travis-ci.org/lierdakil/pandoc-crossref) [![Build status](https://ci.appveyor.com/api/projects/status/v04mfbglpcdqfln4/branch/master?svg=true)](https://ci.appveyor.com/project/lierdakil/pandoc-crossref/branch/master)
 
 pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 
