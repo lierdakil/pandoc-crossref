@@ -4,3 +4,4 @@
 dist
 cabal.sandbox.config
 mkcheck.sh
+mkinttest.sh
