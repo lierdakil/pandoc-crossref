@@ -22,11 +22,11 @@ m2m dir
     let actual_md = writeMarkdown def $ runCrossRef meta (Just $ Format "markdown") defaultCrossRefAction p
         actual_tex = writeLaTeX def $ runCrossRef meta (Just $ Format "latex") defaultCrossRefAction p
     it "Markdown" $ do
-      length (lines' actual_md) `shouldBe` length (lines' expect_md)
       zipWithM_ shouldBe (lines' actual_md) (lines' expect_md)
+      length (lines' actual_md) `shouldBe` length (lines' expect_md)
     it "LaTeX" $ do
-      length (lines' actual_tex) `shouldBe` length (lines' expect_tex)
       zipWithM_ shouldBe (lines' actual_tex) (lines' expect_tex)
+      length (lines' actual_tex) `shouldBe` length (lines' expect_tex)
 
 main :: IO ()
 main = do
