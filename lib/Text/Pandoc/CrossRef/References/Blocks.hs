@@ -112,8 +112,8 @@ replaceBlock opts (Div (label,cls,attrs) images)
               }
     toTable :: [Block] -> [Inline] -> [Block]
     toTable blks capt
-      | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, Para capt]
-      | otherwise = blks ++ [Para capt]
+      | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, mkCaption opts "Image Caption" capt]
+      | otherwise = blks ++ [mkCaption opts "Image Caption" capt]
       where
         align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
               | otherwise = error "Misformatted subfigures block"
@@ -175,7 +175,7 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) cap lstRefs
         let caption' = applyTemplate idxStr cap $ listingTemplate opts
         replaceNoRecurse $ Div (label, "listing":classes, []) [
-            Para caption'
+            mkCaption opts "Caption" caption'
           , CodeBlock ([], classes, attrs \\ [("caption", caption)]) code
           ]
 replaceBlock opts
@@ -203,7 +203,7 @@ replaceBlock opts
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption lstRefs
         let caption' = applyTemplate idxStr caption $ listingTemplate opts
         replaceNoRecurse $ Div (label, "listing":classes, []) [
-            Para caption'
+            mkCaption opts "Caption" caption'
           , CodeBlock ([], classes, attrs) code
           ]
 replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
@@ -338,3 +338,8 @@ latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
       , [Span nullAttr $ img:texlabel]
       ]
 latexSubFigure x _ = [x]
+
+mkCaption :: Options -> String -> [Inline] -> Block
+mkCaption opts style
+  | outFormat opts == Just (Format "docx") = Div ([], [], [("custom-style", style)]) . return . Para
+  | otherwise = Para
