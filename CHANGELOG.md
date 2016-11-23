@@ -1,3 +1,6 @@
+## 0.2.4.1
+* Force caption style in docx output (#87)
+
 ## 0.2.4.0
 * Index templates
 * Link cross-references
