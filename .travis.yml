@@ -1,54 +1,60 @@
 language: c
 sudo: false
 
-# Caching so the next build will be fast too.
 cache:
   apt: true
   directories:
   - $HOME/.stack
   - $TRAVIS_BUILD_DIR/.stack-work/install
 
+addons:
+  apt:
+    packages:
+    - libgmp-dev
+
 matrix:
   include:
-  - env: GHCVER=7.10.3 STACK_YAML=stack.yaml GHCOPTS=-Werror
-    compiler: ': #GHC 7.10.3 Pandoc 1.17'
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-7.10.3
-  - env: GHCVER=8.0.1 STACK_YAML=stack-ghc8.yaml GHCOPTS=-Werror
-    compiler: ': #GHC 8.0.1 Pandoc 1.17'
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.0.1
-  - env: GHCVER=7.10.3 STACK_YAML=stack-pandoc118.yaml GHCOPTS=-Werror
-    compiler: ': #GHC 7.10.3 Pandoc 1.18'
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-7.10.3
-  - env: GHCVER=8.0.1 STACK_YAML=stack-ghc8-pandoc118.yaml GHCOPTS=-Werror
-    compiler: ': #GHC 8.0.1 Pandoc 1.18'
-    addons:
-      apt:
-        sources:
-        - hvr-ghc
-        packages:
-        - ghc-8.0.1
+  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc7-pandoc-1-17
+    compiler: ": #GHC 7.10.3 Pandoc 1.17"
+  - env: STACK_YAML=stack-ghc8.yaml RELEASE_FN=ghc8-pandoc-1-17
+    compiler: ": #GHC 8.0.1 Pandoc 1.17"
+  - env: STACK_YAML=stack-pandoc118.yaml RELEASE_FN=ghc7-pandoc-1-18
+    compiler: ": #GHC 7.10.3 Pandoc 1.18"
+  - env: STACK_YAML=stack-ghc8-pandoc118.yaml RELEASE_FN=ghc8-pandoc-1-18
+    compiler: ": #GHC 8.0.1 Pandoc 1.18"
+  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc7-pandoc-1-17
+    compiler: ": #GHC 7.10.3 Pandoc 1.17"
+    os: osx
+  - env: STACK_YAML=stack-ghc8.yaml RELEASE_FN=ghc8-pandoc-1-17
+    compiler: ": #GHC 8.0.1 Pandoc 1.17"
+    os: osx
+  - env: STACK_YAML=stack-pandoc118.yaml RELEASE_FN=ghc7-pandoc-1-18
+    compiler: ": #GHC 7.10.3 Pandoc 1.18"
+    os: osx
+  - env: STACK_YAML=stack-ghc8-pandoc118.yaml RELEASE_FN=ghc8-pandoc-1-18
+    compiler: ": #GHC 8.0.1 Pandoc 1.18"
+    os: osx
 
 before_install:
 - unset CC
-# Download and unpack the stack executable
 - export PATH=/opt/ghc/$GHCVER/bin:$PATH
 - mkdir -p ~/.local/bin
 - export PATH=$HOME/.local/bin:$PATH
-- travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then STACK_OS=osx-x86_64 ; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then STACK_OS=linux-x86_64 ; fi
+- travis_retry curl -L https://www.stackage.org/stack/$STACK_OS | tar xz --strip-components=1 -C ~/.local/bin
+- stack --no-terminal setup
 script:
-  - stack --no-terminal --skip-ghc-check test
+- stack --no-terminal test
+deploy:
+  provider: releases
+  api_key:
+    secure: HgG0wburBoUnULjqK3I86k9ZNVLks4/WXPicd7rn2z8HbFpFv/QVN6882hYbsWQd3xhe+Q+hTfXMSL2lbZpiEKAB3UgQclJMP84A42DyvS6RE5a+kwl/wVVNXQh4sNlzuApTSzjYZZkYvroyakqsucCRg7u56eN4NM2VvrDUuJw=
+  file: "$TRAVIS_BUILD_DIR/${TRAVIS_OS_NAME}-${RELEASE_FN}.tar.gz"
+  skip_cleanup: true
+  overwrite: true
+  on:
+    tags: true
+before_deploy:
+- stack --no-terminal install
+- tar czf "$TRAVIS_BUILD_DIR/${TRAVIS_OS_NAME}-${RELEASE_FN}.tar.gz" -C "$HOME/.local/bin/" "./pandoc-crossref"

@@ -9,16 +9,16 @@ environment:
     STACK_ROOT: "c:\\sr"
   matrix:
     - STACK_YAML: "stack.yaml"
-      PANDOCVER: "1.17"
+      PANDOCVER: "1-17"
       GHCVER: "7"
     - STACK_YAML: "stack-ghc8.yaml"
-      PANDOCVER: "1.17"
+      PANDOCVER: "1-17"
       GHCVER: "8"
     - STACK_YAML: "stack-pandoc118.yaml"
-      PANDOCVER: "1.18"
+      PANDOCVER: "1-18"
       GHCVER: "7"
     - STACK_YAML: "stack-ghc8-pandoc118.yaml"
-      PANDOCVER: "1.18"
+      PANDOCVER: "1-18"
       GHCVER: "8"
 
 before_build:
@@ -33,7 +33,7 @@ after_build:
   - ps: 7z a "pandoc-crossref-$env:PANDOCVER-ghc$env:GHCVER.zip" "$(.\\stack.exe path --local-install-root)\\bin\\pandoc-crossref.exe"
 
 artifacts:
-  - path: pandoc-crossref-$(PANDOCVER)-ghc$(GHCVER).zip
+  - path: windows-ghc$(GHCVER)-pandoc$(PANDOCVER).zip
     name: exe
 
 test_script:
