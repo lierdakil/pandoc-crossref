@@ -98,7 +98,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
     case outFormat opts of
           f | isFormat "latex" f ->
             replaceNoRecurse $ Div nullAttr $
-              [ RawBlock (Format "tex") "\\begin{figure}" ]
+              [ RawBlock (Format "tex") "\\begin{figure}\n\\centering" ]
               ++ cont ++
               [ Para [RawInline (Format "tex") "\\caption"
                        , Span nullAttr caption]
