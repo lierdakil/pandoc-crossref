@@ -1,7 +1,7 @@
 #!/bin/bash
 
 stack --no-terminal setup --resolver=ghc-$GHCVER
-stack --no-terminal install cabal-install --resolver=nightly --compiler=ghc-$GHCVER
+stack --no-terminal install cabal-install --resolver=lts --compiler=ghc-$GHCVER
 
 resf="ghc-$GHCVER.yaml"
 echo "resolver: ghc-$GHCVER" > "$resf"
