@@ -1,0 +1,19 @@
+stages:
+  - build
+
+.job_template: &common_script
+  script:
+    - echo $PWD
+    - ghc-pkg list
+    - stack build
+    - stack test
+
+job-ghc801:
+  image: haskell:8.0.1
+  stage: build
+  <<: *common_script
+
+job-ghc710:
+  image: haskell:7.10.3
+  stage: build
+  <<: *common_script
