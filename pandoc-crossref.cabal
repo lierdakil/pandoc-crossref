@@ -62,7 +62,7 @@ library
                        Text.Pandoc.CrossRef.Util.Gap
                        Text.Pandoc.CrossRef.Util.PandocOrphans
   build-depends:       base >=4.8 && <5
-                     , pandoc >= 1.17.1 && <1.19
+                     , pandoc >= 1.17.1 && <1.20
                      , pandoc-types >= 1.16 && < 1.18
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
