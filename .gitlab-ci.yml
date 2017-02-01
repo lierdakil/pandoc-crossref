@@ -3,17 +3,33 @@ stages:
 
 .job_template: &common_script
   script:
-    - echo $PWD
-    - ghc-pkg list
     - stack build
     - stack test
 
-job-ghc801:
+job-ghc801-pandoc117:
   image: haskell:8.0.1
   stage: build
+  variables:
+    STACK_YAML: stack-ghc8-pandoc117.yaml
   <<: *common_script
 
-job-ghc710:
+job-ghc801-pandoc118:
+  image: haskell:8.0.1
+  stage: build
+  variables:
+    STACK_YAML: stack-ghc8-pandoc118.yaml
+  <<: *common_script
+
+job-ghc710-pandoc117:
   image: haskell:7.10.3
   stage: build
+  variables:
+    STACK_YAML: stack-ghc7-pandoc117.yaml
+  <<: *common_script
+
+job-ghc710-pandoc118:
+  image: haskell:7.10.3
+  stage: build
+  variables:
+    STACK_YAML: stack-ghc7-pandoc118.yaml
   <<: *common_script
