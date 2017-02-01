@@ -11,8 +11,8 @@ stages:
 
 .job_template: &common_script
   script:
-    - stack build
-    - stack test
+    - stack build --system-ghc
+    - stack test --system-ghc
 
 job-ghc801-pandoc117:
   image: haskell:8.0.1
