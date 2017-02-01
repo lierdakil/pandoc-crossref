@@ -1,3 +1,7 @@
+## 0.2.4.2
+* Trim down dependencies
+* Center subfigures in LaTeX output
+
 ## 0.2.4.1
 * Force caption style in docx output (#87)
 
