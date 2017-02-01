@@ -49,7 +49,8 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then STACK_OS=osx-x86_64 ; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then STACK_OS=linux-x86_64 ; fi
 - travis_retry curl -L https://www.stackage.org/stack/$STACK_OS | tar xz --strip-components=1 -C ~/.local/bin
-- [[ "$GHCVER" == "" ]] && stack --no-terminal setup || ./stack-current.sh
+- |
+  [[ "$GHCVER" == "" ]] && stack --no-terminal setup || ./stack-current.sh
 script:
 - stack --no-terminal test
 deploy:
@@ -61,7 +62,8 @@ deploy:
   overwrite: true
   on:
     tags: true
-    condition: '"$GHCVER" == ""'
+    condition: |
+      "$GHCVER" == ""
 before_deploy:
 - stack --no-terminal install
 - tar czf "$TRAVIS_BUILD_DIR/${TRAVIS_OS_NAME}-${RELEASE_FN}.tar.gz" -C "$HOME/.local/bin/" "./pandoc-crossref"
