@@ -63,12 +63,10 @@ library
                        Text.Pandoc.CrossRef.Util.PandocOrphans
   build-depends:       base >=4.8 && <5
                      , pandoc >= 1.17.1 && <1.19
+                     , pandoc-types >= 1.16 && < 1.18
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
-                     , pandoc-types >= 1.16 && < 1.18
-                     , yaml >= 0.8 && <0.9
                      , data-default >= 0.4 && <0.8
-                     , bytestring >=0.9 && <0.11
                      , data-accessor >= 0.2.2.6 && < 0.3.0.0
                      , data-accessor-template >= 0.2.1.12 && < 0.3.0.0
                      , data-accessor-transformers >= 0.2.1.6 && < 0.3.0.0
@@ -87,14 +85,9 @@ library
 executable pandoc-crossref
   main-is:             pandoc-crossref.hs
   build-depends:       base >=4.8 && <5
-                     , pandoc >= 1.17.1 && <1.19
-                     , mtl >= 1.1 && <2.3
-                     , containers >= 0.1 && <0.6
-                     , pandoc-types >= 1.16 && < 1.18
-                     , yaml >= 0.8 && <0.9
-                     , data-default >= 0.4 && <0.8
-                     , bytestring >=0.9 && <0.11
                      , pandoc-crossref
+                     , pandoc
+                     , pandoc-types
   hs-source-dirs:      src
   Ghc-Options:         -Wall
   default-language:    Haskell2010
@@ -108,23 +101,20 @@ Test-Suite test-pandoc-crossref
   else
     hs-source-dirs:      ghc-7
   Build-Depends:   base >=4.8 && <5
-                 , pandoc >= 1.17.1 && <1.19
-                 , mtl >= 1.1 && <2.3
-                 , containers >= 0.1 && <0.6
-                 , pandoc-types >= 1.16 && < 1.18
-                 , yaml >= 0.8 && <0.9
-                 , data-default >= 0.4 && <0.8
-                 , bytestring >=0.9 && <0.11
-                 , hspec
-                 , process >=1 && <1.5
-                 , data-accessor >= 0.2.2.6 && < 0.3.0.0
-                 , data-accessor-template >= 0.2.1.12 && < 0.3.0.0
-                 , data-accessor-transformers >= 0.2.1.6 && < 0.3.0.0
-                 , template-haskell >= 2.7.0.0 && < 3.0.0.0
-                 , roman-numerals == 0.5.*
-                 , syb >= 0.4 && < 0.7
                  , pandoc-crossref
-                 , utility-ht >= 0.0.11 && < 0.1.0
+                 , hspec
+                 , pandoc
+                 , pandoc-types
+                 , mtl
+                 , containers
+                 , data-default
+                 , data-accessor-template
+                 , syb
+                 , roman-numerals
+                 , template-haskell
+                 , utility-ht
+                 , data-accessor
+                 , data-accessor-transformers
   other-modules:
                 Native
                 Paths_pandoc_crossref
