@@ -61,7 +61,7 @@ deploy:
   overwrite: true
   on:
     tags: true
-    condition: "$GHCVER" == ""
+    condition: '"$GHCVER" == ""'
 before_deploy:
 - stack --no-terminal install
 - tar czf "$TRAVIS_BUILD_DIR/${TRAVIS_OS_NAME}-${RELEASE_FN}.tar.gz" -C "$HOME/.local/bin/" "./pandoc-crossref"
