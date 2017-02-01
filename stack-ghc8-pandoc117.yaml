@@ -7,6 +7,9 @@ extra-deps:
 - data-accessor-transformers-0.2.1.7
 - roman-numerals-0.5.1.5
 - pandoc-1.17.2
+- doctemplates-0.1.0.2
+- pandoc-types-1.16.1.1
+- texmath-0.8.6.7
 - http-client-tls-0.3.3
 - http-client-0.5.3.3
 resolver: lts-7.18
