@@ -8,10 +8,10 @@ environment:
   global:
     STACK_ROOT: "c:\\sr"
   matrix:
-    - STACK_YAML: "stack-ghc7.yaml"
+    - STACK_YAML: "stack-ghc7-pandoc117.yaml"
       PANDOCVER: "1-17"
       GHCVER: "7"
-    - STACK_YAML: "stack-ghc8.yaml"
+    - STACK_YAML: "stack-ghc8-pandoc117.yaml"
       PANDOCVER: "1-17"
       GHCVER: "8"
     - STACK_YAML: "stack-ghc7-pandoc118.yaml"
