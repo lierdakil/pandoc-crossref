@@ -34,6 +34,12 @@ matrix:
   - env: STACK_YAML=stack-ghc8-pandoc118.yaml RELEASE_FN=ghc8-pandoc-1-18
     compiler: ": #GHC 8.0.1 Pandoc 1.18"
     os: osx
+  - env: GHCVER=7.10.3
+    compiler: ": #GHC 7.10.3 Current Hackage"
+    os: linux
+  - env: GHCVER=8.0.2
+    compiler: ": #GHC 8.0.2 Current Hackage"
+    os: linux
 
 before_install:
 - unset CC
@@ -43,7 +49,7 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then STACK_OS=osx-x86_64 ; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then STACK_OS=linux-x86_64 ; fi
 - travis_retry curl -L https://www.stackage.org/stack/$STACK_OS | tar xz --strip-components=1 -C ~/.local/bin
-- stack --no-terminal setup
+- [[ "$GHCVER" == "" ]] && stack --no-terminal setup || ./stack-current.sh
 script:
 - stack --no-terminal test
 deploy:
@@ -55,6 +61,7 @@ deploy:
   overwrite: true
   on:
     tags: true
+    condition: "$GHCVER" == ""
 before_deploy:
 - stack --no-terminal install
 - tar czf "$TRAVIS_BUILD_DIR/${TRAVIS_OS_NAME}-${RELEASE_FN}.tar.gz" -C "$HOME/.local/bin/" "./pandoc-crossref"
