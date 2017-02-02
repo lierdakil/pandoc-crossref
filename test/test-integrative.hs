@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 import Test.Hspec
 import Text.Pandoc
 import Text.Pandoc.CrossRef
@@ -16,7 +17,11 @@ m2m dir
   | otherwise =
   describe dir $ do
     input <- runIO $ readFile ("test" </> "m2m" </> dir </> "input.md")
+#if MIN_VERSION_pandoc(1,19,0)
+    expect_md <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect-1.19.md")
+#else
     expect_md <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect.md")
+#endif
     expect_tex <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect.tex")
     p@(Pandoc meta _) <- either (fail . show) return $ readMarkdown def input
     let actual_md = writeMarkdown def $ runCrossRef meta (Just $ Format "markdown") defaultCrossRefAction p
