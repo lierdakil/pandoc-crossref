@@ -5,6 +5,7 @@ cache:
   paths:
   - .stack/
   - .stack-work/
+  - .cabal-sandbox/
 
 stages:
   - build
@@ -13,6 +14,14 @@ stages:
   script:
     - stack build --system-ghc
     - stack test --system-ghc
+
+.job_template_cabal: &cabal_script
+  script:
+    - cabal update
+    - cabal sandbox init
+    - cabal configure --enable-tests
+    - cabal build
+    - cabal test
 
 job-ghc801-pandoc117:
   image: haskell:8.0.1
@@ -41,3 +50,13 @@ job-ghc710-pandoc118:
   variables:
     STACK_YAML: stack-ghc7-pandoc118.yaml
   <<: *common_script
+
+job-hackage-ghc710:
+  image: haskell:7.10.3
+  stage: build
+  <<: *cabal_script
+
+job-hackage-ghc801:
+  image: haskell:8.0.1
+  stage: build
+  <<: *cabal_script
