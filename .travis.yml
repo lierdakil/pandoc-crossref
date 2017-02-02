@@ -14,25 +14,38 @@ addons:
 
 matrix:
   include:
+  # Pandoc 1.17
   - env: STACK_YAML=stack-ghc7-pandoc117.yaml RELEASE_FN=ghc7-pandoc-1-17
     compiler: ": #GHC 7.10.3 Pandoc 1.17"
   - env: STACK_YAML=stack-ghc8-pandoc117.yaml RELEASE_FN=ghc8-pandoc-1-17
     compiler: ": #GHC 8.0.1 Pandoc 1.17"
-  - env: STACK_YAML=stack-ghc7-pandoc118.yaml RELEASE_FN=ghc7-pandoc-1-18
-    compiler: ": #GHC 7.10.3 Pandoc 1.18"
-  - env: STACK_YAML=stack-ghc8-pandoc118.yaml RELEASE_FN=ghc8-pandoc-1-18
-    compiler: ": #GHC 8.0.1 Pandoc 1.18"
   - env: STACK_YAML=stack-ghc7.yaml RELEASE_FN=ghc7-pandoc-1-17
     compiler: ": #GHC 7.10.3 Pandoc 1.17"
     os: osx
   - env: STACK_YAML=stack-ghc8.yaml RELEASE_FN=ghc8-pandoc-1-17
     compiler: ": #GHC 8.0.1 Pandoc 1.17"
     os: osx
+  # Pandoc 1.18
+  - env: STACK_YAML=stack-ghc7-pandoc118.yaml RELEASE_FN=ghc7-pandoc-1-18
+    compiler: ": #GHC 7.10.3 Pandoc 1.18"
+  - env: STACK_YAML=stack-ghc8-pandoc118.yaml RELEASE_FN=ghc8-pandoc-1-18
+    compiler: ": #GHC 8.0.1 Pandoc 1.18"
   - env: STACK_YAML=stack-ghc7-pandoc118.yaml RELEASE_FN=ghc7-pandoc-1-18
     compiler: ": #GHC 7.10.3 Pandoc 1.18"
     os: osx
   - env: STACK_YAML=stack-ghc8-pandoc118.yaml RELEASE_FN=ghc8-pandoc-1-18
     compiler: ": #GHC 8.0.1 Pandoc 1.18"
+    os: osx
+  # Pandoc 1.19
+  - env: STACK_YAML=stack-ghc7-pandoc119.yaml RELEASE_FN=ghc7-pandoc-1-19
+    compiler: ": #GHC 7.10.3 Pandoc 1.19"
+  - env: STACK_YAML=stack-ghc8-pandoc119.yaml RELEASE_FN=ghc8-pandoc-1-19
+    compiler: ": #GHC 8.0.1 Pandoc 1.19"
+  - env: STACK_YAML=stack-ghc7-pandoc119.yaml RELEASE_FN=ghc7-pandoc-1-19
+    compiler: ": #GHC 7.10.3 Pandoc 1.19"
+    os: osx
+  - env: STACK_YAML=stack-ghc8-pandoc119.yaml RELEASE_FN=ghc8-pandoc-1-19
+    compiler: ": #GHC 8.0.1 Pandoc 1.19"
     os: osx
 
 before_install:

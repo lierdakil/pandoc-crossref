@@ -31,13 +31,6 @@ job-ghc801-pandoc117:
     STACK_YAML: stack-ghc8-pandoc117.yaml
   <<: *common_script
 
-job-ghc801-pandoc118:
-  image: haskell:8.0.1
-  stage: build
-  variables:
-    STACK_YAML: stack-ghc8-pandoc118.yaml
-  <<: *common_script
-
 job-ghc710-pandoc117:
   image: haskell:7.10.3
   stage: build
@@ -45,11 +38,32 @@ job-ghc710-pandoc117:
     STACK_YAML: stack-ghc7-pandoc117.yaml
   <<: *common_script
 
+job-ghc801-pandoc118:
+  image: haskell:8.0.1
+  stage: build
+  variables:
+    STACK_YAML: stack-ghc8-pandoc118.yaml
+  <<: *common_script
+
 job-ghc710-pandoc118:
   image: haskell:7.10.3
   stage: build
   variables:
     STACK_YAML: stack-ghc7-pandoc118.yaml
+  <<: *common_script
+
+job-ghc801-pandoc119:
+  image: haskell:8.0.1
+  stage: build
+  variables:
+    STACK_YAML: stack-ghc8-pandoc119.yaml
+  <<: *common_script
+
+job-ghc710-pandoc119:
+  image: haskell:7.10.3
+  stage: build
+  variables:
+    STACK_YAML: stack-ghc7-pandoc119.yaml
   <<: *common_script
 
 job-hackage-ghc710:
