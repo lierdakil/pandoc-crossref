@@ -19,6 +19,7 @@ stages:
   script:
     - cabal update
     - cabal sandbox init
+    - cabal install --only-depencencies --enable-tests
     - cabal configure --enable-tests
     - cabal build
     - cabal test
