@@ -2,6 +2,7 @@ variables:
   STACK_ROOT: $CI_PROJECT_DIR/.stack
 
 cache:
+  key: "$CI_BUILD_NAME/$CI_BUILD_REF_NAME"
   paths:
   - .stack/
   - .stack-work/
