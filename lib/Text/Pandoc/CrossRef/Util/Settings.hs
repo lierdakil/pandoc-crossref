@@ -10,21 +10,25 @@ import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.PandocOrphans()
 import System.Directory
 import System.FilePath
-import Data.Maybe
 
 getSettings :: Maybe Format -> Meta -> IO Meta
 getSettings fmt meta = do
-  let handler :: IOException -> IO String
-      handler _ = return []
-  yaml <- handle handler $ readFile (getMetaString "crossrefYaml" (meta <> defaultMeta))
+  dirConfig <- readConfig (getMetaString "crossrefYaml" (meta <> defaultMeta))
   home <- getHomeDirectory
-  global_yaml <- handle handler $ readFile (home </> ".pandoc-crossref" </> "config.yaml")
-  let Format fmtstr = fromMaybe (Format []) fmt
-  format_yaml <- handle handler $ readFile (home </> ".pandoc-crossref" </> "config-" ++ fmtstr ++ ".yaml")
-  let Pandoc dirConfig _ = readMarkdown def ("---\n" ++ yaml ++ "\n---")
-      Pandoc formatConfig _ = readMarkdown def ("---\n" ++ format_yaml ++ "\n---")
-      Pandoc globalConfig _ = readMarkdown def ("---\n" ++ global_yaml ++ "\n---")
+  globalConfig <- readConfig (home </> ".pandoc-crossref" </> "config.yaml")
+  formatConfig <- maybe (return nullMeta) (readFmtConfig home) fmt
   return $ meta <> dirConfig <> formatConfig <> globalConfig <> defaultMeta
+  where
+    readConfig path =
+      handle handler $ do
+        yaml <- readFile path
+        let Pandoc meta' _ = readMarkdown def ("---\n" ++ yaml ++ "\n---")
+        return meta'
+    readFmtConfig home fmt' = readConfig (home </> ".pandoc-crossref" </> "config-" ++ fmtStr fmt' ++ ".yaml")
+    handler :: IOException -> IO Meta
+    handler _ = return nullMeta
+    fmtStr (Format fmtstr) = fmtstr
+
 
 defaultMeta :: Meta
 defaultMeta =

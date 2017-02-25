@@ -541,6 +541,13 @@ One could use this with pandoc-crossref as follows:
 
 You can also use global configuration files, which are expected in `$HOME/.pandoc-crossref/config.yaml` and `$HOME/.pandoc-crossref/config-$FORMAT.yaml`, where `$FORMAT` is output format, f.ex. `latex` or `epub`. On Windows, `$HOME` in general resolves to user's root directory, e.g. `C:\Users\username\`.
 
+Priorities are as follows (from highest to lowest):
+
+- document metadata
+- `crossrefYaml`/`$CWD/pandoc-crossref.yaml`
+- `$HOME/.pandoc-crossref/config-$FORMAT.yaml`
+- `$HOME/.pandoc-crossref/config.yaml`
+
 # License
 
 This software is licensed under GNU GPL 2. See [LICENSE.md](https://github.com/lierdakil/pandoc-crossref/blob/master/LICENSE.md) for details.
