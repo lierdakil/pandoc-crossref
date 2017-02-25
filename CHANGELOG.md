@@ -1,3 +1,8 @@
+## 0.2.5.0
+* Global settings file support
+* pandoc 1.19 support and binaries
+* Better naming for `stack.yaml`s
+
 ## 0.2.4.2
 * Trim down dependencies
 * Center subfigures in LaTeX output
