@@ -133,7 +133,7 @@ This function will attempt to read pandoc-crossref settings from settings
 file specified by crossrefYaml metadata field. -}
 runCrossRefIO :: forall a b. Meta -> Maybe Format -> (a -> CrossRefM b) -> a -> IO b
 runCrossRefIO meta fmt action arg = do
-  settings <- getSettings meta
+  settings <- getSettings fmt meta
   let
     env = CrossRefEnv {
             creSettings = settings

@@ -8,14 +8,23 @@ import Control.Exception (handle,IOException)
 import Text.Pandoc.CrossRef.Util.Settings.Gen
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.PandocOrphans()
+import System.Directory
+import System.FilePath
+import Data.Maybe
 
-getSettings :: Meta -> IO Meta
-getSettings meta = do
+getSettings :: Maybe Format -> Meta -> IO Meta
+getSettings fmt meta = do
   let handler :: IOException -> IO String
       handler _ = return []
   yaml <- handle handler $ readFile (getMetaString "crossrefYaml" (meta <> defaultMeta))
-  let Pandoc dtve _ = readMarkdown def ("---\n" ++ yaml ++ "\n---")
-  return $ meta <> dtve <> defaultMeta
+  home <- getHomeDirectory
+  global_yaml <- handle handler $ readFile (home </> ".pandoc-crossref" </> "config.yaml")
+  let Format fmtstr = fromMaybe (Format []) fmt
+  format_yaml <- handle handler $ readFile (home </> ".pandoc-crossref" </> "config-" ++ fmtstr ++ ".yaml")
+  let Pandoc dirConfig _ = readMarkdown def ("---\n" ++ yaml ++ "\n---")
+      Pandoc formatConfig _ = readMarkdown def ("---\n" ++ format_yaml ++ "\n---")
+      Pandoc globalConfig _ = readMarkdown def ("---\n" ++ global_yaml ++ "\n---")
+  return $ meta <> dirConfig <> formatConfig <> globalConfig <> defaultMeta
 
 defaultMeta :: Meta
 defaultMeta =

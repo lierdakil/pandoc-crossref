@@ -74,6 +74,8 @@ library
                      , roman-numerals == 0.5.*
                      , syb >= 0.4 && < 0.7
                      , utility-ht >= 0.0.11 && < 0.1.0
+                     , directory >= 1 && < 1.4
+                     , filepath >= 1.1 && < 1.5
   hs-source-dirs:      lib
   if impl(ghc >= 8.0.1)
     hs-source-dirs:      ghc-8
