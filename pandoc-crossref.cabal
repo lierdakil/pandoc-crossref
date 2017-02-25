@@ -116,6 +116,8 @@ Test-Suite test-pandoc-crossref
                  , template-haskell
                  , utility-ht
                  , data-accessor
+                 , directory
+                 , filepath
                  , data-accessor-transformers
   other-modules:
                 Native
