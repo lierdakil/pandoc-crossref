@@ -63,7 +63,7 @@ modifyMeta opts meta
             ]
           | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++metaString' "lolTitle"++"}}"]
         cleveref = [
-            "\\usepackage{cleveref}"
+            "\\usepackage" ++ cleverefOpts ++ "{cleveref}"
           , "\\crefname{figure}" ++ prefix figPrefix False
           , "\\crefname{table}" ++ prefix tblPrefix False
           , "\\crefname{equation}" ++ prefix eqnPrefix False
@@ -81,6 +81,8 @@ modifyMeta opts meta
           , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
           , "\\makeatother"
           ]
+        cleverefOpts | nameInLink opts = "[nameinlink]"
+                     | otherwise = ""
         toLatex = writeLaTeX def . Pandoc nullMeta . return . Plain
         metaString s = toLatex $ getMetaInlines s meta
         metaString' s = toLatex [Str $ getMetaString s meta]

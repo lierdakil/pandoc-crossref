@@ -142,9 +142,12 @@ replaceRefsOther' prefix opts cits = do
     writePrefix | all (==SuppressAuthor) $ map citationMode cits
                 = id
                 | all null $ map citationPrefix cits
-                = getRefPrefix opts prefix cap (length cits - 1)
+                = cmap $ getRefPrefix opts prefix cap (length cits - 1)
                 | otherwise
-                = ((citationPrefix (head cits) ++ [Space]) ++)
+                = cmap ((citationPrefix (head cits) ++ [Space]) ++)
+    cmap f [Link attr t w]
+      | nameInLink opts = [Link attr (f t) w]
+    cmap f x = f x
   return $ normalizeInlines $ writePrefix (makeIndices opts indices)
 
 data RefData = RefData { rdLabel :: String

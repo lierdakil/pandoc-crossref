@@ -81,4 +81,5 @@ defaultMeta =
   <> autoEqnLabels False
   <> subfigGrid False
   <> linkReferences False
+  <> nameInLink False
   where var = displayMath

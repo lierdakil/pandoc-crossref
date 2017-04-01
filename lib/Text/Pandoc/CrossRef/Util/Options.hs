@@ -40,4 +40,5 @@ data Options = Options { cref :: Bool
                        , autoEqnLabels :: Bool
                        , subfigGrid :: Bool
                        , linkReferences :: Bool
+                       , nameInLink :: Bool
                        }
