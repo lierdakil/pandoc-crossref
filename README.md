@@ -289,7 +289,7 @@ main = putStrLn "Hello World!"
 
 Reference syntax heavily relies on citation syntax. Basic reference is created by writing `@`, then basically desired label with prefix. It is also possible to reference a group of objects, by putting them into brackets with `;` as separator. Similar objects will be grouped in order of them appearing in citation brackets, and sequential reference numbers will be shortened, e.g. `1,2,3` will be shortened to `1-3`.
 
-You can capitalize first reference character to get capitalized prefix, e.g. `[@Fig:label1]` will produce `Fig. ...` by default. Capitalized prefixes are derived automatically by capitalizing first letter of every word in non-capitalized prefix, unless overriden with metadata settings. See [Customization](#customization) for more information.
+You can capitalize first reference character to get capitalized prefix, e.g. `[@Fig:label1]` will produce `Fig. ...` by default. Capitalized prefixes are derived automatically by capitalizing first letter of every word in non-capitalized prefix, unless overridden with metadata settings. See [Customization](#customization) for more information.
 
 #### Linking references
 
