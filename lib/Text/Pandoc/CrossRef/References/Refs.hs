@@ -18,6 +18,7 @@ import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Control.Applicative
+import Debug.Trace
 import Prelude
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
@@ -216,4 +217,6 @@ makeIndices o s = intercalate sep $ map f $ HT.groupBy g $ sort $ nub s
                       , ("suf", suf)
                       ]
           in applyTemplate' vars $ refIndexTemplate o
-  show' RefData{rdLabel=l, rdIdx=Nothing, rdSuffix = suf} = Strong [Str $ "¿" ++ l ++ "?"] : suf
+  show' RefData{rdLabel=l, rdIdx=Nothing, rdSuffix = suf} =
+    trace ("Undefined cross-reference: " ++ l)
+          (Strong [Str $ "¿" ++ l ++ "?"] : suf)
