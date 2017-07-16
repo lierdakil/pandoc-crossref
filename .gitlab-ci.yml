@@ -13,8 +13,8 @@ stages:
 
 .job_template: &common_script
   script:
-    - stack build --system-ghc
-    - stack test --system-ghc
+    - stack $RESOLVER build --system-ghc
+    - stack $RESOLVER test --system-ghc
 
 .job_template_cabal: &cabal_script
   script:
@@ -25,54 +25,37 @@ stages:
     - cabal build
     - cabal test
 
-job-ghc801-pandoc117:
-  image: haskell:8.0.1
+job-saved-lts:
+  image: haskell:8.0.2
   stage: build
   variables:
-    STACK_YAML: stack-ghc8-pandoc117.yaml
+    STACK_YAML: stack-lts.yaml
   <<: *common_script
 
-job-ghc710-pandoc117:
-  image: haskell:7.10.3
+job-current-lts:
+  image: haskell:8.0.2
   stage: build
   variables:
-    STACK_YAML: stack-ghc7-pandoc117.yaml
+    STACK_YAML: stack-lts.yaml
+    RESOLVER: --resolver lts
   <<: *common_script
 
-job-ghc801-pandoc118:
-  image: haskell:8.0.1
+job-saved-nightly:
+  image: haskell:8.0.2
   stage: build
   variables:
-    STACK_YAML: stack-ghc8-pandoc118.yaml
+    STACK_YAML: stack.yaml
   <<: *common_script
 
-job-ghc710-pandoc118:
-  image: haskell:7.10.3
+job-current-nightly:
+  image: haskell:8.0.2
   stage: build
   variables:
-    STACK_YAML: stack-ghc7-pandoc118.yaml
+    STACK_YAML: stack.yaml
+    RESOLVER: --resolver nightly
   <<: *common_script
 
-job-ghc801-pandoc119:
-  image: haskell:8.0.1
-  stage: build
-  variables:
-    STACK_YAML: stack-ghc8-pandoc119.yaml
-  <<: *common_script
-
-job-ghc710-pandoc119:
-  image: haskell:7.10.3
-  stage: build
-  variables:
-    STACK_YAML: stack-ghc7-pandoc119.yaml
-  <<: *common_script
-
-job-hackage-ghc710:
-  image: haskell:7.10.3
-  stage: build
-  <<: *cabal_script
-
-job-hackage-ghc801:
-  image: haskell:8.0.1
+job-hackage-ghc802:
+  image: haskell:8.0.2
   stage: build
   <<: *cabal_script
