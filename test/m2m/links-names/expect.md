@@ -12,19 +12,19 @@ $$ separate $$
 
 Some of those can be labelled:
 
-This is a test file with some referenced equations, line <span
-id="eq:0">$$ this \qquad(1)$$</span>
+This is a test file with some referenced equations, line
+[$$ this \qquad(1)$$]{#eq:0}
 
-Some equations might be inside of text, <span
-id="eq:1">$$ for example \qquad(2)$$</span> this one.
+Some equations might be inside of text,
+[$$ for example \qquad(2)$$]{#eq:1} this one.
 
 Some equations might be on start of paragraphs:
 
-<span id="eq:2">$$ start \qquad(3)$$</span> of paragraph.
+[$$ start \qquad(3)$$]{#eq:2} of paragraph.
 
 Other might be on separate paragraphs of their own:
 
-<span id="eq:3">$$ separate \qquad(4)$$</span>
+[$$ separate \qquad(4)$$]{#eq:3}
 
 Then they can be referenced:
 
