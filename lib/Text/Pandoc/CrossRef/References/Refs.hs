@@ -176,8 +176,10 @@ getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
   prop = lookupUnsafe prefix accMap
   lab = prefix ++ getLabelWithoutPrefix cid
 
+data RefItem = RefRange RefData RefData | RefSingle RefData
+
 makeIndices :: Options -> [RefData] -> [Inline]
-makeIndices o s = intercalate sep $ map f $ HT.groupBy g $ sort $ nub s
+makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   where
   g :: RefData -> RefData -> Bool
   g a b = all (null . rdSuffix) [a, b] && (
@@ -192,12 +194,23 @@ makeIndices o s = intercalate sep $ map f $ HT.groupBy g $ sort $ nub s
     , Just (bi, bl) <- HT.viewR b
     = ai == bi && A.first (+1) bl == al
   follows _ _ = False
-  f :: [RefData] -> [Inline]
+  f :: [RefData] -> [RefItem]
   f []  = []                          -- drop empty lists
-  f [w] = show' w                    -- single value
-  f [w1,w2] = show' w1 ++ sep ++ show' w2 -- two values
-  f (x:xs) = show' x ++ rangeDelim o ++ show' (last xs) -- shorten more than two values
-  sep = [Str ",", Space]
+  f [w] = [RefSingle w]                   -- single value
+  f [w1,w2] = [RefSingle w1, RefSingle w2] -- two values
+  f (x:xs) = [RefRange x (last xs)] -- shorten more than two values
+  format :: [RefItem] -> [Inline]
+  format [] = []
+  format [x] = show'' x
+  format [x, y] = show'' x ++ pairDelim o ++ show'' y
+  format xs = intercalate (refDelim o) init' ++ lastDelim o ++ last'
+    where initlast []     = error "emtpy list in initlast"
+          initlast [y]    = ([], y)
+          initlast (y:ys) = first (y:) $ initlast ys
+          (init', last') = initlast $ map show'' xs
+  show'' :: RefItem -> [Inline]
+  show'' (RefSingle x) = show' x
+  show'' (RefRange x y) = show' x ++ rangeDelim o ++ show' y
   show' :: RefData -> [Inline]
   show' RefData{rdLabel=l, rdIdx=Just i, rdSubfig = sub, rdSuffix = suf}
     | linkReferences o = [Link nullAttr txt ('#':l,[])]

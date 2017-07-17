@@ -398,7 +398,12 @@ See [Subfigures](#subfigures)
 * `secPrefix`, default `sec.`, `secs.`: Prefix for references to sections, e.g. `secs. 2,5`
 * `chapDelim`, default `.`: Delimiter between chapter number and item number.
 * `rangeDelim`, default `-`: Delimiter between reference ranges, e.g. `eq. 2-5`
+* `pairDelim`, default `, `: Delimiter between pair of reference ranges, e.g. `eq. 2-5 <and> 7-9`, or `eq. 2 <and> 7`, but `eq. 2, 4, 6`
+* `lastDelim`, default `, `: Delimiter between second-to-last and last reference ranges, e.g. `eq. 2-5, 6-8 <and> 10`. `pairDelim` overrides this for cases of exactly two references/ranges.
+* `refDelim`, default `, `: Delimiter between references, e.g. `eq. 2, 5, 7` or `eq. 2-4, 6-8`
 * `linkReferences`, default `false`: Make references hyperlinks to the referenced element
+
+Note that none of the `*Delim` options are honored with cleveref output. Use cleveref's customization options instead.
 
 `figPrefix`, `eqnPrefix`, `tblPrefix`, `lstPrefix` can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.
 

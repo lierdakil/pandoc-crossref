@@ -54,6 +54,9 @@ defaultMeta =
   <> titleDelim (str ":")
   <> chapDelim (str ".")
   <> rangeDelim (str "-")
+  <> pairDelim (str "," <> space)
+  <> lastDelim (str "," <> space)
+  <> refDelim (str "," <> space)
   <> figPrefix [str "fig.", str "figs."]
   <> eqnPrefix [str "eq." , str "eqns."]
   <> tblPrefix [str "tbl.", str "tbls."]

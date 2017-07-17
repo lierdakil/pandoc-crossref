@@ -23,6 +23,9 @@ data Options = Options { cref :: Bool
                        , subfigureRefIndexTemplate :: Template
                        , chapDelim   :: [Inline]
                        , rangeDelim  :: [Inline]
+                       , pairDelim  :: [Inline]
+                       , lastDelim  :: [Inline]
+                       , refDelim  :: [Inline]
                        , lofTitle    :: [Block]
                        , lotTitle    :: [Block]
                        , lolTitle    :: [Block]
