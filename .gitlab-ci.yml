@@ -13,6 +13,7 @@ stages:
 
 .job_template: &common_script
   script:
+    - stack upgrade
     - stack $RESOLVER build $GHCVERSION
     - stack $RESOLVER test $GHCVERSION
 
