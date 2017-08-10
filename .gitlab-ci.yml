@@ -13,8 +13,8 @@ stages:
 
 .job_template: &common_script
   script:
-    - stack $RESOLVER build --system-ghc
-    - stack $RESOLVER test --system-ghc
+    - stack $RESOLVER build $GHCVERSION
+    - stack $RESOLVER test $GHCVERSION
 
 .job_template_cabal: &cabal_script
   script:
@@ -30,6 +30,7 @@ job-saved-lts:
   stage: build
   variables:
     STACK_YAML: stack-lts.yaml
+    GHCVERSION: --system-ghc
   <<: *common_script
 
 job-current-lts:
@@ -38,6 +39,7 @@ job-current-lts:
   variables:
     STACK_YAML: stack-lts.yaml
     RESOLVER: --resolver lts
+    GHCVERSION: --system-ghc
   <<: *common_script
 
 job-saved-nightly:
@@ -45,6 +47,7 @@ job-saved-nightly:
   stage: build
   variables:
     STACK_YAML: stack.yaml
+    GHCVERSION: --system-ghc
   <<: *common_script
 
 job-current-nightly:
@@ -53,6 +56,7 @@ job-current-nightly:
   variables:
     STACK_YAML: stack.yaml
     RESOLVER: --resolver nightly
+    GHCVERSION: --install-ghc
   <<: *common_script
 
 job-hackage-ghc802:
