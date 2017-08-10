@@ -14,7 +14,7 @@ category:            Text
 build-type:          Simple
 extra-doc-files:     README.md
                      BSD3.md
-cabal-version:       >=1.10
+cabal-version:       >=1.18
 data-files:          demo.md
 extra-source-files:  test/*.inc
                      test/m2m/equations/*.md
