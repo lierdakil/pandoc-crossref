@@ -560,11 +560,13 @@ This software is licensed under GNU GPL 2. See [LICENSE.md](https://github.com/l
 © 2016 Nikolay Yakimov et al
 
 Contributors (per GPL, holders of copyright on their respective contributions):
+
 * Nikolay Yakimov
+* Felix Yan
 * Wlad
 * scoavoux
 * Matthew Salganik
+* Masamichi Hosoda
 * Hadrien Mary
-* Felix Yan
 * Chris Black
 * Bart Mesuere
