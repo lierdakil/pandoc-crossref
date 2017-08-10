@@ -1,3 +1,11 @@
+## 0.2.6.0
+* pairDelim, lastDelim, refDelim
+* Drop support for old pandoc\/ghc versions
+* Report undefined references on stderr
+* Set UTF-8 encoding for reading `pandoc-crossref.yaml` (#123) (Masamichi Hosoda)
+* Fix a typo in README (Felix Yan)
+* Option for including prefix in reference link
+
 ## 0.2.5.0
 * Global settings file support
 * pandoc 1.19 support and binaries
