@@ -267,6 +267,17 @@ main = putStrLn "Hello World!"
 : Listing caption
 </pre>
 
+It also allows to specify label in caption, as do tables, for example:
+
+<pre>
+```haskell
+main :: IO ()
+main = putStrLn "Hello World!"
+```
+
+: Listing caption {#lst:code}
+</pre>
+
 #### Wrapping div
 
 Wrapping code block without label in a div with id `lst:...` and class, starting with `listing`, and adding paragraph before code block, but inside div, will treat said paragraph as code block caption.
