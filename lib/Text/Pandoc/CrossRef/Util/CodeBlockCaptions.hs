@@ -9,6 +9,7 @@ import Data.List (isPrefixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Util
 
 mkCodeBlockCaptions :: Options -> [Block] -> WS [Block]
 mkCodeBlockCaptions opts x@(cb@(CodeBlock _ _):p@(Para _):xs)
@@ -25,6 +26,14 @@ orderAgnostic opts (Para ils:CodeBlock (label,classes,attrs) code:xs)
   , "lst" `isPrefixOf` label
   = return $ Div (label,"listing":classes, [])
       [Para caption, CodeBlock ([],classes,attrs) code] : xs
+orderAgnostic opts (Para ils:CodeBlock (_,classes,attrs) code:xs)
+  | codeBlockCaptions opts
+  , Just (caption, labinl) <- splitLast <$> getCodeBlockCaption ils
+  , Just label <- getRefLabel "lst" labinl
+  = return $ Div (label,"listing":classes, [])
+      [Para $ init caption, CodeBlock ([],classes,attrs) code] : xs
+  where
+    splitLast xs' = splitAt (length xs' - 1) xs'
 orderAgnostic _ _ = Nothing
 
 getCodeBlockCaption :: [Inline] -> Maybe [Inline]
