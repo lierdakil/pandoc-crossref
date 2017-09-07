@@ -7,7 +7,7 @@ module Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.Definition
 import Data.Char (toUpper, toLower, isUpper)
-import Data.List (intercalate)
+import Data.List (intercalate, isSuffixOf, isPrefixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import Data.Generics
 import Text.Pandoc.Writers.LaTeX
@@ -80,3 +80,13 @@ mkLaTeXLabel' :: String -> String
 mkLaTeXLabel' l =
   let ll = writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []]
   in takeWhile (/='}') . drop 1 . dropWhile (/='{') $ ll
+
+getRefLabel :: String -> [Inline] -> Maybe String
+getRefLabel _ [] = Nothing
+getRefLabel tag ils
+  | Str attr <- last ils
+  , all (==Space) (init ils)
+  , "}" `isSuffixOf` attr
+  , ("{#"++tag++":") `isPrefixOf` attr
+  = init `fmap` stripPrefix "{#" attr
+getRefLabel _ _ = Nothing

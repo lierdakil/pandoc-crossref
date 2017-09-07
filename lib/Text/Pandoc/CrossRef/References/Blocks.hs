@@ -292,16 +292,6 @@ spanInlines opts (math@(Math DisplayMath _eq):ils)
   = Span nullAttr [math]:ils
 spanInlines _ x = x
 
-getRefLabel :: String -> [Inline] -> Maybe String
-getRefLabel _ [] = Nothing
-getRefLabel tag ils
-  | Str attr <- last ils
-  , all (==Space) (init ils)
-  , "}" `isSuffixOf` attr
-  , ("{#"++tag++":") `isPrefixOf` attr
-  = init `fmap` stripPrefix "{#" attr
-getRefLabel _ _ = Nothing
-
 replaceAttr :: Options -> Either String String -> Maybe String -> [Inline] -> Accessor References RefMap -> WS [Inline]
 replaceAttr o label refLabel title prop
   = do
