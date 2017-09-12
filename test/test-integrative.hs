@@ -21,7 +21,7 @@ m2m dir
     expect_tex <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect.tex")
     p@(Pandoc meta _) <- either (fail . show) return $ readMarkdown def input
     let actual_md = writeMarkdown def $ runCrossRef meta (Just $ Format "markdown") defaultCrossRefAction p
-        actual_tex = writeLaTeX def $ runCrossRef meta (Just $ Format "latex") defaultCrossRefAction p
+        actual_tex = writeLaTeX def{writerHighlight=True} $ runCrossRef meta (Just $ Format "latex") defaultCrossRefAction p
     it "Markdown" $ do
       zipWithM_ shouldBe (lines' actual_md) (lines' expect_md)
       length (lines' actual_md) `shouldBe` length (lines' expect_md)
