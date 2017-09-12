@@ -51,14 +51,14 @@ job-saved-nightly:
     GHCVERSION: --system-ghc
   <<: *common_script
 
-job-current-nightly:
-  image: haskell:8.2.1
-  stage: build
-  variables:
-    STACK_YAML: stack.yaml
-    RESOLVER: --resolver nightly
-    GHCVERSION: --system-ghc
-  <<: *common_script
+# job-current-nightly:
+#   image: haskell:8.2.1
+#   stage: build
+#   variables:
+#     STACK_YAML: stack.yaml
+#     RESOLVER: --resolver nightly
+#     GHCVERSION: --system-ghc
+#   <<: *common_script
 
 job-hackage-ghc802:
   image: haskell:8.0.2
