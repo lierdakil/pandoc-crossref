@@ -64,3 +64,8 @@ job-hackage-ghc802:
   image: haskell:8.0.2
   stage: build
   <<: *cabal_script
+
+job-hackage-ghc82x:
+  image: haskell:8.2
+  stage: build
+  <<: *cabal_script
