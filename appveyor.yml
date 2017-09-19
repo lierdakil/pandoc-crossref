@@ -11,6 +11,9 @@ environment:
     - STACK_YAML: "stack-lts.yaml"
       PANDOCVER: "1-19"
       GHCVER: "8"
+    - STACK_YAML: "stack.yaml"
+      PANDOCVER: "1-19"
+      GHCVER: "82"
 
 before_build:
 - appveyor DownloadFile http://www.stackage.org/stack/windows-i386 -FileName stack.zip
