@@ -44,7 +44,7 @@ job-current-lts:
   <<: *common_script
 
 job-saved-nightly:
-  image: haskell:8.0.2
+  image: haskell:8.2
   stage: build
   variables:
     STACK_YAML: stack.yaml
