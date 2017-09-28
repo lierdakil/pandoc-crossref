@@ -467,11 +467,11 @@ See [Subfigures](#subfigures)
 
 See [Templates](#templates)
 
-* `figPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- figure reference template
-* `eqnPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- equation reference template
-* `tblPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- table reference template
-* `lstPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- listing reference template
-* `secPrefixTemplate`, defualt `\\[p\\]&nbsp;\\[i\\]` -- section reference template
+* `figPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- figure reference template
+* `eqnPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- equation reference template
+* `tblPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- table reference template
+* `lstPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- listing reference template
+* `secPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- section reference template
 * `refIndexTemplate`, default `\\[i\\]\\[suf\\]` -- individual reference index template
 * `subfigureRefIndexTemplate`, default `\\[i\\]\\[suf\\] (\\[s\\])` -- subfigure reference index template
 
