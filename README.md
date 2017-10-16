@@ -347,7 +347,13 @@ cabal install pandoc-crossref
 
 This will get `pandoc-crossref` installed into `.cabal-sandbox/bin`. Pandoc will also be built, if it's not installed as a Haskell library system-wide. You might also want to install `pandoc-citeproc` in the same sandbox, if that's the case (`cabal install pandoc-citeproc`).
 
-For Windows users, there is a pre-built executable available at [releases page](https://github.com/lierdakil/pandoc-crossref/releases/latest). Bear in mind that it is a product of an automated build script, and as such, provided as-is, with zero guarantees.
+There are a few pre-built executables available at [releases page](https://github.com/lierdakil/pandoc-crossref/releases/latest) for Windows, OSX and Linux. Bear in mind that those are a product of an automated build script, and as such, provided as-is, with zero guarantees.
+
+### Notice Fedora users
+
+`cabal-install` package is not enough to build pandoc-crossref (see #132). To get sane Haskell build environment, you need to install `haskell-platform` package (`yum install haskell-platform`).
+
+While on topic, if you don't want to rebuild Pandoc itself from source, make sure you have `pandoc` and `ghc-pandoc-devel` yum packages before attempting to build pandoc-crossref.
 
 ## Usage
 
