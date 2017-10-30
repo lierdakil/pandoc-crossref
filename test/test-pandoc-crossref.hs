@@ -258,12 +258,12 @@ main = hspec $ do
 
       it "demo.md matches demo.native" $ do
         demomd <- readFile =<< getDataFileName "demo.md"
-        let Pandoc m b = readMarkdown def $ T.pack demomd
+        let Pandoc m b = readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
         runCrossRef m Nothing crossRefBlocks b `shouldBe` Native.demo
 
       it "demo.md with chapters matches demo-chapters.native" $ do
         demomd <- readFile =<< getDataFileName "demo.md"
-        let Pandoc m b = readMarkdown def $ T.pack demomd
+        let Pandoc m b = readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
             m' = setMeta "chapters" True m
         runCrossRef m' Nothing crossRefBlocks b `shouldBe` Native.demochapters
 
