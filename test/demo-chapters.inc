@@ -59,8 +59,22 @@
   ,Para [Str "This",Space,Str "chapter",Space,Str "doesn\8217t",Space,Str "change",Space,Str "chapter",Space,Str "prefix",Space,Str "of",Space,Str "referenced",Space,Str "elements,",Space,Str "instead",Space,Str "keeping",Space,Str "number",Space,Str "of",Space,Str "previous",Space,Str "chapter,",Space,Str "e.g.",SoftBreak,Span ("eq:eqn2",[],[]) [Math DisplayMath " S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x \\qquad(4.1)"]]
   ,Header 1 ("sec:chapter-5.-reference-lists",[],[]) [Str "Chapter",Space,Str "5.",Space,Str "Reference",Space,Str "lists"]
   ,Para [Str "It\8217s",Space,Str "also",Space,Str "possible",Space,Str "to",Space,Str "show",Space,Str "lists",Space,Str "of",Space,Str "figures",Space,Str "and",Space,Str "tables,",Space,Str "like",Space,Str "this:"]
-  ,RawBlock (Format "latex") "\\listoffigures"
-  ,RawBlock (Format "latex") "\\listoftables"
-  ,RawBlock (Format "latex") "\\listoflistings"
+  ,Plain [Str "##",Space,Str "List",Space,Str "of",Space,Str "Figures"]
+  ,Div ("",["list"],[])
+   [Para [Str "1",Space,Str "A",Space,Str "figure"]
+   ,Para [Str "1",Str ".",Str "1",Space,Str "First",Space,Str "figure"]
+   ,Para [Str "1",Str ".",Str "2",Space,Str "Second",Space,Str "figure"]
+   ,Para [Str "1",Str ".",Str "3",Space,Str "Third",Space,Str "figure"]
+   ,Para [Str "1",Str ".",Str "4",Space,Str "Subfigure",Space,Str "a"]
+   ,Para [Str "1",Str ".",Str "4",Space,Str "Subfigure",Space,Str "b"]
+   ,Para [Str "1",Str ".",Str "4",Space,Str "Subfigures",Space,Str "caption"]]
+  ,Plain [Str "##",Space,Str "List",Space,Str "of",Space,Str "Tables"]
+  ,Div ("",["list"],[])
+   [Para [Str "3",Str ".",Str "1",Space,Str "Table",Space,Str "example",Space]]
+  ,Header 1 ("",[],[]) [Str "List",Space,Str "of",Space,Str "Listings"]
+  ,Div ("",["list"],[])
+   [Para [Str "4",Str ".",Str "1",Space,Str "Listing",Space,Str "caption"]
+   ,Para [Str "4",Str ".",Str "2",Space,Str "Listing",Space,Str "caption"]
+   ,Para [Str "4",Str ".",Str "3",Space,Str "Listing",Space,Str "caption"]]
   ,Header 1 ("sec:appendix-a.-custom-labels",[],[("label","AppA")]) [Str "Appendix",Space,Str "A.",Space,Str "Custom",Space,Str "labels"]
   ,Header 2 ("sec:custlabs",[],[("label","CustLab")]) [Str "This",Space,Str "section",Space,Str "will",Space,Str "have",Space,Str "custom",Space,Str "label"]]

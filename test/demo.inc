@@ -59,8 +59,22 @@
   ,Para [Str "This",Space,Str "chapter",Space,Str "doesn\8217t",Space,Str "change",Space,Str "chapter",Space,Str "prefix",Space,Str "of",Space,Str "referenced",Space,Str "elements,",Space,Str "instead",Space,Str "keeping",Space,Str "number",Space,Str "of",Space,Str "previous",Space,Str "chapter,",Space,Str "e.g.",SoftBreak,Span ("eq:eqn2",[],[]) [Math DisplayMath " S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x \\qquad(3)"]]
   ,Header 1 ("sec:chapter-5.-reference-lists",[],[]) [Str "Chapter",Space,Str "5.",Space,Str "Reference",Space,Str "lists"]
   ,Para [Str "It\8217s",Space,Str "also",Space,Str "possible",Space,Str "to",Space,Str "show",Space,Str "lists",Space,Str "of",Space,Str "figures",Space,Str "and",Space,Str "tables,",Space,Str "like",Space,Str "this:"]
-  ,RawBlock (Format "latex") "\\listoffigures"
-  ,RawBlock (Format "latex") "\\listoftables"
-  ,RawBlock (Format "latex") "\\listoflistings"
+  ,Plain [Str "##",Space,Str "List",Space,Str "of",Space,Str "Figures"]
+  ,OrderedList (1,DefaultStyle,DefaultDelim)
+   [[Plain [Str "A",Space,Str "figure"]]
+   ,[Plain [Str "First",Space,Str "figure"]]
+   ,[Plain [Str "Second",Space,Str "figure"]]
+   ,[Plain [Str "Third",Space,Str "figure"]]
+   ,[Plain [Str "Subfigure",Space,Str "a"]]
+   ,[Plain [Str "Subfigure",Space,Str "b"]]
+   ,[Plain [Str "Subfigures",Space,Str "caption"]]]
+  ,Plain [Str "##",Space,Str "List",Space,Str "of",Space,Str "Tables"]
+  ,OrderedList (1,DefaultStyle,DefaultDelim)
+   [[Plain [Str "Table",Space,Str "example",Space]]]
+  ,Header 1 ("",[],[]) [Str "List",Space,Str "of",Space,Str "Listings"]
+  ,OrderedList (1,DefaultStyle,DefaultDelim)
+   [[Plain [Str "Listing",Space,Str "caption"]]
+   ,[Plain [Str "Listing",Space,Str "caption"]]
+   ,[Plain [Str "Listing",Space,Str "caption"]]]
   ,Header 1 ("sec:appendix-a.-custom-labels",[],[("label","AppA")]) [Str "Appendix",Space,Str "A.",Space,Str "Custom",Space,Str "labels"]
   ,Header 2 ("sec:custlabs",[],[("label","CustLab")]) [Str "This",Space,Str "section",Space,Str "will",Space,Str "have",Space,Str "custom",Space,Str "label"]]

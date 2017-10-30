@@ -12,11 +12,11 @@ import Text.Pandoc.CrossRef.Util.Options
 
 listOf :: Options -> [Block] -> WS [Block]
 listOf Options{outFormat=f} x | isFormat "latex" f = return x
-listOf opts (Para [RawInline (Format "tex") "\\listoffigures"]:xs)
+listOf opts (RawBlock (Format "latex") "\\listoffigures":xs)
   = get imgRefs >>= makeList opts lofTitle xs
-listOf opts (Para [RawInline (Format "tex") "\\listoftables"]:xs)
+listOf opts (RawBlock (Format "latex") "\\listoftables":xs)
   = get tblRefs >>= makeList opts lotTitle xs
-listOf opts (Para [RawInline (Format "tex") "\\listoflistings"]:xs)
+listOf opts (RawBlock (Format "latex") "\\listoflistings":xs)
   = get lstRefs >>= makeList opts lolTitle xs
 listOf _ x = return x
 
