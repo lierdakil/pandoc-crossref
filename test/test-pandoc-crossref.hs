@@ -1,12 +1,13 @@
 {-# LANGUAGE FlexibleContexts, CPP #-}
 import Test.Hspec
-import Text.Pandoc hiding (readMarkdown)
+import Text.Pandoc hiding (readMarkdown, getDataFileName)
 import Text.Pandoc.Builder
 import Control.Monad.State
 import Data.List
 import Control.Arrow
 import Data.Monoid -- needed for ghc<7.10
 import qualified Data.Map as M
+import qualified Data.Text as T
 import qualified Data.Default as Df
 
 import Text.Pandoc.CrossRef
@@ -257,19 +258,20 @@ main = hspec $ do
 
       it "demo.md matches demo.native" $ do
         demomd <- readFile =<< getDataFileName "demo.md"
-        let Pandoc m b = readMarkdown def demomd
+        let Pandoc m b = readMarkdown def $ T.pack demomd
         runCrossRef m Nothing crossRefBlocks b `shouldBe` Native.demo
 
       it "demo.md with chapters matches demo-chapters.native" $ do
         demomd <- readFile =<< getDataFileName "demo.md"
-        let Pandoc m b = readMarkdown def demomd
+        let Pandoc m b = readMarkdown def $ T.pack demomd
             m' = setMeta "chapters" True m
         runCrossRef m' Nothing crossRefBlocks b `shouldBe` Native.demochapters
 
     describe "LaTeX" $ do
       let test = test' nullMeta
           infixr 5 `test`
-          test' m i o = writeLaTeX def (Pandoc m $ runCrossRef m (Just $ Format "latex") crossRefBlocks (toList i)) `shouldBe` o
+          test' m i o = getLatex m i `shouldBe` o
+          getLatex m i = either (fail . show) T.unpack (runPure $ writeLaTeX def (Pandoc m $ runCrossRef m (Just $ Format "latex") crossRefBlocks (toList i)))
 
       describe "Labels" $ do
 

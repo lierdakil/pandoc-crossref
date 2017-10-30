@@ -62,7 +62,7 @@ library
                        Text.Pandoc.CrossRef.Util.Gap
                        Text.Pandoc.CrossRef.Util.PandocOrphans
   build-depends:       base >=4.9 && <5
-                     , pandoc == 1.19.*
+                     , pandoc == 2.0.*
                      , pandoc-types == 1.17.*
                      , mtl >= 1.1 && <2.3
                      , containers >= 0.1 && <0.6
@@ -76,6 +76,7 @@ library
                      , utility-ht >= 0.0.11 && < 0.1.0
                      , directory >= 1 && < 1.4
                      , filepath >= 1.1 && < 1.5
+                     , text >=1.2.2 && < 1.3
   hs-source-dirs:      lib
   Ghc-Options:         -Wall
   default-language:    Haskell2010
@@ -111,6 +112,7 @@ Test-Suite test-pandoc-crossref
                  , directory
                  , filepath
                  , data-accessor-transformers
+                 , text
   other-modules:
                 Native
                 Paths_pandoc_crossref
@@ -145,5 +147,6 @@ Test-Suite test-integrative
                  , filepath
                  , directory
                  , pandoc-crossref
+                 , text
   Ghc-Options:  -rtsopts -Wall -fno-warn-unused-do-bind -threaded
   Default-Language: Haskell2010

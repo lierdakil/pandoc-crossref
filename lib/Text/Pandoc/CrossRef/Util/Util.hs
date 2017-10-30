@@ -6,12 +6,14 @@ module Text.Pandoc.CrossRef.Util.Util
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.Definition
+import Text.Pandoc.Class
 import Data.Char (toUpper, toLower, isUpper)
 import Data.List (intercalate, isSuffixOf, isPrefixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import Data.Generics
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
+import qualified Data.Text as T
 
 isFormat :: String -> Maybe Format -> Bool
 isFormat fmt (Just (Format f)) = takeWhile (`notElem` "+-") f == fmt
@@ -78,7 +80,8 @@ mkLaTeXLabel l
 
 mkLaTeXLabel' :: String -> String
 mkLaTeXLabel' l =
-  let ll = writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []]
+  let ll = either (error . show) T.unpack $
+            runPure (writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []])
   in takeWhile (/='}') . drop 1 . dropWhile (/='{') $ ll
 
 getRefLabel :: String -> [Inline] -> Maybe String

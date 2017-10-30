@@ -7,6 +7,7 @@ import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Definition
 import Data.Maybe (fromMaybe)
 import Data.Default
+import qualified Data.Text as T
 import Text.Pandoc.Walk
 
 getMetaList :: (Default a) => (MetaValue -> Maybe a) -> String -> Meta -> Int -> a
@@ -26,7 +27,7 @@ getMetaString name meta = fromMaybe [] $ lookupMeta name meta >>= toString
 
 toInlines :: MetaValue -> Maybe [Inline]
 toInlines (MetaString s) =
-  return $ getInlines $ readMarkdown def s
+  return $ getInlines $ readMarkdown def $ T.pack s
   where getInlines (Pandoc _ bs) = concatMap getInline bs
         getInline (Plain ils) = ils
         getInline (Para ils) = ils
@@ -42,7 +43,7 @@ toBlocks :: MetaValue -> Maybe [Block]
 toBlocks (MetaBlocks bs) = return bs
 toBlocks (MetaInlines ils) = return [Plain ils]
 toBlocks (MetaString s) =
-  return $ getBlocks $ readMarkdown def s
+  return $ getBlocks $ readMarkdown def $ T.pack s
   where getBlocks (Pandoc _ bs) = bs
 toBlocks _ = Nothing
 

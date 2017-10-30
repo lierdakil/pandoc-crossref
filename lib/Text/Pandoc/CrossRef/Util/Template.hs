@@ -7,7 +7,6 @@ module Text.Pandoc.CrossRef.Util.Template
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Generic
-import Text.Pandoc.Shared (normalizeInlines)
 import Data.Maybe
 import Data.Map as M
 import Text.Pandoc.CrossRef.Util.Meta
@@ -24,8 +23,7 @@ makeTemplate dtv = Template . flip scan . scan (`lookupMeta` dtv)
   replaceVar val def' = fromMaybe def' $ val >>= toInlines
 
 applyTemplate' :: Map String [Inline] -> Template -> [Inline]
-applyTemplate' vars (Template g) =
-  normalizeInlines $ g internalVars
+applyTemplate' vars (Template g) = g internalVars
   where
   internalVars x | Just v <- M.lookup x vars = Just $ MetaInlines v
   internalVars _   = Nothing

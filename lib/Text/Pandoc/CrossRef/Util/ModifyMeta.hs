@@ -9,6 +9,7 @@ import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Util
+import qualified Data.Text as T
 
 modifyMeta :: Options -> Meta -> Meta
 modifyMeta opts meta
@@ -81,12 +82,9 @@ modifyMeta opts meta
             "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
           , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
           ]
-        cleverefOpts | nameInLink opts = [ "nameinlink" ]
-                     | otherwise = []
-        usepackage [] p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage{"++p++"}}"
-        usepackage xs p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage"++o++"{"++p++"}}"
-          where o = "[" ++ intercalate "," xs ++ "]"
-        toLatex = writeLaTeX def . Pandoc nullMeta . return . Plain
+        cleverefOpts | nameInLink opts = "[nameinlink]"
+                     | otherwise = ""
+        toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
         metaString s = toLatex $ getMetaInlines s meta
         metaString' s = toLatex [Str $ getMetaString s meta]
         prefix f uc = "{" ++ toLatex (f opts uc 0) ++ "}" ++

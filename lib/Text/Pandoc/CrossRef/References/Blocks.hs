@@ -5,7 +5,7 @@ module Text.Pandoc.CrossRef.References.Blocks
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder (text, toList)
-import Text.Pandoc.Shared (stringify, normalizeSpaces)
+import Text.Pandoc.Shared (stringify)
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import Data.Maybe
@@ -52,7 +52,7 @@ replaceBlock opts (Header n (label, cls, attrs) text')
         index  <- get curChap
         modify secRefs $ M.insert label' RefRec {
           refIndex=index
-        , refTitle=normalizeSpaces text'
+        , refTitle= text'
         , refSubfigure = Nothing
         }
     cc <- get curChap
@@ -304,7 +304,7 @@ replaceAttr o label refLabel title prop
       error $ "Duplicate label: " ++ label'
     modify prop $ M.insert label' RefRec {
       refIndex= index
-    , refTitle=normalizeSpaces title
+    , refTitle= title
     , refSubfigure = Nothing
     }
     return $ chapPrefix (chapDelim o) index

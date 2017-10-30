@@ -4,7 +4,6 @@ module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
     ) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Shared (normalizeSpaces)
 import Data.List (isPrefixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import Text.Pandoc.CrossRef.References.Types
@@ -38,9 +37,9 @@ orderAgnostic _ _ = Nothing
 
 getCodeBlockCaption :: [Inline] -> Maybe [Inline]
 getCodeBlockCaption ils
-  | Just caption <- [Str "Listing:",Space] `stripPrefix` normalizeSpaces ils
+  | Just caption <- [Str "Listing:",Space] `stripPrefix` ils
   = Just caption
-  | Just caption <- [Str ":",Space] `stripPrefix` normalizeSpaces ils
+  | Just caption <- [Str ":",Space] `stripPrefix` ils
   = Just caption
   | otherwise
   = Nothing

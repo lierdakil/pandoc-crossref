@@ -1,8 +1,6 @@
-{-# LANGUAGE TupleSections #-}
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Shared (normalizeInlines, normalizeSpaces)
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import qualified Data.List.HT as HT
@@ -34,11 +32,11 @@ replaceRefs opts (Cite cits _:xs)
       = replaceRefs'' prefix opts cits'
       | otherwise = return [Cite cits' il']
         where
-          il' =  normalizeInlines $
+          il' =
               [Str "["]
             ++intercalate [Str ";", Space] (map citationToInlines cits')
             ++[Str "]"]
-          citationToInlines c = normalizeSpaces $
+          citationToInlines c =
             citationPrefix c ++ [Space, Str $ "@"++citationId c] ++ citationSuffix c
     replaceRefs'' = case outFormat opts of
                     f | isFormat "latex" f -> replaceRefsLatex
@@ -88,7 +86,7 @@ replaceRefsLatex prefix opts cits
   | cref opts
   = replaceRefsLatex' prefix opts cits
   | otherwise
-  = normalizeInlines . intercalate [Str ",", Space] <$>
+  = intercalate [Str ",", Space] <$>
       mapM (replaceRefsLatex' prefix opts) (groupBy citationGroupPred cits)
 
 replaceRefsLatex' :: String -> Options -> [Citation] -> WS [Inline]
@@ -128,8 +126,7 @@ getLabelPrefix lab
   where p = (++ ":") . takeWhile (/=':') $ lab
 
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
-replaceRefsOther prefix opts cits =
-  normalizeInlines . intercalate [Str ",", Space] <$>
+replaceRefsOther prefix opts cits = intercalate [Str ",", Space] <$>
     mapM (replaceRefsOther' prefix opts) (groupBy citationGroupPred cits)
 
 citationGroupPred :: Citation -> Citation -> Bool
@@ -149,7 +146,7 @@ replaceRefsOther' prefix opts cits = do
     cmap f [Link attr t w]
       | nameInLink opts = [Link attr (f t) w]
     cmap f x = f x
-  return $ normalizeInlines $ writePrefix (makeIndices opts indices)
+  return $ writePrefix (makeIndices opts indices)
 
 data RefData = RefData { rdLabel :: String
                        , rdIdx :: Maybe Index
