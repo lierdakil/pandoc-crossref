@@ -11,8 +11,8 @@ You can define subfigures:
 ![g](fig7.png "fig:"){#fig:subfig7} ![h](fig8.png "fig:")
 ![i](fig9.png "fig:"){#fig:subfig9}
 
-Figure 1: Caption. a — 1; b — 2; c — 3; d — 4; e — 5; f — 6; g — 7; h —
-8; i — 9
+Figure 1: Caption. a --- 1; b --- 2; c --- 3; d --- 4; e --- 5; f ---
+6; g --- 7; h --- 8; i --- 9
 
 </div>
 
@@ -36,8 +36,8 @@ Figure 1: Caption. a — 1; b — 2; c — 3; d — 4; e — 5; f — 6; g — 7
 
 ![i](fig9.png){#fig:subfig29}
 
-Figure 2: Caption. a — 1; b — 2; c — 3; d — 4; e — 5; f — 6; g — 7; h —
-8; i — 9
+Figure 2: Caption. a --- 1; b --- 2; c --- 3; d --- 4; e --- 5; f ---
+6; g --- 7; h --- 8; i --- 9
 
 </div>
 
