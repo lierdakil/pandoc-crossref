@@ -3,6 +3,7 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
     modifyMeta
     ) where
 
+import Data.List (intercalate)
 import Text.Pandoc
 import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Options
@@ -22,6 +23,7 @@ modifyMeta opts meta
     headerInc (Just (MetaList x)) = MetaList $ x ++ incList
     headerInc (Just x) = MetaList $ x:incList
     incList = map MetaString $
+        [ "\\makeatletter" ] ++
         subfig ++
         floatnames ++
         listnames  ++
@@ -29,10 +31,12 @@ modifyMeta opts meta
         lolcommand ++
         [ x | x <- cleveref, cref opts] ++
         [ x | x <- cleverefCodelisting, cref opts && not (listings opts)] ++
-        []
+        [ "\\makeatother" ]
       where
         subfig = [
-            "\\usepackage{subfig}"
+            usepackage [] "subfig"
+          , usepackage [] "caption"
+          , "\\captionsetup[subfloat]{margin=0.5em}"
           ]
         floatnames = [
             "\\AtBeginDocument{%"
@@ -47,11 +51,9 @@ modifyMeta opts meta
           , "}"
           ]
         codelisting = [
-            "\\usepackage{float}"
+            usepackage [] "float"
           , "\\floatstyle{ruled}"
-          , "\\makeatletter"
           , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
-          , "\\makeatother"
           , "\\floatname{codelisting}{"++metaString "listingTitle"++"}"
           ]
         lolcommand
@@ -63,7 +65,7 @@ modifyMeta opts meta
             ]
           | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++metaString' "lolTitle"++"}}"]
         cleveref = [
-            "\\usepackage" ++ cleverefOpts ++ "{cleveref}"
+            usepackage cleverefOpts "cleveref"
           , "\\crefname{figure}" ++ prefix figPrefix False
           , "\\crefname{table}" ++ prefix tblPrefix False
           , "\\crefname{equation}" ++ prefix eqnPrefix False
@@ -76,13 +78,14 @@ modifyMeta opts meta
           , "\\Crefname{section}" ++ prefix secPrefix True
           ]
         cleverefCodelisting = [
-            "\\makeatletter"
-          , "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
+            "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
           , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
-          , "\\makeatother"
           ]
-        cleverefOpts | nameInLink opts = "[nameinlink]"
-                     | otherwise = ""
+        cleverefOpts | nameInLink opts = [ "nameinlink" ]
+                     | otherwise = []
+        usepackage [] p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage{"++p++"}}"
+        usepackage xs p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage"++o++"{"++p++"}}"
+          where o = "[" ++ intercalate "," xs ++ "]"
         toLatex = writeLaTeX def . Pandoc nullMeta . return . Plain
         metaString s = toLatex $ getMetaInlines s meta
         metaString' s = toLatex [Str $ getMetaString s meta]
