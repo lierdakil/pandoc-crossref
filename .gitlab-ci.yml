@@ -30,7 +30,7 @@ job-saved-lts:
   image: haskell:8.0.2
   stage: build
   variables:
-    STACK_YAML: stack-lts.yaml
+    STACK_YAML: stack.yaml
     GHCVERSION: --system-ghc
   <<: *common_script
 
@@ -38,25 +38,8 @@ job-current-lts:
   image: haskell:8.0.2
   stage: build
   variables:
-    STACK_YAML: stack-lts.yaml
+    STACK_YAML: stack.yaml
     RESOLVER: --resolver lts
-    GHCVERSION: --system-ghc
-  <<: *common_script
-
-job-saved-nightly:
-  image: haskell:8.2
-  stage: build
-  variables:
-    STACK_YAML: stack.yaml
-    GHCVERSION: --system-ghc
-  <<: *common_script
-
-job-current-nightly:
-  image: haskell:8.2
-  stage: build
-  variables:
-    STACK_YAML: stack.yaml
-    RESOLVER: --resolver nightly
     GHCVERSION: --system-ghc
   <<: *common_script
 

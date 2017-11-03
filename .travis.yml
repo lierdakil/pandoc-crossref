@@ -14,15 +14,10 @@ addons:
 
 matrix:
   include:
-  - env: STACK_YAML=stack-lts.yaml RELEASE_FN=ghc8-pandoc-1-19
-    compiler: ": #GHC 8.0.1 Pandoc 1.19"
-  - env: STACK_YAML=stack-lts.yaml RELEASE_FN=ghc8-pandoc-1-19
-    compiler: ": #GHC 8.0.1 Pandoc 1.19"
-    os: osx
-  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc82-pandoc-1-19
-    compiler: ": #GHC 8.0.1 Pandoc 1.19"
-  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc82-pandoc-1-19
-    compiler: ": #GHC 8.0.1 Pandoc 1.19"
+  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc8-pandoc-1-19
+    compiler: ": #Pandoc 1.19"
+  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc8-pandoc-1-19
+    compiler: ": #Pandoc 1.19"
     os: osx
 
 before_install:

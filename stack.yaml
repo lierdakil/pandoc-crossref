@@ -4,10 +4,4 @@ packages:
 - .
 extra-deps:
 - roman-numerals-0.5.1.5
-- pandoc-1.19.2.4
-- aeson-1.1.2.0
-- haddock-library-1.4.3
-- hslua-0.4.1
-- pandoc-types-1.17.0.5
-- skylighting-0.1.1.5
-resolver: nightly-2017-09-19
+resolver: lts-9.5
