@@ -1,14 +1,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Text.Pandoc.CrossRef.Util.Meta where
 
-import Text.Pandoc.CrossRef.Util.Gap
 import Text.Pandoc.CrossRef.Util.Util
-import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Definition
 import Data.Maybe (fromMaybe)
 import Data.Default
-import qualified Data.Text as T
 import Text.Pandoc.Walk
+import Text.Pandoc.Shared hiding (capitalize)
 
 getMetaList :: (Default a) => (MetaValue -> Maybe a) -> String -> Meta -> Int -> a
 getMetaList f name meta i = fromMaybe def $ lookupMeta name meta >>= getList i >>= f
@@ -26,13 +24,9 @@ getMetaString :: String -> Meta -> String
 getMetaString name meta = fromMaybe [] $ lookupMeta name meta >>= toString
 
 toInlines :: MetaValue -> Maybe [Inline]
-toInlines (MetaString s) =
-  return $ getInlines $ readMarkdown def $ T.pack s
-  where getInlines (Pandoc _ bs) = concatMap getInline bs
-        getInline (Plain ils) = ils
-        getInline (Para ils) = ils
-        getInline _ = []
+toInlines (MetaBlocks s) = Just $ blocksToInlines s
 toInlines (MetaInlines s) = return s
+toInlines (MetaString s) = error $ "Expected inlines, but got string in metadata: \"" ++ show s ++ "\""
 toInlines _ = Nothing
 
 toBool :: MetaValue -> Maybe Bool
@@ -42,9 +36,7 @@ toBool _ = Nothing
 toBlocks :: MetaValue -> Maybe [Block]
 toBlocks (MetaBlocks bs) = return bs
 toBlocks (MetaInlines ils) = return [Plain ils]
-toBlocks (MetaString s) =
-  return $ getBlocks $ readMarkdown def $ T.pack s
-  where getBlocks (Pandoc _ bs) = bs
+toBlocks (MetaString s) = error $ "Expected blocks, but got string in metadata: \"" ++ show s ++ "\""
 toBlocks _ = Nothing
 
 toString :: MetaValue -> Maybe String

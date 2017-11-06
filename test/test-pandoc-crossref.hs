@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts, CPP #-}
 import Test.Hspec
-import Text.Pandoc hiding (readMarkdown, getDataFileName)
+import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder
 import Control.Monad.State
 import Data.List
@@ -12,7 +12,6 @@ import qualified Data.Default as Df
 
 import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
-import Text.Pandoc.CrossRef.Util.Gap
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Settings
@@ -258,13 +257,13 @@ main = hspec $ do
 
       it "demo.md matches demo.native" $ do
         demomd <- readFile =<< getDataFileName "demo.md"
-        let Pandoc m b = readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
+        Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
         runCrossRef m Nothing crossRefBlocks b `shouldBe` Native.demo
 
       it "demo.md with chapters matches demo-chapters.native" $ do
         demomd <- readFile =<< getDataFileName "demo.md"
-        let Pandoc m b = readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
-            m' = setMeta "chapters" True m
+        Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
+        let m' = setMeta "chapters" True m
         runCrossRef m' Nothing crossRefBlocks b `shouldBe` Native.demochapters
 
     describe "LaTeX" $ do
