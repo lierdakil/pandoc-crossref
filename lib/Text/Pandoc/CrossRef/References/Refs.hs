@@ -1,6 +1,7 @@
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Text.Pandoc.Definition
+import Text.Pandoc.Builder
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import qualified Data.List.HT as HT
@@ -21,8 +22,7 @@ import Prelude
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
 replaceRefs opts (Cite cits _:xs)
-  = (++ xs) `fmap` intercalate [Str ",", Space] `fmap`
-    mapM replaceRefs' (groupBy eqPrefix cits)
+  = toList . (<> fromList xs) . intercalate' (text ", ") . map fromList <$> mapM replaceRefs' (groupBy eqPrefix cits)
   where
     eqPrefix a b = uncurry (==) $
       (fmap uncapitalizeFirst . getLabelPrefix . citationId) <***> (a,b)
@@ -32,12 +32,13 @@ replaceRefs opts (Cite cits _:xs)
       = replaceRefs'' prefix opts cits'
       | otherwise = return [Cite cits' il']
         where
-          il' =
-              [Str "["]
-            ++intercalate [Str ";", Space] (map citationToInlines cits')
-            ++[Str "]"]
+          il' = toList $
+              str "["
+            <> intercalate' (text "; ") (map citationToInlines cits')
+            <> str "]"
           citationToInlines c =
-            citationPrefix c ++ [Space, Str $ "@"++citationId c] ++ citationSuffix c
+            fromList (citationPrefix c) <> text ("@" ++ citationId c)
+              <> fromList (citationSuffix c)
     replaceRefs'' = case outFormat opts of
                     f | isFormat "latex" f -> replaceRefsLatex
                     _                      -> replaceRefsOther
@@ -86,7 +87,7 @@ replaceRefsLatex prefix opts cits
   | cref opts
   = replaceRefsLatex' prefix opts cits
   | otherwise
-  = intercalate [Str ",", Space] <$>
+  = toList . intercalate' (text ", ") . map fromList <$>
       mapM (replaceRefsLatex' prefix opts) (groupBy citationGroupPred cits)
 
 replaceRefsLatex' :: String -> Options -> [Citation] -> WS [Inline]
@@ -126,7 +127,7 @@ getLabelPrefix lab
   where p = (++ ":") . takeWhile (/=':') $ lab
 
 replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
-replaceRefsOther prefix opts cits = intercalate [Str ",", Space] <$>
+replaceRefsOther prefix opts cits = toList . intercalate' (text ", ") . map fromList <$>
     mapM (replaceRefsOther' prefix opts) (groupBy citationGroupPred cits)
 
 citationGroupPred :: Citation -> Citation -> Bool
@@ -142,7 +143,7 @@ replaceRefsOther' prefix opts cits = do
                 | all null $ map citationPrefix cits
                 = cmap $ getRefPrefix opts prefix cap (length cits - 1)
                 | otherwise
-                = cmap ((citationPrefix (head cits) ++ [Space]) ++)
+                = cmap $ toList . ((fromList (citationPrefix (head cits)) <> space) <>) . fromList
     cmap f [Link attr t w]
       | nameInLink opts = [Link attr (f t) w]
     cmap f x = f x
@@ -198,20 +199,20 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   f (x:xs) = [RefRange x (last xs)] -- shorten more than two values
   format :: [RefItem] -> [Inline]
   format [] = []
-  format [x] = show'' x
-  format [x, y] = show'' x ++ pairDelim o ++ show'' y
-  format xs = intercalate (refDelim o) init' ++ lastDelim o ++ last'
+  format [x] = toList $ show'' x
+  format [x, y] = toList $ show'' x <> fromList (pairDelim o) <> show'' y
+  format xs = toList $ intercalate' (fromList $ refDelim o) init' <> fromList (lastDelim o) <> last'
     where initlast []     = error "emtpy list in initlast"
           initlast [y]    = ([], y)
           initlast (y:ys) = first (y:) $ initlast ys
           (init', last') = initlast $ map show'' xs
-  show'' :: RefItem -> [Inline]
+  show'' :: RefItem -> Inlines
   show'' (RefSingle x) = show' x
-  show'' (RefRange x y) = show' x ++ rangeDelim o ++ show' y
-  show' :: RefData -> [Inline]
+  show'' (RefRange x y) = show' x <> fromList (rangeDelim o) <> show' y
+  show' :: RefData -> Inlines
   show' RefData{rdLabel=l, rdIdx=Just i, rdSubfig = sub, rdSuffix = suf}
-    | linkReferences o = [Link nullAttr txt ('#':l,[])]
-    | otherwise = txt
+    | linkReferences o = link ('#':l) "" (fromList txt)
+    | otherwise = fromList txt
     where
       txt
         | Just sub' <- sub
@@ -229,4 +230,4 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
           in applyTemplate' vars $ refIndexTemplate o
   show' RefData{rdLabel=l, rdIdx=Nothing, rdSuffix = suf} =
     trace ("Undefined cross-reference: " ++ l)
-          (Strong [Str $ "¿" ++ l ++ "?"] : suf)
+          (strong (text $ "¿" ++ l ++ "?") <> fromList suf)

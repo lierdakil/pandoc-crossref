@@ -4,7 +4,7 @@ module Text.Pandoc.CrossRef.References.Blocks
   ) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Builder (text, toList)
+import qualified Text.Pandoc.Builder as B
 import Text.Pandoc.Shared (stringify)
 import Control.Monad.State hiding (get, modify)
 import Data.List
@@ -71,9 +71,9 @@ replaceBlock opts (Div (label,cls,attrs) images)
   = do
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption imgRefs
     let (cont, st) = runState (runReplace (mkRR $ replaceSubfigs opts') $ init images) def
-        collectedCaptions =
-            intercalate (ccsDelim opts)
-          $ map (collectCaps . snd)
+        collectedCaptions = B.toList $
+            intercalate' (B.fromList $ ccsDelim opts)
+          $ map (B.fromList . collectCaps . snd)
           $ sortOn (refIndex . snd)
           $ filter (not . null . refTitle . snd)
           $ M.toList
@@ -98,12 +98,12 @@ replaceBlock opts (Div (label,cls,attrs) images)
     case outFormat opts of
           f | isFormat "latex" f ->
             replaceNoRecurse $ Div nullAttr $
-              [ RawBlock (Format "tex") "\\begin{figure}\n\\centering" ]
+              [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
               ++ cont ++
-              [ Para [RawInline (Format "tex") "\\caption"
+              [ Para [RawInline (Format "latex") "\\caption"
                        , Span nullAttr caption]
-              , RawBlock (Format "tex") $ mkLaTeXLabel label
-              , RawBlock (Format "tex") "\\end{figure}"]
+              , RawBlock (Format "latex") $ mkLaTeXLabel label
+              , RawBlock (Format "latex") "\\end{figure}"]
           _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
   where
     opts' = opts
@@ -151,7 +151,7 @@ replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header c
     let title' =
           case outFormat opts of
               f | isFormat "latex" f ->
-                RawInline (Format "tex") (mkLaTeXLabel label) : title
+                RawInline (Format "latex") (mkLaTeXLabel label) : title
               _  -> applyTemplate idxStr title $ tableTemplate opts
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
 replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
@@ -165,13 +165,13 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
         --if not using listings, however, wrap it in a codelisting environment
         | isFormat "latex" f ->
           replaceNoRecurse $ Div nullAttr [
-              RawBlock (Format "tex")
+              RawBlock (Format "latex")
                 $ "\\begin{codelisting}\n\\caption{"++caption++"}"
             , cb
-            , RawBlock (Format "tex") "\\end{codelisting}"
+            , RawBlock (Format "latex") "\\end{codelisting}"
             ]
       _ -> do
-        let cap = toList $ text caption
+        let cap = B.toList $ B.text caption
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) cap lstRefs
         let caption' = applyTemplate idxStr cap $ listingTemplate opts
         replaceNoRecurse $ Div (label, "listing":classes, []) [
@@ -191,13 +191,13 @@ replaceBlock opts
         --if not using listings, however, wrap it in a codelisting environment
         | isFormat "latex" f ->
           replaceNoRecurse $ Div nullAttr [
-              RawBlock (Format "tex") "\\begin{codelisting}"
+              RawBlock (Format "latex") "\\begin{codelisting}"
             , Para [
-                RawInline (Format "tex") "\\caption"
+                RawInline (Format "latex") "\\caption"
               , Span nullAttr caption
               ]
             , CodeBlock (label,classes,attrs) code
-            , RawBlock (Format "tex") "\\end{codelisting}"
+            , RawBlock (Format "latex") "\\end{codelisting}"
             ]
       _ -> do
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption lstRefs
@@ -229,7 +229,7 @@ replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
   = case outFormat opts of
       f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
-        in replaceNoRecurse $ RawInline (Format "tex") eqn
+        in replaceNoRecurse $ RawInline (Format "latex") eqn
       _ -> do
         (eq', _) <- replaceEqn opts attrs eq
         replaceNoRecurse $ Span attrs [Math DisplayMath eq']
@@ -268,8 +268,10 @@ divBlocks :: Block -> Block
 divBlocks (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]
-  = Div (label,[],[]) [Table (init title) align widths header cells]
+  = Div (label,[],[]) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
+  where isSpace = (||) <$> (==Space) <*> (==SoftBreak)
 divBlocks x = x
+
 
 splitMath :: [Block] -> [Block]
 splitMath (Para ils:xs)
@@ -314,16 +316,16 @@ latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
   let
     title' = fromMaybe title $ stripPrefix "fig:" title
     texlabel | null label = []
-             | otherwise = [RawInline (Format "tex") $ mkLaTeXLabel label]
+             | otherwise = [RawInline (Format "latex") $ mkLaTeXLabel label]
     texalt | "nocaption" `elem` cls  = []
            | otherwise = concat
-              [ [ RawInline (Format "tex") "["]
+              [ [ RawInline (Format "latex") "["]
               , alt
-              , [ RawInline (Format "tex") "]"]
+              , [ RawInline (Format "latex") "]"]
               ]
     img = Image (label, cls, attrs) alt (src, title')
   in concat [
-      [ RawInline (Format "tex") "\\subfloat" ]
+      [ RawInline (Format "latex") "\\subfloat" ]
       , texalt
       , [Span nullAttr $ img:texlabel]
       ]

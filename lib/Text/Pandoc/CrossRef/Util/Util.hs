@@ -6,14 +6,18 @@ module Text.Pandoc.CrossRef.Util.Util
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.Definition
+import Text.Pandoc.Builder
 import Text.Pandoc.Class
 import Data.Char (toUpper, toLower, isUpper)
-import Data.List (intercalate, isSuffixOf, isPrefixOf, stripPrefix)
+import Data.List (isSuffixOf, isPrefixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import Data.Generics
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
 import qualified Data.Text as T
+
+intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
+intercalate' s = foldr (\x acc -> if acc == mempty then x else x <> s <> acc) mempty
 
 isFormat :: String -> Maybe Format -> Bool
 isFormat fmt (Just (Format f)) = takeWhile (`notElem` "+-") f == fmt
@@ -32,7 +36,7 @@ isFirstUpper (x:_) = isUpper x
 isFirstUpper [] = False
 
 chapPrefix :: [Inline] -> Index -> [Inline]
-chapPrefix delim index = intercalate delim (map (return . Str . uncurry (fromMaybe . show)) index)
+chapPrefix delim index = toList $ intercalate' (fromList delim) (map (str . uncurry (fromMaybe . show)) index)
 
 data ReplacedResult a = Replaced Bool a | NotReplaced Bool
 type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))
