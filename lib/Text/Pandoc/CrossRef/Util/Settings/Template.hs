@@ -64,7 +64,7 @@ makeCon' t accName = do
       if
       | t' == boolT -> [|getMetaBool $(varName) $(dtv)|]
       | t' == intT -> [|read $ getMetaString $(varName) $(dtv)|]
-      | t' == funT -> [|tryCapitalizeM (flip (getMetaList toInlines) $(dtv)) $(varName)|]
+      | t' == funT -> [|tryCapitalizeM (flip (getMetaList (toInlines $(varName))) $(dtv)) $(varName)|]
       | t' == inlT -> [|getMetaInlines $(varName) $(dtv)|]
       | t' == blkT -> [|getMetaBlock $(varName) $(dtv)|]
       | t' == tmplT -> [|makeTemplate $(dtv) $ getMetaInlines $(varName) $(dtv)|]

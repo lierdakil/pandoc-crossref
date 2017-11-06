@@ -18,9 +18,9 @@ makeTemplate :: Meta -> [Inline] -> Template
 makeTemplate dtv = Template . flip scan . scan (`lookupMeta` dtv)
   where
   scan = bottomUp . go
-  go vf (x@(Math DisplayMath var):xs) = replaceVar (vf var) [x] ++ xs
+  go vf (x@(Math DisplayMath var):xs) = replaceVar var (vf var) [x] ++ xs
   go _ x = x
-  replaceVar val def' = fromMaybe def' $ val >>= toInlines
+  replaceVar var val def' = fromMaybe def' $ val >>= toInlines ("variable " ++ var)
 
 applyTemplate' :: Map String [Inline] -> Template -> [Inline]
 applyTemplate' vars (Template g) = g internalVars

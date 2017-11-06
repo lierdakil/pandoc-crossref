@@ -15,29 +15,29 @@ getMetaBool :: String -> Meta -> Bool
 getMetaBool name meta = fromMaybe False $ lookupMeta name meta >>= toBool
 
 getMetaInlines :: String -> Meta -> [Inline]
-getMetaInlines name meta = fromMaybe [] $ lookupMeta name meta >>= toInlines
+getMetaInlines name meta = fromMaybe [] $ lookupMeta name meta >>= toInlines name
 
 getMetaBlock :: String -> Meta -> [Block]
-getMetaBlock name meta = fromMaybe [] $ lookupMeta name meta >>= toBlocks
+getMetaBlock name meta = fromMaybe [] $ lookupMeta name meta >>= toBlocks name
 
 getMetaString :: String -> Meta -> String
 getMetaString name meta = fromMaybe [] $ lookupMeta name meta >>= toString
 
-toInlines :: MetaValue -> Maybe [Inline]
-toInlines (MetaBlocks s) = Just $ blocksToInlines s
-toInlines (MetaInlines s) = return s
-toInlines (MetaString s) = error $ "Expected inlines, but got string in metadata: \"" ++ show s ++ "\""
-toInlines _ = Nothing
+toInlines :: String -> MetaValue -> Maybe [Inline]
+toInlines _ (MetaBlocks s) = Just $ blocksToInlines s
+toInlines _ (MetaInlines s) = return s
+toInlines name (MetaString s) = error $ "Expected inlines, but got string in metadata " ++ name ++ ": \"" ++ show s ++ "\""
+toInlines _ _ = Nothing
 
 toBool :: MetaValue -> Maybe Bool
 toBool (MetaBool b) = return b
 toBool _ = Nothing
 
-toBlocks :: MetaValue -> Maybe [Block]
-toBlocks (MetaBlocks bs) = return bs
-toBlocks (MetaInlines ils) = return [Plain ils]
-toBlocks (MetaString s) = error $ "Expected blocks, but got string in metadata: \"" ++ show s ++ "\""
-toBlocks _ = Nothing
+toBlocks :: String -> MetaValue -> Maybe [Block]
+toBlocks _ (MetaBlocks bs) = return bs
+toBlocks _ (MetaInlines ils) = return [Plain ils]
+toBlocks name (MetaString s) = error $ "Expected blocks, but got string in metadata " ++ name ++ ": \"" ++ show s ++ "\""
+toBlocks _ _ = Nothing
 
 toString :: MetaValue -> Maybe String
 toString (MetaString s) = Just s
