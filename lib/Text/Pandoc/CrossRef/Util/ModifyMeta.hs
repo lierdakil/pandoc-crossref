@@ -20,10 +20,10 @@ modifyMeta opts meta
   | otherwise = meta
   where
     headerInc :: Maybe MetaValue -> MetaValue
-    headerInc Nothing = MetaList incList
-    headerInc (Just (MetaList x)) = MetaList $ x ++ incList
-    headerInc (Just x) = MetaList $ x:incList
-    incList = map MetaString $
+    headerInc Nothing = incList
+    headerInc (Just (MetaList x)) = MetaList $ x ++ [incList]
+    headerInc (Just x) = MetaList [x, incList]
+    incList = MetaBlocks $ return $ RawBlock (Format "latex") $ unlines $
         [ "\\makeatletter" ] ++
         subfig ++
         floatnames ++
