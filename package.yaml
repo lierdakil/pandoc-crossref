@@ -11,20 +11,9 @@ license-file: LICENSE.md
 github: lierdakil/pandoc-crossref
 extra-source-files:
 - test/*.inc
-- test/m2m/equations/*.md
-- test/m2m/equations-auto/*.md
-- test/m2m/equations-tables/*.md
-- test/m2m/equations-tables-auto/*.md
-- test/m2m/subfigures/*.md
-- test/m2m/subfigures-grid/*.md
-- test/m2m/subfigures-ccsDelim/*.md
-- test/m2m/equations/*.tex
-- test/m2m/equations-auto/*.tex
-- test/m2m/equations-tables/*.tex
-- test/m2m/equations-tables-auto/*.tex
-- test/m2m/subfigures/*.tex
-- test/m2m/subfigures-grid/*.tex
-- test/m2m/subfigures-ccsDelim/*.tex
+data-files:
+- demo.md
+- test/m2m/*/*
 dependencies:
 - base >=4.9 && <5
 - pandoc ==2.0.*
@@ -61,22 +50,19 @@ tests:
     - test
     - lib
     ghc-options:
-    - -rtsopts
     - -Wall
     - -fno-warn-unused-do-bind
     - -threaded
     dependencies:
-      - hspec
+      - hspec >=2.4.4 && <3
   test-integrative:
     main: test-integrative.hs
+    other-modules: []
     source-dirs: test
     ghc-options:
-    - -rtsopts
     - -Wall
     - -fno-warn-unused-do-bind
     - -threaded
     dependencies:
     - pandoc-crossref
-    - hspec
-data-files:
-- demo.md
+    - hspec >=2.4.4 && <3
