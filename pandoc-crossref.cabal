@@ -133,7 +133,7 @@ test-suite test-integrative
   main-is: test-integrative.hs
   hs-source-dirs:
       test
-  ghc-options: -rtsopts -Wall -fno-warn-unused-do-bind -threaded
+  ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.9 && <5
     , pandoc ==2.0.*
@@ -161,7 +161,7 @@ test-suite test-pandoc-crossref
   hs-source-dirs:
       test
       lib
-  ghc-options: -rtsopts -Wall -fno-warn-unused-do-bind -threaded
+  ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.9 && <5
     , pandoc ==2.0.*
