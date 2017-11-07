@@ -303,6 +303,7 @@ main = putStrLn "Hello World!"
 <li><code>lastDelim</code>, default <code>,</code>: Delimiter between second-to-last and last reference ranges, e.g. <code>eq. 2-5, 6-8 &lt;and&gt; 10</code>. <code>pairDelim</code> overrides this for cases of exactly two references/ranges.</li>
 <li><code>refDelim</code>, default <code>,</code>: Delimiter between references, e.g. <code>eq. 2, 5, 7</code> or <code>eq. 2-4, 6-8</code></li>
 <li><code>linkReferences</code>, default <code>false</code>: Make references hyperlinks to the referenced element</li>
+<li><code>nameInLink</code>, default <code>false</code>: For single-element references, inlcude prefix into hyperlink (when using <code>linkReferences</code>)</li>
 </ul>
 <p>Note that none of the <code>*Delim</code> options are honored with cleveref output. Use cleveref’s customization options instead.</p>
 <p><code>figPrefix</code>, <code>eqnPrefix</code>, <code>tblPrefix</code>, <code>lstPrefix</code> can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.</p>

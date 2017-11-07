@@ -364,6 +364,7 @@ See [Subfigures](#subfigures)
 * `lastDelim`, default `, `: Delimiter between second-to-last and last reference ranges, e.g. `eq. 2-5, 6-8 <and> 10`. `pairDelim` overrides this for cases of exactly two references/ranges.
 * `refDelim`, default `, `: Delimiter between references, e.g. `eq. 2, 5, 7` or `eq. 2-4, 6-8`
 * `linkReferences`, default `false`: Make references hyperlinks to the referenced element
+* `nameInLink`, default `false`: For single-element references, inlcude prefix into hyperlink (when using `linkReferences`)
 
 Note that none of the `*Delim` options are honored with cleveref output. Use cleveref's customization options instead.
 
