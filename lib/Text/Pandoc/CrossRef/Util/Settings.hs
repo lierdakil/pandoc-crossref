@@ -1,7 +1,6 @@
 module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
 
-import Text.Pandoc hiding (readMarkdown)
-import Text.Pandoc.CrossRef.Util.Gap
+import Text.Pandoc
 import Text.Pandoc.Builder
 import Control.Exception (handle,IOException)
 
@@ -11,6 +10,7 @@ import Text.Pandoc.CrossRef.Util.PandocOrphans()
 import System.Directory
 import System.FilePath
 import System.IO
+import qualified Data.Text as T
 
 getSettings :: Maybe Format -> Meta -> IO Meta
 getSettings fmt meta = do
@@ -25,8 +25,9 @@ getSettings fmt meta = do
         h <- openFile path ReadMode
         hSetEncoding h utf8
         yaml <- hGetContents h
-        let Pandoc meta' _ = readMarkdown def ("---\n" ++ yaml ++ "\n---")
+        Pandoc meta' _ <- readMd $ T.pack $ unlines ["---", yaml, "---"]
         return meta'
+    readMd = handleError . runPure . readMarkdown def
     readFmtConfig home fmt' = readConfig (home </> ".pandoc-crossref" </> "config-" ++ fmtStr fmt' ++ ".yaml")
     handler :: IOException -> IO Meta
     handler _ = return nullMeta

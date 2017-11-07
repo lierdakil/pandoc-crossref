@@ -1,10 +1,14 @@
 ---
 cref: False
 codeBlockCaptions: True
-figureTitle: "Figure \\#"
-lofTitle: "## List of Figures"
-lotTitle: "## List of Tables"
-tableTemplate: "*$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$"
+figureTitle: |
+  Figure \\#
+lofTitle: |
+  ## List of Figures
+lotTitle: |
+  ## List of Tables
+tableTemplate: |
+  *$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$
 autoSectionLabels: True
 ---
 

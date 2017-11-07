@@ -1,13 +1,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Text.Pandoc.CrossRef.Util.Meta where
 
-import Text.Pandoc.CrossRef.Util.Gap
 import Text.Pandoc.CrossRef.Util.Util
-import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Definition
 import Data.Maybe (fromMaybe)
 import Data.Default
 import Text.Pandoc.Walk
+import Text.Pandoc.Shared hiding (capitalize)
 
 getMetaList :: (Default a) => (MetaValue -> Maybe a) -> String -> Meta -> Int -> a
 getMetaList f name meta i = fromMaybe def $ lookupMeta name meta >>= getList i >>= f
@@ -16,35 +15,29 @@ getMetaBool :: String -> Meta -> Bool
 getMetaBool name meta = fromMaybe False $ lookupMeta name meta >>= toBool
 
 getMetaInlines :: String -> Meta -> [Inline]
-getMetaInlines name meta = fromMaybe [] $ lookupMeta name meta >>= toInlines
+getMetaInlines name meta = fromMaybe [] $ lookupMeta name meta >>= toInlines name
 
 getMetaBlock :: String -> Meta -> [Block]
-getMetaBlock name meta = fromMaybe [] $ lookupMeta name meta >>= toBlocks
+getMetaBlock name meta = fromMaybe [] $ lookupMeta name meta >>= toBlocks name
 
 getMetaString :: String -> Meta -> String
 getMetaString name meta = fromMaybe [] $ lookupMeta name meta >>= toString
 
-toInlines :: MetaValue -> Maybe [Inline]
-toInlines (MetaString s) =
-  return $ getInlines $ readMarkdown def s
-  where getInlines (Pandoc _ bs) = concatMap getInline bs
-        getInline (Plain ils) = ils
-        getInline (Para ils) = ils
-        getInline _ = []
-toInlines (MetaInlines s) = return s
-toInlines _ = Nothing
+toInlines :: String -> MetaValue -> Maybe [Inline]
+toInlines _ (MetaBlocks s) = Just $ blocksToInlines s
+toInlines _ (MetaInlines s) = return s
+toInlines name (MetaString s) = error $ "Expected inlines, but got string in metadata " ++ name ++ ": \"" ++ show s ++ "\""
+toInlines _ _ = Nothing
 
 toBool :: MetaValue -> Maybe Bool
 toBool (MetaBool b) = return b
 toBool _ = Nothing
 
-toBlocks :: MetaValue -> Maybe [Block]
-toBlocks (MetaBlocks bs) = return bs
-toBlocks (MetaInlines ils) = return [Plain ils]
-toBlocks (MetaString s) =
-  return $ getBlocks $ readMarkdown def s
-  where getBlocks (Pandoc _ bs) = bs
-toBlocks _ = Nothing
+toBlocks :: String -> MetaValue -> Maybe [Block]
+toBlocks _ (MetaBlocks bs) = return bs
+toBlocks _ (MetaInlines ils) = return [Plain ils]
+toBlocks name (MetaString s) = error $ "Expected blocks, but got string in metadata " ++ name ++ ": \"" ++ show s ++ "\""
+toBlocks _ _ = Nothing
 
 toString :: MetaValue -> Maybe String
 toString (MetaString s) = Just s

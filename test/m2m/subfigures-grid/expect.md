@@ -1,7 +1,6 @@
 You can define subfigures:
 
-<div id="fig:subfigures" class="subfigures">
-
+::: {#fig:subfigures .subfigures}
 +:------------------:+:------------------:+:------------------:+
 | ![a](fig1.png){#fi | ![b](fig2.png){#fi | ![c](fig3.png){wid |
 | g:subfig1          | g:subfig2          | th="100%"}         |
@@ -16,13 +15,11 @@ You can define subfigures:
 | width="100%"}      |                    | width="100%"}      |
 +--------------------+--------------------+--------------------+
 
-Figure 1: Caption. a — 1, b — 2, c — 3, d — 4, e — 5, f — 6, g — 7, h —
-8, i — 9
+Figure 1: Caption. a --- 1, b --- 2, c --- 3, d --- 4, e --- 5, f --- 6,
+g --- 7, h --- 8, i --- 9
+:::
 
-</div>
-
-<div id="fig:subfigures2" class="subfigures">
-
+::: {#fig:subfigures2 .subfigures}
 +:--------------------------------------------------------------------:+
 | ![a](fig1.png){#fig:subfig21 width="100%"}                           |
 +----------------------------------------------------------------------+
@@ -43,10 +40,9 @@ Figure 1: Caption. a — 1, b — 2, c — 3, d — 4, e — 5, f — 6, g — 7
 | ![i](fig9.png){#fig:subfig29 width="100%"}                           |
 +----------------------------------------------------------------------+
 
-Figure 2: Caption. a — 1, b — 2, c — 3, d — 4, e — 5, f — 6, g — 7, h —
-8, i — 9
-
-</div>
+Figure 2: Caption. a --- 1, b --- 2, c --- 3, d --- 4, e --- 5, f --- 6,
+g --- 7, h --- 8, i --- 9
+:::
 
 Figures themselves can be referenced fig. 2, as well as individual
 subfigures: figs. 1 (a), 1 (b), 2 (i)

@@ -1,16 +1,16 @@
 This is a test file with some referenced equations, line
-[$$ this \qquad(1)$$]{}
+$$ this \qquad(1)$$
 
-Some equations might be inside of text, [$$ for example \qquad(2)$$]{}
-this one.
+Some equations might be inside of text, $$ for example \qquad(2)$$ this
+one.
 
 Some equations might be on start of paragraphs:
 
-[$$ start \qquad(3)$$]{} of paragraph.
+$$ start \qquad(3)$$ of paragraph.
 
 Other might be on separate paragraphs of their own:
 
-[$$ separate \qquad(4)$$]{}
+$$ separate \qquad(4)$$
 
 Some of those can be labelled:
 
