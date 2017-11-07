@@ -44,6 +44,9 @@ executables:
     dependencies:
     - pandoc-crossref
     - optparse-applicative >= 0.13.2.0 && < 0.14
+    - file-embed >= 0.0.10 && < 0.0.11
+    - open-browser >= 0.2 && < 0.3
+    - temporary
 tests:
   test-pandoc-crossref:
     main: test-pandoc-crossref.hs
