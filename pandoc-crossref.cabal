@@ -126,6 +126,7 @@ executable pandoc-crossref
     , filepath >=1.1 && <1.5
     , text >=1.2.2 && <1.3
     , pandoc-crossref
+    , optparse-applicative >= 0.13.2.0 && < 0.14
   default-language: Haskell2010
 
 test-suite test-integrative

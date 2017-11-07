@@ -43,6 +43,7 @@ executables:
     ghc-options: -Wall
     dependencies:
     - pandoc-crossref
+    - optparse-applicative >= 0.13.2.0 && < 0.14
 tests:
   test-pandoc-crossref:
     main: test-pandoc-crossref.hs

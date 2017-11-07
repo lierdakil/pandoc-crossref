@@ -55,6 +55,7 @@ module Text.Pandoc.CrossRef (
   , runCrossRef
   , runCrossRefIO
   , module SG
+  , defaultMeta
   , CrossRefM
   , CrossRefEnv(..)
   ) where
