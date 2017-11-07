@@ -12,7 +12,7 @@ github: lierdakil/pandoc-crossref
 extra-source-files:
 - test/*.inc
 data-files:
-- demo.md
+- docs/demo/demo.md
 - test/m2m/*/*
 dependencies:
 - base >=4.9 && <5

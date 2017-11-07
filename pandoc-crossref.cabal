@@ -21,7 +21,7 @@ extra-source-files:
     test/demo.inc
 
 data-files:
-    demo.md
+    docs/demo/demo.md
     test/m2m/delim/expect.md
     test/m2m/delim/expect.tex
     test/m2m/delim/input.md

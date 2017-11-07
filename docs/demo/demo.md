@@ -10,6 +10,7 @@ lotTitle: |
 tableTemplate: |
   *$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$
 autoSectionLabels: True
+title: pandoc-crossref demo document
 ---
 
 This is a demo file for pandoc-crossref. With this filter, you can cross-reference figures (see [@fig:figure1;@fig:figure2;@fig:figure3]), display equations (see @eq:eqn1), tables (see [@tbl:table1]) and sections ([@sec:sec1; @sec:sec2; @sec:caption-attr; @sec:table-capts; @sec:wrapping-div])

@@ -8,19 +8,19 @@ Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref pdf][cpdf]
 
 You can also enable per-chapter numbering (as with `--chapters` for latex output). You need to specify `-M chapters` for non-latex/pdf output however. Examples: [html][chap-html], [markdown][chap-markdown], [latex][chap-latex], [pdf][chap-pdf].
 
-[demo-md]: https://raw.githubusercontent.com/lierdakil/pandoc-crossref/gh-pages/demo.md
-[html]: http://lierdakil.github.io/pandoc-crossref/output.html
-[latex]: http://lierdakil.github.io/pandoc-crossref/output.latex
-[pdf]: http://lierdakil.github.io/pandoc-crossref/output.pdf
-[md]: http://lierdakil.github.io/pandoc-crossref/output.md
-[chap-html]: http://lierdakil.github.io/pandoc-crossref/output-chapters.html
-[chap-latex]:http://lierdakil.github.io/pandoc-crossref/output-chapters.latex
-[chap-markdown]:http://lierdakil.github.io/pandoc-crossref/output-chapters.md
-[chap-pdf]:http://lierdakil.github.io/pandoc-crossref/output-chapters.pdf
-[clatex]: http://lierdakil.github.io/pandoc-crossref/output-cref.latex
-[cpdf]: http://lierdakil.github.io/pandoc-crossref/output-cref.pdf
-[llatex]: http://lierdakil.github.io/pandoc-crossref/output-listings.latex
-[lpdf]: http://lierdakil.github.io/pandoc-crossref/output-listings.pdf
+[demo-md]: http://lierdakil.github.io/pandoc-crossref/demo/output.html
+[html]: http://lierdakil.github.io/pandoc-crossref/demo/output.html
+[latex]: http://lierdakil.github.io/pandoc-crossref/demo/output.latex
+[pdf]: http://lierdakil.github.io/pandoc-crossref/demo/output.pdf
+[md]: http://lierdakil.github.io/pandoc-crossref/demo/output.md
+[chap-html]: http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.html
+[chap-latex]: http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.latex
+[chap-markdown]: http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.md
+[chap-pdf]: http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.pdf
+[clatex]: http://lierdakil.github.io/pandoc-crossref/demo/output-cref.latex
+[cpdf]: http://lierdakil.github.io/pandoc-crossref/demo/output-cref.pdf
+[llatex]: http://lierdakil.github.io/pandoc-crossref/demo/output-listings.latex
+[lpdf]: http://lierdakil.github.io/pandoc-crossref/demo/output-listings.pdf
 
 
 This work is inspired by [pandoc-fignos][1] and [pandoc-eqnos][2] by @tomduck.

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>pandoc-crossref demo document</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      div.line-block{white-space: pre-line;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+div.sourceLine, a.sourceLine { display: inline-block; min-height: 1.25em; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; }
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+div.sourceLine, a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource div.sourceLine, .numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource div.sourceLine::before, .numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em; }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; color: #aaaaaa;  padding-left: 4px; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; color: initial; }
+}
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.bn { color: #40a070; } /* BaseN */
+code span.fl { color: #40a070; } /* Float */
+code span.ch { color: #4070a0; } /* Char */
+code span.st { color: #4070a0; } /* String */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.ot { color: #007020; } /* Other */
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.fu { color: #06287e; } /* Function */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code span.cn { color: #880000; } /* Constant */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.im { } /* Import */
+code span.va { color: #19177c; } /* Variable */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.op { color: #666666; } /* Operator */
+code span.bu { } /* BuiltIn */
+code span.ex { } /* Extension */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.at { color: #7d9029; } /* Attribute */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header>
+<h1 class="title">pandoc-crossref demo document</h1>
+</header>
+<p>This is a demo file for pandoc-crossref. With this filter, you can cross-reference figures (see figs. 2-4), display equations (see eq. 1), tables (see tbl. 1) and sections (secs. 1, 2, 4.1-4.3)</p>
+<p>For immediate example, see fig. 1</p>
+<figure>
+<img src="img1.jpg" alt="Figure \# 1: A figure" id="fig:figure0" /><figcaption>Figure \# 1: A figure</figcaption>
+</figure>
+<p>There is also support for code blocks, for example, lsts. 1-3</p>
+<p>It’s possible to capitalize reference prefixes, like this: Fig. 2.</p>
+<p>In case of multiple references, capitalization is determined by first reference. Figs. 2, 3 is capitalized, while figs. 2, 3 is not.</p>
+<p>It is also possible to mix different references, like fig. 2, tbl. 1, lsts. 1, 2, figs. 3, 4, which will be grouped in order they are specified. You can even intermix this with regular citations, although it’s not recommended: fig. 2, tbl. 1, <span class="citation" data-cites="unprocessedCitation">[@unprocessedCitation]</span></p>
+<p>You can also have custom chapter reference labels, like sec. AppA.CustLab</p>
+<p>Subfigures are supported, see figs. 5, 5 (b)</p>
+<h1 id="sec:sec1"><span class="header-section-number">1</span> Chapter 1. Figures</h1>
+<figure>
+<img src="img1.jpg" alt="Figure \# 2: First figure" id="fig:figure1" /><figcaption>Figure \# 2: First figure</figcaption>
+</figure>
+<figure>
+<img src="img2.jpg" alt="Figure \# 3: Second figure" id="fig:figure2" /><figcaption>Figure \# 3: Second figure</figcaption>
+</figure>
+<figure>
+<img src="img3.jpg" alt="Figure \# 4: Third figure" id="fig:figure3" /><figcaption>Figure \# 4: Third figure</figcaption>
+</figure>
+<figure>
+<img src="img1.jpg" alt="Unlabelled image" /><figcaption>Unlabelled image</figcaption>
+</figure>
+<div id="fig:subfigures" class="subfigures">
+<figure>
+<img src="img1.jpg" alt="a" /><figcaption>a</figcaption>
+</figure>
+<figure>
+<img src="img1.jpg" alt="b" id="fig:subfigureB" /><figcaption>b</figcaption>
+</figure>
+<p>Figure \# 5: Subfigures caption. a — Subfigure a, b — Subfigure b</p>
+</div>
+<h1 id="sec:sec2"><span class="header-section-number">2</span> Chapter 2. Equations</h1>
+<p>Display equations are labelled and numbered</p>
+<p><span id="eq:eqn1"><br /><span class="math display"><em>P</em><sub><em>i</em></sub>(<em>x</em>)=∑<sub><em>i</em></sub><em>a</em><sub><em>i</em></sub><em>x</em><sup><em>i</em></sup>  (1)</span><br /></span></p>
+<p>Since 0.1.6.0 those can also appear in the middle of paragraph <span id="eq:quadr"><br /><span class="math display"><em>a</em><em>x</em><sup>2</sup> + <em>b</em><em>x</em><sup>2</sup> + <em>c</em> = 0  (2)</span><br /></span> like this.</p>
+<h1 id="sec:chapter-3.-tables"><span class="header-section-number">3</span> Chapter 3. Tables</h1>
+<div id="tbl:table1">
+<table>
+<caption><em>Table 1</em>: Table example</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">First Header</th>
+<th style="text-align: left;">Second Header</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Content Cell</td>
+<td style="text-align: left;">Content Cell</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Content Cell</td>
+<td style="text-align: left;">Content Cell</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Table without caption:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">First Header</th>
+<th style="text-align: left;">Second Header</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Content Cell</td>
+<td style="text-align: left;">Content Cell</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Content Cell</td>
+<td style="text-align: left;">Content Cell</td>
+</tr>
+</tbody>
+</table>
+<h1 id="sec:chapter-4.-code-blocks"><span class="header-section-number">4</span> Chapter 4. Code blocks</h1>
+<p>There are a couple options for code block labels. Those work only if code block id starts with <code>lst:</code>, e.g. <code>{#lst:label}</code></p>
+<h2 id="sec:caption-attr"><span class="header-section-number">4.1</span> <code>caption</code> attribute</h2>
+<p><code>caption</code> attribute will be treated as code block caption. If code block has both id and <code>caption</code> attributes, it will be treated as numbered code block.</p>
+<div id="lst:captionAttr" class="listing haskell">
+<p>Listing 1: Listing caption</p>
+<pre class="sourceCode haskell" id="cb1"><code class="sourceCode haskell"><div class="sourceLine" id="cb1-1" data-line-number="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</div>
+<div class="sourceLine" id="cb1-2" data-line-number="2">main <span class="fu">=</span> putStrLn <span class="st">&quot;Hello World!&quot;</span></div></code></pre>
+</div>
+
+<h2 id="sec:table-capts"><span class="header-section-number">4.2</span> Table-style captions</h2>
+<p>Enabled with <code>codeBlockCaptions</code> metadata option. If code block is immediately adjacent to paragraph, starting with <code>Listing:</code> or <code>:</code>, said paragraph will be treated as code block caption.</p>
+<div id="lst:tableCaption" class="listing haskell">
+<p>Listing 2: Listing caption</p>
+<pre class="sourceCode haskell" id="cb2"><code class="sourceCode haskell"><div class="sourceLine" id="cb2-1" data-line-number="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</div>
+<div class="sourceLine" id="cb2-2" data-line-number="2">main <span class="fu">=</span> putStrLn <span class="st">&quot;Hello World!&quot;</span></div></code></pre>
+</div>
+<h2 id="sec:wrapping-div"><span class="header-section-number">4.3</span> Wrapping div</h2>
+<p>Wrapping code block without label in a div with id <code>lst:...</code> and class, starting with <code>listing</code>, and adding paragraph before code block, but inside div, will treat said paragraph as code block caption.</p>
+<div id="lst:wrappingDiv" class="listing haskell">
+<p>Listing 3: Listing caption</p>
+<pre class="sourceCode haskell" id="cb3"><code class="sourceCode haskell"><div class="sourceLine" id="cb3-1" data-line-number="1"><span class="ot">main ::</span> <span class="dt">IO</span> ()</div>
+<div class="sourceLine" id="cb3-2" data-line-number="2">main <span class="fu">=</span> putStrLn <span class="st">&quot;Hello World!&quot;</span></div></code></pre>
+</div>
+<h1 id="sec:unnumbered-chapter." class="unnumbered">Unnumbered chapter.</h1>
+<p>This chapter doesn’t change chapter prefix of referenced elements, instead keeping number of previous chapter, e.g. <span id="eq:eqn2"><br /><span class="math display"><em>S</em>(<em>x</em>)=∫<sub><em>x</em><sub>1</sub></sub><sup><em>x</em><sub>2</sub></sup><em>a</em><em>x</em> + <em>b</em> <em>d</em><em>x</em>  (3)</span><br /></span></p>
+<h1 id="sec:chapter-5.-reference-lists"><span class="header-section-number">5</span> Chapter 5. Reference lists</h1>
+<p>It’s also possible to show lists of figures and tables, like this:</p>
+<h2 id="list-of-figures"><span class="header-section-number">5.1</span> List of Figures</h2>
+<ol class="incremental">
+<li>A figure</li>
+<li>First figure</li>
+<li>Second figure</li>
+<li>Third figure</li>
+<li>Subfigure a</li>
+<li>Subfigure b</li>
+<li>Subfigures caption</li>
+</ol>
+<h2 id="list-of-tables"><span class="header-section-number">5.2</span> List of Tables</h2>
+<ol class="incremental">
+<li>Table example</li>
+</ol>
+<h1><span class="header-section-number">6</span> List of Listings</h1>
+<ol class="incremental">
+<li>Listing caption</li>
+<li>Listing caption</li>
+<li>Listing caption</li>
+</ol>
+<h1 id="sec:appendix-a.-custom-labels" label="AppA"><span class="header-section-number">7</span> Appendix A. Custom labels</h1>
+<h2 id="sec:custlabs" label="CustLab"><span class="header-section-number">7.1</span> This section will have custom label</h2>
+</body>
+</html>
