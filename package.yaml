@@ -43,7 +43,7 @@ executables:
     ghc-options: -Wall
     dependencies:
     - pandoc-crossref
-    - optparse-applicative >= 0.13.2.0 && < 0.14
+    - optparse-applicative >= 0.13 && < 0.15
     - file-embed >= 0.0.10 && < 0.0.11
     - open-browser >= 0.2 && < 0.3
     - temporary
