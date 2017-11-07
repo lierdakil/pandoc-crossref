@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Nikolay Yakimov" />
+  <title>pandoc-crossref(1)</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      div.line-block{white-space: pre-line;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+div.sourceLine, a.sourceLine { display: inline-block; min-height: 1.25em; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; }
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+div.sourceLine, a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource div.sourceLine, .numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource div.sourceLine::before, .numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em; }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; color: #aaaaaa;  padding-left: 4px; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; color: initial; }
+}
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.bn { color: #40a070; } /* BaseN */
+code span.fl { color: #40a070; } /* Float */
+code span.ch { color: #4070a0; } /* Char */
+code span.st { color: #4070a0; } /* String */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.ot { color: #007020; } /* Other */
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.fu { color: #06287e; } /* Function */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code span.cn { color: #880000; } /* Constant */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.im { } /* Import */
+code span.va { color: #19177c; } /* Variable */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.op { color: #666666; } /* Operator */
+code span.bu { } /* BuiltIn */
+code span.ex { } /* Extension */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.at { color: #7d9029; } /* Attribute */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header>
+<h1 class="title">pandoc-crossref(1)</h1>
+<p class="author">Nikolay Yakimov</p>
+<p class="date">November 2017</p>
+</header>
+<p>pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.</p>
+<h1 id="caveats">Caveats</h1>
+<h2 id="latex-output-and---include-in-header">LaTeX output and <code>--include-in-header</code></h2>
+<p>pandoc-crossref uses metadata variable <code>header-includes</code> to add LaTeX definitions to output. However, Pandoc’s command line option <code>--include-in-header</code>/<code>-H</code> overrides this variable. If you need to use <code>--include-in-header</code>, add pandoc-crossref-specific definitions as well. See <a href="#latex-customization">LaTeX customization</a> for more information.</p>
+<h2 id="pandoc-citeproc-and-pandoc-crossref">pandoc-citeproc and pandoc-crossref</h2>
+<p>Since pandoc-crossref uses the same citation syntax as pandoc-citeproc, you <em>have</em> to run former <em>before</em> latter. For example:</p>
+<pre><code>pandoc -F pandoc-crossref -F pandoc-citeproc file.md -o file.html</code></pre>
+<h2 id="note-on-leadingtrailing-spaces-in-metadata-options">Note on leading/trailing spaces in metadata options</h2>
+<p>Leading and trailing spaces in YAML metadata will most likely be stripped by either YAML parser or Pandoc itself. If you need leading and/or trailing spaces in pandoc-crossref metadata variables, use html entity for space instead, i.e. <code>&amp;#32;</code>. For example, if you want reference ranges to be delimited by a dash with spaces (e.g. <code>2 - 5</code>), include the following in YAML metadata:</p>
+<pre class="sourceCode yaml" id="cb2"><code class="sourceCode yaml"><div class="sourceLine" id="cb2-1" data-line-number="1"><span class="fu">rangeDelim:</span><span class="at"> </span><span class="st">&#39;&amp;#32;-&amp;#32;&#39;</span></div></code></pre>
+<p>or pass <code>-MrangeDelim='&amp;#32;-&amp;#32;'</code> to pandoc on command line.</p>
+<p>You can use other html entites of course, like <code>&amp;nbsp;</code> etc.</p>
+<h1 id="syntax">Syntax</h1>
+<p>Syntax is loosely based on discussion in <a href="https://github.com/jgm/pandoc/issues/813" class="uri">https://github.com/jgm/pandoc/issues/813</a></p>
+<h2 id="image-labels">Image labels</h2>
+<pre class="sourceCode markdown" id="cb3"><code class="sourceCode markdown"><div class="sourceLine" id="cb3-1" data-line-number="1"><span class="al">![Caption](file.ext)</span>{#fig:label}</div></code></pre>
+<p>To label an (implicit) figure, append <code>{#fig:label}</code> (with <code>label</code> being something unique to reference this figure by) immediately after image definition.</p>
+<p>This only works on implicit figures, i.e. an image occurring by itself in a paragraph (which will be rendered as a figure with caption by pandoc)</p>
+<p>Image block and label <em>can not</em> be separated by spaces.</p>
+<h3 id="subfigures">Subfigures</h3>
+<p>It’s possible to group figures as subfigures. Basic syntax is as follows:</p>
+<pre class="sourceCode markdown" id="cb4"><code class="sourceCode markdown"><div class="sourceLine" id="cb4-1" data-line-number="1">&lt;div id=&quot;fig:figureRef&quot;&gt;</div>
+<div class="sourceLine" id="cb4-2" data-line-number="2"><span class="al">![subfigure 1 caption](image1.png)</span>{#fig:figureRefA}</div>
+<div class="sourceLine" id="cb4-3" data-line-number="3"></div>
+<div class="sourceLine" id="cb4-4" data-line-number="4"><span class="al">![subfigure 2 caption](image2.png)</span>{#fig:figureRefB}</div>
+<div class="sourceLine" id="cb4-5" data-line-number="5"></div>
+<div class="sourceLine" id="cb4-6" data-line-number="6">Caption of figure</div>
+<div class="sourceLine" id="cb4-7" data-line-number="7">&lt;/div&gt;</div></code></pre>
+<p>To sum up, subfigures are made with a div having a figure <code>id</code>. Contents of said div consist of several paragraphs. All but last paragraphs contain one subfigure each, with captions, images and (optionally) reference attributes. Last paragraph contains figure caption.</p>
+<p>If you put more than one figure in the paragraph, those will still be rendered, but Pandoc will omit subfigure caption in most outputs (but it will work as expected with LaTeX). You can use output-specific hacks to work around that, or use <code>subfigGrid</code> (see below).</p>
+<p>Output is customizable, with metadata fields. See <a href="#customization">Customization</a> for more information.</p>
+<p>Default settings will produce the following equivalent Markdown from example above:</p>
+<pre class="sourceCode markdown" id="cb5"><code class="sourceCode markdown"><div class="sourceLine" id="cb5-1" data-line-number="1">&lt;div id=&quot;fig:figureRef&quot; class=&quot;subfigures&quot;&gt;</div>
+<div class="sourceLine" id="cb5-2" data-line-number="2"></div>
+<div class="sourceLine" id="cb5-3" data-line-number="3"><span class="al">![a](image1.png)</span>{#fig:figureRefA}</div>
+<div class="sourceLine" id="cb5-4" data-line-number="4"></div>
+<div class="sourceLine" id="cb5-5" data-line-number="5"><span class="al">![b](image2.png)</span>{#fig:figureRefB}</div>
+<div class="sourceLine" id="cb5-6" data-line-number="6"></div>
+<div class="sourceLine" id="cb5-7" data-line-number="7">Figure 1: Caption of figure. a — subfigure 1 caption, b — subfigure 2</div>
+<div class="sourceLine" id="cb5-8" data-line-number="8">caption</div>
+<div class="sourceLine" id="cb5-9" data-line-number="9"></div>
+<div class="sourceLine" id="cb5-10" data-line-number="10">&lt;/div&gt;</div></code></pre>
+<p>References to subfigures will be rendered as <code>figureNumber (subfigureNumber)</code>, e.g., in this particular example, <code>[@fig:figureRefA]</code> will produce <code>fig. 1 (a)</code>.</p>
+<p>You can add <code>nocaption</code> class to an image to suppress subfigure caption altogether. Note that it will still be counted.</p>
+<h4 id="subfigure-grid">Subfigure grid</h4>
+<p>If you need to align subfigures in a grid, and using output format styles is not an option, you can use <code>subfigGrid</code> option. That will typeset subfigures inside a table.</p>
+<p>Rows are formed by different paragraphs, with each image in a separate column.</p>
+<p>Column widths will be taken from <code>width</code> attributes of corresponding images, e.g.</p>
+<pre class="sourceCode markdown" id="cb6"><code class="sourceCode markdown"><div class="sourceLine" id="cb6-1" data-line-number="1">&lt;div id=&quot;fig:coolFig&quot;&gt;</div>
+<div class="sourceLine" id="cb6-2" data-line-number="2"><span class="al">![caption a](coolfiga.png)</span>{#fig:cfa width=30%}</div>
+<div class="sourceLine" id="cb6-3" data-line-number="3"><span class="al">![caption b](coolfigb.png)</span>{#fig:cfb width=60%}</div>
+<div class="sourceLine" id="cb6-4" data-line-number="4"><span class="al">![caption c](coolfigb.png)</span>{#fig:cfc width=10%}</div>
+<div class="sourceLine" id="cb6-5" data-line-number="5"></div>
+<div class="sourceLine" id="cb6-6" data-line-number="6"><span class="al">![caption d](coolfigd.png)</span>{#fig:cfd}</div>
+<div class="sourceLine" id="cb6-7" data-line-number="7"><span class="al">![caption e](coolfige.png)</span>{#fig:cfe}</div>
+<div class="sourceLine" id="cb6-8" data-line-number="8"><span class="al">![caption f](coolfigf.png)</span>{#fig:cff}</div>
+<div class="sourceLine" id="cb6-9" data-line-number="9"></div>
+<div class="sourceLine" id="cb6-10" data-line-number="10">Cool figure!</div>
+<div class="sourceLine" id="cb6-11" data-line-number="11">&lt;/div&gt;</div></code></pre>
+<p>will produce a table with columns of 30%, 60% and 10% respectively.</p>
+<p>Only first row of images is considered for table width computation, other rows are completely ignored.</p>
+<p><em>Anything</em> except images is silently ignored. So any text, spaces, soft line breaks etc will silently disappear from output. That doesn’t apply to caption paragraph, obviously.</p>
+<p>All images will have width attribute automatically set to <code>100%</code> in order to fill whole column.</p>
+<p>Specifying width in anything but <code>%</code> will throw an error.</p>
+<p>If width for some images in first row is not specified, those will span equally in the remaining space.</p>
+<p>If width isn’t specified for any image in first row, those will span equally on 99% of page width (due to Pandoc otherwise omitting width attribute for table).</p>
+<p>This option is ignored with LaTeX output, but paragraph breaks should produce similar effect, so images should be typeset correctly. TL;DR you don’t need <code>subfigGrid</code> enabled for it to work with LaTeX, but you can still enable it.</p>
+<h2 id="equation-labels">Equation labels</h2>
+<pre class="sourceCode markdown" id="cb7"><code class="sourceCode markdown"><div class="sourceLine" id="cb7-1" data-line-number="1">$$ math $$ {#eq:label}</div></code></pre>
+<p>To label a display equation, append <code>{#eq:label}</code> (with <code>label</code> being something unique to reference this equation by) immediately after math block.</p>
+<p>Math block and label <em>can</em> be separated by one or more spaces.</p>
+<p>You can also number all display equations with <code>autoEqnLabels</code> metadata setting (see below). Note, however, that you won’t be able to reference equations without explicit labels.</p>
+<p>Equations numbers will be typeset inside math with <code>\qquad</code> before them. If you want to use tables instead, use <code>tableEqns</code> option. Depending on output format, tables might work better or worse than <code>\qquad</code>.</p>
+<h2 id="table-labels">Table labels</h2>
+<pre class="sourceCode markdown" id="cb8"><code class="sourceCode markdown"><div class="sourceLine" id="cb8-1" data-line-number="1">a   b   c</div>
+<div class="sourceLine" id="cb8-2" data-line-number="2">--- --- ---</div>
+<div class="sourceLine" id="cb8-3" data-line-number="3">1   2   3</div>
+<div class="sourceLine" id="cb8-4" data-line-number="4">4   5   6</div>
+<div class="sourceLine" id="cb8-5" data-line-number="5"></div>
+<div class="sourceLine" id="cb8-6" data-line-number="6">: Caption {#tbl:label}</div></code></pre>
+<p>To label a table, append <code>{#tbl:label}</code> at the end of table caption (with <code>label</code> being something unique to reference this table by). Caption and label <em>must</em> be separated by at least one space.</p>
+<h2 id="section-labels">Section labels</h2>
+<p>You can also reference sections of any level. Section labels use native pandoc syntax, but must start with “sec:”, e.g.</p>
+<pre class="sourceCode markdown" id="cb9"><code class="sourceCode markdown"><div class="sourceLine" id="cb9-1" data-line-number="1"> Section {#sec:section}</div></code></pre>
+<p>You can also use <code>autoSectionLabels</code> variable to automatically prepend all section labels (automatically generated with pandoc included) with “sec:”. Bear in mind that references can’t contain periods, commas etc, so some auto-generated labels will still be unusable.</p>
+<p>WARNING: With LaTeX output, you have to invoke pandoc with <code>--number-sections</code>, otherwise section labels won’t work. It’s also advised with other output formats, since with no numbers in section titles, it would be hard to navigate anyway.</p>
+<h3 id="section-numbering">Section numbering</h3>
+<p>Pandoc doesn’t properly support numbering sections in some output formats, and section reference labels (see below).</p>
+<p>You can let pandoc-crossref handle section numbering instedad. This is done via <code>numberSections</code> and <code>sectionsDepth</code> metadata options.</p>
+<p><code>numberSections</code> controls if pandoc-crossref handles numbering sections, while <code>sectionsDepth</code> controls what sections are numbered.</p>
+<p>Set <code>sectionsDepth</code> to <code>0</code> to make section numbering consistent with <code>chaptersDepth</code>.</p>
+<p>If <code>sectionsDepth</code> value is lesser than <code>0</code>, all sections will be numbered.</p>
+<p>Otherwise, only header levels up to and including <code>sectionsDepth</code> will be numbered.</p>
+<h2 id="section-reference-labels">Section reference labels</h2>
+<p><strong><em>Not currently supported with LaTeX output</em></strong></p>
+<p>If you want to reference some section by a pre-defined label instead of by number, you can specify section attribute <code>label</code>, like this:</p>
+<pre class="sourceCode markdown" id="cb10"><code class="sourceCode markdown"><div class="sourceLine" id="cb10-1" data-line-number="1"> Section {label=&quot;Custom Label&quot;}</div></code></pre>
+<p>This label will be used instead of section number in <code>chapters</code> output and when referencing section directly (with <code>@sec:section</code>).</p>
+<p>Note that with <code>chapters</code> output with depth&gt;1, only given section will be referenced by custom label, e.g. with</p>
+<pre class="sourceCode markdown" id="cb11"><code class="sourceCode markdown"><div class="sourceLine" id="cb11-1" data-line-number="1"> Chapter 1.</div>
+<div class="sourceLine" id="cb11-2" data-line-number="2"></div>
+<div class="sourceLine" id="cb11-3" data-line-number="3"><span class="fu"># Section with custom label {#sec:scl label=&quot;SCL&quot;}</span></div>
+<div class="sourceLine" id="cb11-4" data-line-number="4"></div>
+<div class="sourceLine" id="cb11-5" data-line-number="5">![](figure.png){#fig:figure}</div></code></pre>
+<p><code>@sec:scl</code> will translate into <code>sec. 1.SCL</code>, and <code>@fig:figure</code> into <code>fig. 1.SCL.1</code></p>
+<h2 id="code-block-labels">Code Block labels</h2>
+<p>There are a couple options to add code block labels. Those work only if code block id starts with <code>lst:</code>, e.g. <code>{#lst:label}</code></p>
+<h3 id="caption-attribute"><code>caption</code> attribute</h3>
+<p><code>caption</code> attribute will be treated as code block caption. If code block has both id and <code>caption</code> attributes, it will be treated as numbered code block.</p>
+<pre>
+```{#lst:code .haskell caption="Listing caption"}
+main :: IO ()
+main = putStrLn "Hello World!"
+```
+</pre>
+<h3 id="table-style-captions">Table-style captions</h3>
+<p>Enabled with <code>codeBlockCaptions</code> metadata option. If code block is immediately adjacent to paragraph, starting with <code>Listing:</code> or <code>:</code>, said paragraph will be treated as code block caption.</p>
+<pre>
+Listing: Listing caption
+
+```{#lst:code .haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+```
+</pre>
+<p>or</p>
+<pre>
+```{#lst:code .haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+```
+
+: Listing caption
+</pre>
+<p>It also allows to specify label in caption, as do tables, for example:</p>
+<pre>
+```haskell
+main :: IO ()
+main = putStrLn "Hello World!"
+```
+
+: Listing caption {#lst:code}
+</pre>
+<h3 id="wrapping-div">Wrapping div</h3>
+<p>Wrapping code block without label in a div with id <code>lst:...</code> and class, starting with <code>listing</code>, and adding paragraph before code block, but inside div, will treat said paragraph as code block caption.</p>
+<pre>
+&lt;div id="lst:code" class="listing"&gt;
+Listing caption
+```{.haskell}
+main :: IO ()
+main = putStrLn "Hello World!"
+```
+&lt;/div&gt;
+</pre>
+<h2 id="references">References</h2>
+<pre class="sourceCode markdown" id="cb12"><code class="sourceCode markdown"><div class="sourceLine" id="cb12-1" data-line-number="1">[@fig:label1;@fig:label2;...] or [@eq:label1;@eq:label2;...] or [@tbl:label1;@tbl:label2;...] or @fig:label or @eq:label or @tbl:label</div></code></pre>
+<p>Reference syntax heavily relies on citation syntax. Basic reference is created by writing <code>@</code>, then basically desired label with prefix. It is also possible to reference a group of objects, by putting them into brackets with <code>;</code> as separator. Similar objects will be grouped in order of them appearing in citation brackets, and sequential reference numbers will be shortened, e.g. <code>1,2,3</code> will be shortened to <code>1-3</code>.</p>
+<p>You can capitalize first reference character to get capitalized prefix, e.g. <code>[@Fig:label1]</code> will produce <code>Fig. ...</code> by default. Capitalized prefixes are derived automatically by capitalizing first letter of every word in non-capitalized prefix, unless overridden with metadata settings. See <a href="#customization">Customization</a> for more information.</p>
+<h3 id="linking-references">Linking references</h3>
+<p>To make references into hyperlinks to referenced element, enable <code>linkReferences</code> metadata option. This has no effect on LaTeX output, since in this case, hyperlinking references is handled with <code>hyperref</code> LaTeX package.</p>
+<h3 id="custom-prefix-per-reference">Custom prefix per-reference</h3>
+<p>It’s possible to provide your own prefix per-reference, f.ex. <code>[Prefix @reference]</code> will replace default prefix (<code>fig.</code>/<code>sec.</code>/etc) with prefix verbatim, e.g. <code>[Prefix @fig:1]</code> will be rendered as <code>Prefix 1</code> instead of <code>fig. 1</code>.</p>
+<p>In citation group, citations with the same prefix will be grouped. So, for example <code>[A @fig:1; A @fig:2; B @fig:3]</code> will turn into <code>A 1, 2, B 3</code>. It can be used to an advantage, although it’s a bit more cumbersome than it should be, e.g. <code>[Appendices @sec:A1; Appendices @sec:A2; Appendices @sec:A3]</code> will turn into <code>Appendices @A1-@A3</code> (with <code>@A1</code> and <code>@A3</code> being relevant section numbers). Note that non-contiguous sequences of identical prefixes <em>will not</em> be grouped.</p>
+<p><strong><em>Not supported with cleveref LaTeX output.</em></strong></p>
+<h3 id="prefix-suppression">Prefix suppression</h3>
+<p>Prepending <code>-</code> before <code>@</code>, like so <code>[-@citation]</code>, will suppress default prefix, e.g. <code>[-@fig:1]</code> will produce just <code>1</code> (or whatever number it happens to be) without <code>fig.</code> prefix.</p>
+<p>In citation group, citations with and without prefixes will be in different groups. So <code>[-@fig:1; @fig:2; -@fig:3]</code> will be rendered as <code>1, fig. 2, 3</code>, so be careful with this feature. Again, non-contiguous sequences are not grouped together.</p>
+<h2 id="lists">Lists</h2>
+<p>It’s possible to use raw latex commands <code>\listoffigures</code>, <code>\listoftables</code> and <code>listoflistings</code>, which will produce ordered list of figure/table/listings titles, in order of appearance in document.</p>
+<p><code>\listoflistings</code> depends on other options, and is defined in preamble, so it will work reliably only with standalone/pdf output.</p>
+<h1 id="usage">Usage</h1>
+<p>Run pandoc with <code>--filter</code> option, passing path to pandoc-crossref executable, or simply <code>pandoc-crossref</code>, if it’s in PATH:</p>
+<p><code>pandoc --filter pandoc-crossref</code></p>
+<p>If you installed with cabal, it’s most likely located in <code>$HOME/.cabal/bin</code> on *NIX systems, <code>$HOME/Library/Haskell/bin</code> on Macs, or in <code>%AppData%\cabal\bin</code> on Windows.</p>
+<h2 id="customization">Customization</h2>
+<p>There are several parameters that can be set via YAML metadata (either by passing <code>-M</code> to <code>pandoc</code>, or by setting it in source markdown)</p>
+<p>A list of variables follows.</p>
+<h3 id="general-options">General options</h3>
+<ul>
+<li><code>cref</code>: if True, latex export will use <code>\cref</code> from cleveref package. Only relevant for LaTeX output. <code>\usepackage{cleveref}</code> will be automatically added to <code>header-includes</code>.</li>
+<li><code>chapters</code>: if True, number elements as <code>chapter.item</code>, and restart <code>item</code> on each first-level heading (as <code>--chapters</code> for latex/pdf output)</li>
+<li><code>chaptersDepth</code>, default <code>1</code>: header level to treat as “chapter”. If <code>chaptersDepth&gt;1</code>, then items will be prefixed with several numbers, corresponding to header numbers, e.g. <code>fig. 1.4.3</code>.</li>
+<li><code>numberSections</code>, default <code>false</code>: if True, pandoc-crossref will prepend section number to section titles (as counted by pandoc-crossref itself).</li>
+<li><code>sectionsDepth</code>, default <code>0</code>:
+<ul>
+<li>sectionsDepth &lt; 0 – number all sections</li>
+<li>sectionsDepth == 0 – be consistent with <code>chaptersDepths</code></li>
+<li>sectionsDepth &gt; 0 – number section levels up to and including <code>sectionsDepth</code></li>
+</ul></li>
+<li><code>listings</code>: if True, generate code blocks for <code>listings</code> package. Only relevant for LaTeX output. <code>\usepackage{listings}</code> will be automatically added to <code>header-includes</code>. You need to specify <code>--listings</code> option as well.</li>
+<li><code>codeBlockCaptions</code>: if True, parse table-style code block captions.</li>
+<li><code>autoSectionLabels</code>, default <code>false</code>: Automatically prefix all section labels with <code>sec:</code>. Note that this messes with pandoc’s automatic header references.</li>
+<li><code>autoEqnLabels</code>, default <code>false</code>: Automatically number all display equations (i.e. ones defined using <code>$$...$$</code>/<code>\[...\]</code>). Note that you won’t be able to reference equations without explicit labels.</li>
+<li><code>tableEqns</code>, default <code>false</code>: Typeset equations and equation numbers in tables instead of embedding numbers into equations themselves. Depending on output format, this might work better or worse.</li>
+</ul>
+<h3 id="item-title-format">Item title format</h3>
+<ul>
+<li><code>figureTitle</code>, default <code>Figure</code>: Word(s) to prepend to figure titles, e.g. <code>Figure 1: Description</code></li>
+<li><code>tableTitle</code>, default <code>Table</code>: Word(s) to prepend to table titles, e.g. <code>Table 1: Description</code></li>
+<li><code>listingTitle</code>, default <code>Listing</code>: Word(s) to prepend to listing titles, e.g. <code>Listing 1: Description</code></li>
+<li><code>titleDelim</code>, default <code>:</code>: What to put between object number and caption text.</li>
+</ul>
+<h4 id="subfigure-specific">Subfigure-specific</h4>
+<p>See <a href="#subfigures">Subfigures</a></p>
+<ul>
+<li><code>ccsDelim</code>, default <code>,&amp;nbsp;</code>: delimiter for collected subfigure captions. See <a href="#subfigures">Subfigures</a> and <a href="#templates">Templates</a></li>
+<li><code>ccsLabelSep</code>, default <code>&amp;nbsp;—&amp;nbsp;</code>: delimiter used between subfigure label and subfigure caption in collected captions. See <a href="#subfigures">Subfigures</a> and <a href="#templates">Templates</a></li>
+<li><code>subfigGrid</code>, default <code>false</code>. If true, typeset subfigures inside a table. Ignored with LaTeX output. See <a href="#subfigures">Subfigures</a></li>
+</ul>
+<h3 id="list-titles">List titles</h3>
+<ul>
+<li><code>lofTitle</code>, default <code># List of Figures</code>: Title for list of figures (lof)</li>
+<li><code>lotTitle</code>, default <code># List of Tables</code>: Title for list of tables (lot)</li>
+<li><code>lolTitle</code>, default <code># List of Listings</code>: Title for list of listings (lol)</li>
+</ul>
+<h3 id="reference-format">Reference format</h3>
+<ul>
+<li><code>figPrefix</code>, default <code>fig.</code>, <code>figs.</code>: Prefix for references to figures, e.g. <code>figs. 1-3</code></li>
+<li><code>eqnPrefix</code>, default <code>eq.</code>, <code>eqns.</code>: Prefix for references to equations, e.g. <code>eqns. 3,4</code></li>
+<li><code>tblPrefix</code>, default <code>tbl.</code>, <code>tbls.</code>: Prefix for references to tables, e.g. <code>tbl. 2</code></li>
+<li><code>lstPrefix</code>, default <code>lst.</code>, <code>lsts.</code>: Prefix for references to lists, e.g. <code>lsts. 2,5</code></li>
+<li><code>secPrefix</code>, default <code>sec.</code>, <code>secs.</code>: Prefix for references to sections, e.g. <code>secs. 2,5</code></li>
+<li><code>chapDelim</code>, default <code>.</code>: Delimiter between chapter number and item number.</li>
+<li><code>rangeDelim</code>, default <code>-</code>: Delimiter between reference ranges, e.g. <code>eq. 2-5</code></li>
+<li><code>pairDelim</code>, default <code>,</code>: Delimiter between pair of reference ranges, e.g. <code>eq. 2-5 &lt;and&gt; 7-9</code>, or <code>eq. 2 &lt;and&gt; 7</code>, but <code>eq. 2, 4, 6</code></li>
+<li><code>lastDelim</code>, default <code>,</code>: Delimiter between second-to-last and last reference ranges, e.g. <code>eq. 2-5, 6-8 &lt;and&gt; 10</code>. <code>pairDelim</code> overrides this for cases of exactly two references/ranges.</li>
+<li><code>refDelim</code>, default <code>,</code>: Delimiter between references, e.g. <code>eq. 2, 5, 7</code> or <code>eq. 2-4, 6-8</code></li>
+<li><code>linkReferences</code>, default <code>false</code>: Make references hyperlinks to the referenced element</li>
+</ul>
+<p>Note that none of the <code>*Delim</code> options are honored with cleveref output. Use cleveref’s customization options instead.</p>
+<p><code>figPrefix</code>, <code>eqnPrefix</code>, <code>tblPrefix</code>, <code>lstPrefix</code> can be YAML arrays. That way, value at index corresponds to total number of references in group, f.ex.</p>
+<pre class="sourceCode yaml" id="cb13"><code class="sourceCode yaml"><div class="sourceLine" id="cb13-1" data-line-number="1"><span class="fu">figPrefix:</span></div>
+<div class="sourceLine" id="cb13-2" data-line-number="2">  <span class="kw">-</span> <span class="st">&quot;fig.&quot;</span></div>
+<div class="sourceLine" id="cb13-3" data-line-number="3">  <span class="kw">-</span> <span class="st">&quot;figs.&quot;</span></div></code></pre>
+<p>Will result in all single-value references prefixed with “fig.”, and all reference groups of two and more will be prefixed with “figs.”:</p>
+<pre class="sourceCode markdown" id="cb14"><code class="sourceCode markdown"><div class="sourceLine" id="cb14-1" data-line-number="1">[@fig:one] -&gt; fig. 1</div>
+<div class="sourceLine" id="cb14-2" data-line-number="2">[@fig:one; @fig:two] -&gt; figs. 1, 2</div>
+<div class="sourceLine" id="cb14-3" data-line-number="3">[@fig:one; @fig:two; @fig:three] -&gt; figs. 1-3</div></code></pre>
+<p>They can be YAML strings as well. In that case, prefix would be the same regardless of number of references.</p>
+<p>They can also be used with first character capitalized, i.e. <code>FigPrefix</code>, etc. In this case, these settings will override default reference capitailzation settings.</p>
+<h3 id="custom-numbering">Custom numbering</h3>
+<p>See <a href="#custom-numbering-schemes">Custom Numbering Schemes</a></p>
+<ul>
+<li><code>figLabels</code>, default unset: custom numbering scheme for figures.</li>
+<li><code>subfigLabels</code>, default <code>alpha a</code>: custom numbering scheme for subfigures.</li>
+<li><code>eqnLabels</code>, default unset: custom numbering scheme for equations.</li>
+<li><code>tblLabels</code>, default unset: custom numbering scheme for tables.</li>
+<li><code>lstLabels</code>, default unset: custom numbering scheme for listings.</li>
+<li><code>secLabels</code>, default unset: custom numbering scheme for sections.</li>
+</ul>
+<h3 id="item-title-templates">Item title templates</h3>
+<p>See <a href="#templates">Templates</a></p>
+<ul>
+<li><code>figureTemplate</code>, default <code>\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]</code>: template for figure captions</li>
+<li><code>tableTemplate</code>, default <code>\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]</code>: template for table captions</li>
+<li><code>listingTemplate</code>, default <code>\\[listingTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]</code>: template for listing captions</li>
+</ul>
+<h4 id="subfigure-templates">Subfigure templates</h4>
+<p>See <a href="#subfigures">Subfigures</a></p>
+<ul>
+<li><code>subfigureTemplate</code>, default <code>\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]. \\[ccs\\]</code>: template for subfigure divs captions.</li>
+<li><code>subfigureChildTemplate</code>, default <code>\\[i\\]</code>: template for actual subfigure captions.</li>
+<li><code>ccsTemplate</code>, default <code>\\[i\\]\\[ccsLabelSep\\]\\[t\\]</code>: template for collected subfigure captions.</li>
+</ul>
+<h3 id="reference-templates">Reference templates</h3>
+<p>See <a href="#templates">Templates</a></p>
+<ul>
+<li><code>figPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – figure reference template</li>
+<li><code>eqnPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – equation reference template</li>
+<li><code>tblPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – table reference template</li>
+<li><code>lstPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – listing reference template</li>
+<li><code>secPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – section reference template</li>
+<li><code>refIndexTemplate</code>, default <code>\\[i\\]\\[suf\\]</code> – individual reference index template</li>
+<li><code>subfigureRefIndexTemplate</code>, default <code>\\[i\\]\\[suf\\] (\\[s\\])</code> – subfigure reference index template</li>
+</ul>
+<h3 id="latex-customization">LaTeX customization</h3>
+<p>Support for above variables with LaTeX/PDF output is limited. In particular, the following variables are honored:</p>
+<ul>
+<li><code>figureTitle</code></li>
+<li><code>tableTitle</code></li>
+<li><code>listingTitle</code></li>
+<li><code>lofTitle</code> – ignores formatting</li>
+<li><code>lotTitle</code> – ignores formatting</li>
+<li><code>lolTitle</code> – ignores formatting</li>
+<li><code>*Prefix</code>, upper-/lowercase and single/plural form. Note that with cleveref output, if <code>*Prefix</code> is array, only first two items are used, and the rest is ignored.</li>
+</ul>
+<p>Templates are <em>not</em> supported.</p>
+<p>You can add arbitrary LaTeX commands to document header, however, using <code>header-includes</code> metadata field. Please bear in mind, that pandoc-crossref up to and including 0.1.2.1 requires <code>header-includes</code> to be YAML array, e.g.</p>
+<pre class="sourceCode yaml" id="cb15"><code class="sourceCode yaml"><div class="sourceLine" id="cb15-1" data-line-number="1"><span class="fu">header-includes:</span></div>
+<div class="sourceLine" id="cb15-2" data-line-number="2">    <span class="kw">-</span> <span class="st">&quot;\\newcommand{\\pcdoc}{Pandoc-crossref documentation}&quot;</span></div></code></pre>
+<p>This will be added <em>before</em> any customization applied by pandoc-crossref. For a complete list of what is added to template, consult <a href="https://github.com/lierdakil/pandoc-crossref/blob/master/src/Util/ModifyMeta.hs">ModifyMeta.hs</a>.</p>
+<h2 id="templates">Templates</h2>
+<p>pandoc-crossref supports advanced caption customization via caption templates. Templates are specified as YAML metadata variables (see <a href="#customization">Customization</a>), and are parsed as default Pandoc Markdown. Variables are specified with display math syntax, i.e. <code>$$var$$</code> in a template will be replaced with value of variable <code>var</code>. Variables can be specified in YAML metadata block, or from command line (with <code>-M</code> switch). There are two special variables, that are set internally:</p>
+<ul>
+<li><code>i</code> – object number, possibly with chapter number (if <code>chapter=True</code>)</li>
+<li><code>t</code> – object caption, as given in source Markdown</li>
+</ul>
+<p>Also there is a number of specific variables that are meaningful only in certain contexts:</p>
+<ul>
+<li><code>ccs</code> – collected subfigure captions. Only applicable to <code>subfigureTemplate</code>. Collected captions will be separated by <code>ccsDelim</code> and individual captions will be printed with <code>ccsTemplate</code>. See <a href="#subfigures">Subfigures</a></li>
+<li><code>suf</code> – reference suffix, applicable to <code>refIndexTemplate</code>, <code>subfigureRefIndexTemplate</code></li>
+<li><code>s</code> – subfigure index, applicable to <code>subfigureRefIndexTemplate</code></li>
+</ul>
+<p><code>xPrefixTemplate</code>, where <code>x</code> is <code>fig</code>, <code>eqn</code>, etc, are a special case. Those don’t have <code>t</code> variable, since there is no caption in source markdown, but instead have <code>p</code> variable, that binds to relevant <code>xPrefix</code>. This is done this way, since actual prefix vaule can depend on <code>i</code>.</p>
+<p>Please note that at the moment, templates are not supported with LaTeX/PDF output.</p>
+<h2 id="custom-numbering-schemes">Custom Numbering Schemes</h2>
+<p>It’s possible to use other numbering schemes apart from arabic. This is controlled by several metadata options, consult <a href="#customization">Customization</a> for a list. Possible values are:</p>
+<ul>
+<li><code>arabic</code> – arabic numbers (1, 2, 3 …)</li>
+<li><code>roman</code> – roman numbers (I, II, III, IV, …)</li>
+<li><code>alpha x</code>, where <code>x</code> is first letter to start from. This will work for any letter, but will use UTF-8 codepage to determine what’s next, so using something strange is not advised. For example, you can safely use <code>alpha a</code> to get lowercase latin letters for 26 figures. After that, it will get weird (since basic latin alphabet has 26 letters). Specifically, it will go into characters space (<code>{</code>, <code>|</code>, <code>}</code>, etc). You can consult http://www.fileformat.info/info/unicode/block/basic_latin/utf8test.htm for general idea on letter progression.</li>
+<li><p>list of strings. You can define a YAML array for numbers. Mapping is 1:1. For example, <code>yaml   figLabels: [α, β, γ, 1, 2, 3, I, II, III]</code> will give first figure label ‘α’, second – ‘β’, etc.</p>
+<p>Note that it will repeat last item in list indefinitely if there are more images than items in list.</p></li>
+</ul>
+<h2 id="settings-file">Settings file</h2>
+<p>It is also possible to set variables used by pandoc-crossref with a separate YAML file. If a given variable is not set in metadata, then pandoc-crossref will attempt to read it from file specified by <code>crossrefYaml</code> metadata variable, or, if not set, from <code>pandoc-crossref.yaml</code> from current working directory. This allows for reusable configurations. One possible application is ad-hoc internationalization.</p>
+<p>For example, consider <code>$HOME/misc/pandoc-crossref-es.yaml</code>:</p>
+<pre class="sourceCode yaml" id="cb16"><code class="sourceCode yaml"><div class="sourceLine" id="cb16-1" data-line-number="1"><span class="fu">figureTitle:</span><span class="at"> </span><span class="st">&quot;Figura&quot;</span></div>
+<div class="sourceLine" id="cb16-2" data-line-number="2"><span class="fu">tableTitle:</span><span class="at"> </span><span class="st">&quot;Tabla&quot;</span></div>
+<div class="sourceLine" id="cb16-3" data-line-number="3"><span class="fu">figPrefix:</span><span class="at"> </span><span class="st">&quot;fig.&quot;</span></div>
+<div class="sourceLine" id="cb16-4" data-line-number="4"><span class="fu">eqnPrefix:</span><span class="at"> </span><span class="st">&quot;ec.&quot;</span></div>
+<div class="sourceLine" id="cb16-5" data-line-number="5"><span class="fu">tblPrefix:</span><span class="at"> </span><span class="st">&quot;tbl.&quot;</span></div>
+<div class="sourceLine" id="cb16-6" data-line-number="6"><span class="fu">loftitle:</span><span class="at"> </span><span class="st">&quot;# Lista de figuras&quot;</span></div>
+<div class="sourceLine" id="cb16-7" data-line-number="7"><span class="fu">lotTitle:</span><span class="at"> </span><span class="st">&quot;# Lista de tablas&quot;</span></div></code></pre>
+<p>pandoc-crossref will send this data to pandoc wrapped in lines of <code>---</code>. The YAML file’s first line should specify a variable; it will not pass the variables if it is <code>---</code> or a blank line.</p>
+<p>One could use this with pandoc-crossref as follows:</p>
+<p><code>pandoc -F pandoc-crossref.hs -M &quot;crossrefYaml=$HOME/misc/pandoc-crossref-es.yaml&quot;</code></p>
+<p>You can also use global configuration files, which are expected in <code>$HOME/.pandoc-crossref/config.yaml</code> and <code>$HOME/.pandoc-crossref/config-$FORMAT.yaml</code>, where <code>$FORMAT</code> is output format, f.ex. <code>latex</code> or <code>epub</code>. On Windows, <code>$HOME</code> in general resolves to user’s root directory, e.g. <code>C:\Users\username\</code>.</p>
+<p>Priorities are as follows (from highest to lowest):</p>
+<ul>
+<li>document metadata</li>
+<li><code>crossrefYaml</code>/<code>$CWD/pandoc-crossref.yaml</code></li>
+<li><code>$HOME/.pandoc-crossref/config-$FORMAT.yaml</code></li>
+<li><code>$HOME/.pandoc-crossref/config.yaml</code></li>
+</ul>
+<h1 id="license">License</h1>
+<p>This software is licensed under GNU GPL v2</p>
+</body>
+</html>
