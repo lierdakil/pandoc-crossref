@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder
@@ -14,7 +14,6 @@ import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.Util.Settings
 import Data.Accessor hiding ((=:))
 import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
 import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs

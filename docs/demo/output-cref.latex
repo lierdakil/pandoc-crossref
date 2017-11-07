@@ -1,11 +1,10 @@
 This is a demo file for pandoc-crossref. With this filter, you can
 cross-reference figures (see
-figs.~\ref{fig:figure1}, \ref{fig:figure2}, \ref{fig:figure3}), display
-equations (see eq.~\ref{eq:eqn1}), tables (see tbl.~\ref{tbl:table1})
-and sections
-(secs.~\ref{sec:sec1}, \ref{sec:sec2}, \ref{sec:caption-attr}, \ref{sec:table-capts}, \ref{sec:wrapping-div})
+\cref{fig:figure1,fig:figure2,fig:figure3}), display equations (see
+\cref{eq:eqn1}), tables (see \cref{tbl:table1}) and sections
+(\cref{sec:sec1,sec:sec2,sec:caption-attr,sec:table-capts,sec:wrapping-div})
 
-For immediate example, see fig.~\ref{fig:figure0}
+For immediate example, see \cref{fig:figure0}
 
 \hypertarget{fig:figure0}{%
 \begin{figure}
@@ -16,28 +15,26 @@ For immediate example, see fig.~\ref{fig:figure0}
 }
 
 There is also support for code blocks, for example,
-lsts.~\ref{lst:captionAttr}, \ref{lst:tableCaption}, \ref{lst:wrappingDiv}
+\cref{lst:captionAttr,lst:tableCaption,lst:wrappingDiv}
 
 It's possible to capitalize reference prefixes, like this:
-Fig.~\ref{fig:figure1}.
+\Cref{fig:figure1}.
 
 In case of multiple references, capitalization is determined by first
-reference. Figs.~\ref{fig:figure1}, \ref{fig:figure2} is capitalized,
-while figs.~\ref{fig:figure2}, \ref{fig:figure1} is not.
+reference. \Cref{fig:figure1,fig:figure2} is capitalized, while
+\cref{fig:figure2,fig:figure1} is not.
 
 It is also possible to mix different references, like
-fig.~\ref{fig:figure1}, tbl.~\ref{tbl:table1},
-lsts.~\ref{lst:captionAttr}, \ref{lst:tableCaption},
-figs.~\ref{fig:figure2}, \ref{fig:figure3}, which will be grouped in
-order they are specified. You can even intermix this with regular
-citations, although it's not recommended: fig.~\ref{fig:figure1},
-tbl.~\ref{tbl:table1}, {[}@unprocessedCitation{]}
+\cref{fig:figure1}, \cref{tbl:table1},
+\cref{lst:captionAttr,lst:tableCaption}, \cref{fig:figure2,fig:figure3},
+which will be grouped in order they are specified. You can even intermix
+this with regular citations, although it's not recommended:
+\cref{fig:figure1}, \cref{tbl:table1}, {[}@unprocessedCitation{]}
 
 You can also have custom chapter reference labels, like
-sec.~\ref{sec:custlabs}
+\cref{sec:custlabs}
 
-Subfigures are supported, see
-figs.~\ref{fig:subfigures}, \ref{fig:subfigureB}
+Subfigures are supported, see \cref{fig:subfigures,fig:subfigureB}
 
 \hypertarget{sec:sec1}{%
 \section{Chapter 1. Figures}\label{sec:sec1}}

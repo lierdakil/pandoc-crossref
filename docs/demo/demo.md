@@ -1,8 +1,7 @@
 ---
-cref: False
 codeBlockCaptions: True
 figureTitle: |
-  Figure \\#
+  Figure #
 lofTitle: |
   ## List of Figures
 lotTitle: |

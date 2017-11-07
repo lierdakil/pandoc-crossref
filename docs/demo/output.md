@@ -4,7 +4,7 @@ tables (see tbl. 1) and sections (secs. 1, 2, 4.1-4.3)
 
 For immediate example, see fig. 1
 
-![Figure \\\# 1: A figure](img1.jpg){#fig:figure0}
+![Figure \# 1: A figure](img1.jpg){#fig:figure0}
 
 There is also support for code blocks, for example, lsts. 1-3
 
@@ -26,11 +26,11 @@ Subfigures are supported, see figs. 5, 5 (b)
 Chapter 1. Figures {#sec:sec1}
 ==================
 
-![Figure \\\# 2: First figure](img1.jpg){#fig:figure1}
+![Figure \# 2: First figure](img1.jpg){#fig:figure1}
 
-![Figure \\\# 3: Second figure](img2.jpg){#fig:figure2}
+![Figure \# 3: Second figure](img2.jpg){#fig:figure2}
 
-![Figure \\\# 4: Third figure](img3.jpg){#fig:figure3}
+![Figure \# 4: Third figure](img3.jpg){#fig:figure3}
 
 ![Unlabelled image](img1.jpg)
 
@@ -39,7 +39,7 @@ Chapter 1. Figures {#sec:sec1}
 
 ![b](img1.jpg){#fig:subfigureB}
 
-Figure \\\# 5: Subfigures caption. a --- Subfigure a, b --- Subfigure b
+Figure \# 5: Subfigures caption. a --- Subfigure a, b --- Subfigure b
 :::
 
 Chapter 2. Equations {#sec:sec2}
