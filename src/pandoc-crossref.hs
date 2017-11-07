@@ -24,12 +24,10 @@ data Flag = Version | Man | HtmlMan
 
 run :: Parser (IO ())
 run = do
-  fmt <- optional $ strOption (
-    long "format" <> short 'f' <> metavar "FORMAT" <> help "Force output format"
-    )
   vers <- flag Nothing (Just Version) (long "version" <> short 'v' <> help "Print version")
   man' <- flag Nothing (Just Man) (long "man" <> help "Show manpage")
   hman <- flag Nothing (Just HtmlMan) (long "man-html" <> help "Show html manpage")
+  fmt <- optional $ strArgument (metavar "FORMAT")
   return $ go (vers <|> man' <|> hman) fmt
   where
     go (Just Version) _ = putStrLn $ showVersion version
@@ -38,9 +36,9 @@ run = do
       hPutStrLn h manHtml
       void $ openBrowser $ "file:///" <> fp
       return ()
-    go Nothing x = toJSONFilter $ f x
-    f ffmt fmt p@(Pandoc meta _) =
-      runCrossRefIO meta (Format <$> ffmt <|> fmt) defaultCrossRefAction p
+    go Nothing _ = toJSONFilter f
+    f fmt p@(Pandoc meta _) =
+      runCrossRefIO meta fmt defaultCrossRefAction p
 
 main :: IO ()
 main = join $ execParser opts
