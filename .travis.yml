@@ -1,11 +1,7 @@
 language: c
 sudo: false
 
-cache:
-  apt: true
-  directories:
-  - $HOME/.stack
-  - $TRAVIS_BUILD_DIR/.stack-work/install
+cache: false
 
 addons:
   apt:
