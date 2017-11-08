@@ -8,7 +8,6 @@ module Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.Generic
-import Data.Maybe
 import Data.Map as M hiding (toList, fromList, singleton)
 import Text.Pandoc.CrossRef.Util.Meta
 import Control.Applicative
@@ -23,7 +22,7 @@ makeTemplate dtv xs' = Template $ \vf -> scan (\var -> vf var <|> lookupMeta var
   go vf (x@(Math DisplayMath var):xs) = toList $ fromList (replaceVar var (vf var) [x]) <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
-  replaceVar var val def' = fromMaybe def' $ val >>= toInlines ("variable " ++ var)
+  replaceVar var val def' = maybe def' (toInlines ("variable " ++ var)) val
 
 applyTemplate' :: Map String [Inline] -> Template -> [Inline]
 applyTemplate' vars (Template g) = g internalVars

@@ -1,50 +1,81 @@
-{-# LANGUAGE FlexibleContexts #-}
-module Text.Pandoc.CrossRef.Util.Meta where
+{-# LANGUAGE FlexibleContexts, Rank2Types #-}
+module Text.Pandoc.CrossRef.Util.Meta (
+    getMetaList
+  , getMetaBool
+  , getMetaInlines
+  , getMetaBlock
+  , getMetaString
+  , getList
+  , toString
+  , toInlines
+  , tryCapitalizeM
+  ) where
 
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
-import Data.Maybe (fromMaybe)
 import Data.Default
 import Text.Pandoc.Walk
 import Text.Pandoc.Shared hiding (capitalize)
 
-getMetaList :: (Default a) => (MetaValue -> Maybe a) -> String -> Meta -> Int -> a
-getMetaList f name meta i = fromMaybe def $ lookupMeta name meta >>= getList i >>= f
+getMetaList :: (Default a) => (MetaValue -> a) -> String -> Meta -> Int -> a
+getMetaList f name meta i = maybe def f $ lookupMeta name meta >>= getList i
 
 getMetaBool :: String -> Meta -> Bool
-getMetaBool name meta = fromMaybe False $ lookupMeta name meta >>= toBool
+getMetaBool = getScalar toBool
 
 getMetaInlines :: String -> Meta -> [Inline]
-getMetaInlines name meta = fromMaybe [] $ lookupMeta name meta >>= toInlines name
+getMetaInlines = getScalar toInlines
 
 getMetaBlock :: String -> Meta -> [Block]
-getMetaBlock name meta = fromMaybe [] $ lookupMeta name meta >>= toBlocks name
+getMetaBlock = getScalar toBlocks
 
 getMetaString :: String -> Meta -> String
-getMetaString name meta = fromMaybe [] $ lookupMeta name meta >>= toString
+getMetaString = getScalar toString
 
-toInlines :: String -> MetaValue -> Maybe [Inline]
-toInlines _ (MetaBlocks s) = Just $ blocksToInlines s
-toInlines _ (MetaInlines s) = return s
-toInlines _ (MetaString s) = Just $ toList $ text s
-toInlines _ _ = Nothing
+getScalar :: Def b => (String -> MetaValue -> b) -> String -> Meta -> b
+getScalar conv name meta = maybe def' (conv name) $ lookupMeta name meta
 
-toBool :: MetaValue -> Maybe Bool
-toBool (MetaBool b) = return b
-toBool _ = Nothing
+class Def a where
+  def' :: a
 
-toBlocks :: String -> MetaValue -> Maybe [Block]
-toBlocks _ (MetaBlocks bs) = return bs
-toBlocks _ (MetaInlines ils) = return [Plain ils]
-toBlocks _ (MetaString s) = Just $ toList $ plain $ text s
-toBlocks _ _ = Nothing
+instance Def Bool where
+  def' = False
 
-toString :: MetaValue -> Maybe String
-toString (MetaString s) = Just s
-toString (MetaBlocks b) = Just $ stringify b
-toString (MetaInlines i) = Just $ stringify i
-toString _ = Nothing
+instance Def [a] where
+  def' = []
+
+unexpectedError :: forall a. String -> String -> MetaValue -> a
+unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> n <> " but got " <> g x
+  where
+    g (MetaBlocks _) = "blocks"
+    g (MetaString _) = "string"
+    g (MetaInlines _) = "inlines"
+    g (MetaBool _) = "bool"
+    g (MetaMap _) = "map"
+    g (MetaList _) = "list"
+
+toInlines :: String -> MetaValue -> [Inline]
+toInlines _ (MetaBlocks s) = blocksToInlines s
+toInlines _ (MetaInlines s) = s
+toInlines _ (MetaString s) = toList $ text s
+toInlines n x = unexpectedError "inlines" n x
+
+toBool :: String -> MetaValue -> Bool
+toBool _ (MetaBool b) = b
+toBool n x = unexpectedError "bool" n x
+
+toBlocks :: String -> MetaValue -> [Block]
+toBlocks _ (MetaBlocks bs) = bs
+toBlocks _ (MetaInlines ils) = [Plain ils]
+toBlocks _ (MetaString s) = toList $ plain $ text s
+toBlocks n x = unexpectedError "blocks" n x
+
+toString :: String -> MetaValue -> String
+toString _ (MetaString s) = s
+toString _ (MetaBlocks b) = stringify b
+toString _ (MetaInlines i) = stringify i
+toString n x = unexpectedError "string" n x
 
 getList :: Int -> MetaValue -> Maybe MetaValue
 getList i (MetaList l) = l !!? i
