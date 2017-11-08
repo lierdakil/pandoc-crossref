@@ -27,7 +27,7 @@ getSettings fmt meta = do
         yaml <- hGetContents h
         Pandoc meta' _ <- readMd $ T.pack $ unlines ["---", yaml, "---"]
         return meta'
-    readMd = handleError . runPure . readMarkdown def
+    readMd = handleError . runPure . readMarkdown def{readerExtensions=pandocExtensions}
     readFmtConfig home fmt' = readConfig (home </> ".pandoc-crossref" </> "config-" ++ fmtStr fmt' ++ ".yaml")
     handler :: IOException -> IO Meta
     handler _ = return nullMeta
