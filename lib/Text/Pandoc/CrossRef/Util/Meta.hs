@@ -3,6 +3,7 @@ module Text.Pandoc.CrossRef.Util.Meta where
 
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.Definition
+import Text.Pandoc.Builder
 import Data.Maybe (fromMaybe)
 import Data.Default
 import Text.Pandoc.Walk
@@ -26,7 +27,7 @@ getMetaString name meta = fromMaybe [] $ lookupMeta name meta >>= toString
 toInlines :: String -> MetaValue -> Maybe [Inline]
 toInlines _ (MetaBlocks s) = Just $ blocksToInlines s
 toInlines _ (MetaInlines s) = return s
-toInlines name (MetaString s) = error $ "Expected inlines, but got string in metadata " ++ name ++ ": \"" ++ show s ++ "\""
+toInlines _ (MetaString s) = Just $ toList $ text s
 toInlines _ _ = Nothing
 
 toBool :: MetaValue -> Maybe Bool
@@ -36,7 +37,7 @@ toBool _ = Nothing
 toBlocks :: String -> MetaValue -> Maybe [Block]
 toBlocks _ (MetaBlocks bs) = return bs
 toBlocks _ (MetaInlines ils) = return [Plain ils]
-toBlocks name (MetaString s) = error $ "Expected blocks, but got string in metadata " ++ name ++ ": \"" ++ show s ++ "\""
+toBlocks _ (MetaString s) = Just $ toList $ plain $ text s
 toBlocks _ _ = Nothing
 
 toString :: MetaValue -> Maybe String
