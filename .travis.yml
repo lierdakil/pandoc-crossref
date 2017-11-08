@@ -30,7 +30,7 @@ before_install:
 - travis_retry curl -L https://www.stackage.org/stack/$STACK_OS | tar xz --strip-components=1 -C ~/.local/bin
 - travis_wait 30 stack --no-terminal setup
 script:
-- travis_wait 30 stack --no-terminal build
+- travis_wait 90 stack --no-terminal build
 deploy:
   provider: releases
   api_key:
