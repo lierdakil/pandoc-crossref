@@ -9,7 +9,7 @@ environment:
     STACK_ROOT: "c:\\sr"
   matrix:
     - STACK_YAML: "stack.yaml"
-      PANDOCVER: "1-19"
+      PANDOCVER: "2-0"
       GHCVER: "8"
 
 before_build:

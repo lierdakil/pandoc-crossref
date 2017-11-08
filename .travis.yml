@@ -14,9 +14,9 @@ addons:
 
 matrix:
   include:
-  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc8-pandoc-1-19
+  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc8-pandoc-2-0
     compiler: ": #Pandoc 1.19"
-  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc8-pandoc-1-19
+  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc8-pandoc-2-0
     compiler: ": #Pandoc 1.19"
     os: osx
 
@@ -28,9 +28,9 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then STACK_OS=osx-x86_64 ; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then STACK_OS=linux-x86_64 ; fi
 - travis_retry curl -L https://www.stackage.org/stack/$STACK_OS | tar xz --strip-components=1 -C ~/.local/bin
-- stack --no-terminal setup
+- travis_wait 30 stack --no-terminal setup
 script:
-- stack --no-terminal test
+- travis_wait 30 stack --no-terminal build
 deploy:
   provider: releases
   api_key:
