@@ -1,3 +1,18 @@
+## 0.3.0.0-beta2
+* Read settings file with pandocExtensions
+* Read MetaStrings as Markdown (no formatting)
+* Fixed demos
+* Moved demo from gh-pages
+* Fix option parsing wrt format
+* Added `nameInLink` docs
+* Flags to open manual; embed manual
+* Textual manual
+* Add command line options
+* Moved documentation to docs/
+
+## 0.3.0.0-beta
+* Pandoc-2.0 support
+
 ## 0.2.7.0
 * Revamp ModifyMeta, add subfloat caption margin
 * Update README due to #132
