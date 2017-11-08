@@ -1,3 +1,12 @@
+## 0.2.7.0
+* Revamp ModifyMeta, add subfloat caption margin
+* Update README due to #132
+* fix typo in README: "defualt" -> "defualt" (Raphael Das Gupta)
+* fix typo in README: "cleferef" -> "cleveref" (Raphael Das Gupta)
+* Integrative tests for code blocks
+* Allow codeBlock label specification in caption
+* Moved getRefLabel to Util.Util
+
 ## 0.2.6.0
 * pairDelim, lastDelim, refDelim
 * Drop support for old pandoc\/ghc versions
