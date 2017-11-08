@@ -30,6 +30,7 @@ run = do
   fmt <- optional $ strArgument (metavar "FORMAT")
   return $ go (vers <|> man' <|> hman) fmt
   where
+    go :: Maybe Flag -> Maybe String -> IO ()
     go (Just Version) _ = putStrLn $ showVersion version
     go (Just Man    ) _ = putStrLn man
     go (Just HtmlMan) _ = withSystemTempFile "pandoc-crossref-manual.html" $ \fp h -> do
