@@ -72,6 +72,7 @@ This software is licensed under GNU GPL 2. See [LICENSE.md](https://github.com/l
 Contributors (per GPL, holders of copyright on their respective contributions):
 
 * Nikolay Yakimov
+* Raphael Das Gupta
 * Felix Yan
 * Wlad
 * scoavoux
