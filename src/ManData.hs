@@ -29,7 +29,8 @@ embedManual fmt = do
 
 readerOpts :: P.ReaderOptions
 readerOpts = P.def{
-    P.readerExtensions = P.githubMarkdownExtensions
+    P.readerExtensions = P.enableExtension P.Ext_yaml_metadata_block P.githubMarkdownExtensions
+  , P.readerStandalone = True
 }
 
 embedManualText :: Q Exp

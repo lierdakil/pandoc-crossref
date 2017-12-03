@@ -1,6 +1,8 @@
-% pandoc-crossref(1)
-% Nikolay Yakimov
-% November 2017
+---
+author: Nikolay Yakimov
+date: November 2017
+title: 'pandoc-crossref(1)'
+---
 
 pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 
