@@ -403,29 +403,29 @@ See [Custom Numbering Schemes](#custom-numbering-schemes)
 
 See [Templates](#templates)
 
-* `figureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for figure captions
-* `tableTemplate`, default `\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for table captions
-* `listingTemplate`, default `\\[listingTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]`: template for listing captions
+* `figureTemplate`, default `$$figureTitle$$ $$i$$$$titleDelim$$ $$t$$`: template for figure captions
+* `tableTemplate`, default `$$tableTitle$$ $$i$$$$titleDelim$$ $$t$$`: template for table captions
+* `listingTemplate`, default `$$listingTitle$$ $$i$$$$titleDelim$$ $$t$$`: template for listing captions
 
 #### Subfigure templates
 
 See [Subfigures](#subfigures)
 
-* `subfigureTemplate`, default `\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]. \\[ccs\\]`: template for subfigure divs captions.
-* `subfigureChildTemplate`, default `\\[i\\]`: template for actual subfigure captions.
-* `ccsTemplate`, default `\\[i\\]\\[ccsLabelSep\\]\\[t\\]`: template for collected subfigure captions.
+* `subfigureTemplate`, default `$$figureTitle$$ $$i$$$$titleDelim$$ $$t$$. $$ccs$$`: template for subfigure divs captions.
+* `subfigureChildTemplate`, default `$$i$$`: template for actual subfigure captions.
+* `ccsTemplate`, default `$$i$$$$ccsLabelSep$$$$t$$`: template for collected subfigure captions.
 
 ### Reference templates
 
 See [Templates](#templates)
 
-* `figPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- figure reference template
-* `eqnPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- equation reference template
-* `tblPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- table reference template
-* `lstPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- listing reference template
-* `secPrefixTemplate`, default `\\[p\\]&nbsp;\\[i\\]` -- section reference template
-* `refIndexTemplate`, default `\\[i\\]\\[suf\\]` -- individual reference index template
-* `subfigureRefIndexTemplate`, default `\\[i\\]\\[suf\\] (\\[s\\])` -- subfigure reference index template
+* `figPrefixTemplate`, default `$$p$$&nbsp;$$i$$` -- figure reference template
+* `eqnPrefixTemplate`, default `$$p$$&nbsp;$$i$$` -- equation reference template
+* `tblPrefixTemplate`, default `$$p$$&nbsp;$$i$$` -- table reference template
+* `lstPrefixTemplate`, default `$$p$$&nbsp;$$i$$` -- listing reference template
+* `secPrefixTemplate`, default `$$p$$&nbsp;$$i$$` -- section reference template
+* `refIndexTemplate`, default `$$i$$$$suf$$` -- individual reference index template
+* `subfigureRefIndexTemplate`, default `$$i$$$$suf$$ ($$s$$)` -- subfigure reference index template
 
 ### LaTeX customization
 
