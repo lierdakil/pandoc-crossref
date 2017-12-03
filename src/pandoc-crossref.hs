@@ -9,16 +9,15 @@ import qualified Options.Applicative as O
 import Control.Monad
 import Paths_pandoc_crossref (version)
 import Data.Version (showVersion)
-import Data.FileEmbed
 import Web.Browser
 import System.IO.Temp
 import System.IO
+import ManData
+import Control.Concurrent
 
-man :: String
-man = $(embedStringFile "docs/man.txt")
-
-manHtml :: String
-manHtml = $(embedStringFile "docs/index.html")
+man, manHtml :: String
+man = $(embedManualText)
+manHtml = $(embedManualHtml)
 
 data Flag = Version | Man | HtmlMan
 
@@ -35,7 +34,9 @@ run = do
     go (Just Man    ) _ = putStrLn man
     go (Just HtmlMan) _ = withSystemTempFile "pandoc-crossref-manual.html" $ \fp h -> do
       hPutStrLn h manHtml
+      hClose h
       void $ openBrowser $ "file:///" <> fp
+      threadDelay 5000000
       return ()
     go Nothing _ = toJSONFilter f
     f fmt p@(Pandoc meta _) =
