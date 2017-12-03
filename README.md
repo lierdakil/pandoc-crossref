@@ -8,7 +8,7 @@ Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref pdf][cpdf]
 
 You can also enable per-chapter numbering (as with `--chapters` for latex output). You need to specify `-M chapters` for non-latex/pdf output however. Examples: [html][chap-html], [markdown][chap-markdown], [latex][chap-latex], [pdf][chap-pdf].
 
-[demo-md]: http://lierdakil.github.io/pandoc-crossref/demo/output.html
+[demo-md]: http://lierdakil.github.io/pandoc-crossref/demo/demo.md
 [html]: http://lierdakil.github.io/pandoc-crossref/demo/output.html
 [latex]: http://lierdakil.github.io/pandoc-crossref/demo/output.latex
 [pdf]: http://lierdakil.github.io/pandoc-crossref/demo/output.pdf
