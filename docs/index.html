@@ -329,27 +329,27 @@ main = putStrLn "Hello World!"
 <h3 id="item-title-templates">Item title templates</h3>
 <p>See <a href="#templates">Templates</a></p>
 <ul>
-<li><code>figureTemplate</code>, default <code>\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]</code>: template for figure captions</li>
-<li><code>tableTemplate</code>, default <code>\\[tableTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]</code>: template for table captions</li>
-<li><code>listingTemplate</code>, default <code>\\[listingTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]</code>: template for listing captions</li>
+<li><code>figureTemplate</code>, default <code>$$figureTitle$$ $$i$$$$titleDelim$$ $$t$$</code>: template for figure captions</li>
+<li><code>tableTemplate</code>, default <code>$$tableTitle$$ $$i$$$$titleDelim$$ $$t$$</code>: template for table captions</li>
+<li><code>listingTemplate</code>, default <code>$$listingTitle$$ $$i$$$$titleDelim$$ $$t$$</code>: template for listing captions</li>
 </ul>
 <h4 id="subfigure-templates">Subfigure templates</h4>
 <p>See <a href="#subfigures">Subfigures</a></p>
 <ul>
-<li><code>subfigureTemplate</code>, default <code>\\[figureTitle\\] \\[i\\]\\[titleDelim\\] \\[t\\]. \\[ccs\\]</code>: template for subfigure divs captions.</li>
-<li><code>subfigureChildTemplate</code>, default <code>\\[i\\]</code>: template for actual subfigure captions.</li>
-<li><code>ccsTemplate</code>, default <code>\\[i\\]\\[ccsLabelSep\\]\\[t\\]</code>: template for collected subfigure captions.</li>
+<li><code>subfigureTemplate</code>, default <code>$$figureTitle$$ $$i$$$$titleDelim$$ $$t$$. $$ccs$$</code>: template for subfigure divs captions.</li>
+<li><code>subfigureChildTemplate</code>, default <code>$$i$$</code>: template for actual subfigure captions.</li>
+<li><code>ccsTemplate</code>, default <code>$$i$$$$ccsLabelSep$$$$t$$</code>: template for collected subfigure captions.</li>
 </ul>
 <h3 id="reference-templates">Reference templates</h3>
 <p>See <a href="#templates">Templates</a></p>
 <ul>
-<li><code>figPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – figure reference template</li>
-<li><code>eqnPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – equation reference template</li>
-<li><code>tblPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – table reference template</li>
-<li><code>lstPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – listing reference template</li>
-<li><code>secPrefixTemplate</code>, default <code>\\[p\\]&amp;nbsp;\\[i\\]</code> – section reference template</li>
-<li><code>refIndexTemplate</code>, default <code>\\[i\\]\\[suf\\]</code> – individual reference index template</li>
-<li><code>subfigureRefIndexTemplate</code>, default <code>\\[i\\]\\[suf\\] (\\[s\\])</code> – subfigure reference index template</li>
+<li><code>figPrefixTemplate</code>, default <code>$$p$$&amp;nbsp;$$i$$</code> – figure reference template</li>
+<li><code>eqnPrefixTemplate</code>, default <code>$$p$$&amp;nbsp;$$i$$</code> – equation reference template</li>
+<li><code>tblPrefixTemplate</code>, default <code>$$p$$&amp;nbsp;$$i$$</code> – table reference template</li>
+<li><code>lstPrefixTemplate</code>, default <code>$$p$$&amp;nbsp;$$i$$</code> – listing reference template</li>
+<li><code>secPrefixTemplate</code>, default <code>$$p$$&amp;nbsp;$$i$$</code> – section reference template</li>
+<li><code>refIndexTemplate</code>, default <code>$$i$$$$suf$$</code> – individual reference index template</li>
+<li><code>subfigureRefIndexTemplate</code>, default <code>$$i$$$$suf$$ ($$s$$)</code> – subfigure reference index template</li>
 </ul>
 <h3 id="latex-customization">LaTeX customization</h3>
 <p>Support for above variables with LaTeX/PDF output is limited. In particular, the following variables are honored:</p>

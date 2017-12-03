@@ -619,55 +619,53 @@ equations.
 See Templates (#templates)
 .IP \[bu] 2
 \f[C]figureTemplate\f[], default
-\f[C]\\\\[figureTitle\\\\]\ \\\\[i\\\\]\\\\[titleDelim\\\\]\ \\\\[t\\\\]\f[]:
-template for figure captions
+\f[C]$$figureTitle$$\ $$i$$$$titleDelim$$\ $$t$$\f[]: template for
+figure captions
 .IP \[bu] 2
 \f[C]tableTemplate\f[], default
-\f[C]\\\\[tableTitle\\\\]\ \\\\[i\\\\]\\\\[titleDelim\\\\]\ \\\\[t\\\\]\f[]:
-template for table captions
+\f[C]$$tableTitle$$\ $$i$$$$titleDelim$$\ $$t$$\f[]: template for table
+captions
 .IP \[bu] 2
 \f[C]listingTemplate\f[], default
-\f[C]\\\\[listingTitle\\\\]\ \\\\[i\\\\]\\\\[titleDelim\\\\]\ \\\\[t\\\\]\f[]:
-template for listing captions
+\f[C]$$listingTitle$$\ $$i$$$$titleDelim$$\ $$t$$\f[]: template for
+listing captions
 .SS Subfigure templates
 .PP
 See Subfigures (#subfigures)
 .IP \[bu] 2
 \f[C]subfigureTemplate\f[], default
-\f[C]\\\\[figureTitle\\\\]\ \\\\[i\\\\]\\\\[titleDelim\\\\]\ \\\\[t\\\\].\ \\\\[ccs\\\\]\f[]:
-template for subfigure divs captions.
+\f[C]$$figureTitle$$\ $$i$$$$titleDelim$$\ $$t$$.\ $$ccs$$\f[]: template
+for subfigure divs captions.
 .IP \[bu] 2
-\f[C]subfigureChildTemplate\f[], default \f[C]\\\\[i\\\\]\f[]: template
-for actual subfigure captions.
+\f[C]subfigureChildTemplate\f[], default \f[C]$$i$$\f[]: template for
+actual subfigure captions.
 .IP \[bu] 2
-\f[C]ccsTemplate\f[], default
-\f[C]\\\\[i\\\\]\\\\[ccsLabelSep\\\\]\\\\[t\\\\]\f[]: template for
-collected subfigure captions.
+\f[C]ccsTemplate\f[], default \f[C]$$i$$$$ccsLabelSep$$$$t$$\f[]:
+template for collected subfigure captions.
 .SS Reference templates
 .PP
 See Templates (#templates)
 .IP \[bu] 2
-\f[C]figPrefixTemplate\f[], default
-\f[C]\\\\[p\\\\]&nbsp;\\\\[i\\\\]\f[] \[en] figure reference template
+\f[C]figPrefixTemplate\f[], default \f[C]$$p$$&nbsp;$$i$$\f[] \[en]
+figure reference template
 .IP \[bu] 2
-\f[C]eqnPrefixTemplate\f[], default
-\f[C]\\\\[p\\\\]&nbsp;\\\\[i\\\\]\f[] \[en] equation reference template
+\f[C]eqnPrefixTemplate\f[], default \f[C]$$p$$&nbsp;$$i$$\f[] \[en]
+equation reference template
 .IP \[bu] 2
-\f[C]tblPrefixTemplate\f[], default
-\f[C]\\\\[p\\\\]&nbsp;\\\\[i\\\\]\f[] \[en] table reference template
+\f[C]tblPrefixTemplate\f[], default \f[C]$$p$$&nbsp;$$i$$\f[] \[en]
+table reference template
 .IP \[bu] 2
-\f[C]lstPrefixTemplate\f[], default
-\f[C]\\\\[p\\\\]&nbsp;\\\\[i\\\\]\f[] \[en] listing reference template
+\f[C]lstPrefixTemplate\f[], default \f[C]$$p$$&nbsp;$$i$$\f[] \[en]
+listing reference template
 .IP \[bu] 2
-\f[C]secPrefixTemplate\f[], default
-\f[C]\\\\[p\\\\]&nbsp;\\\\[i\\\\]\f[] \[en] section reference template
+\f[C]secPrefixTemplate\f[], default \f[C]$$p$$&nbsp;$$i$$\f[] \[en]
+section reference template
 .IP \[bu] 2
-\f[C]refIndexTemplate\f[], default \f[C]\\\\[i\\\\]\\\\[suf\\\\]\f[]
-\[en] individual reference index template
+\f[C]refIndexTemplate\f[], default \f[C]$$i$$$$suf$$\f[] \[en]
+individual reference index template
 .IP \[bu] 2
 \f[C]subfigureRefIndexTemplate\f[], default
-\f[C]\\\\[i\\\\]\\\\[suf\\\\]\ (\\\\[s\\\\])\f[] \[en] subfigure
-reference index template
+\f[C]$$i$$$$suf$$\ ($$s$$)\f[] \[en] subfigure reference index template
 .SS LaTeX customization
 .PP
 Support for above variables with LaTeX/PDF output is limited.
