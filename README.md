@@ -65,7 +65,7 @@ Usage information is available at <https://lierdakil.github.com/pandoc-crossref/
 
 # License
 
-This software is licensed under GNU GPL 2. See [LICENSE.md](https://github.com/lierdakil/pandoc-crossref/blob/master/LICENSE.md) for details.
+This software is licensed under GNU GPL 2. See [LICENSE](https://github.com/lierdakil/pandoc-crossref/blob/master/LICENSE) for details.
 
 © 2016 Nikolay Yakimov et al
 
