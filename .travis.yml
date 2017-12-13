@@ -38,4 +38,5 @@ deploy:
     tags: true
 before_deploy:
 - stack --no-terminal install
-- tar czf "$TRAVIS_BUILD_DIR/${TRAVIS_OS_NAME}-${RELEASE_FN}.tar.gz" -C "$HOME/.local/bin/" "./pandoc-crossref"
+- stack --no-terminal exec -- pandoc -s -t man docs/index.md -o $HOME/.local/bin/pandoc-crossref.1
+- tar czf "$TRAVIS_BUILD_DIR/${TRAVIS_OS_NAME}-${RELEASE_FN}.tar.gz" -C "$HOME/.local/bin/" "./pandoc-crossref" "./pandoc-crossref.1"
