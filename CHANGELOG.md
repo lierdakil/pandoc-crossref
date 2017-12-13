@@ -1,3 +1,32 @@
+## 0.3.0.0
+* Remove man page from git
+* Generate manual on CI, add it to archive
+* Stack update
+* Fix contact information in Settings.hs (Masamichi Hosoda)
+* Fix link to LICENSE in README
+* Add contact info to GPL header; Add (c)s according to commit history
+* Use license specifier recognized as or-later; rename license file
+* Add GPL header comment to every source file
+* Remove BSD3.md (obsolete)
+* Update contributors
+* Use YAML meta block in man
+* Add datafile, custom embedding, fix html man
+* Get rid of (most) generated doc files
+* Update generated man
+* Fix templates in man
+* Fix demo.md link
+* Hack to stop github from rendering demo.md
+* Remove extraneous `-i` argument from pandoc invocation
+
+## 0.3.0.0-beta3a
+* Disable travis cache
+* Fix type for optparse-applicative 0.14
+
+## 0.3.0.0-beta3
+* Raise travis build time limit
+* Meta: error on unexpected field values
+* Fix demo.md test
+
 ## 0.3.0.0-beta2
 * Read settings file with pandocExtensions
 * Read MetaStrings as Markdown (no formatting)
