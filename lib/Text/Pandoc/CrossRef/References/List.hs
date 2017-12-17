@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.List (listOf) where
 
 import Text.Pandoc.Definition
+import Text.Pandoc.Builder
 import Data.Accessor.Monad.Trans.State
 import Control.Arrow
 import Data.List
@@ -33,25 +34,27 @@ import Text.Pandoc.CrossRef.Util.Options
 listOf :: Options -> [Block] -> WS [Block]
 listOf Options{outFormat=f} x | isFormat "latex" f = return x
 listOf opts (RawBlock (Format "latex") "\\listoffigures":xs)
-  = get imgRefs >>= makeList opts lofTitle xs
+  = undefined -- get imgRefs >>= makeList opts lofTitle xs
 listOf opts (RawBlock (Format "latex") "\\listoftables":xs)
-  = get tblRefs >>= makeList opts lotTitle xs
+  = undefined -- get tblRefs >>= makeList opts lotTitle xs
 listOf opts (RawBlock (Format "latex") "\\listoflistings":xs)
-  = get lstRefs >>= makeList opts lolTitle xs
+  = undefined -- get lstRefs >>= makeList opts lolTitle xs
 listOf _ x = return x
 
-makeList :: Options -> (Options -> [Block]) -> [Block] -> M.Map String RefRec -> WS [Block]
+makeList :: Options -> (Options -> Blocks) -> Blocks -> M.Map String RefRec -> WS Blocks
 makeList opts titlef xs refs
   = return $
-      titlef opts ++
+      titlef opts <>
       (if chaptersDepth opts > 0
-        then Div ("", ["list"], []) (itemChap `map` refsSorted)
-        else OrderedList style (item `map` refsSorted))
-      : xs
+        then divWith ("", ["list"], []) (mconcat $ map itemChap refsSorted)
+        else orderedList (map item refsSorted))
+      <> xs
   where
+    refsSorted :: [(String, RefRec)]
     refsSorted = sortBy compare' $ M.toList refs
     compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j
-    item = (:[]) . Plain . refTitle . snd
-    itemChap = Para . uncurry ((. (Space :)) . (++)) . (numWithChap . refIndex &&& refTitle) . snd
+    item = plain . refTitle . snd
+    itemChap :: (String, RefRec) -> Blocks
+    itemChap = para . uncurry (\ x x0 -> x <> space <> x0) . ((numWithChap . refIndex) &&& refTitle) . snd
+    numWithChap :: Index -> Inlines
     numWithChap = chapPrefix (chapDelim opts)
-    style = (1,DefaultStyle,DefaultDelim)

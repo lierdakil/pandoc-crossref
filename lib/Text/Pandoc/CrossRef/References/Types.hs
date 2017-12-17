@@ -22,26 +22,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Types where
 
 import qualified Data.Map as M
-import Text.Pandoc.Definition
 import Control.Monad.State
 import Data.Default
 import Data.Accessor.Template
+import Text.Pandoc.Builder
 
-type Index = [(Int, Maybe String)]
+type Index = [(Int, String)]
 
 data RefRec = RefRec { refIndex :: Index
-                     , refTitle :: [Inline]
+                     , refTitle :: Inlines
                      , refSubfigure :: Maybe Index
                      } deriving (Show, Eq)
 
 type RefMap = M.Map String RefRec
 
 -- state data type
-data References = References { imgRefs_ :: RefMap
-                             , eqnRefs_ :: RefMap
-                             , tblRefs_ :: RefMap
-                             , lstRefs_ :: RefMap
-                             , secRefs_ :: RefMap
+data References = References { referenceData_ :: RefMap
                              , curChap_ :: Index
                              } deriving (Show, Eq)
 
@@ -49,7 +45,6 @@ data References = References { imgRefs_ :: RefMap
 type WS a = State References a
 
 instance Default References where
-  def = References n n n n n []
-    where n = M.empty
+  def = References M.empty []
 
 deriveAccessors ''References

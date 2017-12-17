@@ -18,13 +18,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, Rank2Types #-}
+{-# LANGUAGE FlexibleContexts, Rank2Types, UndecidableInstances, FlexibleInstances #-}
 module Text.Pandoc.CrossRef.Util.Meta (
     getMetaList
   , getMetaBool
   , getMetaInlines
   , getMetaBlock
   , getMetaString
+  , getMetaStringMaybe
   , getList
   , toString
   , toInlines
@@ -37,6 +38,7 @@ import Text.Pandoc.Builder
 import Data.Default
 import Text.Pandoc.Walk
 import Text.Pandoc.Shared hiding (capitalize)
+import Data.Maybe
 
 getMetaList :: (Default a) => (MetaValue -> a) -> String -> Meta -> Int -> a
 getMetaList f name meta i = maybe def f $ lookupMeta name meta >>= getList i
@@ -44,14 +46,17 @@ getMetaList f name meta i = maybe def f $ lookupMeta name meta >>= getList i
 getMetaBool :: String -> Meta -> Bool
 getMetaBool = getScalar toBool
 
-getMetaInlines :: String -> Meta -> [Inline]
+getMetaInlines :: String -> Meta -> Inlines
 getMetaInlines = getScalar toInlines
 
-getMetaBlock :: String -> Meta -> [Block]
+getMetaBlock :: String -> Meta -> Blocks
 getMetaBlock = getScalar toBlocks
 
 getMetaString :: String -> Meta -> String
 getMetaString = getScalar toString
+
+getMetaStringMaybe :: String -> Meta -> Maybe String
+getMetaStringMaybe = getScalar toMaybeString
 
 getScalar :: Def b => (String -> MetaValue -> b) -> String -> Meta -> b
 getScalar conv name meta = maybe def' (conv name) $ lookupMeta name meta
@@ -62,8 +67,14 @@ class Def a where
 instance Def Bool where
   def' = False
 
-instance Def [a] where
+instance Def String where
   def' = []
+
+instance Def (Maybe a) where
+  def' = Nothing
+
+instance (Monoid (Many a)) => Def (Many a) where
+  def' = mempty
 
 unexpectedError :: forall a. String -> String -> MetaValue -> a
 unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> n <> " but got " <> g x
@@ -75,27 +86,30 @@ unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> n <
     g (MetaMap _) = "map"
     g (MetaList _) = "list"
 
-toInlines :: String -> MetaValue -> [Inline]
-toInlines _ (MetaBlocks s) = blocksToInlines s
-toInlines _ (MetaInlines s) = s
-toInlines _ (MetaString s) = toList $ text s
+toInlines :: String -> MetaValue -> Inlines
+toInlines _ (MetaBlocks s) = fromList $ blocksToInlines s
+toInlines _ (MetaInlines s) = fromList s
+toInlines _ (MetaString s) = text s
 toInlines n x = unexpectedError "inlines" n x
 
 toBool :: String -> MetaValue -> Bool
 toBool _ (MetaBool b) = b
 toBool n x = unexpectedError "bool" n x
 
-toBlocks :: String -> MetaValue -> [Block]
-toBlocks _ (MetaBlocks bs) = bs
-toBlocks _ (MetaInlines ils) = [Plain ils]
-toBlocks _ (MetaString s) = toList $ plain $ text s
+toBlocks :: String -> MetaValue -> Blocks
+toBlocks _ (MetaBlocks bs) = fromList bs
+toBlocks _ (MetaInlines ils) = fromList [Plain ils]
+toBlocks _ (MetaString s) = plain $ text s
 toBlocks n x = unexpectedError "blocks" n x
 
 toString :: String -> MetaValue -> String
-toString _ (MetaString s) = s
-toString _ (MetaBlocks b) = stringify b
-toString _ (MetaInlines i) = stringify i
-toString n x = unexpectedError "string" n x
+toString n x = fromMaybe (unexpectedError "string" n x) $ toMaybeString n x
+
+toMaybeString :: String -> MetaValue -> Maybe String
+toMaybeString _ (MetaString s) = Just s
+toMaybeString _ (MetaBlocks b) = Just $ stringify b
+toMaybeString _ (MetaInlines i) = Just $ stringify i
+toMaybeString n x = Nothing
 
 getList :: Int -> MetaValue -> Maybe MetaValue
 getList i (MetaList l) = l !!? i

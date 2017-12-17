@@ -90,11 +90,11 @@ modifyMeta opts meta
             ]
           | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++metaString' "lolTitle"++"}}"]
         cleveref = [ usepackage cleverefOpts "cleveref" ]
-          <> crefname "figure" figPrefix
-          <> crefname "table" tblPrefix
-          <> crefname "equation" eqnPrefix
-          <> crefname "listing" lstPrefix
-          <> crefname "section" secPrefix
+          -- <> crefname "figure" figPrefix
+          -- <> crefname "table" tblPrefix
+          -- <> crefname "equation" eqnPrefix
+          -- <> crefname "listing" lstPrefix
+          -- <> crefname "section" secPrefix
         cleverefCodelisting = [
             "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
           , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
@@ -109,7 +109,7 @@ modifyMeta opts meta
         usepackage xs p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage"++o++"{"++p++"}}"
           where o = "[" ++ intercalate "," xs ++ "]"
         toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
-        metaString s = toLatex $ getMetaInlines s meta
+        metaString s = toLatex . toList $ getMetaInlines s meta
         metaString' s = toLatex [Str $ getMetaString s meta]
         prefix f uc = "{" ++ toLatex (f opts uc 0) ++ "}" ++
                       "{" ++ toLatex (f opts uc 1) ++ "}"

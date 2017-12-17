@@ -30,8 +30,7 @@ import Text.Pandoc.Builder
 import Text.Pandoc.Class
 import Data.Char (toUpper, toLower, isUpper)
 import Data.List (isSuffixOf, isPrefixOf, stripPrefix)
-import Data.Maybe (fromMaybe)
-import Data.Generics
+import Data.Generics hiding (Prefix)
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
 import qualified Data.Text as T
@@ -55,8 +54,8 @@ isFirstUpper :: String -> Bool
 isFirstUpper (x:_) = isUpper x
 isFirstUpper [] = False
 
-chapPrefix :: [Inline] -> Index -> [Inline]
-chapPrefix delim index = toList $ intercalate' (fromList delim) (map (str . uncurry (fromMaybe . show)) index)
+chapPrefix :: Inlines -> Index -> Inlines
+chapPrefix delim index = intercalate' delim (map (str . snd) index)
 
 data ReplacedResult a = Replaced Bool a | NotReplaced Bool
 type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))

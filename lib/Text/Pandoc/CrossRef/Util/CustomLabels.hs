@@ -18,28 +18,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.Util.CustomLabels (customLabel) where
+module Text.Pandoc.CrossRef.Util.CustomLabels where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Meta
 import Data.List
 import Text.Numeral.Roman
 
-customLabel :: Meta -> String -> Int -> Maybe String
-customLabel meta ref i
-  | refLabel <- takeWhile (/=':') ref
-  , Just cl <- lookupMeta (refLabel++"Labels") meta
-  = mkLabel i (refLabel++"Labels") cl
-  | otherwise = Nothing
-
-mkLabel :: Int -> String -> MetaValue -> Maybe String
-mkLabel i n lt
+mkLabel :: String -> MetaValue -> Int -> String
+mkLabel n lt i
   | toString n lt == "arabic"
-  = Nothing
+  = show i
   | toString n lt == "roman"
-  = Just $ toRoman i
+  = toRoman i
   | Just (startWith:_) <- stripPrefix "alpha " $ toString n lt
-  = Just [[startWith..] !! (i-1)]
+  = [[startWith..] !! (i-1)]
   | Just val <- toString n <$> getList (i-1) lt
-  = Just val
+  = val
   | otherwise = error $ "Unknown numeration type: " ++ show lt

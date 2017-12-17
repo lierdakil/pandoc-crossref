@@ -24,7 +24,7 @@ module Text.Pandoc.CrossRef.References.Blocks
   ) where
 
 import Text.Pandoc.Definition
-import qualified Text.Pandoc.Builder as B
+import Text.Pandoc.Builder
 import Text.Pandoc.Shared (stringify)
 import Control.Monad.State hiding (get, modify)
 import Data.List
@@ -32,15 +32,14 @@ import Data.Maybe
 import Data.Monoid
 import qualified Data.Map as M
 
-import Data.Accessor
 import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
 import Prelude
-import Data.Default
 
 replaceAll :: (Data a) => Options -> a -> WS a
 replaceAll opts =
@@ -60,123 +59,124 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                  then "sec:"++label
                  else label
     unless ("unnumbered" `elem` cls) $ do
+      -- TODO: Rework this horribleness that is curChap
       modify curChap $ \cc ->
         let ln = length cc
             cl = lookup "label" attrs
-            inc l = init l ++ [(fst (last l) + 1, cl)]
+            inc l = let incd = fst (last l) + 1
+                    in init l ++ [(incd, fromMaybe (show incd) cl)]
             cc' | ln > n = inc $ take n cc
                 | ln == n = inc cc
-                | otherwise = cc ++ take (n-ln-1) (zip [1,1..] $ repeat Nothing) ++ [(1,cl)]
+                | otherwise = cc ++ take (n-ln-1) (zip (repeat 1) (repeat "1")) ++ [(1, fromMaybe "1" cl)]
         in cc'
       when ("sec:" `isPrefixOf` label') $ do
         index  <- get curChap
-        modify secRefs $ M.insert label' RefRec {
+        modify referenceData $ M.insert label' RefRec {
           refIndex=index
-        , refTitle= text'
+        , refTitle= fromList text'
         , refSubfigure = Nothing
         }
     cc <- get curChap
     let textCC | numberSections opts
                , sectionsDepth opts < 0 || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
                , "unnumbered" `notElem` cls
-               = Str (intercalate "." $ map show' cc) : Space : text'
+               = Str (intercalate "." $ map snd cc) : Space : text'
                | otherwise = text'
-        show' (_, Just s) = s
-        show' (i, Nothing) = show i
     replaceNoRecurse $ Header n (label', cls, attrs) textCC
 -- subfigures
-replaceBlock opts (Div (label,cls,attrs) images)
-  | "fig:" `isPrefixOf` label
-  , Para caption <- last images
-  = do
-    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption imgRefs
-    let (cont, st) = runState (runReplace (mkRR $ replaceSubfigs opts') $ init images) def
-        collectedCaptions = B.toList $
-            intercalate' (B.fromList $ ccsDelim opts)
-          $ map (B.fromList . collectCaps . snd)
-          $ sortOn (refIndex . snd)
-          $ filter (not . null . refTitle . snd)
-          $ M.toList
-          $ imgRefs_ st
-        collectCaps v =
-              applyTemplate
-                (chapPrefix (chapDelim opts) (refIndex v))
-                (refTitle v)
-                (ccsTemplate opts)
-        vars = M.fromDistinctAscList
-                  [ ("ccs", collectedCaptions)
-                  , ("i", idxStr)
-                  , ("t", caption)
-                  ]
-        capt = applyTemplate' vars $ subfigureTemplate opts
-    lastRef <- fromJust . M.lookup label <$> get imgRefs
-    modify imgRefs $ \old ->
-        M.union
-          old
-          (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
-          $ imgRefs_ st)
-    case outFormat opts of
-          f | isFormat "latex" f ->
-            replaceNoRecurse $ Div nullAttr $
-              [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
-              ++ cont ++
-              [ Para [RawInline (Format "latex") "\\caption"
-                       , Span nullAttr caption]
-              , RawBlock (Format "latex") $ mkLaTeXLabel label
-              , RawBlock (Format "latex") "\\end{figure}"]
-          _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
-  where
-    opts' = opts
-              { figureTemplate = subfigureChildTemplate opts
-              , customLabel = \r i -> customLabel opts ("sub"++r) i
-              }
-    toTable :: [Block] -> [Inline] -> [Block]
-    toTable blks capt
-      | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, mkCaption opts "Image Caption" capt]
-      | otherwise = blks ++ [mkCaption opts "Image Caption" capt]
-      where
-        align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
-              | otherwise = error "Misformatted subfigures block"
-        widths | Para ils:_ <- blks
-               = fixZeros $ mapMaybe getWidth ils
-               | otherwise = error "Misformatted subfigures block"
-        getWidth (Image (_id, _class, as) _ _)
-          = Just $ maybe 0 percToDouble $ lookup "width" as
-        getWidth _ = Nothing
-        fixZeros :: [Double] -> [Double]
-        fixZeros ws
-          = let nz = length $ filter (== 0) ws
-                rzw = (0.99 - sum ws) / fromIntegral nz
-            in if nz>0
-               then map (\x -> if x == 0 then rzw else x) ws
-               else ws
-        percToDouble :: String -> Double
-        percToDouble percs
-          | '%' <- last percs
-          , perc <- read $ init percs
-          = perc/100.0
-          | otherwise = error "Only percent allowed in subfigure width!"
-        blkToRow :: Block -> [[Block]]
-        blkToRow (Para inls) = mapMaybe inlToCell inls
-        blkToRow x = [[x]]
-        inlToCell :: Inline -> Maybe [Block]
-        inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
-        inlToCell _ = Nothing
-        setW as = ("width", "100%"):filter ((/="width") . fst) as
+-- replaceBlock opts (Div (label,cls,attrs) images)
+--   | "fig:" `isPrefixOf` label
+--   , Para caption <- last images
+--   = do
+--     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption imgRefs
+--     let (cont, st) = runState (runReplace (mkRR $ replaceSubfigs opts') $ init images) def
+--         collectedCaptions = B.toList $
+--             intercalate' (B.fromList $ ccsDelim opts)
+--           $ map (B.fromList . collectCaps . snd)
+--           $ sortOn (refIndex . snd)
+--           $ filter (not . null . refTitle . snd)
+--           $ M.toList
+--           $ imgRefs_ st
+--         collectCaps v =
+--               applyTemplate
+--                 (chapPrefix (chapDelim opts) (refIndex v))
+--                 (refTitle v)
+--                 (ccsTemplate opts)
+--         vars = M.fromDistinctAscList
+--                   [ ("ccs", collectedCaptions)
+--                   , ("i", idxStr)
+--                   , ("t", caption)
+--                   ]
+--         capt = applyTemplate' vars $ subfigureTemplate opts
+--     lastRef <- fromJust . M.lookup label <$> get imgRefs
+--     modify imgRefs $ \old ->
+--         M.union
+--           old
+--           (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
+--           $ imgRefs_ st)
+--     case outFormat opts of
+--           f | isFormat "latex" f ->
+--             replaceNoRecurse $ Div nullAttr $
+--               [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
+--               ++ cont ++
+--               [ Para [RawInline (Format "latex") "\\caption"
+--                        , Span nullAttr caption]
+--               , RawBlock (Format "latex") $ mkLaTeXLabel label
+--               , RawBlock (Format "latex") "\\end{figure}"]
+--           _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
+--   where
+--     opts' = opts
+--               { figureTemplate = subfigureChildTemplate opts
+--               , customLabel = \r i -> customLabel opts ("sub"++r) i
+--               }
+--     toTable :: [Block] -> [Inline] -> [Block]
+--     toTable blks capt
+--       | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, mkCaption opts "Image Caption" capt]
+--       | otherwise = blks ++ [mkCaption opts "Image Caption" capt]
+--       where
+--         align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
+--               | otherwise = error "Misformatted subfigures block"
+--         widths | Para ils:_ <- blks
+--                = fixZeros $ mapMaybe getWidth ils
+--                | otherwise = error "Misformatted subfigures block"
+--         getWidth (Image (_id, _class, as) _ _)
+--           = Just $ maybe 0 percToDouble $ lookup "width" as
+--         getWidth _ = Nothing
+--         fixZeros :: [Double] -> [Double]
+--         fixZeros ws
+--           = let nz = length $ filter (== 0) ws
+--                 rzw = (0.99 - sum ws) / fromIntegral nz
+--             in if nz>0
+--                then map (\x -> if x == 0 then rzw else x) ws
+--                else ws
+--         percToDouble :: String -> Double
+--         percToDouble percs
+--           | '%' <- last percs
+--           , perc <- read $ init percs
+--           = perc/100.0
+--           | otherwise = error "Only percent allowed in subfigure width!"
+--         blkToRow :: Block -> [[Block]]
+--         blkToRow (Para inls) = mapMaybe inlToCell inls
+--         blkToRow x = [[x]]
+--         inlToCell :: Inline -> Maybe [Block]
+--         inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
+--         inlToCell _ = Nothing
+--         setW as = ("width", "100%"):filter ((/="width") . fst) as
 replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header cells])
   | not $ null title
-  , "tbl:" `isPrefixOf` label
+  , Just pfx <- getRefPrefix opts label
   = do
-    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) title tblRefs
-    let title' =
+    let ititle = fromList title
+    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ititle pfx
+    let title' = toList $
           case outFormat opts of
               f | isFormat "latex" f ->
-                RawInline (Format "latex") (mkLaTeXLabel label) : title
-              _  -> applyTemplate idxStr title $ tableTemplate opts
+                rawInline "latex" (mkLaTeXLabel label) <> ititle
+              _  -> applyTemplate idxStr ititle $ fromJust $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
 replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   | not $ null label
-  , "lst:" `isPrefixOf` label
+  , Just pfx <- getRefPrefix opts label
   , Just caption <- lookup "caption" attrs
   = case outFormat opts of
       f
@@ -191,9 +191,9 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
             , RawBlock (Format "latex") "\\end{codelisting}"
             ]
       _ -> do
-        let cap = B.toList $ B.text caption
-        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) cap lstRefs
-        let caption' = applyTemplate idxStr cap $ listingTemplate opts
+        let cap = text caption
+        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) cap pfx
+        let caption' = applyTemplate idxStr cap $ fromJust $ pfxCaptionTemplate opts pfx
         replaceNoRecurse $ Div (label, "listing":classes, []) [
             mkCaption opts "Caption" caption'
           , CodeBlock ([], classes, attrs \\ [("caption", caption)]) code
@@ -202,7 +202,7 @@ replaceBlock opts
   (Div (label,"listing":_, [])
     [Para caption, CodeBlock ([],classes,attrs) code])
   | not $ null label
-  , "lst:" `isPrefixOf` label
+  , Just pfx <- getRefPrefix opts label
   = case outFormat opts of
       f
         --if used with listings package, return code block with caption
@@ -220,69 +220,84 @@ replaceBlock opts
             , RawBlock (Format "latex") "\\end{codelisting}"
             ]
       _ -> do
-        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption lstRefs
-        let caption' = applyTemplate idxStr caption $ listingTemplate opts
+        let icaption = fromList caption
+        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) icaption pfx
+        let caption' = applyTemplate idxStr icaption $ fromJust $ pfxCaptionTemplate opts pfx
         replaceNoRecurse $ Div (label, "listing":classes, []) [
             mkCaption opts "Caption" caption'
           , CodeBlock ([], classes, attrs) code
           ]
-replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
+replaceBlock opts (Para [Span attrs@(label, _, _) [Math DisplayMath eq]])
   | not $ isFormat "latex" (outFormat opts)
   , tableEqns opts
+  , pfx <- getRefPrefix opts label
   = do
-    (eq', idx) <- replaceEqn opts attrs eq
+    (eq', idx) <- replaceEqn opts attrs eq pfx
     replaceNoRecurse $ Div attrs [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
 replaceBlock _ _ = noReplaceRecurse
 
-replaceEqn :: Options -> Attr -> String -> WS (String, String)
-replaceEqn opts (label, _, attrs) eq = do
+getRefPrefix :: Options -> String -> Maybe String
+getRefPrefix opts label
+  | ':' `notElem` label = Nothing
+  | otherwise =
+    let pfx = takeWhile (/=':') label
+    in if pfx `elem` prefixList opts
+       then Just pfx
+       else Nothing
+
+replaceEqn :: Options -> Attr -> String -> Maybe String -> WS (String, String)
+replaceEqn opts (label, _, attrs) eq pfx = do
   let label' | null label = Left "eq"
              | otherwise = Right label
-  idxStr <- replaceAttr opts label' (lookup "label" attrs) [] eqnRefs
+  idxStr <- replaceAttr opts label' (lookup "label" attrs) mempty (fromMaybe "eq" pfx)
   let eq' | tableEqns opts = eq
           | otherwise = eq++"\\qquad("++stringify idxStr++")"
   return (eq', stringify idxStr)
 
 replaceInline :: Options -> Inline -> WS (ReplacedResult Inline)
 replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
-  | "eq:" `isPrefixOf` label || null label && autoEqnLabels opts
+  | pfx <- getRefPrefix opts label
+  , isJust pfx || null label && autoEqnLabels opts
   = case outFormat opts of
       f | isFormat "latex" f ->
         let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
         in replaceNoRecurse $ RawInline (Format "latex") eqn
       _ -> do
-        (eq', _) <- replaceEqn opts attrs eq
+        (eq', _) <- replaceEqn opts attrs eq pfx
         replaceNoRecurse $ Span attrs [Math DisplayMath eq']
 replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
-  | "fig:" `isPrefixOf` label && "fig:" `isPrefixOf` tit
+  | Just pfx <- getRefPrefix opts label
+  , "fig:" `isPrefixOf` tit
   = do
-    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) alt imgRefs
-    let alt' = case outFormat opts of
-          f | isFormat "latex" f -> alt
-          _  -> applyTemplate idxStr alt $ figureTemplate opts
+    let ialt = fromList alt
+    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ialt pfx
+    let alt' = toList $ case outFormat opts of
+          f | isFormat "latex" f -> ialt
+          _  -> applyTemplate idxStr ialt $ fromJust $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Image attr alt' img
 replaceInline _ _ = noReplaceRecurse
 
-replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
-replaceSubfigs opts = (replaceNoRecurse . concat =<<) . mapM (replaceSubfig opts)
+-- replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
+-- replaceSubfigs opts = (replaceNoRecurse . concat =<<) . mapM (replaceSubfig opts)
 
-replaceSubfig :: Options -> Inline -> WS [Inline]
-replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
-  = do
-      let label' | "fig:" `isPrefixOf` label = Right label
-                 | null label = Left "fig"
-                 | otherwise  = Right $ "fig:" ++ label
-      idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
-      case outFormat opts of
-        f | isFormat "latex" f ->
-          return $ latexSubFigure x label
-        _  ->
-          let alt' = applyTemplate idxStr alt $ figureTemplate opts
-              tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
-                   | "fig:" `isPrefixOf` tit = tit
-                   | otherwise = "fig:" ++ tit
-          in return [Image (label, cls, attrs) alt' (src, tit')]
-replaceSubfig _ x = return [x]
+-- replaceSubfig :: Options -> Inline -> WS [Inline]
+-- replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
+--   = do
+--       let label' | "fig:" `isPrefixOf` label = Right label
+--                  | null label = Left "fig"
+--                  | otherwise  = Right $ "fig:" ++ label
+--       let ialt = fromList alt
+--       idxStr <- replaceAttr opts label' (lookup "label" attrs) ialt
+--       case outFormat opts of
+--         f | isFormat "latex" f ->
+--           return $ latexSubFigure x label
+--         _  ->
+--           let alt' = toList $ applyTemplate idxStr ialt $ fromJust $ pfxCaptionTemplate opts pfx
+--               tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
+--                    | "fig:" `isPrefixOf` tit = tit
+--                    | otherwise = "fig:" ++ tit
+--           in return [Image (label, cls, attrs) alt' (src, tit')]
+-- replaceSubfig _ x = return [x]
 
 divBlocks :: Block -> Block
 divBlocks (Table title align widths header cells)
@@ -314,17 +329,18 @@ spanInlines opts (math@(Math DisplayMath _eq):ils)
   = Span nullAttr [math]:ils
 spanInlines _ x = x
 
-replaceAttr :: Options -> Either String String -> Maybe String -> [Inline] -> Accessor References RefMap -> WS [Inline]
-replaceAttr o label refLabel title prop
+replaceAttr :: Options -> Either String String -> Maybe String -> Inlines -> String -> WS Inlines
+replaceAttr o label refLabel title pfx
   = do
     chap  <- take (chaptersDepth o) `fmap` get curChap
-    i     <- (1+) `fmap` (M.size . M.filter (\x -> (chap == init (refIndex x)) && isNothing (refSubfigure x)) <$> get prop)
-    let index = chap ++ [(i, refLabel <> customLabel o label' i)]
+    i     <- (1+) `fmap` (M.size . M.filter (\x -> (chap == init (refIndex x)) && isNothing (refSubfigure x)) <$> get referenceData)
+    let customLabel = prefixNumbering $ fromJust $ M.lookup pfx (prefixes o)
+    let index = chap ++ [(i, fromMaybe (customLabel i) refLabel)]
         label' = either (++ ':':show index) id label
-    hasLabel <- M.member label' <$> get prop
+    hasLabel <- M.member label' <$> get referenceData
     when hasLabel $
       error $ "Duplicate label: " ++ label'
-    modify prop $ M.insert label' RefRec {
+    modify referenceData $ M.insert label' RefRec {
       refIndex= index
     , refTitle= title
     , refSubfigure = Nothing
@@ -351,7 +367,7 @@ latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
       ]
 latexSubFigure x _ = [x]
 
-mkCaption :: Options -> String -> [Inline] -> Block
+mkCaption :: Options -> String -> Inlines -> Block
 mkCaption opts style
-  | outFormat opts == Just (Format "docx") = Div ([], [], [("custom-style", style)]) . return . Para
-  | otherwise = Para
+  | outFormat opts == Just (Format "docx") = Div ([], [], [("custom-style", style)]) . toList . para
+  | otherwise = Para . toList

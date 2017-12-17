@@ -30,32 +30,32 @@ import Data.Function
 import qualified Data.Map as M
 import Control.Arrow as A
 
-import Data.Accessor
 import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Prefixes
 import Control.Applicative
 import Debug.Trace
 import Prelude
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
-replaceRefs opts (Cite cits _:xs)
-  = toList . (<> fromList xs) . intercalate' (text ", ") . map fromList <$> mapM replaceRefs' (groupBy eqPrefix cits)
+replaceRefs opts ils
+  | Cite cits _:xs <- ils
+  = toList . (<> fromList xs) . intercalate' (text ", ") <$> mapM replaceRefs' (groupBy eqPrefix cits)
   where
     eqPrefix a b = uncurry (==) $
-      (fmap uncapitalizeFirst . getLabelPrefix . citationId) <***> (a,b)
+      (fmap uncapitalizeFirst . getLabelPrefix opts . citationId) <***> (a,b)
     (<***>) = join (***)
     replaceRefs' cits'
-      | Just prefix <- allCitsPrefix cits'
+      | Just prefix <- allCitsPrefix opts cits'
       = replaceRefs'' prefix opts cits'
-      | otherwise = return [Cite cits' il']
+      | otherwise = return $ cite cits' il'
         where
-          il' = toList $
-              str "["
-            <> intercalate' (text "; ") (map citationToInlines cits')
-            <> str "]"
+          il' = str "["
+             <> intercalate' (text "; ") (map citationToInlines cits')
+             <> str "]"
           citationToInlines c =
             fromList (citationPrefix c) <> text ("@" ++ citationId c)
               <> fromList (citationSuffix c)
@@ -64,58 +64,34 @@ replaceRefs opts (Cite cits _:xs)
                     _                      -> replaceRefsOther
 replaceRefs _ x = return x
 
--- accessors to state variables
-accMap :: M.Map String (Accessor References RefMap)
-accMap = M.fromList [("fig:",imgRefs)
-                    ,("eq:" ,eqnRefs)
-                    ,("tbl:",tblRefs)
-                    ,("lst:",lstRefs)
-                    ,("sec:",secRefs)
-                    ]
+traceClone :: Show a => a -> a
+traceClone x = trace (show x) x
 
--- accessors to options
-prefMap :: M.Map String (Options -> Bool -> Int -> [Inline], Options -> Template)
-prefMap = M.fromList [("fig:",(figPrefix, figPrefixTemplate))
-                     ,("eq:" ,(eqnPrefix, eqnPrefixTemplate))
-                     ,("tbl:",(tblPrefix, tblPrefixTemplate))
-                     ,("lst:",(lstPrefix, lstPrefixTemplate))
-                     ,("sec:",(secPrefix, secPrefixTemplate))
-                     ]
+getRefPrefix :: Options -> String -> Bool -> Int -> Inlines -> Inlines
+getRefPrefix opts prefix capitalize num cit = traceClone $
+  applyTemplate' (M.fromDistinctAscList [("i", cit), ("p", refprefix)]) reftempl
+  where Prefix{prefixRef=refprefixf, prefixReferenceTemplate=reftempl} = fromMaybe undefined $ M.lookup prefix $ prefixes opts
+        refprefix = refprefixf capitalize num
 
-prefixes :: [String]
-prefixes = M.keys accMap
-
-getRefPrefix :: Options -> String -> Bool -> Int -> [Inline] -> [Inline]
-getRefPrefix opts prefix capitalize num cit =
-  applyTemplate' (M.fromDistinctAscList [("i", cit), ("p", refprefix)])
-        $ reftempl opts
-  where (refprefixf, reftempl) = lookupUnsafe prefix prefMap
-        refprefix = refprefixf opts capitalize num
-
-
-lookupUnsafe :: Ord k => k -> M.Map k v -> v
-lookupUnsafe = (fromJust .) . M.lookup
-
-allCitsPrefix :: [Citation] -> Maybe String
-allCitsPrefix cits = find isCitationPrefix prefixes
+allCitsPrefix :: Options -> [Citation] -> Maybe String
+allCitsPrefix opts cits = find isCitationPrefix $ prefixList opts
   where
   isCitationPrefix p =
     all (p `isPrefixOf`) $ map (uncapitalizeFirst . citationId) cits
 
-replaceRefsLatex :: String -> Options -> [Citation] -> WS [Inline]
+replaceRefsLatex :: String -> Options -> [Citation] -> WS Inlines
 replaceRefsLatex prefix opts cits
   | cref opts
   = replaceRefsLatex' prefix opts cits
   | otherwise
-  = toList . intercalate' (text ", ") . map fromList <$>
+  = intercalate' (text ", ") <$>
       mapM (replaceRefsLatex' prefix opts) (groupBy citationGroupPred cits)
 
-replaceRefsLatex' :: String -> Options -> [Citation] -> WS [Inline]
+replaceRefsLatex' :: String -> Options -> [Citation] -> WS Inlines
 replaceRefsLatex' prefix opts cits =
-  return $ p [texcit]
+  return $ p texcit
   where
-    texcit =
-      RawInline (Format "tex") $
+    texcit = rawInline "tex" $
       if cref opts then
         cref'++"{"++listLabels prefix "" "," "" cits++"}"
         else
@@ -127,76 +103,73 @@ replaceRefsLatex' prefix opts cits =
       = id
       | noPrefix
       = getRefPrefix opts prefix cap (length cits - 1)
-      | otherwise = ((citationPrefix (head cits) ++ [Space]) ++)
-    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
+      | otherwise = ((fromList (citationPrefix (head cits)) <> space) <>)
+    cap = maybe False isFirstUpper $ getLabelPrefix opts . citationId . head $ cits
     cref' | suppressAuthor = "\\labelcref"
           | cap = "\\Cref"
           | otherwise = "\\cref"
 
 listLabels :: String -> String -> String -> String -> [Citation] -> String
 listLabels prefix p sep s =
-  intercalate sep . map ((p ++) . (++ s) . mkLaTeXLabel' . (prefix++) . getLabelWithoutPrefix . citationId)
+  intercalate sep . map ((p ++) . (++ s) . mkLaTeXLabel' . citationId)
 
-getLabelWithoutPrefix :: String -> String
-getLabelWithoutPrefix = drop 1 . dropWhile (/=':')
-
-getLabelPrefix :: String -> Maybe String
-getLabelPrefix lab
-  | uncapitalizeFirst p `elem` prefixes = Just p
+getLabelPrefix :: Options -> String -> Maybe String
+getLabelPrefix opts lab
+  | uncapitalizeFirst p `elem` prefixList opts = Just p
   | otherwise = Nothing
-  where p = (++ ":") . takeWhile (/=':') $ lab
+  where p = takeWhile (/=':') lab
 
-replaceRefsOther :: String -> Options -> [Citation] -> WS [Inline]
-replaceRefsOther prefix opts cits = toList . intercalate' (text ", ") . map fromList <$>
+replaceRefsOther :: String -> Options -> [Citation] -> WS Inlines
+replaceRefsOther prefix opts cits = intercalate' (text ", ") <$>
     mapM (replaceRefsOther' prefix opts) (groupBy citationGroupPred cits)
 
 citationGroupPred :: Citation -> Citation -> Bool
 citationGroupPred = (==) `on` liftM2 (,) citationPrefix citationMode
 
-replaceRefsOther' :: String -> Options -> [Citation] -> WS [Inline]
+replaceRefsOther' :: String -> Options -> [Citation] -> WS Inlines
 replaceRefsOther' prefix opts cits = do
   indices <- mapM (getRefIndex prefix opts) cits
   let
-    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
+    cap = maybe False isFirstUpper $ getLabelPrefix opts . citationId . head $ cits
     writePrefix | all (==SuppressAuthor) $ map citationMode cits
                 = id
                 | all null $ map citationPrefix cits
                 = cmap $ getRefPrefix opts prefix cap (length cits - 1)
                 | otherwise
-                = cmap $ toList . ((fromList (citationPrefix (head cits)) <> space) <>) . fromList
-    cmap f [Link attr t w]
-      | nameInLink opts = [Link attr (f t) w]
+                = cmap ((fromList (citationPrefix (head cits)) <> space) <>)
+    cmap f x
+      | nameInLink opts
+      , [Link attr t (y, z)] <- toList x = linkWith attr y z (f $ fromList t)
     cmap f x = f x
   return $ writePrefix (makeIndices opts indices)
 
 data RefData = RefData { rdLabel :: String
                        , rdIdx :: Maybe Index
                        , rdSubfig :: Maybe Index
-                       , rdSuffix :: [Inline]
+                       , rdSuffix :: Inlines
                        } deriving (Eq)
 
 instance Ord RefData where
   (<=) = (<=) `on` rdIdx
 
 getRefIndex :: String -> Options -> Citation -> WS RefData
-getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
+getRefIndex _prefix _opts Citation{citationId=cid,citationSuffix=suf}
   = do
-    ref <- M.lookup lab <$> get prop
+    ref <- M.lookup lab <$> get referenceData
     let sub = refSubfigure <$> ref
         idx = refIndex <$> ref
     return RefData
       { rdLabel = lab
       , rdIdx = idx
       , rdSubfig = join sub
-      , rdSuffix = suf
+      , rdSuffix = fromList suf
       }
   where
-  prop = lookupUnsafe prefix accMap
-  lab = prefix ++ getLabelWithoutPrefix cid
+  lab = cid
 
 data RefItem = RefRange RefData RefData | RefSingle RefData
 
-makeIndices :: Options -> [RefData] -> [Inline]
+makeIndices :: Options -> [RefData] -> Inlines
 makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   where
   g :: RefData -> RefData -> Bool
@@ -217,22 +190,22 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   f [w] = [RefSingle w]                   -- single value
   f [w1,w2] = [RefSingle w1, RefSingle w2] -- two values
   f (x:xs) = [RefRange x (last xs)] -- shorten more than two values
-  format :: [RefItem] -> [Inline]
-  format [] = []
-  format [x] = toList $ show'' x
-  format [x, y] = toList $ show'' x <> fromList (pairDelim o) <> show'' y
-  format xs = toList $ intercalate' (fromList $ refDelim o) init' <> fromList (lastDelim o) <> last'
+  format :: [RefItem] -> Inlines
+  format [] = mempty
+  format [x] = show'' x
+  format [x, y] = show'' x <> pairDelim o <> show'' y
+  format xs = intercalate' (refDelim o) init' <> lastDelim o <> last'
     where initlast []     = error "emtpy list in initlast"
           initlast [y]    = ([], y)
           initlast (y:ys) = first (y:) $ initlast ys
           (init', last') = initlast $ map show'' xs
   show'' :: RefItem -> Inlines
   show'' (RefSingle x) = show' x
-  show'' (RefRange x y) = show' x <> fromList (rangeDelim o) <> show' y
+  show'' (RefRange x y) = show' x <> rangeDelim o <> show' y
   show' :: RefData -> Inlines
   show' RefData{rdLabel=l, rdIdx=Just i, rdSubfig = sub, rdSuffix = suf}
-    | linkReferences o = link ('#':l) "" (fromList txt)
-    | otherwise = fromList txt
+    | linkReferences o = link ('#':l) "" txt
+    | otherwise = txt
     where
       txt
         | Just sub' <- sub
@@ -250,4 +223,4 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
           in applyTemplate' vars $ refIndexTemplate o
   show' RefData{rdLabel=l, rdIdx=Nothing, rdSuffix = suf} =
     trace ("Undefined cross-reference: " ++ l)
-          (strong (text $ "¿" ++ l ++ "?") <> fromList suf)
+          (strong (text $ "¿" ++ l ++ "?") <> suf)

@@ -33,23 +33,24 @@ import Text.Pandoc.CrossRef.Util.Meta
 import Control.Applicative
 
 type VarFunc = String -> Maybe MetaValue
-newtype Template = Template (VarFunc -> [Inline])
+newtype Template = Template (VarFunc -> Inlines)
 
-makeTemplate :: Meta -> [Inline] -> Template
-makeTemplate dtv xs' = Template $ \vf -> scan (\var -> vf var <|> lookupMeta var dtv) xs'
+makeTemplate :: Meta -> Inlines -> Template
+makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> lookupMeta var dtv) $ toList xs'
   where
+  scan :: (String -> Maybe MetaValue) -> [Inline] -> [Inline]
   scan = bottomUp . go
-  go vf (x@(Math DisplayMath var):xs) = toList $ fromList (replaceVar var (vf var) [x]) <> fromList xs
+  go vf (x@(Math DisplayMath var):xs) = toList $ replaceVar var (vf var) (fromList [x]) <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
   replaceVar var val def' = maybe def' (toInlines ("variable " ++ var)) val
 
-applyTemplate' :: Map String [Inline] -> Template -> [Inline]
+applyTemplate' :: Map String Inlines -> Template -> Inlines
 applyTemplate' vars (Template g) = g internalVars
   where
-  internalVars x | Just v <- M.lookup x vars = Just $ MetaInlines v
+  internalVars x | Just v <- M.lookup x vars = Just $ MetaInlines $ toList v
   internalVars _   = Nothing
 
-applyTemplate :: [Inline] -> [Inline] -> Template -> [Inline]
+applyTemplate :: Inlines -> Inlines -> Template -> Inlines
 applyTemplate i t =
   applyTemplate' (fromDistinctAscList [("i", i), ("t", t)])

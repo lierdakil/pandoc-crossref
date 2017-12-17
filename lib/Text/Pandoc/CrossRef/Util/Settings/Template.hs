@@ -29,7 +29,7 @@ import Language.Haskell.TH hiding (Inline)
 import Language.Haskell.TH.Syntax hiding (Inline)
 import Data.List
 import Text.Pandoc.CrossRef.Util.Template
-import Text.Pandoc.CrossRef.Util.CustomLabels (customLabel)
+import Text.Pandoc.CrossRef.Util.Prefixes
 
 namedFields :: Con -> [VarStrictType]
 namedFields (RecC _ fs) = fs
@@ -70,14 +70,15 @@ makeCon t cname = fromRecDef t cname makeCon' RecConE
 makeCon' :: Name -> Name -> Q [(Name, Exp)]
 makeCon' t accName = do
     VarI _ t' _ <- reify accName
-    funT <- [t|$(conT t) -> Bool -> Int -> [Inline]|]
-    inlT <- [t|$(conT t) -> [Inline]|]
-    blkT <- [t|$(conT t) -> [Block]|]
+    funT <- [t|$(conT t) -> Bool -> Int -> Inlines|]
+    inlT <- [t|$(conT t) -> Inlines|]
+    blkT <- [t|$(conT t) -> Blocks|]
     fmtT <- [t|$(conT t) -> Maybe Format|]
     boolT <- [t|$(conT t) -> Bool|]
     intT <- [t|$(conT t) -> Int|]
     tmplT <- [t|$(conT t) -> Template|]
     clT <- [t|$(conT t) -> String -> Int -> Maybe String|]
+    pfxT <- [t|$(conT t) -> Prefixes|]
     let varName | Name (OccName n) _ <- accName = liftString n
     let dtv = return $ VarE $ mkName "dtv"
     body <-
@@ -90,5 +91,6 @@ makeCon' t accName = do
       | t' == tmplT -> [|makeTemplate $(dtv) $ getMetaInlines $(varName) $(dtv)|]
       | t' == clT -> [|customLabel $(dtv)|]
       | t' == fmtT -> return $ VarE $ mkName "fmt"
+      | t' == pfxT -> [|getPrefixes $(varName) $(dtv)|]
       | otherwise -> fail $ show t'
     return [(accName, body)]

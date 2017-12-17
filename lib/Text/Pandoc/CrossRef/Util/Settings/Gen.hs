@@ -31,18 +31,18 @@ import Text.Pandoc.Definition
 nameDeriveSetters ''Options
 
 fmap concat $ mapM (makeAcc . mkName)
-  [ "figureTitle"
-  , "tableTitle"
-  , "listingTitle"
-  , "titleDelim"
+  -- [ "figureTitle"
+  -- , "tableTitle"
+  -- , "listingTitle"
+  [ "titleDelim"
   , "crossrefYaml"
-  , "subfigLabels"
+  -- , "subfigLabels"
   , "chapters"
-  , "figLabels"
-  , "eqnLabels"
-  , "tblLabels"
-  , "lstLabels"
-  , "secLabels"
+  -- , "figLabels"
+  -- , "eqnLabels"
+  -- , "tblLabels"
+  -- , "lstLabels"
+  -- , "secLabels"
   ]
 
 getOptions :: Meta -> Maybe Format -> Options

@@ -32,6 +32,7 @@ import System.Directory
 import System.FilePath
 import System.IO
 import qualified Data.Text as T
+import qualified Data.Map as M
 
 getSettings :: Maybe Format -> Meta -> IO Meta
 getSettings fmt meta = do
@@ -65,49 +66,71 @@ defaultMeta =
   <> autoSectionLabels False
   <> numberSections False
   <> sectionsDepth "0"
-  <> figLabels "arabic"
-  <> eqnLabels "arabic"
-  <> tblLabels "arabic"
-  <> lstLabels "arabic"
-  <> secLabels "arabic"
-  <> figureTitle (str "Figure")
-  <> tableTitle (str "Table")
-  <> listingTitle (str "Listing")
+  -- <> figLabels "arabic"
+  -- <> eqnLabels "arabic"
+  -- <> tblLabels "arabic"
+  -- <> lstLabels "arabic"
+  -- <> secLabels "arabic"
+  -- <> figureTitle (str "Figure")
+  -- <> tableTitle (str "Table")
+  -- <> listingTitle (str "Listing")
   <> titleDelim (str ":")
   <> chapDelim (str ".")
   <> rangeDelim (str "-")
   <> pairDelim (str "," <> space)
   <> lastDelim (str "," <> space)
   <> refDelim (str "," <> space)
-  <> figPrefix [str "fig.", str "figs."]
-  <> eqnPrefix [str "eq." , str "eqns."]
-  <> tblPrefix [str "tbl.", str "tbls."]
-  <> lstPrefix [str "lst.", str "lsts."]
-  <> secPrefix [str "sec.", str "secs."]
-  <> figPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> eqnPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> tblPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> lstPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> secPrefixTemplate (var "p" <> str "\160" <> var "i")
+  -- <> figPrefix [str "fig.", str "figs."]
+  -- <> eqnPrefix [str "eq." , str "eqns."]
+  -- <> tblPrefix [str "tbl.", str "tbls."]
+  -- <> lstPrefix [str "lst.", str "lsts."]
+  -- <> secPrefix [str "sec.", str "secs."]
+  -- <> figPrefixTemplate (var "p" <> str "\160" <> var "i")
+  -- <> eqnPrefixTemplate (var "p" <> str "\160" <> var "i")
+  -- <> tblPrefixTemplate (var "p" <> str "\160" <> var "i")
+  -- <> lstPrefixTemplate (var "p" <> str "\160" <> var "i")
+  -- <> secPrefixTemplate (var "p" <> str "\160" <> var "i")
   <> refIndexTemplate (var "i" <> var "suf")
   <> subfigureRefIndexTemplate (var "i" <> var "suf" <> space <> str "(" <> var "s" <> str ")")
-  <> lofTitle (header 1 $ text "List of Figures")
-  <> lotTitle (header 1 $ text "List of Tables")
-  <> lolTitle (header 1 $ text "List of Listings")
-  <> figureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
-  <> tableTemplate (var "tableTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
-  <> listingTemplate (var "listingTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
+  -- <> lofTitle (header 1 $ text "List of Figures")
+  -- <> lotTitle (header 1 $ text "List of Tables")
+  -- <> lolTitle (header 1 $ text "List of Listings")
+  -- <> figureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
+  -- <> tableTemplate (var "tableTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
+  -- <> listingTemplate (var "listingTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> crossrefYaml "pandoc-crossref.yaml"
   <> chaptersDepth "1"
-  <> subfigureChildTemplate (var "i")
-  <> subfigureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> str "." <> space <> var "ccs")
-  <> subfigLabels "alpha a"
+  -- <> subfigureChildTemplate (var "i")
+  -- <> subfigureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> str "." <> space <> var "ccs")
+  -- <> subfigLabels "alpha a"
   <> ccsDelim (str "," <> space)
   <> ccsLabelSep (space <> str "—" <> space)
-  <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
+  -- <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
   <> tableEqns False
   <> autoEqnLabels False
   <> subfigGrid False
   <> linkReferences False
   <> nameInLink False
+  <> prefixes' [
+      "eq" .: [
+        "ref" .= ["eq.", "eqns."],
+        "title" .= text "Equation",
+        "captionTemplate" .= var "i",
+        "referenceTemplate" .= var "p" <> str "\160" <> var "i",
+        -- "scope" .= -,
+        "numbering" .= "arabic",
+        "listOfTitle" .= header 1 $ text "List of Equations"
+      ]
+    ]
   where var = displayMath
+
+prefixes' :: [(String, MetaValue)] -> Meta
+prefixes' = prefixes . MetaMap . M.fromList
+
+infixr 0 .:
+(.:) :: String -> [(String, MetaValue)] -> (String, MetaValue)
+key .: val = (key, MetaMap $ M.fromList val)
+
+infixr 0 .=
+(.=) :: ToMetaValue a => String -> a -> (String, MetaValue)
+key .= val = (key, toMetaValue val)
