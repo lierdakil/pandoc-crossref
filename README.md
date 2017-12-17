@@ -71,13 +71,16 @@ This software is licensed under GNU GPL 2. See [LICENSE](https://github.com/lier
 
 Contributors (per GPL, holders of copyright on their respective contributions):
 
+<!-- BEGIN CONTRIBUTORS LIST -->
 * Nikolay Yakimov
 * Raphael Das Gupta
+* Masamichi Hosoda
 * Felix Yan
 * Wlad
 * scoavoux
 * Matthew Salganik
-* Masamichi Hosoda
 * Hadrien Mary
 * Chris Black
 * Bart Mesuere
+
+<!-- END CONTRIBUTORS LIST -->
