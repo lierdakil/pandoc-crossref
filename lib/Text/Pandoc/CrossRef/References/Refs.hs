@@ -60,7 +60,7 @@ replaceRefs opts (Cite cits _:xs)
             fromList (citationPrefix c) <> text ("@" ++ citationId c)
               <> fromList (citationSuffix c)
     replaceRefs'' = case outFormat opts of
-                    f | isFormat "latex" f -> replaceRefsLatex
+                    f | isLatexFormat f -> replaceRefsLatex
                     _                      -> replaceRefsOther
 replaceRefs _ x = return x
 

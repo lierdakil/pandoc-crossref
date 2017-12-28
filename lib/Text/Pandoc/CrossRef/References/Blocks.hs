@@ -49,7 +49,7 @@ replaceAll opts =
   . everywhere (mkT divBlocks `extT` spanInlines opts)
   where
     runSplitMath | tableEqns opts
-                 , not $ isFormat "latex" (outFormat opts)
+                 , not $ isLatexFormat (outFormat opts)
                  = everywhere (mkT splitMath)
                  | otherwise = id
 
@@ -116,7 +116,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
           (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
           $ imgRefs_ st)
     case outFormat opts of
-          f | isFormat "latex" f ->
+          f | isLatexFormat f ->
             replaceNoRecurse $ Div nullAttr $
               [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
               ++ cont ++
@@ -170,7 +170,7 @@ replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header c
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) title tblRefs
     let title' =
           case outFormat opts of
-              f | isFormat "latex" f ->
+              f | isLatexFormat f ->
                 RawInline (Format "latex") (mkLaTeXLabel label) : title
               _  -> applyTemplate idxStr title $ tableTemplate opts
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
@@ -181,9 +181,9 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   = case outFormat opts of
       f
         --if used with listings package,nothing shoud be done
-        | isFormat "latex" f, listings opts -> noReplaceNoRecurse
+        | isLatexFormat f, listings opts -> noReplaceNoRecurse
         --if not using listings, however, wrap it in a codelisting environment
-        | isFormat "latex" f ->
+        | isLatexFormat f ->
           replaceNoRecurse $ Div nullAttr [
               RawBlock (Format "latex")
                 $ "\\begin{codelisting}\n\\caption{"++caption++"}"
@@ -206,10 +206,10 @@ replaceBlock opts
   = case outFormat opts of
       f
         --if used with listings package, return code block with caption
-        | isFormat "latex" f, listings opts ->
+        | isLatexFormat f, listings opts ->
           replaceNoRecurse $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
         --if not using listings, however, wrap it in a codelisting environment
-        | isFormat "latex" f ->
+        | isLatexFormat f ->
           replaceNoRecurse $ Div nullAttr [
               RawBlock (Format "latex") "\\begin{codelisting}"
             , Para [
@@ -227,7 +227,7 @@ replaceBlock opts
           , CodeBlock ([], classes, attrs) code
           ]
 replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
-  | not $ isFormat "latex" (outFormat opts)
+  | not $ isLatexFormat (outFormat opts)
   , tableEqns opts
   = do
     (eq', idx) <- replaceEqn opts attrs eq
@@ -247,7 +247,7 @@ replaceInline :: Options -> Inline -> WS (ReplacedResult Inline)
 replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
   | "eq:" `isPrefixOf` label || null label && autoEqnLabels opts
   = case outFormat opts of
-      f | isFormat "latex" f ->
+      f | isLatexFormat f ->
         let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
         in replaceNoRecurse $ RawInline (Format "latex") eqn
       _ -> do
@@ -258,7 +258,7 @@ replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
   = do
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) alt imgRefs
     let alt' = case outFormat opts of
-          f | isFormat "latex" f -> alt
+          f | isLatexFormat f -> alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
     replaceNoRecurse $ Image attr alt' img
 replaceInline _ _ = noReplaceRecurse
@@ -274,7 +274,7 @@ replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
                  | otherwise  = Right $ "fig:" ++ label
       idxStr <- replaceAttr opts label' (lookup "label" attrs) alt imgRefs
       case outFormat opts of
-        f | isFormat "latex" f ->
+        f | isLatexFormat f ->
           return $ latexSubFigure x label
         _  ->
           let alt' = applyTemplate idxStr alt $ figureTemplate opts

@@ -43,6 +43,10 @@ isFormat :: String -> Maybe Format -> Bool
 isFormat fmt (Just (Format f)) = takeWhile (`notElem` "+-") f == fmt
 isFormat _ Nothing = False
 
+isLatexFormat :: Maybe Format -> Bool
+isLatexFormat = isFormat "latex" `or'` isFormat "beamer"
+  where a `or'` b = (||) <$> a <*> b
+
 capitalizeFirst :: String -> String
 capitalizeFirst (x:xs) = toUpper x : xs
 capitalizeFirst [] = []

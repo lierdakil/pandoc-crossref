@@ -34,7 +34,7 @@ import Control.Monad.Writer
 
 modifyMeta :: Options -> Meta -> Meta
 modifyMeta opts meta
-  | isFormat "latex" (outFormat opts)
+  | isLatexFormat (outFormat opts)
   = setMeta "header-includes"
       (headerInc $ lookupMeta "header-includes" meta)
       meta
