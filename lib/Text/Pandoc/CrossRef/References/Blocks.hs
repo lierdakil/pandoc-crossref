@@ -48,7 +48,7 @@ replaceAll opts =
   . everywhere (mkT divBlocks `extT` spanInlines opts)
   where
     runSplitMath | tableEqns opts
-                 , not $ isFormat "latex" (outFormat opts)
+                 , not $ isLatexFormat (outFormat opts)
                  = everywhere (mkT splitMath)
                  | otherwise = id
 
@@ -115,7 +115,7 @@ replaceBlock opts (Header n (label, cls, attrs) text')
 --           (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
 --           $ imgRefs_ st)
 --     case outFormat opts of
---           f | isFormat "latex" f ->
+--           f | isLatexFormat f ->
 --             replaceNoRecurse $ Div nullAttr $
 --               [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
 --               ++ cont ++
@@ -170,7 +170,7 @@ replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header c
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ititle pfx
     let title' = toList $
           case outFormat opts of
-              f | isFormat "latex" f ->
+              f | isLatexFormat f ->
                 rawInline "latex" (mkLaTeXLabel label) <> ititle
               _  -> applyTemplate idxStr ititle $ fromJust $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
@@ -181,9 +181,9 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   = case outFormat opts of
       f
         --if used with listings package,nothing shoud be done
-        | isFormat "latex" f, listings opts -> noReplaceNoRecurse
+        | isLatexFormat f, listings opts -> noReplaceNoRecurse
         --if not using listings, however, wrap it in a codelisting environment
-        | isFormat "latex" f ->
+        | isLatexFormat f ->
           replaceNoRecurse $ Div nullAttr [
               RawBlock (Format "latex")
                 $ "\\begin{codelisting}\n\\caption{"++caption++"}"
@@ -206,10 +206,10 @@ replaceBlock opts
   = case outFormat opts of
       f
         --if used with listings package, return code block with caption
-        | isFormat "latex" f, listings opts ->
+        | isLatexFormat f, listings opts ->
           replaceNoRecurse $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
         --if not using listings, however, wrap it in a codelisting environment
-        | isFormat "latex" f ->
+        | isLatexFormat f ->
           replaceNoRecurse $ Div nullAttr [
               RawBlock (Format "latex") "\\begin{codelisting}"
             , Para [
@@ -228,7 +228,7 @@ replaceBlock opts
           , CodeBlock ([], classes, attrs) code
           ]
 replaceBlock opts (Para [Span attrs@(label, _, _) [Math DisplayMath eq]])
-  | not $ isFormat "latex" (outFormat opts)
+  | not $ isLatexFormat (outFormat opts)
   , tableEqns opts
   , pfx <- getRefPrefix opts label
   = do
@@ -259,7 +259,7 @@ replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
   | pfx <- getRefPrefix opts label
   , isJust pfx || null label && autoEqnLabels opts
   = case outFormat opts of
-      f | isFormat "latex" f ->
+      f | isLatexFormat f ->
         let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
         in replaceNoRecurse $ RawInline (Format "latex") eqn
       _ -> do
@@ -272,7 +272,7 @@ replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
     let ialt = fromList alt
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ialt pfx
     let alt' = toList $ case outFormat opts of
-          f | isFormat "latex" f -> ialt
+          f | isLatexFormat f -> ialt
           _  -> applyTemplate idxStr ialt $ fromJust $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Image attr alt' img
 replaceInline _ _ = noReplaceRecurse
@@ -289,7 +289,7 @@ replaceInline _ _ = noReplaceRecurse
 --       let ialt = fromList alt
 --       idxStr <- replaceAttr opts label' (lookup "label" attrs) ialt
 --       case outFormat opts of
---         f | isFormat "latex" f ->
+--         f | isLatexFormat f ->
 --           return $ latexSubFigure x label
 --         _  ->
 --           let alt' = toList $ applyTemplate idxStr ialt $ fromJust $ pfxCaptionTemplate opts pfx

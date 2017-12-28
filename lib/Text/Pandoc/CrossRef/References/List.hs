@@ -32,7 +32,7 @@ import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 
 listOf :: Options -> [Block] -> WS [Block]
-listOf Options{outFormat=f} x | isFormat "latex" f = return x
+listOf Options{outFormat=f} x | isLatexFormat f = return x
 listOf opts (RawBlock (Format "latex") "\\listoffigures":xs)
   = undefined -- get imgRefs >>= makeList opts lofTitle xs
 listOf opts (RawBlock (Format "latex") "\\listoftables":xs)
