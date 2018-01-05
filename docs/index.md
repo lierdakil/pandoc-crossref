@@ -302,6 +302,26 @@ It's possible to use raw latex commands `\listoffigures`, `\listoftables` and `l
 
 `\listoflistings` depends on other options, and is defined in preamble, so it will work reliably only with standalone/pdf output.
 
+**NOTE:** With Pandoc 2.0.6 and up, you'll have to explicitly separate these commands if they are close together, at least when targeting something besides LaTeX. So this will not work:
+
+```markdown
+\listoffigures
+
+\listoftables
+
+\listoflistings
+```
+
+but this will:
+
+```markdown
+\listoffigures
+[]: hack to split raw blocks
+\listoftables
+[]: hack to split raw blocks
+\listoflistings
+```
+
 # Usage
 
 Run pandoc with `--filter` option, passing path to pandoc-crossref executable, or simply `pandoc-crossref`, if it's in PATH:
