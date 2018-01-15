@@ -9,8 +9,12 @@ environment:
     STACK_ROOT: "c:\\sr"
   matrix:
     - STACK_YAML: "stack.yaml"
-      PANDOCVER: "2-0"
-      GHCVER: "8"
+      PANDOCVER: "20"
+      GHCVER: "80"
+  matrix:
+    - STACK_YAML: "stack-ghc82.yaml"
+      PANDOCVER: "20"
+      GHCVER: "82"
 
 before_build:
 - appveyor DownloadFile http://www.stackage.org/stack/windows-i386 -FileName stack.zip
