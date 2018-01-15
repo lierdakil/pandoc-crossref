@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE ApplicativeDo, TemplateHaskell #-}
+{-# LANGUAGE ApplicativeDo, TemplateHaskell, CPP #-}
 import Text.Pandoc
 import Text.Pandoc.Builder
 import Text.Pandoc.JSON
@@ -39,18 +39,24 @@ man, manHtml :: String
 man = $(embedManualText)
 manHtml = $(embedManualHtml)
 
-data Flag = Version | Man | HtmlMan
+data Flag = NumericVersion | Version | Man | HtmlMan
 
 run :: Parser (IO ())
 run = do
+  numVers <- flag Nothing (Just NumericVersion) (long "numeric-version" <> help "Print version")
   vers <- flag Nothing (Just Version) (long "version" <> short 'v' <> help "Print version")
   man' <- flag Nothing (Just Man) (long "man" <> help "Show manpage")
   hman <- flag Nothing (Just HtmlMan) (long "man-html" <> help "Show html manpage")
   fmt <- optional $ strArgument (metavar "FORMAT")
-  return $ go (vers <|> man' <|> hman) fmt
+  return $ go (numVers <|> vers <|> man' <|> hman) fmt
   where
     go :: Maybe Flag -> Maybe String -> IO ()
-    go (Just Version) _ = putStrLn $ showVersion version
+    go (Just Version) _ = putStrLn $
+         "pandoc-crossref v" <> VERSION_pandoc_crossref
+      <> " built with Pandoc v" <> VERSION_pandoc <> ","
+      <> " pandoc-types v" <> VERSION_pandoc_types
+      <> " and GHC " <> TOOL_VERSION_ghc
+    go (Just NumericVersion) _ = putStrLn $ showVersion version
     go (Just Man    ) _ = putStrLn man
     go (Just HtmlMan) _ = withSystemTempFile "pandoc-crossref-manual.html" $ \fp h -> do
       hPutStrLn h manHtml
