@@ -11,7 +11,6 @@ environment:
     - STACK_YAML: "stack.yaml"
       PANDOCVER: "20"
       GHCVER: "80"
-  matrix:
     - STACK_YAML: "stack-ghc82.yaml"
       PANDOCVER: "20"
       GHCVER: "82"
