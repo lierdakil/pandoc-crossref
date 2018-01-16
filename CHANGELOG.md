@@ -1,3 +1,12 @@
+## 0.3.0.1
+* Add `-threaded` option to executable
+* Show more version information on `pandoc-crossref --version`
+* Add `pandoc-crossref --numeric-version`
+* GPL license text: v2 or later
+* Update tests for Pandoc 2.0.6
+* Note on Pandoc 2.0.6 wrt raw LaTeX list-of commands
+* Treat beamer as LaTeX format (which it is)
+
 ## 0.3.0.0
 * Remove man page from git
 * Generate manual on CI, add it to archive

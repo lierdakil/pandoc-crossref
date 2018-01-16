@@ -109,6 +109,7 @@ contributions):
 * Wlad
 * scoavoux
 * Matthew Salganik
+* Han Joosten
 * Hadrien Mary
 * Chris Black
 * Bart Mesuere
