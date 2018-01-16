@@ -27,8 +27,6 @@ import Text.Pandoc.CrossRef
 import Options.Applicative
 import qualified Options.Applicative as O
 import Control.Monad
-import Paths_pandoc_crossref (version)
-import Data.Version (showVersion)
 import Web.Browser
 import System.IO.Temp
 import System.IO
@@ -56,7 +54,7 @@ run = do
       <> " built with Pandoc v" <> VERSION_pandoc <> ","
       <> " pandoc-types v" <> VERSION_pandoc_types
       <> " and GHC " <> TOOL_VERSION_ghc
-    go (Just NumericVersion) _ = putStrLn $ showVersion version
+    go (Just NumericVersion) _ = putStrLn VERSION_pandoc_crossref
     go (Just Man    ) _ = putStrLn man
     go (Just HtmlMan) _ = withSystemTempFile "pandoc-crossref-manual.html" $ \fp h -> do
       hPutStrLn h manHtml
