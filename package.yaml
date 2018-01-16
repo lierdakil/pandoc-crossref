@@ -41,7 +41,9 @@ executables:
   pandoc-crossref:
     main: pandoc-crossref.hs
     source-dirs: src
-    ghc-options: -Wall
+    ghc-options:
+    - -Wall
+    - -threaded
     dependencies:
     - pandoc-crossref
     - optparse-applicative >= 0.13 && < 0.15
