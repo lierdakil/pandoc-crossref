@@ -2,21 +2,21 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 86d162e72c1cac19cf4b0ceb24dcdf9efadf588a2b3643b57ed2a65e60c29193
+-- hash: 99938870ea70e3c9e76e2fa598a3a628c9fc2f2d0b21a33ac3d177c746841cd2
 
-name:                pandoc-crossref
-version:             0.3.0.1
-synopsis:            Pandoc filter for cross-references
-description:         pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
-license:             GPL
-license-file:        LICENSE
-author:              Nikolay Yakimov
-maintainer:          root@livid.pp.ru
-category:            Text
-homepage:            https://github.com/lierdakil/pandoc-crossref#readme
-bug-reports:         https://github.com/lierdakil/pandoc-crossref/issues
-build-type:          Simple
-cabal-version:       >= 1.10
+name:           pandoc-crossref
+version:        0.3.0.1
+synopsis:       Pandoc filter for cross-references
+description:    pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
+category:       Text
+homepage:       https://github.com/lierdakil/pandoc-crossref#readme
+bug-reports:    https://github.com/lierdakil/pandoc-crossref/issues
+author:         Nikolay Yakimov
+maintainer:     root@livid.pp.ru
+license:        GPL
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
 
 extra-source-files:
     test/demo-chapters.inc
@@ -77,7 +77,7 @@ library
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
-    , pandoc ==2.0.*
+    , pandoc >=2.0 && <2.2
     , pandoc-types ==1.17.*
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
@@ -124,7 +124,7 @@ executable pandoc-crossref
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.15
-    , pandoc ==2.0.*
+    , pandoc >=2.0 && <2.2
     , pandoc-crossref
     , pandoc-types ==1.17.*
     , roman-numerals ==0.5.*
@@ -155,7 +155,7 @@ test-suite test-integrative
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc ==2.0.*
+    , pandoc >=2.0 && <2.2
     , pandoc-crossref
     , pandoc-types ==1.17.*
     , roman-numerals ==0.5.*
@@ -183,7 +183,7 @@ test-suite test-pandoc-crossref
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc ==2.0.*
+    , pandoc >=2.0 && <2.2
     , pandoc-types ==1.17.*
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
