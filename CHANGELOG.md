@@ -1,3 +1,10 @@
+## 0.3.0.2
+
+-   Constrain pandoc to 2.1.\*, bump version
+-   Set stack reslover to new lts
+-   Remove ghc8.0 stack
+-   Update tests for Pandoc 2.1
+
 ## 0.3.0.1
 * Add `-threaded` option to executable
 * Show more version information on `pandoc-crossref --version`
