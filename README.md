@@ -70,6 +70,16 @@ Windows, OSX and Linux. Bear in mind that those are a product of an
 automated build script, and as such, provided as-is, with zero
 guarantees.
 
+Alternatively, you can use a version provided by a third party. At the
+time of writing, pandoc-crossref is provided on the following platforms
+(that I am aware of):
+
+-   Arch Linux
+-   NixOS or Nix package manager (via `nixpkgs.haskellPackages`
+    attribute)
+-   MacOS (via homebrew)
+-   Gentoo Linux (via gentoo-haskell overlay)
+
 ### Notice Fedora users
 
 `cabal-install` package is not enough to build pandoc-crossref (see
@@ -102,16 +112,16 @@ Contributors (per GPL, holders of copyright on their respective
 contributions):
 
 <!-- BEGIN CONTRIBUTORS LIST -->
-* Nikolay Yakimov
-* Raphael Das Gupta
-* Masamichi Hosoda
-* Felix Yan
-* Wlad
-* scoavoux
-* Matthew Salganik
-* Han Joosten
-* Hadrien Mary
-* Chris Black
-* Bart Mesuere
+-   Nikolay Yakimov
+-   Raphael Das Gupta
+-   Masamichi Hosoda
+-   Felix Yan
+-   Wlad
+-   scoavoux
+-   Matthew Salganik
+-   Han Joosten
+-   Hadrien Mary
+-   Chris Black
+-   Bart Mesuere
 
 <!-- END CONTRIBUTORS LIST -->
