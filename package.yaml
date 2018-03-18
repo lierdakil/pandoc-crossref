@@ -11,6 +11,7 @@ license-file: LICENSE
 github: lierdakil/pandoc-crossref
 extra-source-files:
 - test/*.inc
+- CHANGELOG.md
 data-files:
 - docs/demo/demo.md
 - docs/index.md

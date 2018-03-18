@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4803c3784790152834cc398deda3d6ed0afac35e51e22afc8a35cfddb97f863a
+-- hash: bd0646c477746233b18fb82a502d47838700321891e40026d9ff80567eb526bf
 
 name:           pandoc-crossref
 version:        0.3.0.2
@@ -19,6 +19,7 @@ build-type:     Simple
 cabal-version:  >= 1.10
 
 extra-source-files:
+    CHANGELOG.md
     test/demo-chapters.inc
     test/demo.inc
 
