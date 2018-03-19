@@ -1,3 +1,9 @@
+## 0.3.0.3
+
+-   Fix for Pandoc's Monoid\/Semigroup change
+-   Add some information on distribution support
+-   Add changelog to distribution
+
 ## 0.3.0.2
 
 -   Constrain pandoc to 2.1.\*, bump version
