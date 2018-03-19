@@ -1,4 +1,3 @@
-constraints: pandoc-types <1.17.4, pandoc >2.1
 solver: modular
 doc-index-file: $datadir/doc/$arch-$os-$compiler/index.html
 max-backjumps: 2000
