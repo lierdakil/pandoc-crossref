@@ -2,4 +2,5 @@ packages:
 - .
 extra-deps:
 - roman-numerals-0.5.1.5
-resolver: lts-11.0
+resolver: lts-11.1
+allow-newer: true
