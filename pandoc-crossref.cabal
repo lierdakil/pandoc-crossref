@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0fc2dcd444a9c03c9cc5b0b0709f64626e8adb694a8cd3db97a63f32eb1b2d98
+-- hash: 6dc64b43875892f6af97cfecf66ae1f17064bb4d70c7c6011b856228f2e4e81e
 
 name:           pandoc-crossref
 version:        0.3.0.3
@@ -13,7 +13,7 @@ homepage:       https://github.com/lierdakil/pandoc-crossref#readme
 bug-reports:    https://github.com/lierdakil/pandoc-crossref/issues
 author:         Nikolay Yakimov
 maintainer:     root@livid.pp.ru
-license:        GPL
+license:        GPL-2
 license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
