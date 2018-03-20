@@ -315,7 +315,10 @@ main = hspec $ do
         it "Code block labels" $ do
           codeBlock' "A code block" "some_codeblock1"
             <> para (citeGen "lst:some_codeblock" [1])
-            `test` "\\begin{codelisting}\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
+            `test` "\\begin{codelisting}\n\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
+          codeBlock' "A code block with under_score" "some_codeblock1"
+            <> para (citeGen "lst:some_codeblock" [1])
+            `test` "\\begin{codelisting}\n\n\\caption{A code block with under\\_score}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
           let test1 = test' $ setMeta "codeBlockCaptions" True nullMeta
               infixr 5 `test1`
           codeBlockForTable "some_codeblock1" <> paraText ": A code block"

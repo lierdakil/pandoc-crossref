@@ -185,8 +185,12 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
         --if not using listings, however, wrap it in a codelisting environment
         | isLatexFormat f ->
           replaceNoRecurse $ Div nullAttr [
-              RawBlock (Format "latex")
-                $ "\\begin{codelisting}\n\\caption{"++caption++"}"
+              RawBlock (Format "latex") "\\begin{codelisting}"
+            , Plain [
+                RawInline (Format "latex") "\\caption{"
+              , Str caption
+              , RawInline (Format "latex") "}"
+              ]
             , cb
             , RawBlock (Format "latex") "\\end{codelisting}"
             ]
