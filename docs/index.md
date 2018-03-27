@@ -239,6 +239,15 @@ numbered.
 Otherwise, only header levels up to and including `sectionsDepth` will
 be numbered.
 
+You can also supply a custom section header template via `secHeaderTemplate`
+metadata option. The following variables are supported:
+
+-   `$$i$$` -- formatted section number, according to `sectionsDepth`
+-   `$$t$$` -- original section header text
+-   `$$n$$` -- 0-indexed section level (0 is the topmost)
+
+See [section on templates](#templates) for more information
+
 ## Section reference labels
 
 ***Not currently supported with LaTeX output***
@@ -481,6 +490,8 @@ A list of variables follows.
     titles, e.g. `Listing 1: Description`
 -   `titleDelim`, default `:`: What to put between object number and
     caption text.
+-   `secHeaderDelim`, default ` ` (i.e. space): What to put between section
+    number and title when `numberSections` is `true`.
 
 #### Subfigure-specific
 
@@ -585,6 +596,9 @@ See [Templates](#templates)
 -   `listingTemplate`, default
     `$$listingTitle$$ $$i$$$$titleDelim$$ $$t$$`: template for listing
     captions
+-   `secHeaderTemplate`, default `$$i$$$$secHeaderDelim$$$$t$$`: template for
+    section header
+    text when `numberSections` is `true`
 
 #### Subfigure templates
 
@@ -680,6 +694,28 @@ Those don't have `t` variable, since there is no caption in source
 markdown, but instead have `p` variable, that binds to relevant
 `xPrefix`. This is done this way, since actual prefix vaule can depend
 on `i`.
+
+Additionally, a special syntax is provided for indexed access to array metadata variables: `arrayVariable[indexVariable]`, where `arrayVariable` is an array-like metadata variable, and `indexVariable` is an integer-typed template variable.
+If `indexVariable` is larger than length of `arrayVariable`, then the last
+element in `arrayVariable` is used.
+
+Indexed access can be useful with `secHeaderTemplate` for example, where you
+might want to add a custom prefix depending on the header level.
+
+For example, with this YAML metadata:
+
+``` yaml
+secHeaderTemplate: $$secHeaderPrefix[n]$$$$i$$. $$t$$
+secHeaderPrefix:
+  - "Chapter&#32;"
+  - "Section&#32;"
+  - ""
+sectionsDepth: -1
+numberSections: true
+```
+
+top-level sections will be prefixed with `Chapter `, second-level sections will
+be prefixed with `Section ` and the rest won't be prefixed with anything.
 
 Please note that at the moment, templates are not supported with
 LaTeX/PDF output.
