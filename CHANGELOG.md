@@ -1,3 +1,15 @@
+## 0.3.1.0
+
+-   Update documentation
+-   Tweak default secHeaderDelim
+-   Test for secHeaderTemplate and indexed template variables
+-   New template syntax: indexed variables
+-   secHeaderTemplate
+-   Escape underscores in codeblock captions when necessary
+-   Travis set sudo: true
+-   Allow newer in stack.yaml
+-   Set license to GPL-2 (because hackage refuses to accept GPL now)
+
 ## 0.3.0.3
 
 -   Fix for Pandoc's Monoid\/Semigroup change
