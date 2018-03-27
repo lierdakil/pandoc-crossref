@@ -41,6 +41,7 @@ data Options = Options { cref :: Bool
                        , secPrefixTemplate :: Template
                        , refIndexTemplate :: Template
                        , subfigureRefIndexTemplate :: Template
+                       , secHeaderTemplate :: Template
                        , chapDelim   :: [Inline]
                        , rangeDelim  :: [Inline]
                        , pairDelim  :: [Inline]

@@ -77,9 +77,14 @@ replaceBlock opts (Header n (label, cls, attrs) text')
         }
     cc <- get curChap
     let textCC | numberSections opts
-               , sectionsDepth opts < 0 || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
+               , sectionsDepth opts < 0
+               || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
                , "unnumbered" `notElem` cls
-               = Str (intercalate "." $ map show' cc) : Space : text'
+               = applyTemplate' (M.fromDistinctAscList [
+                    ("i", [Str (intercalate "." $ map show' cc)])
+                  , ("n", [Str $ show $ n - 1])
+                  , ("t", text')
+                  ]) $ secHeaderTemplate opts
                | otherwise = text'
         show' (_, Just s) = s
         show' (i, Nothing) = show i

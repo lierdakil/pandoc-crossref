@@ -43,6 +43,7 @@ fmap concat $ mapM (makeAcc . mkName)
   , "tblLabels"
   , "lstLabels"
   , "secLabels"
+  , "secHeaderDelim"
   ]
 
 getOptions :: Meta -> Maybe Format -> Options
