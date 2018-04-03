@@ -51,7 +51,7 @@ main = hspec $ do
       it "Labels equations" $
         testAll (equation' "a^2+b^2=c^2" "equation")
         (spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
+          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the middle of text" $
         testAll (
                 text "This is an equation: "
@@ -61,7 +61,7 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
+          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the beginning of text" $
         testAll (
                 equation' "a^2+b^2=c^2" "equation"
@@ -69,7 +69,7 @@ main = hspec $ do
         (
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
+          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the end of text" $
         testAll (
                 text "This is an equation: "
@@ -77,7 +77,7 @@ main = hspec $ do
         (
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
+          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
 
     -- TODO:
     -- describe "References.Blocks.spanInlines"
@@ -87,7 +87,7 @@ main = hspec $ do
       it "Labels images" $
         testAll (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
-          imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
+          referenceData =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
       it "Labels subfigures" $
         testAll (
           divWith ("fig:subfigure",[],[]) (
@@ -112,36 +112,36 @@ main = hspec $ do
             <> para (figure' "fig:" "test22.jpg" [] "b" "figure22")
             <> para (text "Figure 2: figure caption 2. a — Test figure 21, b — Test figure 22")
             )
-        , imgRefs =: M.fromList [("fig:figure1",RefRec {
-                                            refIndex = [(1,Nothing)],
-                                            refTitle = [Str "Test",Space,Str "figure",Space,Str "1"],
-                                            refSubfigure = Just [(1, Just "a")]}),
+        , referenceData =: M.fromList [("fig:figure1",RefRec {
+                                            refIndex = [(1,"1")],
+                                            refTitle = fromList [Str "Test",Space,Str "figure",Space,Str "1"],
+                                            refSubfigure = Just [(1, "a")]}),
                                     ("fig:figure2",RefRec {
-                                            refIndex = [(1,Nothing)],
-                                            refTitle = [Str "Test",Space,Str "figure",Space,Str "2"],
-                                            refSubfigure = Just [(2, Just "b")]}),
+                                            refIndex = [(1,"1")],
+                                            refTitle = fromList [Str "Test",Space,Str "figure",Space,Str "2"],
+                                            refSubfigure = Just [(2, "b")]}),
                                     ("fig:subfigure",RefRec {
-                                            refIndex = [(1,Nothing)],
-                                            refTitle = [Str "figure",Space,Str "caption"],
+                                            refIndex = [(1,"1")],
+                                            refTitle = fromList [Str "figure",Space,Str "caption"],
                                             refSubfigure = Nothing}),
                                     ("fig:figure21",RefRec {
-                                            refIndex = [(2,Nothing)],
-                                            refTitle = [Str "Test",Space,Str "figure",Space,Str "21"],
-                                            refSubfigure = Just [(1, Just "a")]}),
+                                            refIndex = [(2,"2")],
+                                            refTitle = fromList [Str "Test",Space,Str "figure",Space,Str "21"],
+                                            refSubfigure = Just [(1, "a")]}),
                                     ("fig:figure22",RefRec {
-                                            refIndex = [(2,Nothing)],
-                                            refTitle = [Str "Test",Space,Str "figure",Space,Str "22"],
-                                            refSubfigure = Just [(2, Just "b")]}),
+                                            refIndex = [(2,"2")],
+                                            refTitle = fromList [Str "Test",Space,Str "figure",Space,Str "22"],
+                                            refSubfigure = Just [(2, "b")]}),
                                     ("fig:subfigure2",RefRec {
-                                            refIndex = [(2,Nothing)],
-                                            refTitle = [Str "figure",Space,Str "caption",Space,Str "2"],
+                                            refIndex = [(2,"2")],
+                                            refTitle = fromList [Str "figure",Space,Str "caption",Space,Str "2"],
                                             refSubfigure = Nothing})
                                    ]
             )
       it "Labels equations" $
         testAll (equation "a^2+b^2=c^2" "equation")
         (para $ spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
+          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the middle of text" $
         testAll (para $
                 text "This is an equation: "
@@ -151,7 +151,7 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
+          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the beginning of text" $
         testAll (para $
                 equation' "a^2+b^2=c^2" "equation"
@@ -159,7 +159,7 @@ main = hspec $ do
         (para $
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
+          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels equations in the end of text" $
         testAll (para $
                 text "This is an equation: "
@@ -167,79 +167,79 @@ main = hspec $ do
         (para $
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          eqnRefs =: M.fromList $ refRec'' "eq:equation" 1)
+          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels tables" $
         testAll (table' "Test table" "table")
         (divWith ("tbl:table", [], []) $ table' "Table 1: Test table" [],
-          tblRefs =: M.fromList $ refRec' "tbl:table" 1 "Test table")
+          referenceData =: M.fromList $ refRec' "tbl:table" 1 "Test table")
       it "Labels code blocks" $
         testAll (codeBlock' "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          lstRefs =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
+          referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
       it "Labels code block divs" $
         testAll (codeBlockDiv "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          lstRefs =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
+          referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
       it "Labels sections divs" $
         testAll (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
-          secRefs ^= M.fromList (refRec' "sec:section" 1 "Section Header")
-          $ curChap =: [(1,Nothing)])
+          referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header")
+          $ curChap =: [(1,"1")])
 
     describe "References.Refs.replaceRefs" $ do
       it "References one image" $
-        testRefs' "fig:" [1] [4] imgRefs "fig.\160\&4"
+        testRefs' "fig:" [1] [4] referenceData "fig.\160\&4"
       it "References multiple images" $
-        testRefs' "fig:" [1..3] [4..6] imgRefs "figs.\160\&4-6"
+        testRefs' "fig:" [1..3] [4..6] referenceData "figs.\160\&4-6"
       it "References one equation" $
-        testRefs' "eq:" [1] [4] eqnRefs "eq.\160\&4"
+        testRefs' "eq:" [1] [4] referenceData "eq.\160\&4"
       it "References multiple equations" $
-        testRefs' "eq:" [1..3] [4..6] eqnRefs "eqns.\160\&4-6"
+        testRefs' "eq:" [1..3] [4..6] referenceData "eqns.\160\&4-6"
       it "References one table" $
-        testRefs' "tbl:" [1] [4] tblRefs "tbl.\160\&4"
+        testRefs' "tbl:" [1] [4] referenceData "tbl.\160\&4"
       it "References multiple tables" $
-        testRefs' "tbl:" [1..3] [4..6] tblRefs "tbls.\160\&4-6"
+        testRefs' "tbl:" [1..3] [4..6] referenceData "tbls.\160\&4-6"
       it "References one listing" $
-        testRefs' "lst:" [1] [4] lstRefs "lst.\160\&4"
+        testRefs' "lst:" [1] [4] referenceData "lst.\160\&4"
       it "References multiple listings" $
-        testRefs' "lst:" [1..3] [4..6] lstRefs "lsts.\160\&4-6"
+        testRefs' "lst:" [1..3] [4..6] referenceData "lsts.\160\&4-6"
       it "References one section" $
-        testRefs' "sec:" [1] [4] secRefs "sec.\160\&4"
+        testRefs' "sec:" [1] [4] referenceData "sec.\160\&4"
       it "References multiple sections" $
-        testRefs' "sec:" [1..3] [4..6] secRefs "secs.\160\&4-6"
+        testRefs' "sec:" [1..3] [4..6] referenceData "secs.\160\&4-6"
       it "Separates references to different chapter items by a comma" $
-        testRefs'' "lst:" [1..6] (zip [1,1..] [4..6] ++ zip [2,2..] [7..9]) lstRefs "lsts.\160\&1.4-1.6, 2.7-2.9"
+        testRefs'' "lst:" [1..6] (zip [1,1..] [4..6] ++ zip [2,2..] [7..9]) referenceData "lsts.\160\&1.4-1.6, 2.7-2.9"
 
     describe "References.Refs.replaceRefs capitalization" $ do
       it "References one image" $
-        testRefs' "Fig:" [1] [4] imgRefs "Fig.\160\&4"
+        testRefs' "Fig:" [1] [4] referenceData "Fig.\160\&4"
       it "References multiple images" $
-        testRefs' "Fig:" [1..3] [4..6] imgRefs "Figs.\160\&4-6"
+        testRefs' "Fig:" [1..3] [4..6] referenceData "Figs.\160\&4-6"
       it "References one equation" $
-        testRefs' "Eq:" [1] [4] eqnRefs "Eq.\160\&4"
+        testRefs' "Eq:" [1] [4] referenceData "Eq.\160\&4"
       it "References multiple equations" $
-        testRefs' "Eq:" [1..3] [4..6] eqnRefs "Eqns.\160\&4-6"
+        testRefs' "Eq:" [1..3] [4..6] referenceData "Eqns.\160\&4-6"
       it "References one table" $
-        testRefs' "Tbl:" [1] [4] tblRefs "Tbl.\160\&4"
+        testRefs' "Tbl:" [1] [4] referenceData "Tbl.\160\&4"
       it "References multiple tables" $
-        testRefs' "Tbl:" [1..3] [4..6] tblRefs "Tbls.\160\&4-6"
+        testRefs' "Tbl:" [1..3] [4..6] referenceData "Tbls.\160\&4-6"
       it "References one listing" $
-        testRefs' "Lst:" [1] [4] lstRefs "Lst.\160\&4"
+        testRefs' "Lst:" [1] [4] referenceData "Lst.\160\&4"
       it "References multiple listings" $
-        testRefs' "Lst:" [1..3] [4..6] lstRefs "Lsts.\160\&4-6"
+        testRefs' "Lst:" [1..3] [4..6] referenceData "Lsts.\160\&4-6"
       it "References one listing" $
-        testRefs' "Sec:" [1] [4] secRefs "Sec.\160\&4"
+        testRefs' "Sec:" [1] [4] referenceData "Sec.\160\&4"
       it "References multiple listings" $
-        testRefs' "Sec:" [1..3] [4..6] secRefs "Secs.\160\&4-6"
+        testRefs' "Sec:" [1..3] [4..6] referenceData "Secs.\160\&4-6"
 
     describe "References.List.listOf" $ do
       it "Generates list of tables" $
         testList (rawBlock "latex" "\\listoftables")
-                 (tblRefs =: M.fromList $ refRec' "tbl:1" 4 "4" <> refRec' "tbl:2" 5 "5" <> refRec' "tbl:3" 6 "6")
+                 (referenceData =: M.fromList $ refRec' "tbl:1" 4 "4" <> refRec' "tbl:2" 5 "5" <> refRec' "tbl:3" 6 "6")
                  (header 1 (text "List of Tables") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
       it "Generates list of figures" $
         testList (rawBlock "latex" "\\listoffigures")
-                 (imgRefs =: M.fromList $ refRec' "fig:1" 4 "4" <> refRec' "fig:2" 5 "5" <> refRec' "fig:3" 6 "6")
+                 (referenceData =: M.fromList $ refRec' "fig:1" 4 "4" <> refRec' "fig:2" 5 "5" <> refRec' "fig:3" 6 "6")
                  (header 1 (text "List of Figures") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
 
     describe "Util.CodeBlockCaptions" $
@@ -252,9 +252,9 @@ main = hspec $ do
 
     describe "Util.Template" $
       it "Applies templates" $
-        let template=Util.Template.makeTemplate defaultMeta (toList $ displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
-        in Util.Template.applyTemplate [Str "1"] [Str "title"] template `shouldBe`
-           toList (str "Figure" <> str "1" <> str "title")
+        let template=Util.Template.makeTemplate defaultMeta (displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
+        in Util.Template.applyTemplate (text "1") (text "title") template `shouldBe`
+           (str "Figure" <> str "1" <> str "title")
 
     describe "Citation groups shouldn't be separated (#22 regression test)" $ do
       it "Should not separate citation groups" $ do
@@ -336,13 +336,13 @@ refGen' :: String -> [Int] -> [(Int, Int)] -> M.Map String RefRec
 refGen' p l1 l2 = M.fromList $ mconcat $ zipWith refRec''' (((uncapitalizeFirst p++) . show) `map` l1) l2
 
 refRec' :: String -> Int -> String -> [(String, RefRec)]
-refRec' ref i tit = [(ref, RefRec{refIndex=[(i,Nothing)],refTitle=toList $ text tit,refSubfigure=Nothing})]
+refRec' ref i tit = [(ref, RefRec{refIndex=[(i,show i)],refTitle=text tit,refSubfigure=Nothing})]
 
 refRec'' :: String -> Int -> [(String, RefRec)]
 refRec'' ref i = refRec' ref i []
 
 refRec''' :: String -> (Int, Int) -> [(String, RefRec)]
-refRec''' ref (c,i) = [(ref, RefRec{refIndex=[(c,Nothing), (i,Nothing)],refTitle=toList $ text [],refSubfigure=Nothing})]
+refRec''' ref (c,i) = [(ref, RefRec{refIndex=[(c,show c), (i,show i)],refTitle=text [],refSubfigure=Nothing})]
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen p l1 l2) def) (para $ text res)
