@@ -30,21 +30,32 @@ import qualified Data.Map as M
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Prefixes
 
 listOf :: Options -> [Block] -> WS [Block]
+listOf opts (RawBlock (Format "latex") cmd:xs)
+  | Just pfxBrace <- "\\listof{" `stripPrefix` cmd
+  , (pfx, "}") <- span (/='}') pfxBrace
+  = getPfxData pfx >>= fmap toList . makeList opts pfx (fromList xs)
 listOf Options{outFormat=f} x | isLatexFormat f = return x
 listOf opts (RawBlock (Format "latex") "\\listoffigures":xs)
-  = undefined -- get imgRefs >>= makeList opts lofTitle xs
+  = getPfxData "fig" >>= fmap toList . makeList opts "fig" (fromList xs)
 listOf opts (RawBlock (Format "latex") "\\listoftables":xs)
-  = undefined -- get tblRefs >>= makeList opts lotTitle xs
+  = getPfxData "tbl" >>= fmap toList . makeList opts "tbl" (fromList xs)
 listOf opts (RawBlock (Format "latex") "\\listoflistings":xs)
-  = undefined -- get lstRefs >>= makeList opts lolTitle xs
+  = getPfxData "lst" >>= fmap toList . makeList opts "lst" (fromList xs)
 listOf _ x = return x
 
-makeList :: Options -> (Options -> Blocks) -> Blocks -> M.Map String RefRec -> WS Blocks
+getPfxData :: String -> WS RefMap
+getPfxData pfx = M.filterWithKey (\k _ -> (pfx <> ":") `isPrefixOf` k) <$> get referenceData
+
+getLot :: Options -> String -> Blocks
+getLot opts = prefixListOfTitle . getPfx opts
+
+makeList :: Options -> String -> Blocks -> M.Map String RefRec -> WS Blocks
 makeList opts titlef xs refs
   = return $
-      titlef opts <>
+      getLot opts titlef <>
       (if chaptersDepth opts > 0
         then divWith ("", ["list"], []) (mconcat $ map itemChap refsSorted)
         else orderedList (map item refsSorted))
