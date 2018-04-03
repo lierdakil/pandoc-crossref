@@ -37,6 +37,7 @@ import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Control.Applicative
+import Data.Char (toLower)
 import Debug.Trace
 import Prelude
 
@@ -110,7 +111,7 @@ replaceRefsLatex' prefix opts cits =
           | otherwise = "\\cref"
 
 listLabels :: String -> String -> String -> String -> [Citation] -> String
-listLabels prefix p sep s =
+listLabels _prefix p sep s =
   intercalate sep . map ((p ++) . (++ s) . mkLaTeXLabel' . citationId)
 
 getLabelPrefix :: Options -> String -> Maybe String
@@ -155,7 +156,7 @@ instance Ord RefData where
 getRefIndex :: String -> Options -> Citation -> WS RefData
 getRefIndex _prefix _opts Citation{citationId=cid,citationSuffix=suf}
   = do
-    ref <- M.lookup lab <$> get referenceData
+    ref <- M.lookup llab <$> get referenceData
     let sub = refSubfigure <$> ref
         idx = refIndex <$> ref
     return RefData
@@ -165,7 +166,9 @@ getRefIndex _prefix _opts Citation{citationId=cid,citationSuffix=suf}
       , rdSuffix = fromList suf
       }
   where
-  lab = cid
+  (pfx, lab) = span (/=':') cid
+  lpfx = map toLower pfx
+  llab = lpfx <> lab
 
 data RefItem = RefRange RefData RefData | RefSingle RefData
 
