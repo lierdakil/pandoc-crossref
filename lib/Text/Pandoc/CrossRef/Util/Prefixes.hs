@@ -53,7 +53,7 @@ getPrefixes varN dtv
       , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (MetaString "arabic") $ lookupMeta "numbering" kv)
       , prefixListOfTitle = getMetaBlock "listOfTitle" kv
       }
-      where kv = dtv <> Meta kv'
+      where kv = Meta kv' <> dtv
     m2p k _ = error $ "Invalid value for prefix " <> k
 
 type Prefixes = M.Map String Prefix
