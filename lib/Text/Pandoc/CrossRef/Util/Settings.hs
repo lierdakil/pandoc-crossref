@@ -116,12 +116,18 @@ defaultMeta =
   <> prefixes' [
       "eq" .: [
         "ref" .= ["eq.", "eqns."],
-        "title" .= text "Equation",
         "captionTemplate" .= var "i",
-        "referenceTemplate" .= var "p" <> str "\160" <> var "i",
-        -- "scope" .= -,
-        "numbering" .= "arabic",
         "listOfTitle" .= header 1 $ text "List of Equations"
+      ],
+      "fig" .: [
+        "ref" .= ["fig.", "figs."],
+        "title" .= text "Figure",
+        "listOfTitle" .= header 1 $ text "List of Figures"
+      ],
+      "lst" .: [
+        "ref" .= ["lst.", "lsts."],
+        "title" .= text "Listing",
+        "listOfTitle" .= header 1 $ text "List of Listings"
       ]
     ]
   where var = displayMath
