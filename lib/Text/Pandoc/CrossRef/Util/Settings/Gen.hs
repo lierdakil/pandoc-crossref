@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Settings.Gen where
 
 import Text.Pandoc.CrossRef.Util.Settings.Template
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Options as O (Options(..))
 import Language.Haskell.TH (mkName)
@@ -46,7 +47,7 @@ fmap concat $ mapM (makeAcc . mkName)
   , "secHeaderDelim"
   ]
 
-getOptions :: Meta -> Maybe Format -> Options
+getOptions :: Settings -> Maybe Format -> Options
 getOptions dtv fmt =
   let opts = $(makeCon ''Options 'Options)
   in if getMetaBool "chapters" dtv

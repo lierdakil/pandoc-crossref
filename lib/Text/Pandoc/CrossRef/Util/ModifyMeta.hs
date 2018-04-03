@@ -27,18 +27,19 @@ import Data.List (intercalate)
 import Text.Pandoc
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Util
 import qualified Data.Text as T
 import Control.Monad.Writer
 
-modifyMeta :: Options -> Meta -> Meta
+modifyMeta :: Options -> Settings -> Meta
 modifyMeta opts meta
   | isLatexFormat (outFormat opts)
   = setMeta "header-includes"
-      (headerInc $ lookupMeta "header-includes" meta)
-      meta
-  | otherwise = meta
+      (headerInc $ lookupSettings "header-includes" meta)
+      $ unSettings meta
+  | otherwise = unSettings meta
   where
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = incList

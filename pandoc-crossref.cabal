@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 50bfd180f124ef47795787dc70ba832d1ac839add25dda9a3df3af90cc6c59f6
+-- hash: 7363be4fc2eccadb7479eece11df48cf220e2ec120304d1852966e9f0c1e3a06
 
 name:           pandoc-crossref
 version:        0.3.1.0
@@ -106,6 +106,7 @@ library
       Text.Pandoc.CrossRef.Util.Settings
       Text.Pandoc.CrossRef.Util.Settings.Gen
       Text.Pandoc.CrossRef.Util.Settings.Template
+      Text.Pandoc.CrossRef.Util.Settings.Types
       Text.Pandoc.CrossRef.Util.Template
       Text.Pandoc.CrossRef.Util.Util
       Paths_pandoc_crossref
@@ -213,6 +214,7 @@ test-suite test-pandoc-crossref
       Text.Pandoc.CrossRef.Util.Settings
       Text.Pandoc.CrossRef.Util.Settings.Gen
       Text.Pandoc.CrossRef.Util.Settings.Template
+      Text.Pandoc.CrossRef.Util.Settings.Types
       Text.Pandoc.CrossRef.Util.Template
       Text.Pandoc.CrossRef.Util.Util
       Paths_pandoc_crossref

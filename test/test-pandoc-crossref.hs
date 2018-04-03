@@ -33,6 +33,7 @@ import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Data.Accessor hiding ((=:))
 import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
 import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
@@ -253,7 +254,7 @@ main = hspec $ do
     describe "Util.Template" $
       it "Applies templates" $
         let template=Util.Template.makeTemplate
-              (defaultMeta <> Meta (M.singleton "figureTitle" (toMetaValue $ text "Figure")))
+              (defaultMeta <> Settings (Meta (M.singleton "figureTitle" (toMetaValue $ text "Figure"))))
               (displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
         in Util.Template.applyTemplate (text "1") (text "title") template `shouldBe`
            (str "Figure" <> str "1" <> str "title")

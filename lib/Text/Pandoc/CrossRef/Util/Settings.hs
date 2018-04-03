@@ -19,27 +19,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
+module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta, Settings(..)) where
 
 import Text.Pandoc
-import Text.Pandoc.Builder
+import Text.Pandoc.Builder hiding ((<>))
 import Control.Exception (handle,IOException)
 
 import Text.Pandoc.CrossRef.Util.Settings.Gen
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.PandocOrphans()
 import System.Directory
 import System.FilePath
 import System.IO
+import Data.Monoid
 import qualified Data.Text as T
 import qualified Data.Map as M
 
-getSettings :: Maybe Format -> Meta -> IO Meta
-getSettings fmt meta = do
+getSettings :: Maybe Format -> Meta -> IO Settings
+getSettings fmt inMeta = do
+  let meta = Settings inMeta
   dirConfig <- readConfig (getMetaString "crossrefYaml" (meta <> defaultMeta))
   home <- getHomeDirectory
   globalConfig <- readConfig (home </> ".pandoc-crossref" </> "config.yaml")
-  formatConfig <- maybe (return nullMeta) (readFmtConfig home) fmt
+  formatConfig <- maybe (return mempty) (readFmtConfig home) fmt
   return $ meta <> dirConfig <> formatConfig <> globalConfig <> defaultMeta
   where
     readConfig path =
@@ -48,16 +51,16 @@ getSettings fmt meta = do
         hSetEncoding h utf8
         yaml <- hGetContents h
         Pandoc meta' _ <- readMd $ T.pack $ unlines ["---", yaml, "---"]
-        return meta'
+        return $ Settings meta'
     readMd = handleError . runPure . readMarkdown def{readerExtensions=pandocExtensions}
     readFmtConfig home fmt' = readConfig (home </> ".pandoc-crossref" </> "config-" ++ fmtStr fmt' ++ ".yaml")
-    handler :: IOException -> IO Meta
-    handler _ = return nullMeta
+    handler :: IOException -> IO Settings
+    handler _ = return mempty
     fmtStr (Format fmtstr) = fmtstr
 
 
-defaultMeta :: Meta
-defaultMeta =
+defaultMeta :: Settings
+defaultMeta = Settings $
      cref False
   <> chapters False
   <> chaptersDepth "1"

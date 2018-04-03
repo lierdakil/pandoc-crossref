@@ -30,14 +30,15 @@ import Text.Pandoc.Builder
 import Text.Pandoc.Generic
 import qualified Data.Map as M hiding (toList, fromList, singleton)
 import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Control.Applicative
 import Text.Read
 
 type VarFunc = String -> Maybe MetaValue
 newtype Template = Template (VarFunc -> Inlines)
 
-makeTemplate :: Meta -> Inlines -> Template
-makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> lookupMeta var dtv) $ toList xs'
+makeTemplate :: Settings -> Inlines -> Template
+makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> lookupSettings var dtv) $ toList xs'
   where
   scan :: (String -> Maybe MetaValue) -> [Inline] -> [Inline]
   scan = bottomUp . go
@@ -48,7 +49,7 @@ makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> loo
           idx = readMaybe . toString ("index variable " ++ idxVar) =<< (vf idxVar)
           arr = do
             i <- idx
-            v <- lookupMeta vn dtv
+            v <- lookupSettings vn dtv
             getList i v
       in toList $ (replaceVar arr id) <> fromList xs
     | '#' `elem` var =

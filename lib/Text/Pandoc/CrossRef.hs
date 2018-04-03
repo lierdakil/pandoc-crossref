@@ -94,7 +94,7 @@ import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
 
 -- | Enviromnent for 'CrossRefM'
 data CrossRefEnv = CrossRefEnv {
-                      creSettings :: Meta -- ^Metadata settings
+                      creSettings :: Settings -- ^Metadata settings
                     , creOptions :: Options -- ^Internal pandoc-crossref options
                    }
 
@@ -142,7 +142,7 @@ This is primary function to work with 'CrossRefM' -}
 runCrossRef :: forall a b. Meta -> Maybe Format -> (a -> CrossRefM b) -> a -> b
 runCrossRef meta fmt action arg = R.runReader (action arg) env
   where
-    settings = meta <> defaultMeta
+    settings = Settings meta <> defaultMeta
     env = CrossRefEnv {
             creSettings = settings
           , creOptions = getOptions settings fmt

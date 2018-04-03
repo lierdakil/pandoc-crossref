@@ -33,6 +33,7 @@ module Text.Pandoc.CrossRef.Util.Meta (
   ) where
 
 import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Data.Default
@@ -40,26 +41,26 @@ import Text.Pandoc.Walk
 import Text.Pandoc.Shared hiding (capitalize)
 import Data.Maybe
 
-getMetaList :: (Default a) => (MetaValue -> a) -> String -> Meta -> Int -> a
-getMetaList f name meta i = maybe def f $ lookupMeta name meta >>= getList i
+getMetaList :: (Default a) => (MetaValue -> a) -> String -> Settings -> Int -> a
+getMetaList f name (Settings meta) i = maybe def f $ lookupMeta name meta >>= getList i
 
-getMetaBool :: String -> Meta -> Bool
+getMetaBool :: String -> Settings -> Bool
 getMetaBool = getScalar toBool
 
-getMetaInlines :: String -> Meta -> Inlines
+getMetaInlines :: String -> Settings -> Inlines
 getMetaInlines = getScalar toInlines
 
-getMetaBlock :: String -> Meta -> Blocks
+getMetaBlock :: String -> Settings -> Blocks
 getMetaBlock = getScalar toBlocks
 
-getMetaString :: String -> Meta -> String
+getMetaString :: String -> Settings -> String
 getMetaString = getScalar toString
 
-getMetaStringMaybe :: String -> Meta -> Maybe String
+getMetaStringMaybe :: String -> Settings -> Maybe String
 getMetaStringMaybe = getScalar toMaybeString
 
-getScalar :: Def b => (String -> MetaValue -> b) -> String -> Meta -> b
-getScalar conv name meta = maybe def' (conv name) $ lookupMeta name meta
+getScalar :: Def b => (String -> MetaValue -> b) -> String -> Settings -> b
+getScalar conv name (Settings meta) = maybe def' (conv name) $ lookupMeta name meta
 
 class Def a where
   def' :: a

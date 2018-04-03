@@ -23,37 +23,39 @@ module Text.Pandoc.CrossRef.Util.Prefixes where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.CustomLabels
 import qualified Data.Map as M
-import Text.Pandoc.Builder
+import Text.Pandoc.Builder hiding ((<>))
 import Data.Default
+import Data.Monoid
 import Data.Maybe
 
 instance Default Inlines where
   def = mempty
 
-getPrefixes :: String -> Meta -> Prefixes
+getPrefixes :: String -> Settings -> Prefixes
 getPrefixes varN dtv
-  | Just (MetaMap m) <- lookupMeta varN dtv = M.mapWithKey m2p m
+  | Just (MetaMap m) <- lookupSettings varN dtv = M.mapWithKey m2p m
   | otherwise = error "Prefixes not defined"
   where
     var = displayMath
     m2p _ (MetaMap kv') = Prefix {
         prefixRef = tryCapitalizeM (flip (getMetaList (toInlines "ref")) kv) "ref"
       , prefixCaptionTemplate = makeTemplate kv $
-          if isJust $ lookupMeta "captionTemplate" kv
+          if isJust $ lookupSettings "captionTemplate" kv
           then getMetaInlines "captionTemplate" kv
           else var "title" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> var "ccs#. "
       , prefixReferenceTemplate = makeTemplate kv $
-          if isJust $ lookupMeta "referenceTemplate" kv
+          if isJust $ lookupSettings "referenceTemplate" kv
           then getMetaInlines "referenceTemplate" kv
           else var "p" <> str "\160" <> var "i"
       , prefixScope = getMetaStringMaybe "scope" kv
-      , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (MetaString "arabic") $ lookupMeta "numbering" kv)
+      , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (MetaString "arabic") $ lookupSettings "numbering" kv)
       , prefixListOfTitle = getMetaBlock "listOfTitle" kv
       }
-      where kv = Meta kv' <> dtv
+      where kv = Settings (Meta kv') <> dtv
     m2p k _ = error $ "Invalid value for prefix " <> k
 
 type Prefixes = M.Map String Prefix
