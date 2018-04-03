@@ -52,7 +52,8 @@ main = hspec $ do
       it "Labels equations" $
         testAll (equation' "a^2+b^2=c^2" "equation")
         (spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
+          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (pfxCounter =: M.singleton "eq" 1))
       it "Labels equations in the middle of text" $
         testAll (
                 text "This is an equation: "
@@ -62,7 +63,8 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
+          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (pfxCounter =: M.singleton "eq" 1))
       it "Labels equations in the beginning of text" $
         testAll (
                 equation' "a^2+b^2=c^2" "equation"
@@ -70,7 +72,8 @@ main = hspec $ do
         (
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
+          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (pfxCounter =: M.singleton "eq" 1))
       it "Labels equations in the end of text" $
         testAll (
                 text "This is an equation: "
@@ -78,7 +81,8 @@ main = hspec $ do
         (
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
+          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (pfxCounter =: M.singleton "eq" 1))
 
     -- TODO:
     -- describe "References.Blocks.spanInlines"
@@ -88,7 +92,8 @@ main = hspec $ do
       it "Labels images" $
         testAll (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
-          referenceData =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
+          (referenceData =: M.fromList $ refRec' "fig:figure" 1 "Test figure") .
+          (pfxCounter =: M.singleton "fig" 1))
       it "Labels subfigures" $
         testAll (
           divWith ("fig:subfigure",[],[]) (
@@ -113,7 +118,7 @@ main = hspec $ do
             <> para (figure' "fig:" "test22.jpg" [] "b" "figure22")
             <> para (text "Figure 2: figure caption 2. a — Test figure 21, b — Test figure 22")
             )
-        , referenceData =: M.fromList [("fig:figure1",RefRec {
+        , (referenceData =: M.fromList [("fig:figure1",RefRec {
                                             refIndex = [(1,"1")],
                                             refTitle = fromList [Str "Test",Space,Str "figure",Space,Str "1"],
                                             refSubfigure = Just [(1, "a")]}),
@@ -138,11 +143,12 @@ main = hspec $ do
                                             refTitle = fromList [Str "figure",Space,Str "caption",Space,Str "2"],
                                             refSubfigure = Nothing})
                                    ]
-            )
+            ) . (pfxCounter =: M.singleton "fig" 2))
       it "Labels equations" $
         testAll (equation "a^2+b^2=c^2" "equation")
         (para $ spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
+          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (pfxCounter =: M.singleton "eq" 1))
       it "Labels equations in the middle of text" $
         testAll (para $
                 text "This is an equation: "
@@ -152,7 +158,8 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
+          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (pfxCounter =: M.singleton "eq" 1))
       it "Labels equations in the beginning of text" $
         testAll (para $
                 equation' "a^2+b^2=c^2" "equation"
@@ -160,7 +167,8 @@ main = hspec $ do
         (para $
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
+          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (pfxCounter =: M.singleton "eq" 1))
       it "Labels equations in the end of text" $
         testAll (para $
                 text "This is an equation: "
@@ -168,24 +176,28 @@ main = hspec $ do
         (para $
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          referenceData =: M.fromList $ refRec'' "eq:equation" 1)
+          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (pfxCounter =: M.singleton "eq" 1))
       it "Labels tables" $
         testAll (table' "Test table" "table")
         (divWith ("tbl:table", [], []) $ table' "Table 1: Test table" [],
-          referenceData =: M.fromList $ refRec' "tbl:table" 1 "Test table")
+          (referenceData =: M.fromList $ refRec' "tbl:table" 1 "Test table") .
+          (pfxCounter =: M.singleton "tbl" 1))
       it "Labels code blocks" $
         testAll (codeBlock' "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
+          (referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block") .
+          (pfxCounter =: M.singleton "lst" 1))
       it "Labels code block divs" $
         testAll (codeBlockDiv "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block")
+          (referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block") .
+          (pfxCounter =: M.singleton "lst" 1))
       it "Labels sections divs" $
         testAll (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
-          referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header")
-          $ curChap =: [(1,"1")])
+          (referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header")) .
+          (curChap ^= [(1,"1")]))
 
     describe "References.Refs.replaceRefs" $ do
       it "References one image" $
@@ -353,22 +365,22 @@ testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen
 testRefs'' :: String -> [Int] -> [(Int, Int)] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen' p l1 l2) def) (para $ text res)
 
-testAll :: (Eq a, Data a, Show a) => Many a -> (Many a, References) -> Expectation
+testAll :: (Eq a, Data a, Show a) => Many a -> (Many a, References -> References) -> Expectation
 testAll = testState f def
   where f = References.Blocks.replaceAll defaultOptions
 
 testState :: (Eq s, Eq a1, Show s, Show a1, Df.Default s) =>
-               ([a] -> State s [a1]) -> s -> Many a -> (Many a1, s) -> Expectation
-testState f init' arg res = runState (f $ toList arg) init' `shouldBe` first toList res
+               ([a] -> State s [a1]) -> s -> Many a -> (Many a1, s -> s) -> Expectation
+testState f init' arg (r, s) = runState (f $ toList arg) init' `shouldBe` (toList r, s init')
 
 testRefs :: Blocks -> References -> Blocks -> Expectation
-testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, st)
+testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, id)
 
 testCBCaptions :: Blocks -> Blocks -> Expectation
 testCBCaptions bs res = runState (bottomUpM (Util.CodeBlockCaptions.mkCodeBlockCaptions defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}) (toList bs)) def `shouldBe` (toList res,def)
 
-testList :: Blocks -> References -> Blocks -> Expectation
-testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) st `shouldBe` (toList res,st)
+testList :: Blocks -> (References -> References) -> Blocks -> Expectation
+testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) (st def) `shouldBe` (toList res, st def)
 
 figure :: String -> String -> String -> String -> Blocks
 figure = (((para .) .) .) . figure' "fig:"
@@ -427,5 +439,5 @@ cit :: String -> [Citation]
 cit r = [defCit{citationId=r}]
 
 infixr 0 =:
-(=:) :: Df.Default r => Accessor r a -> a -> r
-a =: b = a ^= b $ def
+(=:) :: Accessor r a -> a -> r -> r
+a =: b = a ^= b
