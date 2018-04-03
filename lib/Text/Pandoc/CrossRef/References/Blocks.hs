@@ -343,14 +343,11 @@ spanInlines _ x = x
 replaceAttr :: Options -> Either String String -> Maybe String -> Inlines -> String -> WS Inlines
 replaceAttr o label refLabel title pfx
   = do
-    chap  <- take (chaptersDepth o) `fmap` get curChap
-    i     <- (1+) `fmap` (
-        M.size . M.filterWithKey (
-          \k x -> ((pfx <> ":") `isPrefixOf` k) && (chap == init (refIndex x)) && isNothing (refSubfigure x)
-          )
-        <$> get referenceData
-      )
-    let customLabel = prefixNumbering $ fromJust $ M.lookup pfx (prefixes o)
+    let ropt = getPfx o pfx
+    chap <- take (chaptersDepth o) `fmap` get curChap
+    i <- (1+) . fromMaybe 0 . M.lookup pfx <$> get pfxCounter
+    modify pfxCounter $ M.insert pfx i
+    let customLabel = prefixNumbering ropt
     let index = chap ++ [(i, fromMaybe (customLabel i) refLabel)]
         label' = either (++ ':':show index) id label
     hasLabel <- M.member label' <$> get referenceData

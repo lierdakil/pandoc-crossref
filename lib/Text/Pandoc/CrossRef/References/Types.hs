@@ -39,12 +39,13 @@ type RefMap = M.Map String RefRec
 -- state data type
 data References = References { referenceData_ :: RefMap
                              , curChap_ :: Index
+                             , pfxCounter_ :: M.Map String Int
                              } deriving (Show, Eq)
 
 --state monad
 type WS a = State References a
 
 instance Default References where
-  def = References M.empty []
+  def = References M.empty [] M.empty
 
 deriveAccessors ''References
