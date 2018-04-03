@@ -160,7 +160,7 @@ getRefIndex _prefix _opts Citation{citationId=cid,citationSuffix=suf}
     let sub = refSubfigure <$> ref
         idx = refIndex <$> ref
     return RefData
-      { rdLabel = lab
+      { rdLabel = llab
       , rdIdx = idx
       , rdSubfig = join sub
       , rdSuffix = fromList suf
