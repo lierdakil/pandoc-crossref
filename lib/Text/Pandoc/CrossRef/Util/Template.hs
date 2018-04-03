@@ -28,9 +28,10 @@ module Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.Generic
-import Data.Map as M hiding (toList, fromList, singleton)
+import qualified Data.Map as M hiding (toList, fromList, singleton)
 import Text.Pandoc.CrossRef.Util.Meta
 import Control.Applicative
+import Text.Read
 
 type VarFunc = String -> Maybe MetaValue
 newtype Template = Template (VarFunc -> Inlines)
@@ -40,12 +41,22 @@ makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> loo
   where
   scan :: (String -> Maybe MetaValue) -> [Inline] -> [Inline]
   scan = bottomUp . go
-  go vf (x@(Math DisplayMath var):xs) = toList $ replaceVar var (vf var) (fromList [x]) <> fromList xs
+  go vf (x@(Math DisplayMath var):xs)
+    | '[' `elem` var  && ']' == last var =
+      let (vn, idxBr) = span (/='[') var
+          idxVar = drop 1 $ takeWhile (/=']') idxBr
+          idx = readMaybe . toString ("index variable " ++ idxVar) =<< (vf idxVar)
+          arr = do
+            i <- idx
+            v <- lookupMeta vn dtv
+            getList i v
+      in toList $ (replaceVar var arr (fromList [x])) <> fromList xs
+    | otherwise = toList $ (replaceVar var (vf var) (fromList [x])) <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
   replaceVar var val def' = maybe def' (toInlines ("variable " ++ var)) val
 
-applyTemplate' :: Map String Inlines -> Template -> Inlines
+applyTemplate' :: M.Map String Inlines -> Template -> Inlines
 applyTemplate' vars (Template g) = g internalVars
   where
   internalVars x | Just v <- M.lookup x vars = Just $ MetaInlines $ toList v
@@ -53,4 +64,4 @@ applyTemplate' vars (Template g) = g internalVars
 
 applyTemplate :: Inlines -> Inlines -> Template -> Inlines
 applyTemplate i t =
-  applyTemplate' (fromDistinctAscList [("i", i), ("t", t)])
+  applyTemplate' (M.fromDistinctAscList [("i", i), ("t", t)])

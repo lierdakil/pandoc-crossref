@@ -1,23 +1,24 @@
 name: pandoc-crossref
-version: '0.3.0.0'
+version: '0.3.1.0'
 synopsis: Pandoc filter for cross-references
 description: pandoc-crossref is a pandoc filter for numbering figures, equations,
   tables and cross-references to them.
 category: Text
 author: Nikolay Yakimov
 maintainer: root@livid.pp.ru
-license: GPL
+license: GPL-2
 license-file: LICENSE
 github: lierdakil/pandoc-crossref
 extra-source-files:
 - test/*.inc
+- CHANGELOG.md
 data-files:
 - docs/demo/demo.md
 - docs/index.md
 - test/m2m/*/*
 dependencies:
 - base >=4.9 && <5
-- pandoc ==2.0.*
+- pandoc >=2.1.3 && < 2.2
 - pandoc-types ==1.17.*
 - mtl >=1.1 && <2.3
 - containers >=0.1 && <0.6
@@ -41,7 +42,9 @@ executables:
   pandoc-crossref:
     main: pandoc-crossref.hs
     source-dirs: src
-    ghc-options: -Wall
+    ghc-options:
+    - -Wall
+    - -threaded
     dependencies:
     - pandoc-crossref
     - optparse-applicative >= 0.13 && < 0.15

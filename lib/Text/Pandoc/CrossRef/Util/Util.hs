@@ -26,13 +26,14 @@ module Text.Pandoc.CrossRef.Util.Util
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.Definition
-import Text.Pandoc.Builder
+import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Class
 import Data.Char (toUpper, toLower, isUpper)
 import Data.List (isSuffixOf, isPrefixOf, stripPrefix)
 import Data.Generics hiding (Prefix)
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
+import Data.Monoid ((<>))
 import qualified Data.Text as T
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a

@@ -24,7 +24,7 @@ module Text.Pandoc.CrossRef.References.Blocks
   ) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Builder
+import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Shared (stringify)
 import Control.Monad.State hiding (get, modify)
 import Data.List
@@ -78,11 +78,16 @@ replaceBlock opts (Header n (label, cls, attrs) text')
         }
     cc <- get curChap
     let textCC | numberSections opts
-               , sectionsDepth opts < 0 || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
+               , sectionsDepth opts < 0
+               || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
                , "unnumbered" `notElem` cls
-               = Str (intercalate "." $ map snd cc) : Space : text'
-               | otherwise = text'
-    replaceNoRecurse $ Header n (label', cls, attrs) textCC
+               = applyTemplate' (M.fromDistinctAscList [
+                    ("i", text (intercalate "." $ map snd cc))
+                  , ("n", text $ show $ n - 1)
+                  , ("t", fromList text')
+                  ]) $ secHeaderTemplate opts
+               | otherwise = fromList text'
+    replaceNoRecurse $ Header n (label', cls, attrs) $ toList textCC
 -- subfigures
 -- replaceBlock opts (Div (label,cls,attrs) images)
 --   | "fig:" `isPrefixOf` label
@@ -185,8 +190,12 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
         --if not using listings, however, wrap it in a codelisting environment
         | isLatexFormat f ->
           replaceNoRecurse $ Div nullAttr [
-              RawBlock (Format "latex")
-                $ "\\begin{codelisting}\n\\caption{"++caption++"}"
+              RawBlock (Format "latex") "\\begin{codelisting}"
+            , Plain [
+                RawInline (Format "latex") "\\caption{"
+              , Str caption
+              , RawInline (Format "latex") "}"
+              ]
             , cb
             , RawBlock (Format "latex") "\\end{codelisting}"
             ]

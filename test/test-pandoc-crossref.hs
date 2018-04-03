@@ -25,7 +25,6 @@ import Text.Pandoc.Builder
 import Control.Monad.State
 import Data.List
 import Control.Arrow
-import Data.Monoid -- needed for ghc<7.10
 import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Default as Df
@@ -301,7 +300,7 @@ main = hspec $ do
         it "Image labels" $
           figure "img.png" [] "Title" "figure_label1"
             <> para (citeGen "fig:figure_label" [1])
-            `test` "\\hypertarget{fig:figure_label1}{%\n\\begin{figure}\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n\\end{figure}\n}\n\nfig.~\\ref{fig:figure_label1}"
+            `test` "\\begin{figure}\n\\hypertarget{fig:figure_label1}{%\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
 
         it "Eqn labels" $
           equation "x^2" "some_equation1"
@@ -316,7 +315,10 @@ main = hspec $ do
         it "Code block labels" $ do
           codeBlock' "A code block" "some_codeblock1"
             <> para (citeGen "lst:some_codeblock" [1])
-            `test` "\\begin{codelisting}\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
+            `test` "\\begin{codelisting}\n\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
+          codeBlock' "A code block with under_score" "some_codeblock1"
+            <> para (citeGen "lst:some_codeblock" [1])
+            `test` "\\begin{codelisting}\n\n\\caption{A code block with under\\_score}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
           let test1 = test' $ setMeta "codeBlockCaptions" True nullMeta
               infixr 5 `test1`
           codeBlockForTable "some_codeblock1" <> paraText ": A code block"

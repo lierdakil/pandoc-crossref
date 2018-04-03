@@ -25,7 +25,7 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
 
 import Data.List (intercalate)
 import Text.Pandoc
-import Text.Pandoc.Builder
+import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Util

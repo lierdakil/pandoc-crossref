@@ -2,6 +2,7 @@
 .cabal-sandbox
 .pandoc-*
 dist
+dist-newstyle
 cabal.sandbox.config
 mkcheck.sh
 mkinttest.sh

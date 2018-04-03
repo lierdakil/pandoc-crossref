@@ -1,24 +1,25 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+-- This file has been generated from package.yaml by hpack version 0.21.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 95eb0690f18bd5caa4d1af6048d9a14768b8076a2f39ecd3b58fada26f1a9af5
+-- hash: 50bfd180f124ef47795787dc70ba832d1ac839add25dda9a3df3af90cc6c59f6
 
-name:                pandoc-crossref
-version:             0.3.0.0
-synopsis:            Pandoc filter for cross-references
-description:         pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
-license:             GPL
-license-file:        LICENSE
-author:              Nikolay Yakimov
-maintainer:          root@livid.pp.ru
-category:            Text
-homepage:            https://github.com/lierdakil/pandoc-crossref#readme
-bug-reports:         https://github.com/lierdakil/pandoc-crossref/issues
-build-type:          Simple
-cabal-version:       >= 1.10
+name:           pandoc-crossref
+version:        0.3.1.0
+synopsis:       Pandoc filter for cross-references
+description:    pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
+category:       Text
+homepage:       https://github.com/lierdakil/pandoc-crossref#readme
+bug-reports:    https://github.com/lierdakil/pandoc-crossref/issues
+author:         Nikolay Yakimov
+maintainer:     root@livid.pp.ru
+license:        GPL-2
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
 
 extra-source-files:
+    CHANGELOG.md
     test/demo-chapters.inc
     test/demo.inc
 
@@ -49,6 +50,9 @@ data-files:
     test/m2m/listing-captions-ids/expect.md
     test/m2m/listing-captions-ids/expect.tex
     test/m2m/listing-captions-ids/input.md
+    test/m2m/section-template/expect.md
+    test/m2m/section-template/expect.tex
+    test/m2m/section-template/input.md
     test/m2m/subfigures-ccsDelim/expect.md
     test/m2m/subfigures-ccsDelim/expect.tex
     test/m2m/subfigures-ccsDelim/input.md
@@ -77,7 +81,7 @@ library
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
-    , pandoc ==2.0.*
+    , pandoc >=2.1.3 && <2.2
     , pandoc-types ==1.17.*
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
@@ -111,7 +115,7 @@ executable pandoc-crossref
   main-is: pandoc-crossref.hs
   hs-source-dirs:
       src
-  ghc-options: -Wall
+  ghc-options: -Wall -threaded
   build-depends:
       base >=4.9 && <5
     , containers >=0.1 && <0.6
@@ -125,7 +129,7 @@ executable pandoc-crossref
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.15
-    , pandoc ==2.0.*
+    , pandoc >=2.1.3 && <2.2
     , pandoc-crossref
     , pandoc-types ==1.17.*
     , roman-numerals ==0.5.*
@@ -156,7 +160,7 @@ test-suite test-integrative
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc ==2.0.*
+    , pandoc >=2.1.3 && <2.2
     , pandoc-crossref
     , pandoc-types ==1.17.*
     , roman-numerals ==0.5.*
@@ -184,7 +188,7 @@ test-suite test-pandoc-crossref
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc ==2.0.*
+    , pandoc >=2.1.3 && <2.2
     , pandoc-types ==1.17.*
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
