@@ -29,23 +29,23 @@ import Text.Pandoc.Builder
 
 type Index = [(Int, String)]
 
-data RefRec = RefRec { refIndex :: Index
-                     , refTitle :: Inlines
-                     , refSubfigure :: Maybe Index
+data RefRec = RefRec { refIndex :: !Index
+                     , refTitle :: !Inlines
+                     , refSubfigure :: !(Maybe Index)
                      } deriving (Show, Eq)
 
 type RefMap = M.Map String RefRec
 
 -- state data type
-data References = References { referenceData_ :: RefMap
-                             , curChap_ :: Index
-                             , pfxCounter_ :: M.Map String Int
+data References = References { referenceData_ :: !RefMap
+                             , curChap_ :: !(M.Map String Index)
+                             , pfxCounter_ :: !(M.Map String Int)
                              } deriving (Show, Eq)
 
 --state monad
 type WS a = State References a
 
 instance Default References where
-  def = References M.empty [] M.empty
+  def = References M.empty M.empty M.empty
 
 deriveAccessors ''References

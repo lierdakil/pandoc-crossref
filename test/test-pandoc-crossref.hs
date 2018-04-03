@@ -53,7 +53,9 @@ main = hspec $ do
         testAll (equation' "a^2+b^2=c^2" "equation")
         (spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
           (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
-          (pfxCounter =: M.singleton "eq" 1))
+          (pfxCounter =: M.singleton "eq" 1) .
+          (curChap =: M.singleton "eq" [(1, "1")])
+          )
       it "Labels equations in the middle of text" $
         testAll (
                 text "This is an equation: "
@@ -64,7 +66,9 @@ main = hspec $ do
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
           (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
-          (pfxCounter =: M.singleton "eq" 1))
+          (pfxCounter =: M.singleton "eq" 1) .
+          (curChap =: M.singleton "eq" [(1, "1")])
+          )
       it "Labels equations in the beginning of text" $
         testAll (
                 equation' "a^2+b^2=c^2" "equation"
@@ -73,7 +77,9 @@ main = hspec $ do
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
           (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
-          (pfxCounter =: M.singleton "eq" 1))
+          (pfxCounter =: M.singleton "eq" 1) .
+          (curChap =: M.singleton "eq" [(1, "1")])
+          )
       it "Labels equations in the end of text" $
         testAll (
                 text "This is an equation: "
@@ -82,7 +88,9 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
           (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
-          (pfxCounter =: M.singleton "eq" 1))
+          (pfxCounter =: M.singleton "eq" 1) .
+          (curChap =: M.singleton "eq" [(1, "1")])
+          )
 
     -- TODO:
     -- describe "References.Blocks.spanInlines"
@@ -93,7 +101,9 @@ main = hspec $ do
         testAll (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
           (referenceData =: M.fromList $ refRec' "fig:figure" 1 "Test figure") .
-          (pfxCounter =: M.singleton "fig" 1))
+          (pfxCounter =: M.singleton "fig" 1) .
+          (curChap =: M.singleton "fig" [(1, "1")])
+          )
       it "Labels subfigures" $
         testAll (
           divWith ("fig:subfigure",[],[]) (
@@ -143,12 +153,17 @@ main = hspec $ do
                                             refTitle = fromList [Str "figure",Space,Str "caption",Space,Str "2"],
                                             refSubfigure = Nothing})
                                    ]
-            ) . (pfxCounter =: M.singleton "fig" 2))
+            ) .
+            (pfxCounter =: M.singleton "fig" 2) .
+            (curChap =: M.singleton "fig" [(2, "2")])
+            )
       it "Labels equations" $
         testAll (equation "a^2+b^2=c^2" "equation")
         (para $ spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
           (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
-          (pfxCounter =: M.singleton "eq" 1))
+          (pfxCounter =: M.singleton "eq" 1) .
+          (curChap =: M.singleton "eq" [(1, "1")])
+          )
       it "Labels equations in the middle of text" $
         testAll (para $
                 text "This is an equation: "
@@ -159,7 +174,9 @@ main = hspec $ do
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
           (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
-          (pfxCounter =: M.singleton "eq" 1))
+          (pfxCounter =: M.singleton "eq" 1) .
+          (curChap =: M.singleton "eq" [(1, "1")])
+          )
       it "Labels equations in the beginning of text" $
         testAll (para $
                 equation' "a^2+b^2=c^2" "equation"
@@ -168,7 +185,9 @@ main = hspec $ do
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
           (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
-          (pfxCounter =: M.singleton "eq" 1))
+          (pfxCounter =: M.singleton "eq" 1) .
+          (curChap =: M.singleton "eq" [(1, "1")])
+          )
       it "Labels equations in the end of text" $
         testAll (para $
                 text "This is an equation: "
@@ -177,27 +196,35 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
           (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
-          (pfxCounter =: M.singleton "eq" 1))
+          (pfxCounter =: M.singleton "eq" 1) .
+          (curChap =: M.singleton "eq" [(1, "1")])
+          )
       it "Labels tables" $
         testAll (table' "Test table" "table")
         (divWith ("tbl:table", [], []) $ table' "Table 1: Test table" [],
           (referenceData =: M.fromList $ refRec' "tbl:table" 1 "Test table") .
-          (pfxCounter =: M.singleton "tbl" 1))
+          (pfxCounter =: M.singleton "tbl" 1) .
+          (curChap =: M.singleton "tbl" [(1, "1")])
+          )
       it "Labels code blocks" $
         testAll (codeBlock' "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
           (referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block") .
-          (pfxCounter =: M.singleton "lst" 1))
+          (pfxCounter =: M.singleton "lst" 1) .
+          (curChap =: M.singleton "lst" [(1, "1")])
+          )
       it "Labels code block divs" $
         testAll (codeBlockDiv "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
           (referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block") .
-          (pfxCounter =: M.singleton "lst" 1))
+          (pfxCounter =: M.singleton "lst" 1) .
+          (curChap =: M.singleton "lst" [(1, "1")])
+          )
       it "Labels sections divs" $
         testAll (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
           (referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header")) .
-          (curChap ^= [(1,"1")]))
+          (curChap ^= M.singleton "sec" [(1,"1")]))
 
     describe "References.Refs.replaceRefs" $ do
       it "References one image" $

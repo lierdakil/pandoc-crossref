@@ -53,44 +53,45 @@ replaceAll opts =
                  = everywhere (mkT splitMath)
                  | otherwise = id
 
+getCurPfx :: String -> WS (Maybe Index)
+getCurPfx pfx = M.lookup pfx <$> get curChap
+
 replaceBlock :: Options -> Block -> WS (ReplacedResult Block)
 replaceBlock opts (Header n (label, cls, attrs) text')
   = do
     let label' = if autoSectionLabels opts && not ("sec:" `isPrefixOf` label)
                  then "sec:"++label
                  else label
-    unless ("unnumbered" `elem` cls) $ do
-      -- TODO: Rework this horribleness that is curChap
-      modify curChap $ \cc ->
-        let ln = length cc
-            cl = lookup "label" attrs
-            inc l = let incd = fst (last l) + 1
-                    in init l ++ [(incd, fromMaybe (show incd) cl)]
-            cc' | ln > n = inc $ take n cc
-                | ln == n = inc cc
-                | otherwise = cc ++ take (n-ln-1) (zip (repeat 1) (repeat "1")) ++ [(1, fromMaybe "1" cl)]
-        in cc'
+    if "unnumbered" `elem` cls
+    then replaceNoRecurse $ Header n (label', cls, attrs) text'
+    else do
+      cur <- getCurPfx "sec"
+      let cc = fromMaybe [] cur
+          cl = lookup "label" attrs
+          inc l = let incd = fst (last l) + 1
+                  in init l ++ [(incd, fromMaybe (show incd) cl)]
+          cc'
+            | length cc >= n = inc $ take n cc
+            | otherwise = take (n-1) (cc ++ repeat (1, "1")) ++ [(1, fromMaybe "1" cl)]
+      modify curChap $ M.insert "sec" cc'
       when (n <= chaptersDepth opts) $ do
         modify pfxCounter $ M.singleton "sec" . fromMaybe 0 . M.lookup "sec"
       when ("sec:" `isPrefixOf` label') $ do
-        index  <- get curChap
         modify referenceData $ M.insert label' RefRec {
-          refIndex=index
-        , refTitle= fromList text'
+          refIndex = cc'
+        , refTitle = fromList text'
         , refSubfigure = Nothing
         }
-    cc <- get curChap
-    let textCC | numberSections opts
-               , sectionsDepth opts < 0
-               || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
-               , "unnumbered" `notElem` cls
-               = applyTemplate' (M.fromDistinctAscList [
-                    ("i", text (intercalate "." $ map snd cc))
-                  , ("n", text $ show $ n - 1)
-                  , ("t", fromList text')
-                  ]) $ secHeaderTemplate opts
-               | otherwise = fromList text'
-    replaceNoRecurse $ Header n (label', cls, attrs) $ toList textCC
+      let textCC | numberSections opts
+                 , sectionsDepth opts < 0
+                 || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
+                 = applyTemplate' (M.fromDistinctAscList [
+                      ("i", text (intercalate "." $ map snd cc'))
+                    , ("n", text $ show $ n - 1)
+                    , ("t", fromList text')
+                    ]) $ secHeaderTemplate opts
+                 | otherwise = fromList text'
+      replaceNoRecurse $ Header n (label', cls, attrs) $ toList textCC
 -- sub-objects
 replaceBlock opts (Div (label,cls,attrs) images)
   | Just pfx <- getRefPrefix opts label
@@ -247,6 +248,11 @@ replaceBlock opts (Para [Span attrs@(label, _, _) [Math DisplayMath eq]])
   = do
     (eq', idx) <- replaceEqn opts attrs eq pfx
     replaceNoRecurse $ Div attrs [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
+replaceBlock opts x@(Div (label, _, attrs) _content)
+  | Just pfx <- getRefPrefix opts label
+  = do
+    void $ replaceAttr opts (Right label) (lookup "label" attrs) mempty pfx
+    replaceRecurse x
 replaceBlock _ _ = noReplaceRecurse
 
 getRefPrefix :: Options -> String -> Maybe String
@@ -288,6 +294,11 @@ replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
           f | isLatexFormat f -> ialt
           _  -> applyTemplate idxStr ialt $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Image attr alt' img
+replaceInline opts x@(Span (label,_,attrs) _content)
+  | Just pfx <- getRefPrefix opts label
+  = do
+      void $ replaceAttr opts (Right label) (lookup "label" attrs) mempty pfx
+      replaceRecurse x
 replaceInline _ _ = noReplaceRecurse
 
 replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
@@ -346,14 +357,18 @@ replaceAttr :: Options -> Either String String -> Maybe String -> Inlines -> Str
 replaceAttr o label refLabel title pfx
   = do
     let ropt = getPfx o pfx
-    chap <- take (chaptersDepth o) `fmap` get curChap
+    cur <- get curChap
+    let chap = take (chaptersDepth o) . fromMaybe [] . M.lookup "sec" $ cur
     i <- (1+) . fromMaybe 0 . M.lookup pfx <$> get pfxCounter
+    -- TODO: shouldReset should likely be a transitive closure...
     let shouldReset = M.keys . M.filter (\p -> pfx `elem` prefixScope p) $ prefixes o
     modify pfxCounter $ M.filterWithKey $ \k _ -> k `notElem` shouldReset
     modify pfxCounter $ M.insert pfx i
     let customLabel = prefixNumbering ropt
-    let index = chap ++ [(i, fromMaybe (customLabel i) refLabel)]
+        scop = join $ fmap (flip M.lookup cur) $ prefixScope ropt
+        index = chap ++ [(i, fromMaybe (customLabel i) refLabel)]
         label' = either (++ ':':show index) id label
+    modify curChap $ M.insert pfx index
     hasLabel <- M.member label' <$> get referenceData
     when hasLabel $
       error $ "Duplicate label: " ++ label'

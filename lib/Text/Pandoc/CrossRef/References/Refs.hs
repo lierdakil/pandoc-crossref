@@ -126,7 +126,7 @@ citationGroupPred = (==) `on` liftM2 (,) citationPrefix citationMode
 
 replaceRefsOther' :: String -> Options -> [Citation] -> WS Inlines
 replaceRefsOther' prefix opts cits = do
-  indices <- mapM (getRefIndex prefix opts) cits
+  indices <- mapM getRefIndex cits
   let
     cap = maybe False isFirstUpper $ getLabelPrefix opts . citationId . head $ cits
     writePrefix | all (==SuppressAuthor) $ map citationMode cits
@@ -150,8 +150,8 @@ data RefData = RefData { rdLabel :: String
 instance Ord RefData where
   (<=) = (<=) `on` rdIdx
 
-getRefIndex :: String -> Options -> Citation -> WS RefData
-getRefIndex _prefix _opts Citation{citationId=cid,citationSuffix=suf}
+getRefIndex :: Citation -> WS RefData
+getRefIndex Citation{citationId=cid,citationSuffix=suf}
   = do
     ref <- M.lookup llab <$> get referenceData
     let sub = refSubfigure <$> ref
