@@ -70,6 +70,8 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                 | ln == n = inc cc
                 | otherwise = cc ++ take (n-ln-1) (zip (repeat 1) (repeat "1")) ++ [(1, fromMaybe "1" cl)]
         in cc'
+      when (n <= chaptersDepth opts) $ do
+        modify pfxCounter $ M.singleton "sec" . fromMaybe 0 . M.lookup "sec"
       when ("sec:" `isPrefixOf` label') $ do
         index  <- get curChap
         modify referenceData $ M.insert label' RefRec {
