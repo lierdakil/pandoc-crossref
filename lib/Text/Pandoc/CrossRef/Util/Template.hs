@@ -50,11 +50,15 @@ makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> loo
             i <- idx
             v <- lookupMeta vn dtv
             getList i v
-      in toList $ (replaceVar var arr (fromList [x])) <> fromList xs
-    | otherwise = toList $ (replaceVar var (vf var) (fromList [x])) <> fromList xs
+      in toList $ (replaceVar arr id) <> fromList xs
+    | '#' `elem` var =
+      let (vn, pfx') = span (/='#') var
+          pfx = drop 1 pfx'
+      in toList $ (replaceVar (vf vn) (text pfx <>)) <> fromList xs
+    | otherwise = toList $ (replaceVar (vf var) id) <> fromList xs
+    where replaceVar val m = maybe mempty (m . toInlines ("variable " ++ var)) val
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
-  replaceVar var val def' = maybe def' (toInlines ("variable " ++ var)) val
 
 applyTemplate' :: M.Map String Inlines -> Template -> Inlines
 applyTemplate' vars (Template g) = g internalVars

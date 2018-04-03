@@ -24,6 +24,7 @@ import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Prefixes
 import qualified Data.Map as M
 import Text.Pandoc.Builder
+import Data.Maybe
 
 data Options = Options { cref :: Bool
                        , chaptersDepth   :: Int
@@ -57,7 +58,7 @@ data Options = Options { cref :: Bool
                        -- , figureTemplate :: Template
                        -- , subfigureTemplate :: Template
                        -- , subfigureChildTemplate :: Template
-                       -- , ccsTemplate :: Template
+                       , ccsTemplate :: Template
                        -- , tableTemplate  :: Template
                        -- , listingTemplate :: Template
                        -- , customLabel :: String -> Int -> Maybe String
@@ -75,5 +76,10 @@ data Options = Options { cref :: Bool
 prefixList :: Options -> [String]
 prefixList = M.keys . prefixes
 
-pfxCaptionTemplate :: Options -> String -> Maybe Template
-pfxCaptionTemplate opts pfx = prefixCaptionTemplate <$> M.lookup pfx (prefixes opts)
+pfxCaptionTemplate :: Options -> String -> Template
+pfxCaptionTemplate opts pfx = prefixCaptionTemplate $ getPfx opts pfx
+
+getPfx :: Options -> String -> Prefix
+getPfx o pn = fromMaybe defaultPfx $ M.lookup pn $ prefixes o
+  where
+    defaultPfx = error $ "Undefined prefix: \"" <> pn <> "\""

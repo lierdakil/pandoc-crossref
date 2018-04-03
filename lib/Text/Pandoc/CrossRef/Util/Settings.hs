@@ -107,7 +107,7 @@ defaultMeta =
   -- <> subfigLabels "alpha a"
   <> ccsDelim (str "," <> space)
   <> ccsLabelSep (space <> str "—" <> space)
-  -- <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
+  <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
   <> tableEqns False
   <> autoEqnLabels False
   <> subfigGrid False
@@ -123,6 +123,10 @@ defaultMeta =
         "ref" .= ["fig.", "figs."],
         "title" .= text "Figure",
         "listOfTitle" .= header 1 $ text "List of Figures"
+      ],
+      "subfig" .: [
+        "captionTemplate" .= var "i",
+        "numbering" .= "alpha a"
       ],
       "lst" .: [
         "ref" .= ["lst.", "lsts."],

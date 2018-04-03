@@ -23,7 +23,6 @@ module Text.Pandoc.CrossRef.Util.Prefixes where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Template
-import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.CustomLabels
 import qualified Data.Map as M
@@ -45,7 +44,7 @@ getPrefixes varN dtv
       , prefixCaptionTemplate = makeTemplate kv $
           if isJust $ lookupMeta "captionTemplate" kv
           then getMetaInlines "captionTemplate" kv
-          else var "title" <> space <> var "i" <> text ":" <> space <> var "t"
+          else var "title" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> var "ccs#. "
       , prefixReferenceTemplate = makeTemplate kv $
           if isJust $ lookupMeta "referenceTemplate" kv
           then getMetaInlines "referenceTemplate" kv
@@ -54,7 +53,7 @@ getPrefixes varN dtv
       , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (MetaString "arabic") $ lookupMeta "numbering" kv)
       , prefixListOfTitle = getMetaBlock "listOfTitle" kv
       }
-      where kv = Meta kv'
+      where kv = dtv <> Meta kv'
     m2p k _ = error $ "Invalid value for prefix " <> k
 
 type Prefixes = M.Map String Prefix

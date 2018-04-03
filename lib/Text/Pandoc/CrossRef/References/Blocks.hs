@@ -39,6 +39,7 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
+import Data.Default (def)
 import Prelude
 
 replaceAll :: (Data a) => Options -> a -> WS a
@@ -88,85 +89,86 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                   ]) $ secHeaderTemplate opts
                | otherwise = fromList text'
     replaceNoRecurse $ Header n (label', cls, attrs) $ toList textCC
--- subfigures
--- replaceBlock opts (Div (label,cls,attrs) images)
---   | "fig:" `isPrefixOf` label
---   , Para caption <- last images
---   = do
---     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) caption imgRefs
---     let (cont, st) = runState (runReplace (mkRR $ replaceSubfigs opts') $ init images) def
---         collectedCaptions = B.toList $
---             intercalate' (B.fromList $ ccsDelim opts)
---           $ map (B.fromList . collectCaps . snd)
---           $ sortOn (refIndex . snd)
---           $ filter (not . null . refTitle . snd)
---           $ M.toList
---           $ imgRefs_ st
---         collectCaps v =
---               applyTemplate
---                 (chapPrefix (chapDelim opts) (refIndex v))
---                 (refTitle v)
---                 (ccsTemplate opts)
---         vars = M.fromDistinctAscList
---                   [ ("ccs", collectedCaptions)
---                   , ("i", idxStr)
---                   , ("t", caption)
---                   ]
---         capt = applyTemplate' vars $ subfigureTemplate opts
---     lastRef <- fromJust . M.lookup label <$> get imgRefs
---     modify imgRefs $ \old ->
---         M.union
---           old
---           (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
---           $ imgRefs_ st)
---     case outFormat opts of
---           f | isLatexFormat f ->
---             replaceNoRecurse $ Div nullAttr $
---               [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
---               ++ cont ++
---               [ Para [RawInline (Format "latex") "\\caption"
---                        , Span nullAttr caption]
---               , RawBlock (Format "latex") $ mkLaTeXLabel label
---               , RawBlock (Format "latex") "\\end{figure}"]
---           _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
---   where
---     opts' = opts
---               { figureTemplate = subfigureChildTemplate opts
---               , customLabel = \r i -> customLabel opts ("sub"++r) i
---               }
---     toTable :: [Block] -> [Inline] -> [Block]
---     toTable blks capt
---       | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, mkCaption opts "Image Caption" capt]
---       | otherwise = blks ++ [mkCaption opts "Image Caption" capt]
---       where
---         align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
---               | otherwise = error "Misformatted subfigures block"
---         widths | Para ils:_ <- blks
---                = fixZeros $ mapMaybe getWidth ils
---                | otherwise = error "Misformatted subfigures block"
---         getWidth (Image (_id, _class, as) _ _)
---           = Just $ maybe 0 percToDouble $ lookup "width" as
---         getWidth _ = Nothing
---         fixZeros :: [Double] -> [Double]
---         fixZeros ws
---           = let nz = length $ filter (== 0) ws
---                 rzw = (0.99 - sum ws) / fromIntegral nz
---             in if nz>0
---                then map (\x -> if x == 0 then rzw else x) ws
---                else ws
---         percToDouble :: String -> Double
---         percToDouble percs
---           | '%' <- last percs
---           , perc <- read $ init percs
---           = perc/100.0
---           | otherwise = error "Only percent allowed in subfigure width!"
---         blkToRow :: Block -> [[Block]]
---         blkToRow (Para inls) = mapMaybe inlToCell inls
---         blkToRow x = [[x]]
---         inlToCell :: Inline -> Maybe [Block]
---         inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
---         inlToCell _ = Nothing
---         setW as = ("width", "100%"):filter ((/="width") . fst) as
+-- sub-objects
+replaceBlock opts (Div (label,cls,attrs) images)
+  | Just pfx <- getRefPrefix opts label
+  , Para caption <- last images
+  = do
+    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) (fromList caption) pfx
+    let (cont, st) = runState (runReplace (mkRR $ replaceSubfigs opts') $ init images) def
+        collectedCaptions = toList $
+            intercalate' (ccsDelim opts)
+          $ map (collectCaps . snd)
+          $ sortOn (refIndex . snd)
+          $ filter (not . null . refTitle . snd)
+          $ M.toList
+          $ referenceData_ st
+        collectCaps v =
+              applyTemplate
+                (chapPrefix (chapDelim opts) (refIndex v))
+                (refTitle v)
+                (ccsTemplate opts)
+        vars = M.fromDistinctAscList
+                  [ ("ccs", fromList collectedCaptions)
+                  , ("i", idxStr)
+                  , ("t", fromList caption)
+                  ]
+        capt = applyTemplate' vars $ pfxCaptionTemplate opts pfx
+        opts' = opts {
+            prefixes = case M.lookup ("sub" <> pfx) $ prefixes opts of
+              Just sp -> M.insert pfx sp $ prefixes opts
+              Nothing -> prefixes opts
+            }
+    lastRef <- fromJust . M.lookup label <$> get referenceData
+    modify referenceData $ \old ->
+        M.union
+          old
+          (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
+          $ referenceData_ st)
+    case outFormat opts of
+          f | isLatexFormat f ->
+            replaceNoRecurse $ Div nullAttr $
+              [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
+              ++ cont ++
+              [ Para [RawInline (Format "latex") "\\caption"
+                       , Span nullAttr caption]
+              , RawBlock (Format "latex") $ mkLaTeXLabel label
+              , RawBlock (Format "latex") "\\end{figure}"]
+          _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
+  where
+    toTable :: [Block] -> Inlines -> [Block]
+    toTable blks capt
+      | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, mkCaption opts "Image Caption" capt]
+      | otherwise = blks ++ [mkCaption opts "Image Caption" capt]
+      where
+        align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
+              | otherwise = error "Misformatted subfigures block"
+        widths | Para ils:_ <- blks
+               = fixZeros $ mapMaybe getWidth ils
+               | otherwise = error "Misformatted subfigures block"
+        getWidth (Image (_id, _class, as) _ _)
+          = Just $ maybe 0 percToDouble $ lookup "width" as
+        getWidth _ = Nothing
+        fixZeros :: [Double] -> [Double]
+        fixZeros ws
+          = let nz = length $ filter (== 0) ws
+                rzw = (0.99 - sum ws) / fromIntegral nz
+            in if nz>0
+               then map (\x -> if x == 0 then rzw else x) ws
+               else ws
+        percToDouble :: String -> Double
+        percToDouble percs
+          | '%' <- last percs
+          , perc <- read $ init percs
+          = perc/100.0
+          | otherwise = error "Only percent allowed in subfigure width!"
+        blkToRow :: Block -> [[Block]]
+        blkToRow (Para inls) = mapMaybe inlToCell inls
+        blkToRow x = [[x]]
+        inlToCell :: Inline -> Maybe [Block]
+        inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
+        inlToCell _ = Nothing
+        setW as = ("width", "100%"):filter ((/="width") . fst) as
 replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , Just pfx <- getRefPrefix opts label
@@ -177,7 +179,7 @@ replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header c
           case outFormat opts of
               f | isLatexFormat f ->
                 rawInline "latex" (mkLaTeXLabel label) <> ititle
-              _  -> applyTemplate idxStr ititle $ fromJust $ pfxCaptionTemplate opts pfx
+              _  -> applyTemplate idxStr ititle $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
 replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   | not $ null label
@@ -202,7 +204,7 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
       _ -> do
         let cap = text caption
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) cap pfx
-        let caption' = applyTemplate idxStr cap $ fromJust $ pfxCaptionTemplate opts pfx
+        let caption' = applyTemplate idxStr cap $ pfxCaptionTemplate opts pfx
         replaceNoRecurse $ Div (label, "listing":classes, []) [
             mkCaption opts "Caption" caption'
           , CodeBlock ([], classes, attrs \\ [("caption", caption)]) code
@@ -231,7 +233,7 @@ replaceBlock opts
       _ -> do
         let icaption = fromList caption
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) icaption pfx
-        let caption' = applyTemplate idxStr icaption $ fromJust $ pfxCaptionTemplate opts pfx
+        let caption' = applyTemplate idxStr icaption $ pfxCaptionTemplate opts pfx
         replaceNoRecurse $ Div (label, "listing":classes, []) [
             mkCaption opts "Caption" caption'
           , CodeBlock ([], classes, attrs) code
@@ -282,31 +284,31 @@ replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ialt pfx
     let alt' = toList $ case outFormat opts of
           f | isLatexFormat f -> ialt
-          _  -> applyTemplate idxStr ialt $ fromJust $ pfxCaptionTemplate opts pfx
+          _  -> applyTemplate idxStr ialt $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Image attr alt' img
 replaceInline _ _ = noReplaceRecurse
 
--- replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
--- replaceSubfigs opts = (replaceNoRecurse . concat =<<) . mapM (replaceSubfig opts)
+replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
+replaceSubfigs opts = (replaceNoRecurse . concat =<<) . mapM (replaceSubfig opts)
 
--- replaceSubfig :: Options -> Inline -> WS [Inline]
--- replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
---   = do
---       let label' | "fig:" `isPrefixOf` label = Right label
---                  | null label = Left "fig"
---                  | otherwise  = Right $ "fig:" ++ label
---       let ialt = fromList alt
---       idxStr <- replaceAttr opts label' (lookup "label" attrs) ialt
---       case outFormat opts of
---         f | isLatexFormat f ->
---           return $ latexSubFigure x label
---         _  ->
---           let alt' = toList $ applyTemplate idxStr ialt $ fromJust $ pfxCaptionTemplate opts pfx
---               tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
---                    | "fig:" `isPrefixOf` tit = tit
---                    | otherwise = "fig:" ++ tit
---           in return [Image (label, cls, attrs) alt' (src, tit')]
--- replaceSubfig _ x = return [x]
+replaceSubfig :: Options -> Inline -> WS [Inline]
+replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
+  = do
+      let label' | "fig:" `isPrefixOf` label = Right label
+                 | null label = Left "fig"
+                 | otherwise  = Right $ "fig:" ++ label
+      let ialt = fromList alt
+      idxStr <- replaceAttr opts label' (lookup "label" attrs) ialt "fig"
+      case outFormat opts of
+        f | isLatexFormat f ->
+          return $ latexSubFigure x label
+        _  ->
+          let alt' = toList $ applyTemplate idxStr ialt $ pfxCaptionTemplate opts "fig"
+              tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
+                   | "fig:" `isPrefixOf` tit = tit
+                   | otherwise = "fig:" ++ tit
+          in return [Image (label, cls, attrs) alt' (src, tit')]
+replaceSubfig _ x = return [x]
 
 divBlocks :: Block -> Block
 divBlocks (Table title align widths header cells)
