@@ -39,13 +39,19 @@ getPrefixes varN dtv
   | Just (MetaMap m) <- lookupMeta varN dtv = M.mapWithKey m2p m
   | otherwise = error "Prefixes not defined"
   where
+    var = displayMath
     m2p _ (MetaMap kv') = Prefix {
         prefixRef = tryCapitalizeM (flip (getMetaList (toInlines "ref")) kv) "ref"
-      , prefixTitle = getMetaInlines "title" kv
-      , prefixCaptionTemplate = makeTemplate kv $ getMetaInlines "captionTemplate" kv
-      , prefixReferenceTemplate = makeTemplate kv $ getMetaInlines "referenceTemplate" kv
+      , prefixCaptionTemplate = makeTemplate kv $
+          if isJust $ lookupMeta "captionTemplate" kv
+          then getMetaInlines "captionTemplate" kv
+          else var "title" <> space <> var "i" <> text ":" <> space <> var "t"
+      , prefixReferenceTemplate = makeTemplate kv $
+          if isJust $ lookupMeta "referenceTemplate" kv
+          then getMetaInlines "referenceTemplate" kv
+          else var "p" <> str "\160" <> var "i"
       , prefixScope = getMetaStringMaybe "scope" kv
-      , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (error "...") $ lookupMeta "numbering" kv)
+      , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (MetaString "arabic") $ lookupMeta "numbering" kv)
       , prefixListOfTitle = getMetaBlock "listOfTitle" kv
       }
       where kv = Meta kv'
@@ -55,7 +61,6 @@ type Prefixes = M.Map String Prefix
 
 data Prefix = Prefix {
     prefixRef :: !(Bool -> Int -> Inlines)
-  , prefixTitle :: !Inlines
   , prefixCaptionTemplate :: !Template
   , prefixReferenceTemplate :: !Template
   , prefixScope :: !(Maybe String)
