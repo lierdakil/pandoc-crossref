@@ -65,11 +65,8 @@ replaceRefs opts ils
                     _                      -> replaceRefsOther
 replaceRefs _ x = return x
 
-traceClone :: Show a => a -> a
-traceClone x = trace (show x) x
-
 getRefPrefix :: Options -> String -> Bool -> Int -> Inlines -> Inlines
-getRefPrefix opts prefix capitalize num cit = traceClone $
+getRefPrefix opts prefix capitalize num cit =
   applyTemplate' (M.fromDistinctAscList [("i", cit), ("p", refprefix)]) reftempl
   where Prefix{prefixRef=refprefixf, prefixReferenceTemplate=reftempl} = fromMaybe undefined $ M.lookup prefix $ prefixes opts
         refprefix = refprefixf capitalize num
@@ -142,7 +139,7 @@ replaceRefsOther' prefix opts cits = do
       | nameInLink opts
       , [Link attr t (y, z)] <- toList x = linkWith attr y z (f $ fromList t)
     cmap f x = f x
-  return $ writePrefix (traceClone $ makeIndices opts indices)
+  return $ writePrefix (makeIndices opts indices)
 
 data RefData = RefData { rdLabel :: String
                        , rdIdx :: Maybe Index
@@ -173,7 +170,7 @@ getRefIndex _prefix _opts Citation{citationId=cid,citationSuffix=suf}
 data RefItem = RefRange RefData RefData | RefSingle RefData
 
 makeIndices :: Options -> [RefData] -> Inlines
-makeIndices o s = format $ concatMap f $ HT.groupBy g $ traceClone $ sort $ nub s
+makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   where
   g :: RefData -> RefData -> Bool
   g a b = all (null . rdSuffix) [a, b] && (
