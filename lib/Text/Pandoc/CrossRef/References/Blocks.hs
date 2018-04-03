@@ -126,7 +126,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
           (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
           $ referenceData_ st)
     case outFormat opts of
-          f | isLatexFormat f ->
+          f | isLatexFormat f, pfx == "fig" ->
             replaceNoRecurse $ Div nullAttr $
               [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
               ++ cont ++
