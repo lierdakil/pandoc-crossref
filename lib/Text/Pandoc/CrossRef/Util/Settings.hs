@@ -132,6 +132,16 @@ defaultMeta =
         "ref" .= ["lst.", "lsts."],
         "title" .= text "Listing",
         "listOfTitle" .= header 1 $ text "List of Listings"
+      ],
+      "tbl" .: [
+        "ref" .= ["tbl.", "tbls."],
+        "title" .= text "Table",
+        "listOfTitle" .= header 1 $ text "List of Tables"
+      ],
+      "sec" .: [
+        "ref" .= ["sec.", "secs."],
+        "title" .= text "Section",
+        "listOfTitle" .= header 1 $ text "List of Sections"
       ]
     ]
   where var = displayMath
