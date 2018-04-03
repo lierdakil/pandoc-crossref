@@ -348,6 +348,8 @@ replaceAttr o label refLabel title pfx
     let ropt = getPfx o pfx
     chap <- take (chaptersDepth o) `fmap` get curChap
     i <- (1+) . fromMaybe 0 . M.lookup pfx <$> get pfxCounter
+    let shouldReset = M.keys . M.filter (\p -> pfx `elem` prefixScope p) $ prefixes o
+    modify pfxCounter $ M.filterWithKey $ \k _ -> k `notElem` shouldReset
     modify pfxCounter $ M.insert pfx i
     let customLabel = prefixNumbering ropt
     let index = chap ++ [(i, fromMaybe (customLabel i) refLabel)]
