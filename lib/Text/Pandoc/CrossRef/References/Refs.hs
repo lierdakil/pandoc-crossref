@@ -141,13 +141,13 @@ replaceRefsOther' prefix opts cits = do
       | nameInLink opts
       , [Link attr t (y, z)] <- toList x = linkWith attr y z (f $ fromList t)
     cmap f x = f x
-  return $ writePrefix (makeIndices opts indices)
+  return $ writePrefix (traceClone $ makeIndices opts indices)
 
 data RefData = RefData { rdLabel :: String
                        , rdIdx :: Maybe Index
                        , rdSubfig :: Maybe Index
                        , rdSuffix :: Inlines
-                       } deriving (Eq)
+                       } deriving (Eq, Show)
 
 instance Ord RefData where
   (<=) = (<=) `on` rdIdx
@@ -170,7 +170,7 @@ getRefIndex _prefix _opts Citation{citationId=cid,citationSuffix=suf}
 data RefItem = RefRange RefData RefData | RefSingle RefData
 
 makeIndices :: Options -> [RefData] -> Inlines
-makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
+makeIndices o s = format $ concatMap f $ HT.groupBy g $ traceClone $ sort $ nub s
   where
   g :: RefData -> RefData -> Bool
   g a b = all (null . rdSuffix) [a, b] && (
@@ -183,7 +183,7 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   follows a b
     | Just (ai, al) <- HT.viewR a
     , Just (bi, bl) <- HT.viewR b
-    = ai == bi && A.first (+1) bl == al
+    = ai == bi && fst bl + 1 == fst al
   follows _ _ = False
   f :: [RefData] -> [RefItem]
   f []  = []                          -- drop empty lists
