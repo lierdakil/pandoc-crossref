@@ -252,7 +252,9 @@ main = hspec $ do
 
     describe "Util.Template" $
       it "Applies templates" $
-        let template=Util.Template.makeTemplate defaultMeta (displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
+        let template=Util.Template.makeTemplate
+              (defaultMeta <> Meta (M.singleton "figureTitle" (toMetaValue $ text "Figure")))
+              (displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
         in Util.Template.applyTemplate (text "1") (text "title") template `shouldBe`
            (str "Figure" <> str "1" <> str "title")
 
