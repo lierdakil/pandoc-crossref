@@ -35,16 +35,6 @@ data Options = Options { cref :: Bool
                        , autoSectionLabels  :: Bool
                        , numberSections  :: Bool
                        , sectionsDepth  :: Int
-                       -- , figPrefix   :: Bool -> Int -> [Inline]
-                       -- , eqnPrefix   :: Bool -> Int -> [Inline]
-                       -- , tblPrefix   :: Bool -> Int -> [Inline]
-                       -- , lstPrefix   :: Bool -> Int -> [Inline]
-                       -- , secPrefix   :: Bool -> Int -> [Inline]
-                       -- , figPrefixTemplate :: Template
-                       -- , eqnPrefixTemplate :: Template
-                       -- , tblPrefixTemplate :: Template
-                       -- , lstPrefixTemplate :: Template
-                       -- , secPrefixTemplate :: Template
                        , refIndexTemplate :: Template
                        , subfigureRefIndexTemplate :: Template
                        , secHeaderTemplate :: Template
@@ -53,17 +43,8 @@ data Options = Options { cref :: Bool
                        , pairDelim  :: Inlines
                        , lastDelim  :: Inlines
                        , refDelim  :: Inlines
-                       -- , lofTitle    :: [Block]
-                       -- , lotTitle    :: [Block]
-                       -- , lolTitle    :: [Block]
                        , outFormat   :: Maybe Format
-                       -- , figureTemplate :: Template
-                       -- , subfigureTemplate :: Template
-                       -- , subfigureChildTemplate :: Template
                        , ccsTemplate :: Template
-                       -- , tableTemplate  :: Template
-                       -- , listingTemplate :: Template
-                       -- , customLabel :: String -> Int -> Maybe String
                        , ccsDelim :: Inlines
                        , ccsLabelSep :: Inlines
                        , tableEqns :: Bool
@@ -72,7 +53,6 @@ data Options = Options { cref :: Bool
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , prefixes :: Prefixes
-                       -- TODO: Defaults for prefix settings
                        }
 
 prefixList :: Options -> [String]
