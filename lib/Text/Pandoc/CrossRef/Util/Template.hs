@@ -42,7 +42,7 @@ makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> loo
   where
   scan :: (String -> Maybe MetaValue) -> [Inline] -> [Inline]
   scan = bottomUp . go
-  go vf (x@(Math DisplayMath var):xs)
+  go vf ((Math DisplayMath var):xs)
     | '[' `elem` var  && ']' == last var =
       let (vn, idxBr) = span (/='[') var
           idxVar = drop 1 $ takeWhile (/=']') idxBr

@@ -336,7 +336,8 @@ replaceAttr o label refLabel title pfx
     modify pfxCounter $ M.filterWithKey $ \k _ -> k `notElem` shouldReset
     modify pfxCounter $ M.insert pfx i
     let customLabel = prefixNumbering ropt
-        scop = join $ fmap (flip M.lookup cur) $ prefixScope ropt
+        -- TODO: should we prepend scoped refrences with references to the scope they're in?
+        -- scop = join $ fmap (flip M.lookup cur) $ prefixScope ropt
         index = chap ++ [(i, fromMaybe (customLabel i) refLabel)]
         label' = either (++ ':':show index) id label
     modify curChap $ M.insert pfx index

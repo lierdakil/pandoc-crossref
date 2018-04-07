@@ -110,7 +110,7 @@ toMaybeString :: String -> MetaValue -> Maybe String
 toMaybeString _ (MetaString s) = Just s
 toMaybeString _ (MetaBlocks b) = Just $ stringify b
 toMaybeString _ (MetaInlines i) = Just $ stringify i
-toMaybeString n x = Nothing
+toMaybeString _ _ = Nothing
 
 getList :: Int -> MetaValue -> Maybe MetaValue
 getList i (MetaList l) = l !!? i

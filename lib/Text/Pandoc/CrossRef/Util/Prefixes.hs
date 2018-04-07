@@ -18,10 +18,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
 module Text.Pandoc.CrossRef.Util.Prefixes where
 
 import Text.Pandoc.Definition
+import Text.Pandoc.Walk (Walkable(..))
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Meta
@@ -32,8 +33,14 @@ import Data.Default
 import Data.Monoid
 import Data.Maybe
 
-instance Default Inlines where
+newtype Inlines' = Inlines' { fromInlines' :: Inlines } deriving (Eq, Monoid)
+instance Default Inlines' where
   def = mempty
+instance Walkable Inline Inlines' where
+  walk f (Inlines' x) = Inlines' $ walk f x
+  walkM f (Inlines' x) = Inlines' <$> walkM f x
+  query f (Inlines' x) = query f x
+
 
 getPrefixes :: String -> Settings -> Prefixes
 getPrefixes varN dtv
@@ -42,7 +49,7 @@ getPrefixes varN dtv
   where
     var = displayMath
     m2p _ (MetaMap kv') = Prefix {
-        prefixRef = tryCapitalizeM (flip (getMetaList (toInlines "ref")) kv) "ref"
+        prefixRef = (fromInlines' .) . tryCapitalizeM (flip (getMetaList (Inlines' . toInlines "ref")) kv) "ref"
       , prefixCaptionTemplate = makeTemplate kv $
           if isJust $ lookupSettings "captionTemplate" kv
           then getMetaInlines "captionTemplate" kv
