@@ -24,7 +24,7 @@ module Text.Pandoc.CrossRef.References.Blocks
   ) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Builder hiding ((<>))
+import qualified Text.Pandoc.Builder as B
 import Text.Pandoc.Shared (stringify)
 import Control.Monad.State hiding (get, modify)
 import Data.List
@@ -81,27 +81,27 @@ replaceBlock opts (Header n (label, cls, attrs) text')
       when ("sec:" `isPrefixOf` label') $ do
         modify referenceData $ M.insert label' RefRec {
           refIndex = cc'
-        , refTitle = fromList text'
+        , refTitle = B.fromList text'
         , refSubfigure = Nothing
         }
       let textCC | numberSections opts
                  , sectionsDepth opts < 0
                  || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
                  = applyTemplate' (M.fromDistinctAscList [
-                      ("i", text (intercalate "." $ map snd cc'))
-                    , ("n", text $ show $ n - 1)
-                    , ("t", fromList text')
+                      ("i", B.text (intercalate "." $ map snd cc'))
+                    , ("n", B.text $ show $ n - 1)
+                    , ("t", B.fromList text')
                     ]) $ secHeaderTemplate opts
-                 | otherwise = fromList text'
-      replaceNoRecurse $ Header n (label', cls, attrs) $ toList textCC
+                 | otherwise = B.fromList text'
+      replaceNoRecurse $ Header n (label', cls, attrs) $ B.toList textCC
 -- sub-objects
 replaceBlock opts (Div (label,cls,attrs) images)
   | Just pfx <- getRefPrefix opts label
   , Para caption <- last images
   = do
-    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) (fromList caption) pfx
+    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) (B.fromList caption) pfx
     let (cont, st) = runState (runReplace (mkRR $ replaceSubfigs opts') $ init images) def
-        collectedCaptions = toList $
+        collectedCaptions = B.toList $
             intercalate' (ccsDelim opts)
           $ map (collectCaps . snd)
           $ sortOn (refIndex . snd)
@@ -114,9 +114,9 @@ replaceBlock opts (Div (label,cls,attrs) images)
                 (refTitle v)
                 (ccsTemplate opts)
         vars = M.fromDistinctAscList
-                  [ ("ccs", fromList collectedCaptions)
+                  [ ("ccs", B.fromList collectedCaptions)
                   , ("i", idxStr)
-                  , ("t", fromList caption)
+                  , ("t", B.fromList caption)
                   ]
         capt = applyTemplate' vars $ pfxCaptionTemplate opts pfx
         opts' = opts {
@@ -141,7 +141,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
               , RawBlock (Format "latex") "\\end{figure}"]
           _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
   where
-    toTable :: [Block] -> Inlines -> [Block]
+    toTable :: [Block] -> B.Inlines -> [Block]
     toTable blks capt
       | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, mkCaption opts "Image Caption" capt]
       | otherwise = blks ++ [mkCaption opts "Image Caption" capt]
@@ -178,12 +178,12 @@ replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header c
   | not $ null title
   , Just pfx <- getRefPrefix opts label
   = do
-    let ititle = fromList title
+    let ititle = B.fromList title
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ititle pfx
-    let title' = toList $
+    let title' = B.toList $
           case outFormat opts of
               f | isLatexFormat f ->
-                rawInline "latex" (mkLaTeXLabel label) <> ititle
+                B.rawInline "latex" (mkLaTeXLabel label) <> ititle
               _  -> applyTemplate idxStr ititle $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
 replaceBlock opts
@@ -208,7 +208,7 @@ replaceBlock opts
             , RawBlock (Format "latex") "\\end{codelisting}"
             ]
       _ -> do
-        let icaption = fromList caption
+        let icaption = B.fromList caption
         idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) icaption pfx
         let caption' = applyTemplate idxStr icaption $ pfxCaptionTemplate opts pfx
         replaceNoRecurse $ Div (label, "listing":classes, []) [
@@ -253,9 +253,9 @@ replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
   | Just pfx <- getRefPrefix opts label
   , "fig:" `isPrefixOf` tit
   = do
-    let ialt = fromList alt
+    let ialt = B.fromList alt
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ialt pfx
-    let alt' = toList $ case outFormat opts of
+    let alt' = B.toList $ case outFormat opts of
           f | isLatexFormat f -> ialt
           _  -> applyTemplate idxStr ialt $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Image attr alt' img
@@ -275,13 +275,13 @@ replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
       let label' | "fig:" `isPrefixOf` label = Right label
                  | null label = Left "fig"
                  | otherwise  = Right $ "fig:" ++ label
-      let ialt = fromList alt
+      let ialt = B.fromList alt
       idxStr <- replaceAttr opts label' (lookup "label" attrs) ialt "fig"
       case outFormat opts of
         f | isLatexFormat f ->
           return $ latexSubFigure x label
         _  ->
-          let alt' = toList $ applyTemplate idxStr ialt $ pfxCaptionTemplate opts "fig"
+          let alt' = B.toList $ applyTemplate idxStr ialt $ pfxCaptionTemplate opts "fig"
               tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
                    | "fig:" `isPrefixOf` tit = tit
                    | otherwise = "fig:" ++ tit
@@ -297,7 +297,7 @@ divBlocks opts (Table title align widths header cells)
 divBlocks opts (CodeBlock (label, classes, attrs) code)
   | Just caption <- lookup "caption" attrs
   , Just _ <- getRefPrefix opts label
-  = let p   = Para $ toList $ text caption
+  = let p   = Para $ B.toList $ B.text caption
         cb' = CodeBlock ([], classes, delete ("caption", caption) attrs) code
     in Div (label,"listing":classes, []) [p, cb']
 divBlocks _ x = x
@@ -324,7 +324,7 @@ spanInlines opts (math@(Math DisplayMath _eq):ils)
   = Span nullAttr [math]:ils
 spanInlines _ x = x
 
-replaceAttr :: Options -> Either String String -> Maybe String -> Inlines -> String -> WS Inlines
+replaceAttr :: Options -> Either String String -> Maybe String -> B.Inlines -> String -> WS B.Inlines
 replaceAttr o label refLabel title pfx
   = do
     let ropt = getPfx o pfx
@@ -370,7 +370,7 @@ latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
       ]
 latexSubFigure x _ = [x]
 
-mkCaption :: Options -> String -> Inlines -> Block
+mkCaption :: Options -> String -> B.Inlines -> Block
 mkCaption opts style
-  | outFormat opts == Just (Format "docx") = Div ([], [], [("custom-style", style)]) . toList . para
-  | otherwise = Para . toList
+  | outFormat opts == Just (Format "docx") = Div ([], [], [("custom-style", style)]) . B.toList . B.para
+  | otherwise = Para . B.toList
