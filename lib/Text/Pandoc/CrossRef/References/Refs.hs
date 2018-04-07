@@ -34,7 +34,7 @@ import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
-import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Options hiding (getRefPrefix)
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Control.Applicative
 import Data.Char (toLower)

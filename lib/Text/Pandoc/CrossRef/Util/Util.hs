@@ -29,7 +29,6 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Class
 import Data.Char (toUpper, toLower, isUpper)
-import Data.List (isSuffixOf, isPrefixOf, stripPrefix)
 import Data.Generics hiding (Prefix)
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
@@ -111,13 +110,3 @@ mkLaTeXLabel' l =
   let ll = either (error . show) T.unpack $
             runPure (writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []])
   in takeWhile (/='}') . drop 1 . dropWhile (/='{') $ ll
-
-getRefLabel :: String -> [Inline] -> Maybe String
-getRefLabel _ [] = Nothing
-getRefLabel tag ils
-  | Str attr <- last ils
-  , all (==Space) (init ils)
-  , "}" `isSuffixOf` attr
-  , ("{#"++tag++":") `isPrefixOf` attr
-  = init `fmap` stripPrefix "{#" attr
-getRefLabel _ _ = Nothing

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7363be4fc2eccadb7479eece11df48cf220e2ec120304d1852966e9f0c1e3a06
+-- hash: 0aa60fb73626950d93c18ec1bb626dece6292c0d0f4a305bf777b0e1ba6e265b
 
 name:           pandoc-crossref
 version:        0.3.1.0
@@ -26,6 +26,9 @@ extra-source-files:
 data-files:
     docs/demo/demo.md
     docs/index.md
+    test/m2m/custom-prefixes/expect.md
+    test/m2m/custom-prefixes/expect.tex
+    test/m2m/custom-prefixes/input.md
     test/m2m/delim/expect.md
     test/m2m/delim/expect.tex
     test/m2m/delim/input.md
@@ -79,6 +82,7 @@ library
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
     , data-default >=0.4 && <0.8
     , directory >=1 && <1.4
+    , extra >=1.6 && <1.7
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
     , pandoc >=2.1.3 && <2.2
@@ -126,6 +130,7 @@ executable pandoc-crossref
     , data-default >=0.4 && <0.8
     , deepseq >=1.4 && <1.5
     , directory >=1 && <1.4
+    , extra >=1.6 && <1.7
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
@@ -158,6 +163,7 @@ test-suite test-integrative
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
     , data-default >=0.4 && <0.8
     , directory >=1 && <1.4
+    , extra >=1.6 && <1.7
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
@@ -186,6 +192,7 @@ test-suite test-pandoc-crossref
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
     , data-default >=0.4 && <0.8
     , directory >=1 && <1.4
+    , extra >=1.6 && <1.7
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3

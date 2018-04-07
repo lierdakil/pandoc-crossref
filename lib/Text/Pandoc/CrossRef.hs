@@ -88,7 +88,6 @@ import Data.Monoid ((<>))
 import Text.Pandoc.CrossRef.References
 import Text.Pandoc.CrossRef.Util.Settings
 import Text.Pandoc.CrossRef.Util.Options as O
-import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.ModifyMeta
 import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
 
@@ -109,8 +108,7 @@ crossRefBlocks blocks = do
   opts <- R.asks creOptions
   let
     doWalk =
-      bottomUpM (mkCodeBlockCaptions opts) blocks
-      >>= replaceAll opts
+      replaceAll opts blocks
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)
   return $ evalState doWalk def

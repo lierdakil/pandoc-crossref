@@ -25,6 +25,8 @@ import Text.Pandoc.CrossRef.Util.Prefixes
 import qualified Data.Map as M
 import Text.Pandoc.Builder
 import Data.Maybe
+import Data.List
+import Data.List.Extra
 
 data Options = Options { cref :: Bool
                        , chaptersDepth   :: Int
@@ -83,3 +85,22 @@ getPfx :: Options -> String -> Prefix
 getPfx o pn = fromMaybe defaultPfx $ M.lookup pn $ prefixes o
   where
     defaultPfx = error $ "Undefined prefix: \"" <> pn <> "\""
+
+getRefPrefix :: Options -> String -> Maybe String
+getRefPrefix opts label
+  | ':' `notElem` label = Nothing
+  | otherwise =
+    let pfx = takeWhile (/=':') label
+    in if pfx `elem` prefixList opts
+       then Just pfx
+       else Nothing
+
+getRefLabel :: Options -> [Inline] -> Maybe String
+getRefLabel _ [] = Nothing
+getRefLabel opts ils
+  | Str attr <- last ils
+  , all (==Space) (init ils)
+  , Just lbl <- stripPrefix "{#" attr >>= stripSuffix "}"
+  , Just _ <- getRefPrefix opts lbl
+  = Just lbl
+getRefLabel _ _ = Nothing

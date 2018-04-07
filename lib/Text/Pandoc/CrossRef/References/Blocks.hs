@@ -38,6 +38,7 @@ import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Control.Applicative
 import Data.Default (def)
 import Prelude
@@ -46,7 +47,8 @@ replaceAll :: (Data a) => Options -> a -> WS a
 replaceAll opts =
     runReplace (mkRR (replaceBlock opts) `extRR` replaceInline opts)
   . runSplitMath
-  . everywhere (mkT divBlocks `extT` spanInlines opts)
+  . everywhere (mkT (divBlocks opts) `extT` spanInlines opts)
+  . everywhere (mkT (mkCodeBlockCaptions opts))
   where
     runSplitMath | tableEqns opts
                  , not $ isLatexFormat (outFormat opts)
@@ -184,34 +186,6 @@ replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header c
                 rawInline "latex" (mkLaTeXLabel label) <> ititle
               _  -> applyTemplate idxStr ititle $ pfxCaptionTemplate opts pfx
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
-replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
-  | not $ null label
-  , Just pfx <- getRefPrefix opts label
-  , Just caption <- lookup "caption" attrs
-  = case outFormat opts of
-      f
-        --if used with listings package,nothing shoud be done
-        | isLatexFormat f, listings opts -> noReplaceNoRecurse
-        --if not using listings, however, wrap it in a codelisting environment
-        | isLatexFormat f ->
-          replaceNoRecurse $ Div nullAttr [
-              RawBlock (Format "latex") "\\begin{codelisting}"
-            , Plain [
-                RawInline (Format "latex") "\\caption{"
-              , Str caption
-              , RawInline (Format "latex") "}"
-              ]
-            , cb
-            , RawBlock (Format "latex") "\\end{codelisting}"
-            ]
-      _ -> do
-        let cap = text caption
-        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) cap pfx
-        let caption' = applyTemplate idxStr cap $ pfxCaptionTemplate opts pfx
-        replaceNoRecurse $ Div (label, "listing":classes, []) [
-            mkCaption opts "Caption" caption'
-          , CodeBlock ([], classes, attrs \\ [("caption", caption)]) code
-          ]
 replaceBlock opts
   (Div (label,"listing":_, [])
     [Para caption, CodeBlock ([],classes,attrs) code])
@@ -254,15 +228,6 @@ replaceBlock opts x@(Div (label, _, attrs) _content)
     void $ replaceAttr opts (Right label) (lookup "label" attrs) mempty pfx
     replaceRecurse x
 replaceBlock _ _ = noReplaceRecurse
-
-getRefPrefix :: Options -> String -> Maybe String
-getRefPrefix opts label
-  | ':' `notElem` label = Nothing
-  | otherwise =
-    let pfx = takeWhile (/=':') label
-    in if pfx `elem` prefixList opts
-       then Just pfx
-       else Nothing
 
 replaceEqn :: Options -> Attr -> String -> Maybe String -> WS (String, String)
 replaceEqn opts (label, _, attrs) eq pfx = do
@@ -323,13 +288,19 @@ replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
           in return [Image (label, cls, attrs) alt' (src, tit')]
 replaceSubfig _ x = return [x]
 
-divBlocks :: Block -> Block
-divBlocks (Table title align widths header cells)
+divBlocks :: Options -> Block -> Block
+divBlocks opts (Table title align widths header cells)
   | not $ null title
-  , Just label <- getRefLabel "tbl" [last title]
+  , Just label <- getRefLabel opts [last title]
   = Div (label,[],[]) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
   where isSpace = (||) <$> (==Space) <*> (==SoftBreak)
-divBlocks x = x
+divBlocks opts (CodeBlock (label, classes, attrs) code)
+  | Just caption <- lookup "caption" attrs
+  , Just _ <- getRefPrefix opts label
+  = let p   = Para $ toList $ text caption
+        cb' = CodeBlock ([], classes, delete ("caption", caption) attrs) code
+    in Div (label,"listing":classes, []) [p, cb']
+divBlocks _ x = x
 
 
 splitMath :: [Block] -> [Block]
@@ -347,7 +318,7 @@ splitMath xs = xs
 spanInlines :: Options -> [Inline] -> [Inline]
 spanInlines opts (math@(Math DisplayMath _eq):ils)
   | c:ils' <- dropWhile (==Space) ils
-  , Just label <- getRefLabel "eq" [c]
+  , Just label <- getRefLabel opts [c]
   = Span (label,[],[]) [math]:ils'
   | autoEqnLabels opts
   = Span nullAttr [math]:ils
