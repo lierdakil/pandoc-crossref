@@ -27,6 +27,7 @@ import Data.List (intercalate)
 import Text.Pandoc
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Util
@@ -91,11 +92,12 @@ modifyMeta opts meta
             ]
           | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++metaString' "lolTitle"++"}}"]
         cleveref = [ usepackage cleverefOpts "cleveref" ]
-          -- <> crefname "figure" figPrefix
-          -- <> crefname "table" tblPrefix
-          -- <> crefname "equation" eqnPrefix
-          -- <> crefname "listing" lstPrefix
-          -- <> crefname "section" secPrefix
+          <> crefname "figure" (pfxRef "fig")
+          <> crefname "table" (pfxRef "tbl")
+          <> crefname "equation" (pfxRef "eq")
+          <> crefname "listing" (pfxRef "lst")
+          <> crefname "section" (pfxRef "sec")
+        pfxRef labelPrefix = prefixRef . flip getPfx labelPrefix
         cleverefCodelisting = [
             "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
           , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
@@ -112,5 +114,5 @@ modifyMeta opts meta
         toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
         metaString s = toLatex . toList $ getMetaInlines s meta
         metaString' s = toLatex [Str $ getMetaString s meta]
-        prefix f uc = "{" ++ toLatex (f opts uc 0) ++ "}" ++
-                      "{" ++ toLatex (f opts uc 1) ++ "}"
+        prefix f uc = "{" ++ toLatex (toList $ f opts uc 0) ++ "}" ++
+                      "{" ++ toLatex (toList $ f opts uc 1) ++ "}"
