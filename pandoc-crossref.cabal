@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5e96038910c3fa4d4908cf74bd8274363cc9dbff5712e21afefc716d3d2a5200
+-- hash: 248ac326ef0ad394bc726d613423d794868c351a14d3b85ef11c6bbe9ac24d4e
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -130,6 +130,7 @@ executable pandoc-crossref
     , directory >=1 && <1.4
     , extra >=1.6 && <1.7
     , filepath >=1.1 && <1.5
+    , gitrev >=1.3.1 && <1.4
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.15

@@ -31,6 +31,7 @@ import System.IO.Temp
 import System.IO
 import ManData
 import Control.Concurrent
+import Development.GitRev
 
 man, manHtml :: String
 man = $(embedManualText)
@@ -50,6 +51,8 @@ run = do
     go :: Maybe Flag -> Maybe String -> IO ()
     go (Just Version) _ = putStrLn $
          "pandoc-crossref v" <> VERSION_pandoc_crossref
+      <> " git commit " <> $gitHash
+      <> " (" <> $gitBranch <> ")"
       <> " built with Pandoc v" <> VERSION_pandoc <> ","
       <> " pandoc-types v" <> VERSION_pandoc_types
       <> " and GHC " <> TOOL_VERSION_ghc
