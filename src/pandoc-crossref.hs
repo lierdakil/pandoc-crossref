@@ -20,7 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {-# LANGUAGE ApplicativeDo, TemplateHaskell, CPP #-}
 import Text.Pandoc
-import Text.Pandoc.Builder
 import Text.Pandoc.JSON
 
 import Text.Pandoc.CrossRef
