@@ -32,7 +32,6 @@ import Text.Pandoc.CrossRef.Util.PandocOrphans()
 import System.Directory
 import System.FilePath
 import System.IO
-import Data.Monoid
 import qualified Data.Text as T
 import qualified Data.Map as M
 

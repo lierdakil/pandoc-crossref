@@ -30,10 +30,9 @@ import Text.Pandoc.CrossRef.Util.CustomLabels
 import qualified Data.Map as M
 import Text.Pandoc.Builder hiding ((<>))
 import Data.Default
-import Data.Monoid
 import Data.Maybe
 
-newtype Inlines' = Inlines' { fromInlines' :: Inlines } deriving (Eq, Monoid)
+newtype Inlines' = Inlines' { fromInlines' :: Inlines } deriving (Eq, Semigroup, Monoid)
 instance Default Inlines' where
   def = mempty
 instance Walkable Inline Inlines' where

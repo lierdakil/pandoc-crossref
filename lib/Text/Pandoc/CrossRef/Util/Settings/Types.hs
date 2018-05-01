@@ -1,7 +1,6 @@
 module Text.Pandoc.CrossRef.Util.Settings.Types where
 
 import Text.Pandoc.Definition
-import Data.Semigroup
 import qualified Data.Map as M
 
 newtype Settings = Settings { unSettings :: Meta } deriving (Eq, Ord, Show)
