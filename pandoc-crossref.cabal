@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 84b607174500028529fbd471156fdf6ba5b440c5a9f3862137b96e7f05a147f2
+-- hash: 9156ca643ad8355e66b7e179231bdc5648419e3b73e12dc51e810baed1f1d5fb
 
 name:           pandoc-crossref
 version:        0.3.2.1
@@ -66,6 +66,25 @@ source-repository head
   location: https://github.com/lierdakil/pandoc-crossref
 
 library
+  exposed-modules:
+      Text.Pandoc.CrossRef
+  other-modules:
+      Text.Pandoc.CrossRef.References
+      Text.Pandoc.CrossRef.References.Blocks
+      Text.Pandoc.CrossRef.References.List
+      Text.Pandoc.CrossRef.References.Refs
+      Text.Pandoc.CrossRef.References.Types
+      Text.Pandoc.CrossRef.Util.CodeBlockCaptions
+      Text.Pandoc.CrossRef.Util.CustomLabels
+      Text.Pandoc.CrossRef.Util.Meta
+      Text.Pandoc.CrossRef.Util.ModifyMeta
+      Text.Pandoc.CrossRef.Util.Options
+      Text.Pandoc.CrossRef.Util.Settings
+      Text.Pandoc.CrossRef.Util.Settings.Gen
+      Text.Pandoc.CrossRef.Util.Settings.Template
+      Text.Pandoc.CrossRef.Util.Template
+      Text.Pandoc.CrossRef.Util.Util
+      Paths_pandoc_crossref
   hs-source-dirs:
       lib
   ghc-options: -Wall
@@ -86,29 +105,13 @@ library
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , text >=1.2.2 && <1.3
     , utility-ht >=0.0.11 && <0.1.0
-  exposed-modules:
-      Text.Pandoc.CrossRef
-  other-modules:
-      Text.Pandoc.CrossRef.References
-      Text.Pandoc.CrossRef.References.Blocks
-      Text.Pandoc.CrossRef.References.List
-      Text.Pandoc.CrossRef.References.Refs
-      Text.Pandoc.CrossRef.References.Types
-      Text.Pandoc.CrossRef.Util.CodeBlockCaptions
-      Text.Pandoc.CrossRef.Util.CustomLabels
-      Text.Pandoc.CrossRef.Util.Meta
-      Text.Pandoc.CrossRef.Util.ModifyMeta
-      Text.Pandoc.CrossRef.Util.Options
-      Text.Pandoc.CrossRef.Util.Settings
-      Text.Pandoc.CrossRef.Util.Settings.Gen
-      Text.Pandoc.CrossRef.Util.Settings.Template
-      Text.Pandoc.CrossRef.Util.Template
-      Text.Pandoc.CrossRef.Util.Util
-      Paths_pandoc_crossref
   default-language: Haskell2010
 
 executable pandoc-crossref
   main-is: pandoc-crossref.hs
+  other-modules:
+      ManData
+      Paths_pandoc_crossref
   hs-source-dirs:
       src
   ghc-options: -Wall -threaded
@@ -122,6 +125,7 @@ executable pandoc-crossref
     , deepseq >=1.4 && <1.5
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
+    , gitrev >=1.3.1 && <1.4
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.15
@@ -134,9 +138,6 @@ executable pandoc-crossref
     , temporary >=1.2 && <1.4
     , text >=1.2.2 && <1.3
     , utility-ht >=0.0.11 && <0.1.0
-  other-modules:
-      ManData
-      Paths_pandoc_crossref
   default-language: Haskell2010
 
 test-suite test-integrative
@@ -169,6 +170,25 @@ test-suite test-integrative
 test-suite test-pandoc-crossref
   type: exitcode-stdio-1.0
   main-is: test-pandoc-crossref.hs
+  other-modules:
+      Native
+      Text.Pandoc.CrossRef
+      Text.Pandoc.CrossRef.References
+      Text.Pandoc.CrossRef.References.Blocks
+      Text.Pandoc.CrossRef.References.List
+      Text.Pandoc.CrossRef.References.Refs
+      Text.Pandoc.CrossRef.References.Types
+      Text.Pandoc.CrossRef.Util.CodeBlockCaptions
+      Text.Pandoc.CrossRef.Util.CustomLabels
+      Text.Pandoc.CrossRef.Util.Meta
+      Text.Pandoc.CrossRef.Util.ModifyMeta
+      Text.Pandoc.CrossRef.Util.Options
+      Text.Pandoc.CrossRef.Util.Settings
+      Text.Pandoc.CrossRef.Util.Settings.Gen
+      Text.Pandoc.CrossRef.Util.Settings.Template
+      Text.Pandoc.CrossRef.Util.Template
+      Text.Pandoc.CrossRef.Util.Util
+      Paths_pandoc_crossref
   hs-source-dirs:
       test
       lib
@@ -191,23 +211,4 @@ test-suite test-pandoc-crossref
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , text >=1.2.2 && <1.3
     , utility-ht >=0.0.11 && <0.1.0
-  other-modules:
-      Native
-      Text.Pandoc.CrossRef
-      Text.Pandoc.CrossRef.References
-      Text.Pandoc.CrossRef.References.Blocks
-      Text.Pandoc.CrossRef.References.List
-      Text.Pandoc.CrossRef.References.Refs
-      Text.Pandoc.CrossRef.References.Types
-      Text.Pandoc.CrossRef.Util.CodeBlockCaptions
-      Text.Pandoc.CrossRef.Util.CustomLabels
-      Text.Pandoc.CrossRef.Util.Meta
-      Text.Pandoc.CrossRef.Util.ModifyMeta
-      Text.Pandoc.CrossRef.Util.Options
-      Text.Pandoc.CrossRef.Util.Settings
-      Text.Pandoc.CrossRef.Util.Settings.Gen
-      Text.Pandoc.CrossRef.Util.Settings.Template
-      Text.Pandoc.CrossRef.Util.Template
-      Text.Pandoc.CrossRef.Util.Util
-      Paths_pandoc_crossref
   default-language: Haskell2010
