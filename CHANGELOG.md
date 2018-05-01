@@ -1,3 +1,7 @@
+## 0.3.2.0
+
+-   Pandoc 2.2; GHC 8.4
+
 ## 0.3.1.0
 
 -   Update documentation
