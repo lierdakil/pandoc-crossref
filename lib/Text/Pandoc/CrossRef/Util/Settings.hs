@@ -27,7 +27,6 @@ import Control.Exception (handle,IOException)
 
 import Text.Pandoc.CrossRef.Util.Settings.Gen
 import Text.Pandoc.CrossRef.Util.Meta
-import Text.Pandoc.CrossRef.Util.PandocOrphans()
 import System.Directory
 import System.FilePath
 import System.IO
@@ -59,17 +58,17 @@ defaultMeta :: Meta
 defaultMeta =
      cref False
   <> chapters False
-  <> chaptersDepth "1"
+  <> chaptersDepth (MetaString "1")
   <> listings False
   <> codeBlockCaptions False
   <> autoSectionLabels False
   <> numberSections False
-  <> sectionsDepth "0"
-  <> figLabels "arabic"
-  <> eqnLabels "arabic"
-  <> tblLabels "arabic"
-  <> lstLabels "arabic"
-  <> secLabels "arabic"
+  <> sectionsDepth (MetaString "0")
+  <> figLabels (MetaString "arabic")
+  <> eqnLabels (MetaString "arabic")
+  <> tblLabels (MetaString "arabic")
+  <> lstLabels (MetaString "arabic")
+  <> secLabels (MetaString "arabic")
   <> figureTitle (str "Figure")
   <> tableTitle (str "Table")
   <> listingTitle (str "Listing")
@@ -99,11 +98,10 @@ defaultMeta =
   <> figureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> tableTemplate (var "tableTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> listingTemplate (var "listingTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
-  <> crossrefYaml "pandoc-crossref.yaml"
-  <> chaptersDepth "1"
+  <> crossrefYaml (MetaString "pandoc-crossref.yaml")
   <> subfigureChildTemplate (var "i")
   <> subfigureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> str "." <> space <> var "ccs")
-  <> subfigLabels "alpha a"
+  <> subfigLabels (MetaString "alpha a")
   <> ccsDelim (str "," <> space)
   <> ccsLabelSep (space <> str "—" <> space)
   <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")

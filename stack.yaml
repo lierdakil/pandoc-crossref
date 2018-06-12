@@ -3,4 +3,4 @@ packages:
 allow-newer: true
 extra-deps:
 - roman-numerals-0.5.1.5
-resolver: nightly-2018-05-23
+resolver: nightly-2018-06-12
