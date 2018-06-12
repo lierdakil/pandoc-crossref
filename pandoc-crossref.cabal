@@ -2,10 +2,10 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5020b7b0c70f58c754efff7a0c70bd8708298232bbfd1daf59838edc30ed8386
+-- hash: 84b607174500028529fbd471156fdf6ba5b440c5a9f3862137b96e7f05a147f2
 
 name:           pandoc-crossref
-version:        0.3.2.0
+version:        0.3.2.1
 synopsis:       Pandoc filter for cross-references
 description:    pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 category:       Text
