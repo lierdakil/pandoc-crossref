@@ -3,17 +3,20 @@ cache:
 - 'c:\\stack\\.stack-work -> stack.yaml'
 - 'C:\\Users\\appveyor\\AppData\\Local\\Programs\\stack -> stack.yaml'
 
+platform: x64
+
 clone_folder: "c:\\stack"
 environment:
   global:
     STACK_ROOT: "c:\\sr"
+    TMP: "c:\\tmp"
   matrix:
     - STACK_YAML: "stack.yaml"
       PANDOCVER: "22"
       GHCVER: "84"
 
 before_build:
-- appveyor DownloadFile http://www.stackage.org/stack/windows-i386 -FileName stack.zip
+- appveyor DownloadFile https://www.stackage.org/stack/windows-x86_64 -FileName stack.zip
 - 7z x stack.zip stack.exe
 - stack setup > nul
 
