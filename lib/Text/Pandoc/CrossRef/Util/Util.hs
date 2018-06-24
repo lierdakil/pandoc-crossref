@@ -122,3 +122,6 @@ getRefLabel tag ils
   , ("{#"++tag++":") `isPrefixOf` attr
   = init `fmap` stripPrefix "{#" attr
 getRefLabel _ _ = Nothing
+
+isSpace :: Inline -> Bool
+isSpace = (||) <$> (==Space) <*> (==SoftBreak)

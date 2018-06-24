@@ -298,9 +298,7 @@ divBlocks (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]
   = Div (label,[],[]) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
-  where isSpace = (||) <$> (==Space) <*> (==SoftBreak)
 divBlocks x = x
-
 
 splitMath :: [Block] -> [Block]
 splitMath (Para ils:xs)
@@ -311,12 +309,12 @@ splitMath (Para ils:xs)
       split ([x] : reverse (dropSpaces acc) : res)
             [] (dropSpaces ys)
     split res acc (y:ys) = split res (y:acc) ys
-    dropSpaces = dropWhile (\x -> x == Space || x == SoftBreak)
+    dropSpaces = dropWhile isSpace
 splitMath xs = xs
 
 spanInlines :: Options -> [Inline] -> [Inline]
 spanInlines opts (math@(Math DisplayMath _eq):ils)
-  | c:ils' <- dropWhile (==Space) ils
+  | c:ils' <- dropWhile isSpace ils
   , Just label <- getRefLabel "eq" [c]
   = Span (label,[],[]) [math]:ils'
   | autoEqnLabels opts
