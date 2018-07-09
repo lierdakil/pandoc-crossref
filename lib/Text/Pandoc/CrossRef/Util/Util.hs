@@ -110,3 +110,6 @@ mkLaTeXLabel' l =
   let ll = either (error . show) T.unpack $
             runPure (writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []])
   in takeWhile (/='}') . drop 1 . dropWhile (/='{') $ ll
+
+isSpace :: Inline -> Bool
+isSpace = (||) <$> (==Space) <*> (==SoftBreak)

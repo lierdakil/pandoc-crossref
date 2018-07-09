@@ -1,3 +1,12 @@
+## 0.3.2.1
+
+-   Make compatible with pandoc-types 1.17.5
+-   bump stack resolver
+
+## 0.3.2.0
+
+-   Pandoc 2.2; GHC 8.4
+
 ## 0.3.1.0
 
 -   Update documentation

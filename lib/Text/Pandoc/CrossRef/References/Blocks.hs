@@ -293,7 +293,6 @@ divBlocks opts (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel opts [last title]
   = Div (label,[],[]) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
-  where isSpace = (||) <$> (==Space) <*> (==SoftBreak)
 divBlocks opts (CodeBlock (label, classes, attrs) code)
   | Just caption <- lookup "caption" attrs
   , Just _ <- getRefPrefix opts label
@@ -301,7 +300,6 @@ divBlocks opts (CodeBlock (label, classes, attrs) code)
         cb' = CodeBlock ([], classes, delete ("caption", caption) attrs) code
     in Div (label,"listing":classes, []) [p, cb']
 divBlocks _ x = x
-
 
 splitMath :: [Block] -> [Block]
 splitMath (Para ils:xs)
@@ -312,12 +310,12 @@ splitMath (Para ils:xs)
       split ([x] : reverse (dropSpaces acc) : res)
             [] (dropSpaces ys)
     split res acc (y:ys) = split res (y:acc) ys
-    dropSpaces = dropWhile (\x -> x == Space || x == SoftBreak)
+    dropSpaces = dropWhile isSpace
 splitMath xs = xs
 
 spanInlines :: Options -> [Inline] -> [Inline]
 spanInlines opts (math@(Math DisplayMath _eq):ils)
-  | c:ils' <- dropWhile (==Space) ils
+  | c:ils' <- dropWhile isSpace ils
   , Just label <- getRefLabel opts [c]
   = Span (label,[],[]) [math]:ils'
   | autoEqnLabels opts
