@@ -3,37 +3,37 @@
 pandoc-crossref is a pandoc filter for numbering figures, equations,
 tables and cross-references to them.
 
-Input file (like
+The input file (like
 [demo.md](http://lierdakil.github.io/pandoc-crossref/demo/demo.md)) can
 be converted into
-[html](http://lierdakil.github.io/pandoc-crossref/demo/output.html),
-[latex](http://lierdakil.github.io/pandoc-crossref/demo/output.latex),
-[pdf](http://lierdakil.github.io/pandoc-crossref/demo/output.pdf),
-[md](http://lierdakil.github.io/pandoc-crossref/demo/output.md) or other
+[HTML](http://lierdakil.github.io/pandoc-crossref/demo/output.html),
+[LaTeX](http://lierdakil.github.io/pandoc-crossref/demo/output.latex),
+[PDF](http://lierdakil.github.io/pandoc-crossref/demo/output.pdf),
+[Markdown](http://lierdakil.github.io/pandoc-crossref/demo/output.md) or other
 formats.
 
-Optionally, you can use cleveref for latex/pdf output, e.g. [cleveref
-pdf](http://lierdakil.github.io/pandoc-crossref/demo/output-cref.pdf),
+Optionally, you can use cleveref for LaTeX/PDF output, e.g. [cleveref
+PDF](http://lierdakil.github.io/pandoc-crossref/demo/output-cref.pdf),
 [cleveref
-latex](http://lierdakil.github.io/pandoc-crossref/demo/output-cref.latex),
+LaTeX](http://lierdakil.github.io/pandoc-crossref/demo/output-cref.latex),
 and listings package, e.g. [listings
-pdf](http://lierdakil.github.io/pandoc-crossref/demo/output-listings.pdf),
+PDF](http://lierdakil.github.io/pandoc-crossref/demo/output-listings.pdf),
 [listings
-latex](http://lierdakil.github.io/pandoc-crossref/demo/output-listings.latex)
+LaTeX](http://lierdakil.github.io/pandoc-crossref/demo/output-listings.latex)
 
 You can also enable per-chapter numbering (as with `--chapters` for
-latex output). You need to specify `-M chapters` for non-latex/pdf
+latex output). You need to specify `-M chapters` for non-LaTeX/PDF
 output however. Examples:
-[html](http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.html),
-[markdown](http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.md),
-[latex](http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.latex),
-[pdf](http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.pdf).
+[HTML](http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.html),
+[Markdown](http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.md),
+[LaTeX](http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.latex),
+[PDF](http://lierdakil.github.io/pandoc-crossref/demo/output-chapters.pdf).
 
 This work is inspired by
 [pandoc-fignos](https://github.com/tomduck/pandoc-fignos) and
 [pandoc-eqnos](https://github.com/tomduck/pandoc-eqnos) by @tomduck.
 
-This package tries to use latex labels and references if output type is
+This package tries to use LaTeX labels and references if output type is
 LaTeX. It also tries to supplement rudimentary LaTeX configuration that
 should mimic metadata configuration by setting `header-includes`
 variable.
@@ -42,7 +42,7 @@ variable.
 
 Assuming you already installed [Haskell
 platform](http://hackage.haskell.org/platform/), you can install
-pandoc-crossref with cabal:
+pandoc-crossref with `cabal`:
 
 ``` bash
 cabal update
@@ -66,7 +66,7 @@ same sandbox, if that's the case (`cabal install pandoc-citeproc`).
 
 There are a few pre-built executables available at [releases
 page](https://github.com/lierdakil/pandoc-crossref/releases/latest) for
-Windows, OSX and Linux. Bear in mind that those are a product of an
+Windows, macOS and Linux. Bear in mind that those are a product of an
 automated build script, and as such, provided as-is, with zero
 guarantees.
 
@@ -77,7 +77,7 @@ time of writing, pandoc-crossref is provided on the following platforms
 -   Arch Linux
 -   NixOS or Nix package manager (via `nixpkgs.haskellPackages`
     attribute)
--   MacOS (via homebrew)
+-   MacOS (via Homebrew)
 -   Gentoo Linux (via gentoo-haskell overlay)
 
 ### Notice Fedora users
@@ -86,7 +86,7 @@ time of writing, pandoc-crossref is provided on the following platforms
 \#132). To get sane Haskell build environment, you need to install
 `haskell-platform` package (`yum install haskell-platform`).
 
-While on topic, if you don't want to rebuild Pandoc itself from source,
+While on topic, if you don't want to rebuild pandoc itself from source,
 make sure you have `pandoc` and `ghc-pandoc-devel` yum packages before
 attempting to build pandoc-crossref.
 
