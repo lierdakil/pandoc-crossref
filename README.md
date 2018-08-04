@@ -4,7 +4,7 @@ pandoc-crossref is a pandoc filter for numbering figures, equations,
 tables and cross-references to them.
 
 The input file (like
-[demo.md](http://lierdakil.github.io/pandoc-crossref/demo/demo.md)) can
+[demo.md](https://raw.githubusercontent.com/lierdakil/pandoc-crossref/master/docs/demo/demo.md)) can
 be converted into
 [HTML](http://lierdakil.github.io/pandoc-crossref/demo/output.html),
 [LaTeX](http://lierdakil.github.io/pandoc-crossref/demo/output.latex),
