@@ -1,3 +1,10 @@
+## 0.3.3.0
+
+-   Hide flaky tests behind a flag
+-   Update for Pandoc-2.3
+-   Add git commit info to version output
+-   Handle SoftBreak consistenlty (especailly after math)
+
 ## 0.3.2.1
 
 -   Make compatible with pandoc-types 1.17.5
