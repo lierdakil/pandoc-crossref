@@ -1,6 +1,5 @@
 packages:
 - .
-allow-newer: true
 extra-deps:
 - roman-numerals-0.5.1.5
 - pandoc-2.3
