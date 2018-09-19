@@ -44,7 +44,7 @@
   ,Div ("lst:captionAttr",["listing","haskell"],[])
    [Para [Str "Listing",Space,Str "4.1:",Space,Str "Listing",Space,Str "caption"]
    ,CodeBlock ("",["haskell"],[]) "main :: IO ()\nmain = putStrLn \"Hello World!\""]
-  ,RawBlock (Format "latex") "\\pagebreak"
+  ,RawBlock (Format "tex") "\\pagebreak"
   ,Header 2 ("sec:table-capts",[],[]) [Str "Table-style",Space,Str "captions"]
   ,Para [Str "Enabled",Space,Str "with",Space,Code ("",[],[]) "codeBlockCaptions",Space,Str "metadata",Space,Str "option.",Space,Str "If",Space,Str "code",Space,Str "block",Space,Str "is",Space,Str "immediately",SoftBreak,Str "adjacent",Space,Str "to",Space,Str "paragraph,",Space,Str "starting",Space,Str "with",Space,Code ("",[],[]) "Listing:",Space,Str "or",Space,Code ("",[],[]) ":",Str ",",Space,Str "said",Space,Str "paragraph",Space,Str "will",Space,Str "be",SoftBreak,Str "treated",Space,Str "as",Space,Str "code",Space,Str "block",Space,Str "caption."]
   ,Div ("lst:tableCaption",["listing","haskell"],[])
