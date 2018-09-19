@@ -9,3 +9,6 @@ resolver: nightly-2018-09-18
 ghc-options:
     # All packages
     "$targets": -Werror -optl-fuse-ld=bfd
+flags:
+  pandoc-crossref:
+    enable_flaky_tests: true

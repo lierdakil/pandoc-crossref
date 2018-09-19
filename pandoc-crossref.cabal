@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d32c96ae384785be8d30448c9cfe34c15202ef9c5df7989b2541a83589b30b51
+-- hash: b9c2acec4e226d06a191650633b9191a074ee7bca3bfbc622c29d46734e8ecb2
 
 name:           pandoc-crossref
 version:        0.3.2.1
@@ -64,6 +64,11 @@ data-files:
 source-repository head
   type: git
   location: https://github.com/lierdakil/pandoc-crossref
+
+flag enable_flaky_tests
+  description: Some tests rely on specific behaviour of pandoc, which may change between minor versions. These are still useful indicators for the developer, but not necessarily indicating there's a problem with the package itself. Enable if you know what you are doing.
+  manual: True
+  default: False
 
 library
   exposed-modules:
@@ -165,6 +170,8 @@ test-suite test-integrative
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , text >=1.2.2 && <1.3
     , utility-ht >=0.0.11 && <0.1.0
+  if flag(enable_flaky_tests)
+    cpp-options: -DFLAKY
   default-language: Haskell2010
 
 test-suite test-pandoc-crossref
@@ -211,4 +218,6 @@ test-suite test-pandoc-crossref
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , text >=1.2.2 && <1.3
     , utility-ht >=0.0.11 && <0.1.0
+  if flag(enable_flaky_tests)
+    cpp-options: -DFLAKY
   default-language: Haskell2010

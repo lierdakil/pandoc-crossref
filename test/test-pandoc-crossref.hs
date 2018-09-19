@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, CPP #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder
@@ -307,10 +307,12 @@ main = hspec $ do
             <> para (citeGen "eq:some_equation" [1])
             `test` "\\begin{equation}x^2\\label{eq:some_equation1}\\end{equation}\n\neq.~\\ref{eq:some_equation1}"
 
+#ifdef FLAKY
         it "Tbl labels" $
           table' "A table" "some_table1"
             <> para (citeGen "tbl:some_table" [1])
             `test` "\\hypertarget{tbl:some_table1}{}\n\\begin{longtable}[]{@{}@{}}\n\\caption{\\label{tbl:some_table1}A table}\\tabularnewline\n\\toprule\n\\endhead\n\\tabularnewline\n\\bottomrule\n\\end{longtable}\n\ntbl.~\\ref{tbl:some_table1}"
+#endif
 
         it "Code block labels" $ do
           codeBlock' "A code block" "some_codeblock1"
