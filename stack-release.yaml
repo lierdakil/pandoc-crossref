@@ -1,0 +1,8 @@
+packages:
+- .
+allow-newer: true
+extra-deps:
+- roman-numerals-0.5.1.5
+- pandoc-2.3
+- HsYAML-0.1.1.2
+resolver: nightly-2018-09-18
