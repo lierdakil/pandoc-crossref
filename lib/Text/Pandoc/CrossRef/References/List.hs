@@ -38,11 +38,14 @@ listOf opts (RawBlock (Format "latex") cmd:xs)
   , (pfx, "}") <- span (/='}') pfxBrace
   = getPfxData pfx >>= fmap toList . makeList opts pfx (fromList xs)
 listOf Options{outFormat=f} x | isLatexFormat f = return x
-listOf opts (RawBlock (Format "latex") "\\listoffigures":xs)
+listOf opts (RawBlock fmt "\\listoffigures":xs)
+  | isLaTeXRawBlockFmt fmt
   = getPfxData "fig" >>= fmap toList . makeList opts "fig" (fromList xs)
-listOf opts (RawBlock (Format "latex") "\\listoftables":xs)
+listOf opts (RawBlock fmt "\\listoftables":xs)
+  | isLaTeXRawBlockFmt fmt
   = getPfxData "tbl" >>= fmap toList . makeList opts "tbl" (fromList xs)
-listOf opts (RawBlock (Format "latex") "\\listoflistings":xs)
+listOf opts (RawBlock fmt "\\listoflistings":xs)
+  | isLaTeXRawBlockFmt fmt
   = getPfxData "lst" >>= fmap toList . makeList opts "lst" (fromList xs)
 listOf _ x = return x
 

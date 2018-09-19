@@ -10,9 +10,9 @@ addons:
 
 matrix:
   include:
-  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc84-pandoc22
+  - env: STACK_YAML=stack-release.yaml RELEASE_FN=ghc84-pandoc23
     compiler: ": #GHC 8.4"
-  - env: STACK_YAML=stack.yaml RELEASE_FN=ghc84-pandoc22
+  - env: STACK_YAML=stack-release.yaml RELEASE_FN=ghc84-pandoc23
     compiler: ": #GHC 8.4"
     os: osx
 

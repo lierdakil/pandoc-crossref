@@ -113,3 +113,8 @@ mkLaTeXLabel' l =
 
 isSpace :: Inline -> Bool
 isSpace = (||) <$> (==Space) <*> (==SoftBreak)
+
+isLaTeXRawBlockFmt :: Format -> Bool
+isLaTeXRawBlockFmt (Format "latex") = True
+isLaTeXRawBlockFmt (Format "tex") = True
+isLaTeXRawBlockFmt _ = False

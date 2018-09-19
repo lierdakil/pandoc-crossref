@@ -11,8 +11,8 @@ environment:
     STACK_ROOT: "c:\\sr"
     TMP: "c:\\tmp"
   matrix:
-    - STACK_YAML: "stack.yaml"
-      PANDOCVER: "22"
+    - STACK_YAML: "stack-release.yaml"
+      PANDOCVER: "23"
       GHCVER: "84"
 
 before_build:

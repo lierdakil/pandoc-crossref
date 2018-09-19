@@ -3,4 +3,12 @@ packages:
 allow-newer: true
 extra-deps:
 - roman-numerals-0.5.1.5
-resolver: nightly-2018-07-08
+- pandoc-2.3
+- HsYAML-0.1.1.2
+resolver: nightly-2018-09-18
+ghc-options:
+    # All packages
+    "$targets": -Werror -optl-fuse-ld=bfd
+flags:
+  pandoc-crossref:
+    enable_flaky_tests: true
