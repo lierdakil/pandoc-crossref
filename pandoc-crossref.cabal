@@ -1,8 +1,10 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1d7645597fa7a4589e37c71e3fee17d3eac5b57087d212f56fb16218fd9c3803
+-- hash: 5b37e33ba4014f1d6bddfb5cd36b25bb28f564c3783a520e0e689ae247780147
 
 name:           pandoc-crossref
 version:        0.3.3.0
@@ -16,11 +18,10 @@ maintainer:     root@livid.pp.ru
 license:        GPL-2
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
-    CHANGELOG.md
     test/demo-chapters.inc
     test/demo.inc
+    CHANGELOG.md
 data-files:
     docs/demo/demo.md
     docs/index.md
@@ -95,7 +96,7 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.11 && <5
-    , containers >=0.1 && <0.6
+    , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
@@ -103,8 +104,8 @@ library
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.4
-    , pandoc-types ==1.17.*
+    , pandoc >=2.3 && <2.5
+    , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -122,7 +123,7 @@ executable pandoc-crossref
   ghc-options: -Wall -threaded
   build-depends:
       base >=4.11 && <5
-    , containers >=0.1 && <0.6
+    , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
@@ -134,9 +135,9 @@ executable pandoc-crossref
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.15
-    , pandoc >=2.3 && <2.4
+    , pandoc >=2.3 && <2.5
     , pandoc-crossref
-    , pandoc-types ==1.17.*
+    , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -153,7 +154,7 @@ test-suite test-integrative
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.11 && <5
-    , containers >=0.1 && <0.6
+    , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
@@ -162,9 +163,9 @@ test-suite test-integrative
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.4
+    , pandoc >=2.3 && <2.5
     , pandoc-crossref
-    , pandoc-types ==1.17.*
+    , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -202,7 +203,7 @@ test-suite test-pandoc-crossref
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.11 && <5
-    , containers >=0.1 && <0.6
+    , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
@@ -211,8 +212,8 @@ test-suite test-pandoc-crossref
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.4
-    , pandoc-types ==1.17.*
+    , pandoc >=2.3 && <2.5
+    , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0

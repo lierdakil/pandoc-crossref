@@ -271,6 +271,7 @@ main = hspec $ do
             l = zip ["unk1:", "unk2:"] [1,2::Int]
         testRefs cits def cits
 
+#ifdef FLAKY
     describe "Test files" $ do
 
       it "demo.md matches demo.native" $ do
@@ -283,6 +284,7 @@ main = hspec $ do
         Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
         let m' = setMeta "chapters" True m
         runCrossRef m' Nothing crossRefBlocks b `shouldBe` Native.demochapters
+#endif
 
     describe "LaTeX" $ do
       let test = test' nullMeta
