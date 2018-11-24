@@ -1,3 +1,10 @@
+## 0.3.4.0
+
+-   Updates for pandoc 2.4 and GHC 8.6
+-   Fixed link in documentation (Salim B)
+-   Fixed demo.md link in README
+-   Corrected minor mistakes in the readme. (Wandmalfarbe)
+
 ## 0.3.3.0
 
 -   Hide flaky tests behind a flag
