@@ -114,6 +114,13 @@ defaultMeta = Settings $
   <> subfigGrid False
   <> linkReferences False
   <> nameInLink False
+  <> latexPrefixes' [
+      "figure" .= "fig"
+    , "table" .= "tbl"
+    , "equation" .= "eq"
+    , "listing" .= "lst"
+    , "section" .= "sec"
+  ]
   <> prefixes' [
       "eq" .: [
         "ref" .= ["eq.", "eqns."],
@@ -149,6 +156,9 @@ defaultMeta = Settings $
 
 prefixes' :: [(String, MetaValue)] -> Meta
 prefixes' = prefixes . MetaMap . M.fromList
+
+latexPrefixes' :: [(String, MetaValue)] -> Meta
+latexPrefixes' = latexPrefixes . MetaMap . M.fromList
 
 infixr 0 .:
 (.:) :: String -> [(String, MetaValue)] -> (String, MetaValue)

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0ffe32c9178cfad80e92cf943e5bd35ba72f555de20840af5863dfdc0c25390b
+-- hash: fb0025890a7dc67a63203364ebb9f5a88c9aea1b4631dd035bbb64b98704afb6
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -85,6 +85,7 @@ library
       Text.Pandoc.CrossRef.References.Types
       Text.Pandoc.CrossRef.Util.CodeBlockCaptions
       Text.Pandoc.CrossRef.Util.CustomLabels
+      Text.Pandoc.CrossRef.Util.LatexPrefixes
       Text.Pandoc.CrossRef.Util.Meta
       Text.Pandoc.CrossRef.Util.ModifyMeta
       Text.Pandoc.CrossRef.Util.Options
@@ -196,6 +197,7 @@ test-suite test-pandoc-crossref
       Text.Pandoc.CrossRef.References.Types
       Text.Pandoc.CrossRef.Util.CodeBlockCaptions
       Text.Pandoc.CrossRef.Util.CustomLabels
+      Text.Pandoc.CrossRef.Util.LatexPrefixes
       Text.Pandoc.CrossRef.Util.Meta
       Text.Pandoc.CrossRef.Util.ModifyMeta
       Text.Pandoc.CrossRef.Util.Options

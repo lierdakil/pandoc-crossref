@@ -60,6 +60,7 @@ getPrefixes varN dtv
       , prefixScope = getMetaStringMaybe "scope" kv
       , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (MetaString "arabic") $ lookupSettings "numbering" kv)
       , prefixListOfTitle = getMetaBlock "listOfTitle" kv
+      , prefixTitle = getMetaInlines "title" kv
       }
       where kv = Settings (Meta kv') <> dtv
     m2p k _ = error $ "Invalid value for prefix " <> k
@@ -73,4 +74,7 @@ data Prefix = Prefix {
   , prefixScope :: !(Maybe String)
   , prefixNumbering :: !(Int -> String)
   , prefixListOfTitle :: !Blocks
+  -- Used for LaTeX metadata; the same value is used in
+  -- default value for prefixCaptionTemplate
+  , prefixTitle :: Inlines
 }

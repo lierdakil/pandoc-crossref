@@ -27,6 +27,7 @@ import Text.Pandoc.Builder
 import Data.Maybe
 import Data.List
 import Data.List.Extra
+import Text.Pandoc.CrossRef.Util.LatexPrefixes
 
 data Options = Options { cref :: Bool
                        , chaptersDepth   :: Int
@@ -53,6 +54,7 @@ data Options = Options { cref :: Bool
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , prefixes :: Prefixes
+                       , latexPrefixes :: LatexPrefixes
                        }
 
 prefixList :: Options -> [String]
@@ -84,3 +86,6 @@ getRefLabel opts ils
   , Just _ <- getRefPrefix opts lbl
   = Just lbl
 getRefLabel _ _ = Nothing
+
+getTitleForListOf :: Options -> String -> Blocks
+getTitleForListOf opts = prefixListOfTitle . getPfx opts

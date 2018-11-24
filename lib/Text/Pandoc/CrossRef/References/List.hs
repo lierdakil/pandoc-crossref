@@ -30,7 +30,6 @@ import qualified Data.Map as M
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
-import Text.Pandoc.CrossRef.Util.Prefixes
 
 listOf :: Options -> [Block] -> WS [Block]
 listOf opts (RawBlock (Format "latex") cmd:xs)
@@ -52,13 +51,10 @@ listOf _ x = return x
 getPfxData :: String -> WS RefMap
 getPfxData pfx = M.filterWithKey (\k _ -> (pfx <> ":") `isPrefixOf` k) <$> get referenceData
 
-getLot :: Options -> String -> Blocks
-getLot opts = prefixListOfTitle . getPfx opts
-
 makeList :: Options -> String -> Blocks -> M.Map String RefRec -> WS Blocks
 makeList opts titlef xs refs
   = return $
-      getLot opts titlef <>
+      getTitleForListOf opts titlef <>
       (if chaptersDepth opts > 0
         then divWith ("", ["list"], []) (mconcat $ map itemChap refsSorted)
         else orderedList (map item refsSorted))
