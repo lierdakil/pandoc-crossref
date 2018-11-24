@@ -661,7 +661,7 @@ header-includes:
 This will be added *before* any customization applied by
 pandoc-crossref. For a complete list of what is added to template,
 consult
-[ModifyMeta.hs](https://github.com/lierdakil/pandoc-crossref/blob/master/src/Util/ModifyMeta.hs).
+[ModifyMeta.hs](https://github.com/lierdakil/pandoc-crossref/blob/master/lib/Text/Pandoc/CrossRef/Util/ModifyMeta.hs).
 
 ## Templates
 

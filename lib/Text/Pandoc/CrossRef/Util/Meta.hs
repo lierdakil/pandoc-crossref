@@ -38,7 +38,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Data.Default
 import Text.Pandoc.Walk
-import Text.Pandoc.Shared hiding (capitalize)
+import Text.Pandoc.Shared hiding (capitalize, toString)
 import Data.Maybe
 
 getMetaList :: (Default a) => (MetaValue -> a) -> String -> Settings -> Int -> a

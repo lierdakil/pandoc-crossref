@@ -1,8 +1,10 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 517918945fe2b7c10f07ab075a9f7532c8b4af0ded826d5c53c7c548e5a79580
+-- hash: 0ffe32c9178cfad80e92cf943e5bd35ba72f555de20840af5863dfdc0c25390b
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -16,11 +18,10 @@ maintainer:     root@livid.pp.ru
 license:        GPL-2
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
-    CHANGELOG.md
     test/demo-chapters.inc
     test/demo.inc
+    CHANGELOG.md
 data-files:
     docs/demo/demo.md
     docs/index.md
@@ -100,7 +101,7 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.11 && <5
-    , containers >=0.1 && <0.6
+    , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
@@ -109,7 +110,7 @@ library
     , extra >=1.6 && <1.7
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.4
+    , pandoc >=2.3 && <2.5
     , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
@@ -128,7 +129,7 @@ executable pandoc-crossref
   ghc-options: -Wall -threaded
   build-depends:
       base >=4.11 && <5
-    , containers >=0.1 && <0.6
+    , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
@@ -141,7 +142,7 @@ executable pandoc-crossref
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.15
-    , pandoc >=2.3 && <2.4
+    , pandoc >=2.3 && <2.5
     , pandoc-crossref
     , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
@@ -160,7 +161,7 @@ test-suite test-integrative
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.11 && <5
-    , containers >=0.1 && <0.6
+    , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
@@ -170,7 +171,7 @@ test-suite test-integrative
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.4
+    , pandoc >=2.3 && <2.5
     , pandoc-crossref
     , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
@@ -212,7 +213,7 @@ test-suite test-pandoc-crossref
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.11 && <5
-    , containers >=0.1 && <0.6
+    , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0
     , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
@@ -222,7 +223,7 @@ test-suite test-pandoc-crossref
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.4
+    , pandoc >=2.3 && <2.5
     , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8

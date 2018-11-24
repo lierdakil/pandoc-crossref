@@ -12,8 +12,8 @@ environment:
     TMP: "c:\\tmp"
   matrix:
     - STACK_YAML: "stack-release.yaml"
-      PANDOCVER: "23"
-      GHCVER: "84"
+      PANDOCVER: "24"
+      GHCVER: "86"
 
 before_build:
 - appveyor DownloadFile https://www.stackage.org/stack/windows-x86_64 -FileName stack.zip
