@@ -81,7 +81,7 @@ modifyMeta opts meta
             usepackage [] "float"
           , "\\floatstyle{ruled}"
           , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
-          , "\\floatname{codelisting}{"++getListOfTitle "lst"++"}"
+          , "\\floatname{codelisting}{"++getFloatCaption "lst"++"}"
           ]
         lolcommand
           | listings opts = [
