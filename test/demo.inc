@@ -56,7 +56,7 @@
    [Para [Str "Listing",Space,Str "3:",Space,Str "Listing",Space,Str "caption"]
    ,CodeBlock ("",["haskell"],[]) "main :: IO ()\nmain = putStrLn \"Hello World!\""]
   ,Header 1 ("sec:unnumbered-chapter.",["unnumbered"],[]) [Str "Unnumbered",Space,Str "chapter."]
-  ,Para [Str "This",Space,Str "chapter",Space,Str "doesn\8217t",Space,Str "change",Space,Str "chapter",Space,Str "prefix",Space,Str "of",Space,Str "referenced",Space,Str "elements,",Space,Str "instead",Space,Str "keeping",Space,Str "number",Space,Str "of",Space,Str "previous",Space,Str "chapter,",SoftBreak,Str "e.g.\160",Span ("eq:eqn2",[],[]) [Math DisplayMath " S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x \\qquad(3)"]]
+  ,Para [Str "This",Space,Str "chapter",Space,Str "doesn\8217t",Space,Str "change",Space,Str "chapter",Space,Str "prefix",Space,Str "of",Space,Str "referenced",Space,Str "elements,",Space,Str "instead",Space,Str "keeping",Space,Str "number",Space,Str "of",Space,Str "previous",Space,Str "chapter,",Space,Str "e.g.",SoftBreak,Span ("eq:eqn2",[],[]) [Math DisplayMath " S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x \\qquad(3)"]]
   ,Header 1 ("sec:chapter-5.-reference-lists",[],[]) [Str "Chapter",Space,Str "5.",Space,Str "Reference",Space,Str "lists"]
   ,Para [Str "It\8217s",Space,Str "also",Space,Str "possible",Space,Str "to",Space,Str "show",Space,Str "lists",Space,Str "of",Space,Str "figures",Space,Str "and",Space,Str "tables,",Space,Str "like",Space,Str "this:"]
   ,Header 2 ("list-of-figures",[],[]) [Str "List",Space,Str "of",Space,Str "Figures"]

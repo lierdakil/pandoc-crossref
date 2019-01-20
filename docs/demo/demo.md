@@ -126,9 +126,9 @@ $$ S(x) = \int_{x_1}^{x_2} a x+b \  \mathrm{d}x $$ {#eq:eqn2}
 It's also possible to show lists of figures and tables, like this:
 
 \listoffigures
-[]: hack to split raw blocks
+
 \listoftables
-[]: hack to split raw blocks
+
 \listoflistings
 
 # Appendix A. Custom labels {label=AppA}
