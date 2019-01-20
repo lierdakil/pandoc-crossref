@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.0.
+-- This file has been generated from package.yaml by hpack version 0.31.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2cd0206988abd6c996a007085e3e239d62131d1ab25f6075cf86d49407c2c5e9
+-- hash: 0a09a28ee8c0f5230dcd280b04a9943a58814f26bbc2a3e9d654c4a10ab862ac
 
 name:           pandoc-crossref
 version:        0.3.4.0
@@ -104,7 +104,7 @@ library
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.5
+    , pandoc >=2.3 && <2.6
     , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
@@ -135,7 +135,7 @@ executable pandoc-crossref
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.15
-    , pandoc >=2.3 && <2.5
+    , pandoc >=2.3 && <2.6
     , pandoc-crossref
     , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
@@ -163,7 +163,7 @@ test-suite test-integrative
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.5
+    , pandoc >=2.3 && <2.6
     , pandoc-crossref
     , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
@@ -212,7 +212,7 @@ test-suite test-pandoc-crossref
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.3 && <2.5
+    , pandoc >=2.3 && <2.6
     , pandoc-types >=1.17.5.1 && <1.18
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
