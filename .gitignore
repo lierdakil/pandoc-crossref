@@ -1,3 +1,5 @@
+bin
+static-build
 .stack-work
 .cabal-sandbox
 .pandoc-*
