@@ -1,12 +1,17 @@
 language: c
 sudo: true
 
-cache: false
+cache:
+  directories:
+   - $HOME/.cabal/
+   - $HOME/.ghc/
 
 addons:
-  apt:
+  homebrew:
     packages:
-    - libgmp-dev
+    - ghc
+    - cabal-install
+    - upx
 
 env:
   - secure: "JlX01XMktACOHe7p+aQr60dwTVRu1GHzbx6dFAQpg+LtFq3GuSsJbpprRRjVaXHQzQh4TQLaNuktOuB9u042+SDZl52xwIpn8ViTiNnH1QMCMzzPMrOMhNkE+3Z4BIWWe4PBKdPHdBxwanhOMh1BIxWrq3wy//PEOG9qJqJgLWw="
@@ -20,7 +25,7 @@ os:
 
 script:
 - export -f travis_retry
-- travis_wait 90 "${TRAVIS_OS_NAME}/build.sh"
+- "${TRAVIS_OS_NAME}/build.sh"
 - RELEASE_FN=( *-pandoc_*.tar.gz )
 - travis_retry curl -T "$TRAVIS_BUILD_DIR/$RELEASE_FN" -ulierdakil:$BINTRAY_API_KEY "https://api.bintray.com/content/lierdakil/pandoc-crossref/pandoc-crossref/nightly/build-$(date -u +%FT%T)-$(git rev-parse HEAD)-$RELEASE_FN?publish=1"
 deploy:
