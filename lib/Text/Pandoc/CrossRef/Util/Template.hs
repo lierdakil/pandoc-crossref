@@ -44,7 +44,7 @@ makeTemplate dtv xs' = Template $ \vf -> scan (\var -> vf var <|> lookupMeta var
     | '[' `elem` var  && ']' == last var =
       let (vn, idxBr) = span (/='[') var
           idxVar = drop 1 $ takeWhile (/=']') idxBr
-          idx = readMaybe . toString ("index variable " ++ idxVar) =<< (vf idxVar)
+          idx = readMaybe . toString ("index variable " ++ idxVar) =<< vf idxVar
           arr = do
             i <- idx
             v <- lookupMeta vn dtv
