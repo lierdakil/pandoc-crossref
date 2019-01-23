@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE ApplicativeDo, TemplateHaskell, CPP #-}
+{-# LANGUAGE ApplicativeDo, TemplateHaskell, CPP, OverloadedStrings #-}
 import Text.Pandoc
 import Text.Pandoc.JSON
 
@@ -28,14 +28,18 @@ import qualified Options.Applicative as O
 import Control.Monad
 import Web.Browser
 import System.IO.Temp
-import System.IO
+import System.IO hiding (putStrLn)
 import ManData
 import Control.Concurrent
 import Development.GitRev
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 
-man, manHtml :: String
-man = $(embedManualText)
-manHtml = $(embedManualHtml)
+import Prelude hiding (putStrLn)
+
+man, manHtml :: T.Text
+man = T.pack $(embedManualText)
+manHtml = T.pack $(embedManualHtml)
 
 data Flag = NumericVersion | Version | Man | HtmlMan
 
@@ -49,17 +53,18 @@ run = do
   return $ go (numVers <|> vers <|> man' <|> hman) fmt
   where
     go :: Maybe Flag -> Maybe String -> IO ()
-    go (Just Version) _ = putStrLn $
+    go (Just Version) _ = T.putStrLn $
          "pandoc-crossref v" <> VERSION_pandoc_crossref
       <> " git commit " <> $gitHash
       <> " (" <> $gitBranch <> ")"
       <> " built with Pandoc v" <> VERSION_pandoc <> ","
       <> " pandoc-types v" <> VERSION_pandoc_types
       <> " and GHC " <> TOOL_VERSION_ghc
-    go (Just NumericVersion) _ = putStrLn VERSION_pandoc_crossref
-    go (Just Man    ) _ = putStrLn man
+    go (Just NumericVersion) _ = T.putStrLn VERSION_pandoc_crossref
+    go (Just Man    ) _ = T.putStrLn man
     go (Just HtmlMan) _ = withSystemTempFile "pandoc-crossref-manual.html" $ \fp h -> do
-      hPutStrLn h manHtml
+      hSetEncoding h utf8
+      T.hPutStrLn h manHtml
       hClose h
       void $ openBrowser $ "file:///" <> fp
       threadDelay 5000000

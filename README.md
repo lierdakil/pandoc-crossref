@@ -40,35 +40,30 @@ variable.
 
 ## Installation
 
-Assuming you already installed [Haskell
-platform](http://hackage.haskell.org/platform/), you can install
-pandoc-crossref with `cabal`:
+The easiest option to get pandoc-crossref on Windows, macOS, or Linux, is to
+download pre-built executables available at the [releases
+page](https://github.com/lierdakil/pandoc-crossref/releases/latest).
+Bear in mind that those are a product of automated build scripts, and as
+such, provided as-is, with zero guarantees. Feel free to open issues if those
+don't work though, I'll try to do what I can.
 
-``` bash
-cabal update
-cabal install pandoc-crossref
-```
+**WARNING:** When using pre-built executables, **make sure that your pandoc
+version matches the version pandoc-crossref was built against, otherwise
+weird stuff will likely happen.** Feel free to open issues if there's a new
+version of pandoc available, for which there are no pandoc-crossref builds.
 
-However, I highly recommend you use a sandbox for installation, e.g.
+Also, for those feeling adventurous, the automatic builds for the latest commits are available. Latest Windows builds can be found on [AppVeyor build history page](https://ci.appveyor.com/project/lierdakil/pandoc-crossref/history) (select a build and go to Artifacts). Latest Linux and MacOS builds can be found on [BinTray]( https://bintray.com/lierdakil/pandoc-crossref/pandoc-crossref/nightly/view/files?sort=name&order=asc#files/).
 
-``` bash
-cabal update
-mkdir pandoc-crossref
-cd pandoc-crossref
-cabal sandbox init
-cabal install pandoc-crossref
-```
+If you don't trust random binaries downloaded off the Internet (which is
+completely reasonable), you're welcome to build from source. You have two
+preferred options for that: building from Hackage with `cabal-install`
+(you'll need [Haskell platform][]), or from repository with `stack` (you'll
+only need `stack` and maybe `git`). See below for build instructions.
 
-This will get `pandoc-crossref` installed into `.cabal-sandbox/bin`.
-Pandoc will also be built, if it's not installed as a Haskell library
-system-wide. You might also want to install `pandoc-citeproc` in the
-same sandbox, if that's the case (`cabal install pandoc-citeproc`).
+If you're completely new to Haskell, the latter, i.e. building from repo
+with `stack`, is the easier option in most cases.
 
-There are a few pre-built executables available at [releases
-page](https://github.com/lierdakil/pandoc-crossref/releases/latest) for
-Windows, macOS and Linux. Bear in mind that those are a product of an
-automated build script, and as such, provided as-is, with zero
-guarantees.
+[Haskell platform]: http://hackage.haskell.org/platform/
 
 Alternatively, you can use a version provided by a third party. At the
 time of writing, pandoc-crossref is provided on the following platforms
@@ -79,6 +74,56 @@ time of writing, pandoc-crossref is provided on the following platforms
     attribute)
 -   MacOS (via Homebrew)
 -   Gentoo Linux (via gentoo-haskell overlay)
+
+### Building from Hackage with `cabal-install` and Haskell platform
+
+Assuming you already installed [Haskell platform][] by whatever means necessary, you can install pandoc-crossref with `cabal`.
+
+If you have `cabal-install` version 2.4 or newer (i.e. `cabal --version` shows `2.4.x.x`), **and** you are not on Windows, I recommend using new-style install (new-style install is regrettably broken on Windows at the time of writing):
+
+``` bash
+cabal new-update
+cabal new-install pandoc pandoc-crossref pandoc-citeproc
+```
+
+This will get `pandoc-crossref`, `pandoc` and `pandoc-citeproc` executables symlinked to `$HOME/.cabal/bin`, which you can then add to `PATH` or copy/move the symlinks where you want them.
+
+On cabal-install version 2.2, it's possible to do the same, albeit you'll need to use `cabal update` instead of `cabal new-update`.
+
+On older cabal-install versions that don't support new-style installs (or on Windows), I highly recommend you use a sandbox for installation, e.g.
+
+``` bash
+cabal update
+mkdir pandoc-crossref
+cd pandoc-crossref
+cabal sandbox init
+cabal install pandoc pandoc-crossref pandoc-citeproc
+```
+
+This will get `pandoc`, `pandoc-citeproc`, and `pandoc-crossref` installed into `.cabal-sandbox/bin`.
+
+Refer to cabal documentation if you need to build a particular version (TL;DR: add `--constraint pandoc-crossref==<version>` to the installation command)
+
+### Building from repo with `stack`
+
+If you want to build an unreleased version, just fancy building from repo, or don't want to install the Haskell platform, you can clone the repository, check out the commit/tag/branch you want and build with `stack`.
+
+First of all, get `stack` if you don't have it already: see the [official stack documentation][]. Note that `stack` is also included in the [Haskell platform][], and on Linux it is usually available in your package manager.
+
+[official stack documentation]: https://docs.haskellstack.org/en/stable/README/#how-to-install
+
+If you have `git`, you can now clone the repository and build:
+
+``` bash
+git clone https://github.com/lierdakil/pandoc-crossref.git
+cd pandoc-crossref
+git checkout <commit/tag/branch>
+stack install
+```
+
+If you don't have `git`, just download the sources for your preferred commit/branch/tag via the GitHub interface, and run `stack install` in the directory that contains `stack.yaml` file.
+
+This will install pandoc-crossef executable to `$HOME/.local/bin`. You might also want to separately run `stack install pandoc pandoc-citeproc` in the same directory (i.e. the root of the repository, the one containing `stack.yaml` file)
 
 ### Notice Fedora users
 
@@ -117,7 +162,9 @@ contributions):
 -   Masamichi Hosoda
 -   Felix Yan
 -   Wlad
+-   Wandmalfarbe
 -   scoavoux
+-   Salim B
 -   Matthew Salganik
 -   Han Joosten
 -   Hadrien Mary
