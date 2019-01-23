@@ -59,6 +59,8 @@ test_script:
   - forfiles /P .\dist-newstyle /M pandoc*.exe /S /C "cmd /C copy @path C:\pandoc-crossref"
 
 after_test:
+  # print built version string
+  - .\pandoc-crossref.exe -v
   # create zip artifacts
   - 7z a "%OSARCH%-pandoc_%PANDOC_VERSION%.zip" pandoc-crossref.exe
 
