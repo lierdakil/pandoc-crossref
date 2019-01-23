@@ -25,7 +25,11 @@ os:
 
 script:
 - export -f travis_retry
+# Output something every 9 minutes (540 seconds) or Travis kills the job
+- while sleep 540; do echo "=====[ $SECONDS seconds still running ]====="; done &
 - "${TRAVIS_OS_NAME}/build.sh"
+# Kill the sleep loop
+- kill %1
 - RELEASE_FN=( *-pandoc_*.tar.gz )
 - travis_retry curl -T "$TRAVIS_BUILD_DIR/$RELEASE_FN" -ulierdakil:$BINTRAY_API_KEY "https://api.bintray.com/content/lierdakil/pandoc-crossref/pandoc-crossref/nightly/build-$(date -u +%FT%T)-$(git symbolic-ref --short HEAD)-$(git rev-parse --short HEAD)-$RELEASE_FN?publish=1"
 deploy:
