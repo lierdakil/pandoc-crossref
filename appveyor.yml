@@ -67,3 +67,13 @@ after_test:
 artifacts:
   - path: '%OSARCH%-pandoc_%PANDOC_VERSION%.zip'
     name: exe
+
+deploy:
+  description: 'Description'
+  provider: GitHub
+  auth_token:
+    secure: mYPFGSbgJZ0H2bp6I9vMWvJdgVNUKplWpiPCV3W4sbUwte0jRK56L/8Rts6trCQ7
+  artifact: /.*/
+  draft: true
+  on:
+    appveyor_repo_tag: true        # deploy on tag push only
