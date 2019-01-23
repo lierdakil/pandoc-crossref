@@ -27,7 +27,7 @@ script:
 - export -f travis_retry
 - "${TRAVIS_OS_NAME}/build.sh"
 - RELEASE_FN=( *-pandoc_*.tar.gz )
-- travis_retry curl -T "$TRAVIS_BUILD_DIR/$RELEASE_FN" -ulierdakil:$BINTRAY_API_KEY "https://api.bintray.com/content/lierdakil/pandoc-crossref/pandoc-crossref/nightly/build-$(date -u +%FT%T)-$(git rev-parse HEAD)-$RELEASE_FN?publish=1"
+- travis_retry curl -T "$TRAVIS_BUILD_DIR/$RELEASE_FN" -ulierdakil:$BINTRAY_API_KEY "https://api.bintray.com/content/lierdakil/pandoc-crossref/pandoc-crossref/nightly/build-$(date -u +%FT%T)-$(git symbolic-ref --short HEAD)-$(git rev-parse --short HEAD)-$RELEASE_FN?publish=1"
 deploy:
   provider: releases
   api_key:
