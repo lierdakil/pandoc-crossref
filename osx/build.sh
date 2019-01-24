@@ -3,7 +3,7 @@
 cabal new-update
 cabal new-build exe:pandoc-crossref $CABAL_OPTS
 find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
-if [ -n "$UPX" ]; then
+if [ -n "$RUN_UPX" ]; then
   upx --ultra-brute --best pandoc-crossref
 fi
 export PANDOC="$(find "$HOME/.cabal" -type f -perm +100 -name pandoc -print)"

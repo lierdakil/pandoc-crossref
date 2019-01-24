@@ -16,7 +16,7 @@ addons:
 env:
   global:
     - secure: "JlX01XMktACOHe7p+aQr60dwTVRu1GHzbx6dFAQpg+LtFq3GuSsJbpprRRjVaXHQzQh4TQLaNuktOuB9u042+SDZl52xwIpn8ViTiNnH1QMCMzzPMrOMhNkE+3Z4BIWWe4PBKdPHdBxwanhOMh1BIxWrq3wy//PEOG9qJqJgLWw="
-    - UPX: yes
+    - RUN_UPX: yes
     - DOCKER_IMAGE_VERSION: latest
 
 services:

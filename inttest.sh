@@ -1,11 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 DIFF="git --no-pager diff --"
 
-: ${PANDOC:=pandoc}
+if [ "x$PANDOC" == "x" ]; then
+  PANDOC="pandoc"
+fi
 
-t=$(tempfile) || exit
-trap "rm -f -- '$t'" EXIT
+t="/tmp/pandoc-crossref-inttest.tmp"
 
 for i in test/m2m/*; do
   $PANDOC -F ./pandoc-crossref "$i/input.md" -t markdown > "$t"
@@ -15,5 +16,3 @@ for i in test/m2m/*; do
 done
 
 rm -f -- "$t"
-trap - EXIT
-exit
