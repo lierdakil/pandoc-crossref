@@ -8,3 +8,5 @@ dist-newstyle
 cabal.sandbox.config
 mkcheck.sh
 mkinttest.sh
+/pandoc-crossref
+/*.tar.gz
