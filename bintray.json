@@ -1,0 +1,15 @@
+{
+    "package": {
+        "name": "pandoc-crossref",
+        "repo": "pandoc-crossref",
+        "subject": "lierdakil"
+    },
+    "version": {
+        "name": "nightly"
+    },
+    "files":
+        [
+        {"includePattern": "upload/(.*)", "uploadPattern": "$1"}
+        ],
+    "publish": true
+}

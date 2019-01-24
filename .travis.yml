@@ -15,7 +15,6 @@ addons:
 
 env:
   global:
-    - secure: "JlX01XMktACOHe7p+aQr60dwTVRu1GHzbx6dFAQpg+LtFq3GuSsJbpprRRjVaXHQzQh4TQLaNuktOuB9u042+SDZl52xwIpn8ViTiNnH1QMCMzzPMrOMhNkE+3Z4BIWWe4PBKdPHdBxwanhOMh1BIxWrq3wy//PEOG9qJqJgLWw="
     - RUN_UPX: yes
     - DOCKER_IMAGE_VERSION: latest
 
@@ -35,15 +34,24 @@ script:
 - kill %1
 # Print built version string
 - ./pandoc-crossref -v
+- mkdir "$TRAVIS_BUILD_DIR/upload"
 - RELEASE_FN=( *-pandoc_*.tar.gz )
-- travis_retry curl -T "$TRAVIS_BUILD_DIR/$RELEASE_FN" -ulierdakil:$BINTRAY_API_KEY "https://api.bintray.com/content/lierdakil/pandoc-crossref/pandoc-crossref/nightly/build-$(date -u +%FT%T)-$TRAVIS_BRANCH-$(git rev-parse --short HEAD)-$RELEASE_FN?publish=1"
+- cp "$TRAVIS_BUILD_DIR/$RELEASE_FN" "$TRAVIS_BUILD_DIR/upload/build-$(date -u +%FT%T)-$TRAVIS_BRANCH-$(git rev-parse --short HEAD)-$RELEASE_FN"
 deploy:
-  provider: releases
-  api_key:
-    secure: HgG0wburBoUnULjqK3I86k9ZNVLks4/WXPicd7rn2z8HbFpFv/QVN6882hYbsWQd3xhe+Q+hTfXMSL2lbZpiEKAB3UgQclJMP84A42DyvS6RE5a+kwl/wVVNXQh4sNlzuApTSzjYZZkYvroyakqsucCRg7u56eN4NM2VvrDUuJw=
-  file: $TRAVIS_BUILD_DIR/*-pandoc_*.tar.gz
-  file_glob: true
-  skip_cleanup: true
-  overwrite: true
-  on:
-    tags: true
+  - provider: releases
+    api_key:
+      secure: HgG0wburBoUnULjqK3I86k9ZNVLks4/WXPicd7rn2z8HbFpFv/QVN6882hYbsWQd3xhe+Q+hTfXMSL2lbZpiEKAB3UgQclJMP84A42DyvS6RE5a+kwl/wVVNXQh4sNlzuApTSzjYZZkYvroyakqsucCRg7u56eN4NM2VvrDUuJw=
+    file: $TRAVIS_BUILD_DIR/*-pandoc_*.tar.gz
+    file_glob: true
+    skip_cleanup: true
+    overwrite: true
+    on:
+      tags: true
+  - provider: bintray
+    file: "bintray.json"
+    user: "lierdakil"
+    key:
+      secure: "bGGfZk2d/IJr7wYrkIkQVJhp+UIA8q6hsn8vmVbLUt3p919mW/bQXDy+tmSBQo3wn/CUsjlWhxNebiR3+PZcWc5NG4jCV/r5sqfVrOupfqMGJ55RN5sbftToSDK5X0mwxhQzU/G4bRF6aZztfN5qWU9lESdUe0UtjJ0n8DW9+uA="
+    skip_cleanup: true
+    on:
+      all_branches: true
