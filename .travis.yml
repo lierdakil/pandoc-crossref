@@ -17,6 +17,8 @@ env:
   global:
     - RUN_UPX: yes
     - DOCKER_IMAGE_VERSION: latest
+    - PANDOC_VERSION: 2.6
+    - CABAL_OPTS="--constraint pandoc==$PANDOC_VERSION.*"
 
 services:
   - docker
