@@ -75,7 +75,7 @@ allCitsPrefix :: Options -> [Citation] -> Maybe String
 allCitsPrefix opts cits = find isCitationPrefix $ prefixList opts
   where
   isCitationPrefix p =
-    all (p `isPrefixOf`) $ map (uncapitalizeFirst . citationId) cits
+    all (p ==) $ map (takeWhile (/=':') . uncapitalizeFirst . citationId) cits
 
 replaceRefsLatex :: String -> Options -> [Citation] -> WS Inlines
 replaceRefsLatex prefix opts cits
