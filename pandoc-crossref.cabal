@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b019c9e3e9e85522e4f62ec3b1985acbc6773ca9d58bc8568ecc2f4c2eb93e9e
+-- hash: e3ea32bb6edb5ccd9e7c0db0bab27822c16dc6f9f31ea5601642db3bbbfb7609
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -55,6 +55,9 @@ data-files:
     test/m2m/regresssion-219/expect.md
     test/m2m/regresssion-219/expect.tex
     test/m2m/regresssion-219/input.md
+    test/m2m/scoping/expect.md
+    test/m2m/scoping/expect.tex
+    test/m2m/scoping/input.md
     test/m2m/section-template/expect.md
     test/m2m/section-template/expect.tex
     test/m2m/section-template/input.md
@@ -85,6 +88,7 @@ library
       Text.Pandoc.CrossRef.References.Blocks
       Text.Pandoc.CrossRef.References.List
       Text.Pandoc.CrossRef.References.Refs
+      Text.Pandoc.CrossRef.References.Subfigures
       Text.Pandoc.CrossRef.References.Types
       Text.Pandoc.CrossRef.Util.CodeBlockCaptions
       Text.Pandoc.CrossRef.Util.CustomLabels
@@ -197,6 +201,7 @@ test-suite test-pandoc-crossref
       Text.Pandoc.CrossRef.References.Blocks
       Text.Pandoc.CrossRef.References.List
       Text.Pandoc.CrossRef.References.Refs
+      Text.Pandoc.CrossRef.References.Subfigures
       Text.Pandoc.CrossRef.References.Types
       Text.Pandoc.CrossRef.Util.CodeBlockCaptions
       Text.Pandoc.CrossRef.Util.CustomLabels
