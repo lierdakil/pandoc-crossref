@@ -35,6 +35,7 @@ data RefRec = RefRec { refIndex :: !Int -- global ordinal number for prefix
                      , refLabel :: !String -- label, i.e. pfx:label string
                      , refPfx   :: !String -- reference prefix, the part in label before :
                      , refCaption :: Inlines -- caption after applying template; must be non-strict
+                     , refAttrs :: !(M.Map String [String]) -- attribute map
                      } deriving (Show, Eq, Ord)
 
 type RefMap = M.Map String RefRec

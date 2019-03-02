@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cdd762fd29fa9e48896393d0ca4b3b90a1c029bf28453ec58af6c605090268b1
+-- hash: d30ab549b7a62592a79d5bc6680d6f0311e963e00a2a1c124193ea104c66bb9a
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -58,6 +58,9 @@ data-files:
     test/m2m/listing-captions-ids/expect.md
     test/m2m/listing-captions-ids/expect.tex
     test/m2m/listing-captions-ids/input.md
+    test/m2m/ref-attrs/expect.md
+    test/m2m/ref-attrs/expect.tex
+    test/m2m/ref-attrs/input.md
     test/m2m/regresssion-219/expect.md
     test/m2m/regresssion-219/expect.tex
     test/m2m/regresssion-219/input.md

@@ -22,21 +22,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.Util.VarFunction where
 
+import Text.Pandoc.Definition
 import qualified Text.Pandoc.Builder as B
 
 import Data.List
+import qualified Data.Map as M
 import Text.Pandoc.CrossRef.References.Types as Types
 
-defaultVarFunc :: (RefRec -> String -> Maybe B.Inlines)
-               -> RefRec -> String -> Maybe B.Inlines
+defaultVarFunc :: (RefRec -> String -> Maybe MetaValue)
+               -> RefRec -> String -> Maybe MetaValue
 defaultVarFunc self RefRec{..} x = case x of
-   "idx" -> Just $ B.str $ show refIndex
-   "i" -> Just refIxInl
-   "t" -> Just refTitle
-   "lvl" -> Just $ B.str $ show refLevel
-   "lbl" -> Just $ B.str refLabel
-   "pfx" -> Just $ B.str refPfx
+   "idx" -> Just $ MetaString $ show refIndex
+   "i" -> Just $ MetaInlines $ B.toList refIxInl
+   "t" -> Just $ MetaInlines $ B.toList refTitle
+   "lvl" -> Just $ MetaString $ show refLevel
+   "lbl" -> Just $ MetaString refLabel
+   "pfx" -> Just $ MetaString refPfx
    _ | Just y <- stripPrefix "s." x
      , Just rs <- refScope
      -> self rs y
-   _ -> Nothing
+   _ -> case M.lookup x refAttrs of
+          Just [s] -> Just $ MetaString s
+          Just ss -> Just $ MetaList $ map MetaString ss
+          _ -> Nothing

@@ -83,4 +83,4 @@ getRefLabel opts ils
 getRefLabel _ _ = Nothing
 
 getTitleForListOf :: Options -> String -> Blocks
-getTitleForListOf opts = applyBlockTemplate (const Nothing) . prefixListOfTitle . getPfx opts
+getTitleForListOf opts = flip applyBlockTemplate (const Nothing) . prefixListOfTitle . getPfx opts

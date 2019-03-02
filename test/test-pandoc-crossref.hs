@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, CPP #-}
+{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, TypeSynonymInstances, FlexibleInstances #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder
@@ -44,6 +44,7 @@ import qualified Text.Pandoc.CrossRef.Util.CodeBlockCaptions as Util.CodeBlockCa
 import qualified Native
 import Paths_pandoc_crossref
 
+import Data.String
 import Prelude
 
 main :: IO ()
@@ -52,7 +53,7 @@ main = hspec $ do
       it "Labels equations" $
         testAll (plain $ equation' "a^2+b^2=c^2" "equation")
         (plain $ spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the middle of text" $
@@ -64,7 +65,7 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the beginning of text" $
@@ -74,7 +75,7 @@ main = hspec $ do
         (plain $
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the end of text" $
@@ -84,7 +85,7 @@ main = hspec $ do
         (plain $
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
 
@@ -167,7 +168,7 @@ main = hspec $ do
       it "Labels equations" $
         testAll (equation "a^2+b^2=c^2" "equation")
         (para $ spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the middle of text" $
@@ -179,7 +180,7 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the beginning of text" $
@@ -189,7 +190,7 @@ main = hspec $ do
         (para $
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the end of text" $
@@ -199,7 +200,7 @@ main = hspec $ do
         (para $
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          (referenceData =: M.fromList $ refRec'' "eq:equation" 1) .
+          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels tables" $
@@ -295,10 +296,10 @@ main = hspec $ do
         let template=Util.Template.makeTemplate
               (defaultMeta <> Settings (Meta (M.singleton "figureTitle" (toMetaValue $ text "Figure"))))
               (displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
-            vf "i" = Just $ text "1"
-            vf "t" = Just $ text "title"
+            vf "i" = Just $ MetaInlines $ toList $ text "1"
+            vf "t" = Just $ MetaInlines $ toList $ text "title"
             vf _ = Nothing
-        in Util.Template.applyTemplate vf template `shouldBe`
+        in Util.Template.applyTemplate template vf `shouldBe`
            (str "Figure" <> str "1" <> str "title")
 
     describe "Citation groups shouldn't be separated (#22 regression test)" $ do
@@ -379,19 +380,16 @@ citeGen p l = cite (mconcat $ map (cit . (p++) . show) l) $ text $
   "[" ++ intercalate "; " (map (("@"++) . (p++) . show) l) ++ "]"
 
 refGen :: String -> [Int] -> [Int] -> M.Map String RefRec
-refGen p l1 l2 = M.fromList $ mconcat $ zipWith refRec'' (((uncapitalizeFirst p++) . show) `map` l1) l2
+refGen p l1 l2 = M.fromList $ mconcat $ zipWith (\r i -> refRec' r i mempty mempty) (((uncapitalizeFirst p++) . show) `map` l1) l2
 
 refGen' :: String -> [Int] -> [(Int, Int)] -> M.Map String RefRec
 refGen' p l1 l2 = M.fromList $ mconcat $ zipWith refRec''' (((uncapitalizeFirst p++) . show) `map` l1) l2
 
-refRec' :: String -> Int -> String -> String -> [(String, RefRec)]
-refRec' ref i tit cap = [(ref, RefRec{refIndex=i, refIxInl = str $ show i, refCaption= text cap,refTitle=text tit,refScope=Nothing, refLevel=0, refPfx=takeWhile (/=':') ref, refLabel=ref})]
-
-refRec'' :: String -> Int -> [(String, RefRec)]
-refRec'' ref i = refRec' ref i [] (show i)
+refRec' :: String -> Int -> Inlines -> String -> [(String, RefRec)]
+refRec' ref i tit cap = [(ref, RefRec{refIndex=i, refIxInl = str $ show i, refCaption= text cap,refTitle=tit,refScope=Nothing, refLevel=0, refPfx=takeWhile (/=':') ref, refLabel=ref, refAttrs = M.empty})]
 
 refRec''' :: String -> (Int, Int) -> [(String, RefRec)]
-refRec''' ref (c,i) = [(ref, RefRec{refIndex=c+i,refIxInl = str $ show i, refCaption=str $ show i,refTitle=text [],refScope=Nothing, refLevel=0, refPfx=takeWhile (/=':') ref, refLabel=ref})]
+refRec''' ref (c,i) = [(ref, RefRec{refIndex=c+i,refIxInl = str $ show i, refCaption=str $ show i,refTitle=text [],refScope=Nothing, refLevel=0, refPfx=takeWhile (/=':') ref, refLabel=ref, refAttrs = M.empty})]
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen p l1 l2) def) (para $ text res)

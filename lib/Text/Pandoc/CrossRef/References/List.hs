@@ -70,4 +70,4 @@ makeList opts titlef xs refs
 
 applyListItemTemplate :: Options -> RefRec -> Inlines
 applyListItemTemplate opts rr@RefRec{refPfx} =
-  applyTemplate (fix defaultVarFunc rr) $ pfxListItemTemplate opts refPfx
+  applyTemplate (pfxListItemTemplate opts refPfx) (fix defaultVarFunc rr)

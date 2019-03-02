@@ -78,8 +78,8 @@ getRefPrefix :: Options -> Bool -> Int -> RefRec -> Inlines -> Inlines
 getRefPrefix opts capitalize num rr@RefRec{..} cit =
   applyRefTemplate reftempl vf capitalize
   where Prefix{prefixReferenceTemplate=reftempl} = fromMaybe undefined $ M.lookup refPfx $ prefixes opts
-        vf "rs" = Just cit
-        vf "n" = Just $ str $ show num
+        vf "rs" = Just $ MetaInlines $ toList cit
+        vf "n" = Just $ MetaString $ show num
         vf x = fix defaultVarFunc rr x
 
 replaceRefsLatex :: String -> Options -> [RefData] -> WS Inlines
@@ -237,15 +237,15 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
     error ("Undefined cross-reference: " <> rdiLabel
         <> ". This should not be possible, please report a bug")
 
-applyIndexTemplate :: Options -> Many Inline -> RefRec -> Inlines
+applyIndexTemplate :: Options -> Inlines -> RefRec -> Inlines
 applyIndexTemplate opts suf rr =
   let varsSc rr' "ref" = Just $ inlines False rr'
       varsSc rr' "Ref" = Just $ inlines True rr'
       varsSc rr' x = defaultVarFunc varsSc rr' x
-      vars _ "suf" = Just suf
+      vars _ "suf" = Just $ MetaInlines $ toList suf
       vars rr' x = defaultVarFunc varsSc rr' x
       template = prefixReferenceIndexTemplate pfxRec
       pfxRec = getPfx opts (refPfx rr)
-      inlines cap ref =
+      inlines cap ref = MetaInlines $ toList $
         getRefPrefix opts cap 0 ref $ applyIndexTemplate opts mempty ref
-  in applyTemplate (vars rr) template
+  in applyTemplate template (vars rr)

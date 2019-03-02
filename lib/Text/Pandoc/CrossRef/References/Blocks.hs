@@ -41,6 +41,7 @@ import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.VarFunction
 import Control.Applicative
+import Control.Arrow (second)
 import Data.Default (def)
 import Prelude
 
@@ -71,8 +72,8 @@ replaceElement opts scope (Sec n ns (label, cls, attrs) text' body) = do
         ititle = B.fromList text'
         defaultSecPfx = "sec"
     rec' <- case pfx' of
-      Just p -> replaceAttr opts scope (Right label) (lookup "label" attrs) ititle p
-      Nothing -> replaceAttr opts scope (Left defaultSecPfx) (lookup "label" attrs) ititle defaultSecPfx
+      Just p -> replaceAttr opts scope (Right label) attrs ititle p
+      Nothing -> replaceAttr opts scope (Left defaultSecPfx) attrs ititle defaultSecPfx
     let title' = B.toList $
           case outFormat opts of
               f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
@@ -86,7 +87,7 @@ replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths he
   , Just pfx <- getRefPrefix opts label
   = do
     let ititle = B.fromList title
-    idxStr <- replaceAttr opts scope (Right label) (lookup "label" attrs) ititle pfx
+    idxStr <- replaceAttr opts scope (Right label) attrs ititle pfx
     let title' = B.toList $
           case outFormat opts of
               f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
@@ -97,7 +98,7 @@ replaceBlock opts scope (Div (label,"listing":_, []) [Para caption, CodeBlock ([
   , Just pfx <- getRefPrefix opts label
   = do
       let icaption = B.fromList caption
-      idxStr <- replaceAttr opts scope (Right label) (lookup "label" attrs) icaption pfx
+      idxStr <- replaceAttr opts scope (Right label) attrs icaption pfx
       let caption' = applyTitleTemplate opts idxStr
       replaceNoRecurse $ case outFormat opts of
         f --if used with listings package, return code block with caption
@@ -128,7 +129,7 @@ replaceBlock opts scope (Para [Span attrs@(label, _, _) [Math DisplayMath eq]])
 replaceBlock opts scope x@(Div (label, _, attrs) _content)
   | Just pfx <- getRefPrefix opts label
   = do
-    rec' <- replaceAttr opts scope (Right label) (lookup "label" attrs) mempty pfx
+    rec' <- replaceAttr opts scope (Right label) attrs mempty pfx
     replaceRecurse (newScope rec' scope) x
 replaceBlock _ scope _ = noReplaceRecurse scope
 
@@ -136,7 +137,7 @@ replaceEqn :: Options -> Scope -> Attr -> String -> Maybe String -> WS (String, 
 replaceEqn opts scope (label, _, attrs) eq pfx = do
   let label' | null label = Left "eq"
              | otherwise = Right label
-  idxStr <- replaceAttr opts scope label' (lookup "label" attrs) (B.math eq) (fromMaybe "eq" pfx)
+  idxStr <- replaceAttr opts scope label' attrs (B.math eq) (fromMaybe "eq" pfx)
   let eq' | tableEqns opts = eq
           | otherwise = eq++"\\qquad("++stringify (refIxInl idxStr)++")"
   return (eq', stringify (refIxInl idxStr))
@@ -157,7 +158,7 @@ replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
   , "fig:" `isPrefixOf` tit
   = do
     let ialt = B.fromList alt
-    idxStr <- replaceAttr opts scope (Right label) (lookup "label" attrs) ialt pfx
+    idxStr <- replaceAttr opts scope (Right label) attrs ialt pfx
     let alt' = B.toList $ case outFormat opts of
           f | isLatexFormat f -> ialt
           _  -> applyTitleTemplate opts idxStr
@@ -165,19 +166,19 @@ replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
 replaceInline opts scope x@(Span (label,_,attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
-      rec' <- replaceAttr opts scope (Right label) (lookup "label" attrs) (B.fromList content) pfx
+      rec' <- replaceAttr opts scope (Right label) attrs (B.fromList content) pfx
       replaceRecurse (newScope rec' scope) x
 replaceInline _ scope _ = noReplaceRecurse scope
 
 applyTitleTemplate :: Options -> RefRec -> B.Inlines
 applyTitleTemplate opts rr@RefRec{refPfx} =
-  applyTemplate (fix defaultVarFunc rr) $ pfxCaptionTemplate opts refPfx
+  applyTemplate (pfxCaptionTemplate opts refPfx) (fix defaultVarFunc rr)
 
 applyTitleIndexTemplate :: Options -> RefRec -> B.Inlines -> B.Inlines
 applyTitleIndexTemplate opts rr@RefRec{..} label =
-  applyTemplate vf $ pfxCaptionIndexTemplate opts refPfx
+  applyTemplate (pfxCaptionIndexTemplate opts refPfx) vf
   where
-  vf "i" = Just label
+  vf "i" = Just $ MetaInlines $ B.toList label
   vf x = fix defaultVarFunc rr x
 
 divBlocks :: Options -> Block -> Block
@@ -214,11 +215,12 @@ spanInlines opts (math@(Math DisplayMath _eq):ils)
   = Span nullAttr [math]:ils
 spanInlines _ x = x
 
-replaceAttr :: Options -> Scope -> Either String String -> Maybe String -> B.Inlines -> String -> WS RefRec
-replaceAttr o scope label refLabel' title pfx
+replaceAttr :: Options -> Scope -> Either String String -> [(String, String)] -> B.Inlines -> String -> WS RefRec
+replaceAttr o scope label attrs title pfx
   = do
     let ropt = getPfx o pfx
         itemScope = find ((`elem` prefixScope ropt) . refPfx) scope
+        refLabel' = lookup "label" attrs
     cr <- (\CounterRec{..} -> CounterRec{
             crIndex = crIndex+1
           , crIndexInScope = M.insertWith (+) itemScope 1 crIndexInScope
@@ -240,6 +242,7 @@ replaceAttr o scope label refLabel' title pfx
       , refLevel = lvl
       , refPfx = pfx
       , refCaption = applyTitleTemplate o rec'
+      , refAttrs = M.fromListWith (flip (++)) $ map (second return) attrs
       }
     modify referenceData $ M.insert label' rec'
     return rec'

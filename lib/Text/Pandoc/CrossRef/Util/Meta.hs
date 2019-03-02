@@ -41,6 +41,7 @@ import Data.Default
 import Text.Pandoc.Walk
 import Text.Pandoc.Shared hiding (capitalize, toString)
 import Data.Maybe
+import qualified Data.Map as M
 
 getMetaList :: (Default a) => (MetaValue -> a) -> String -> Settings -> Int -> a
 getMetaList f name (Settings meta) i = maybe def f $ lookupMeta name meta >>= getList i
@@ -127,10 +128,18 @@ getList i (MetaList l) = l !!? i
                    | otherwise = Nothing
 getList _ x = Just x
 
-capitalize :: (Walkable Inline a) => (String -> Maybe a) -> String -> Maybe a
+capitalize :: (String -> Maybe MetaValue) -> String -> Maybe MetaValue
 capitalize f varname = case f (capitalizeFirst varname) of
-  Nothing -> walk capStrFst <$> f varname
+  Nothing -> case f varname of
+    Nothing -> Nothing
+    Just x -> Just $ cap x
   Just xs -> Just xs
   where
+  cap (MetaString s)  = MetaString $ capitalizeFirst s
+  cap (MetaInlines i) = MetaInlines $ walk capStrFst i
+  cap (MetaBlocks b)  = MetaBlocks $ walk capStrFst b
+  cap (MetaMap m)     = MetaMap $ M.map cap m
+  cap (MetaList l)    = MetaList $ map cap l
+  cap x               = x
   capStrFst (Str s) = Str $ capitalizeFirst s
   capStrFst x = x

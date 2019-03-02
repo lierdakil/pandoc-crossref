@@ -44,9 +44,9 @@ import Control.Monad ((<=<))
 import Data.Data (Data)
 
 type VarFunc = String -> Maybe MetaValue
-newtype Template = Template (VarFunc -> Inlines)
-newtype RefTemplate = RefTemplate (VarFunc -> Bool -> Inlines)
-newtype BlockTemplate = BlockTemplate (VarFunc -> Blocks)
+newtype Template = Template { applyTemplate :: VarFunc -> Inlines }
+newtype RefTemplate = RefTemplate { applyRefTemplate :: VarFunc -> Bool -> Inlines }
+newtype BlockTemplate = BlockTemplate { applyBlockTemplate :: VarFunc -> Blocks }
 
 data State = StFirstVar | StIndex | StAfterIndex | StPrefix | StSuffix deriving Eq
 data ParseRes = ParseRes { prVar :: String, prIdx :: [String], prPfx :: String, prSfx :: String } deriving Show
@@ -99,18 +99,11 @@ scan = bottomUp . go
 makeRefTemplate :: Settings -> Inlines -> RefTemplate
 makeRefTemplate dtv xs' =
   let Template g = makeTemplate dtv xs'
-      vf cap (vc:vs)
-        | isUpper vc && cap = capitalize (`lookupSettings` dtv) var
-        | otherwise = lookupSettings var dtv
-        where var = toLower vc : vs
-      vf _ [] = error "Empty variable name"
-  in RefTemplate $ \vars cap -> g (\v -> vars v <|> vf cap v)
-
-applyRefTemplate :: RefTemplate -> (String -> Maybe Inlines) -> Bool -> Inlines
-applyRefTemplate (RefTemplate g) vars = g (fmap (MetaInlines . toList) . vars)
-
-applyTemplate :: (String -> Maybe Inlines) -> Template -> Inlines
-applyTemplate vars (Template g) = g $ fmap (MetaInlines . toList) . vars
-
-applyBlockTemplate :: VarFunc -> BlockTemplate -> Blocks
-applyBlockTemplate vars (BlockTemplate g) = g vars
+      vf vars cap (vc:vs)
+        | isUpper vc && cap = capitalize lookup' var
+        | otherwise = lookup' var
+        where
+          var = toLower vc : vs
+          lookup' x = vars x <|> lookupSettings x dtv
+      vf _ _ [] = error "Empty variable name"
+  in RefTemplate $ \vars cap -> g (vf vars cap)
