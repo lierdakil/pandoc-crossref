@@ -51,6 +51,7 @@ getPrefixes varN dtv
       , prefixReferenceTemplate = makeRefTemplate kv $ getTemplDefault "referenceTemplate"
       , prefixReferenceIndexTemplate = makeTemplate kv $ getTemplDefault "referenceIndexTemplate"
       , prefixCaptionIndexTemplate = makeTemplate kv $ getTemplDefault "captionIndexTemplate"
+      , prefixListItemTemplate = makeTemplate kv $ getTemplDefault "listItemTemplate"
       , prefixScope = getMetaStringList "scope" kv
       , prefixNumbering = \lvl ->
           let prettyVarName = varN <> "." <> k <> "." <> varName
@@ -80,6 +81,7 @@ data Prefix = Prefix {
   , prefixListOfTitle :: !BlockTemplate
   , prefixReferenceIndexTemplate :: !Template
   , prefixCaptionIndexTemplate :: !Template
+  , prefixListItemTemplate :: !Template
   -- Used for LaTeX metadata; the same value is used in
   -- default value for prefixCaptionTemplate
   , prefixTitle :: Inlines

@@ -18,22 +18,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Text.Pandoc.CrossRef.References.List (listOf) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Data.Accessor.Monad.Trans.State
-import Control.Arrow
 import Data.List
+import Data.Function
 import qualified Data.Map as M
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.VarFunction
 
 listOf :: Options -> [Block] -> WS [Block]
-listOf opts (RawBlock (Format "latex") cmd:xs)
-  | Just pfxBrace <- "\\listof{" `stripPrefix` cmd
+listOf opts (RawBlock fmt cmd:xs)
+  | isLaTeXRawBlockFmt fmt
+  , Just pfxBrace <- "\\listof{" `stripPrefix` cmd
   , (pfx, "}") <- span (/='}') pfxBrace
   = getPfxData pfx >>= fmap toList . makeList opts pfx (fromList xs)
 listOf Options{outFormat=f} x | isLatexFormat f = return x
@@ -58,8 +63,11 @@ makeList opts titlef xs refs
       <> divWith ("", ["list"], []) (mconcat $ map itemChap refsSorted)
       <> xs
   where
-    refsSorted :: [(String, RefRec)]
-    refsSorted = sortBy compare' $ M.toList refs
-    compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j
-    itemChap :: (String, RefRec) -> Blocks
-    itemChap = para . uncurry (\ x x0 -> x <> space <> x0) . (refIxInl &&& refTitle) . snd
+    refsSorted :: [RefRec]
+    refsSorted = sortBy (compare `on` refIndex) $ M.elems refs
+    itemChap :: RefRec -> Blocks
+    itemChap = para . applyListItemTemplate opts
+
+applyListItemTemplate :: Options -> RefRec -> Inlines
+applyListItemTemplate opts rr@RefRec{refPfx} =
+  applyTemplate (fix defaultVarFunc rr) $ pfxListItemTemplate opts refPfx

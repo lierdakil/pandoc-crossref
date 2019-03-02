@@ -52,6 +52,9 @@ prefixList = M.keys . prefixes
 pfxCaptionTemplate :: Options -> String -> Template
 pfxCaptionTemplate opts pfx = prefixCaptionTemplate $ getPfx opts pfx
 
+pfxListItemTemplate :: Options -> String -> Template
+pfxListItemTemplate opts pfx = prefixListItemTemplate $ getPfx opts pfx
+
 pfxCaptionIndexTemplate :: Options -> String -> Template
 pfxCaptionIndexTemplate opts pfx = prefixCaptionIndexTemplate $ getPfx opts pfx
 

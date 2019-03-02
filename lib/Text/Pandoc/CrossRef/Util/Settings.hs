@@ -64,7 +64,8 @@ defaultMeta = Settings $
   <> codeBlockCaptions False
   <> autoSectionLabels False
   -- <> numberSections False
-  <> titleDelim (str ":")
+  <> titleDelim (str ":" <> space)
+  <> listItemNumberDelim (str "." <> space)
   <> rangeDelim (str "-")
   <> pairDelim (str "," <> space)
   <> lastDelim (str "," <> space)
@@ -82,12 +83,13 @@ defaultMeta = Settings $
     , "section" .= "sec"
   ]
   -- these are merely the defaults, can (and will) be overridden in prefix configs
-  <> captionTemplate (var "title" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
+  <> captionTemplate (var "title" <> space <> var "i" <> var "titleDelim" <> var "t")
   <> captionIndexTemplate (var "i")
   <> referenceTemplate (var "Ref[n][lvl]" <> str "\160" <> var "rs")
   <> referenceIndexTemplate (var "i" <> var "suf")
   <> numbering "arabic"
-  <> listOfTitle (header 1 $ text "List of $$title$$s")
+  <> listOfTitle (header 1 $ text "List of " <> var "title" <> str "s")
+  <> listItemTemplate (var "i" <> var "listItemNumberDelim" <> var "t")
   <> prefixes' [
       "eq" .: [
         "ref" .= map str ["eq.", "eqns."],

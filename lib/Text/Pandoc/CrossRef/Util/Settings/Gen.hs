@@ -33,10 +33,12 @@ nameDeriveSetters ''Options
 fmap concat $ mapM (makeAcc . mkName)
   [ "crossrefYaml"
   , "titleDelim"
+  , "listItemNumberDelim"
   , "captionTemplate"
   , "referenceTemplate"
   , "referenceIndexTemplate"
   , "captionIndexTemplate"
+  , "listItemTemplate"
   , "numbering"
   , "listOfTitle"
   ]
