@@ -223,7 +223,7 @@ main = hspec $ do
       it "Labels sections divs" $
         testAll (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
-          (referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header" ""))
+          referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header" "")
           )
 
     describe "References.Refs.replaceRefs" $ do

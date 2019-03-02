@@ -77,7 +77,7 @@ makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> loo
           let
             idxs :: Maybe [Int]
             idxs = mapM (readMaybe . toString ("index variables " ++ show idxVars) <=< vf) idxVars
-            arr = foldr (\i a -> getList i =<< a) (vf prVar) . reverse =<< idxs           
+            arr = foldr (\i a -> getList i =<< a) (vf prVar) . reverse =<< idxs
           in toList $ replaceVar arr <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
@@ -93,7 +93,7 @@ makeRefTemplate dtv xs' =
   in RefTemplate $ \vars cap -> g (\v -> vars v <|> vf cap v)
 
 applyRefTemplate :: RefTemplate -> (String -> Maybe Inlines) -> Bool -> Inlines
-applyRefTemplate (RefTemplate g) vars cap = g (fmap (MetaInlines . toList) . vars) cap
+applyRefTemplate (RefTemplate g) vars = g (fmap (MetaInlines . toList) . vars)
 
 applyTemplate :: (String -> Maybe Inlines) -> Template -> Inlines
 applyTemplate vars (Template g) = g $ fmap (MetaInlines . toList) . vars
