@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RecordWildCards, NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards, NamedFieldPuns, FlexibleInstances #-}
 
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
@@ -30,6 +30,8 @@ import qualified Data.List.HT as HT
 import Data.Maybe
 import Data.Function
 import qualified Data.Map as M
+import qualified Data.List.NonEmpty as NE
+import Data.List.NonEmpty (NonEmpty(..))
 import Control.Arrow as A
 
 import Data.Accessor.Monad.Trans.State
@@ -40,29 +42,38 @@ import Text.Pandoc.CrossRef.Util.Options hiding (getRefPrefix)
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.VarFunction
 import Control.Applicative
+import Data.Either
 import Debug.Trace
 import Prelude
+
+groupEither :: [Either a b] -> [Either [a] [b]]
+groupEither [] = []
+groupEither (Left x:xs)
+  = Left (x:lefts ys) : groupEither zs
+  where (ys,zs) = span isLeft xs
+groupEither (Right x:xs)
+  = Right (x:rights ys) : groupEither zs
+  where (ys,zs) = span isRight xs
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
 replaceRefs opts ils
   | Cite cits _:xs <- ils
   = do
-    refData <- mapM getRefData cits
-    toList . (<> fromList xs) . intercalate' (text ", ") <$> mapM replaceRefs' (groupBy eqPred refData)
+    citRefData <- groupEither <$> mapM getRefData cits
+    toList . (<> fromList xs) . intrclt <$> mapM replaceRefs' citRefData
   where
-    eqPred :: RefData -> RefData -> Bool
+    eqPred :: RefDataComplete -> RefDataComplete -> Bool
     eqPred = (==) `on` liftM2 (,) rdScope rdPrefix
-    replaceRefs' refs
-      | ref@RefDataComplete{} : _ <- refs
-      = replaceRefs'' (fromJust $ rdPrefix ref) opts refs
-      | otherwise = return $ cite cits' il'
+    intrclt = intercalate' (text ", ")
+    replaceRefs' (Left xs) = restoreCits' xs
+    replaceRefs' (Right xs) = intrclt <$> mapM replaceRefs'' (NE.groupBy eqPred xs)
+    restoreCits' refs = return $ cite cits' il'
         where
-          cits' = mapMaybe getCit refs
+          cits' = map getCit refs
           getCit RefDataIncomplete{rdCitation, rdiLabel}
             | takeWhile (/=':') rdiLabel `elem` M.keys (prefixes opts)
-            = trace ("Undefined cross-reference: " ++ rdiLabel) $ Just rdCitation
-            | otherwise = Just rdCitation
-          getCit RefDataComplete{} = error "Converting RefDataComplete back to Citation. This should not happen, please report a bug"
+            = trace ("Undefined cross-reference: " ++ rdiLabel) rdCitation
+            | otherwise = rdCitation
           il' = str "["
              <> intercalate' (text "; ") (map citationToInlines cits')
              <> str "]"
@@ -70,8 +81,8 @@ replaceRefs opts ils
             fromList (citationPrefix c) <> text ("@" ++ citationId c)
               <> fromList (citationSuffix c)
     replaceRefs''
-      | isLatexFormat (outFormat opts) = replaceRefsLatex
-      | otherwise = replaceRefsOther
+      | isLatexFormat (outFormat opts) = replaceRefsLatex opts
+      | otherwise = replaceRefsOther opts
 replaceRefs _ x = return x
 
 getRefPrefix :: Options -> Bool -> Int -> RefRec -> Inlines -> Inlines
@@ -82,99 +93,77 @@ getRefPrefix opts capitalize num rr@RefRec{..} cit =
         vf "n" = Just $ MetaString $ show num
         vf x = fix defaultVarFunc rr x
 
-replaceRefsLatex :: String -> Options -> [RefData] -> WS Inlines
-replaceRefsLatex prefix opts cits
+replaceRefsLatex :: Options -> NonEmpty RefDataComplete -> WS Inlines
+replaceRefsLatex opts cits
   | cref opts
-  = replaceRefsLatex' prefix opts cits
+  = return . rawInline "tex" $ cref'++"{"++listLabels "" "," "" cits++"}"
   | otherwise
   = intercalate' (text ", ") <$>
-      mapM (replaceRefsLatex' prefix opts) (groupBy citationGroupPred cits)
-
-replaceRefsLatex' :: String -> Options -> [RefData] -> WS Inlines
-replaceRefsLatex' prefix opts cits =
-  return $ p texcit
+      mapM (replaceRefsLatex' opts) (NE.groupBy citationGroupPred cits)
   where
-    texcit = rawInline "tex" $
-      if cref opts then
-        cref'++"{"++listLabels prefix "" "," "" cits++"}"
-        else
-          listLabels prefix "\\ref{" ", " "}" cits
-    RefDataComplete{..} = head cits
-    p | cref opts = id
-      | rdSuppressPrefix
-      = id
-      | isNothing rdCitPrefix
-      = getRefPrefix opts cap (length cits - 1) rdRec
-      | otherwise = ((fromJust rdCitPrefix <> space) <>)
-    cap = maybe False isFirstUpper $ getLabelPrefix opts . rdLabel . head $ cits
+    RefDataComplete{rdSuppressPrefix, rdUpperCase} = NE.head cits
     cref' | rdSuppressPrefix = "\\labelcref"
-          | cap = "\\Cref"
+          | rdUpperCase = "\\Cref"
           | otherwise = "\\cref"
 
-listLabels :: String -> String -> String -> String -> [RefData] -> String
-listLabels _prefix p sep s =
-  intercalate sep . map ((p ++) . (++ s) . mkLaTeXLabel' . rdLabel)
+replaceRefsLatex' :: Options -> NonEmpty RefDataComplete -> WS Inlines
+replaceRefsLatex' opts cits
+  = return . writePrefix opts cits . rawInline "tex"
+  $ listLabels "\\ref{" ", " "}" cits
 
-getLabelPrefix :: Options -> String -> Maybe String
-getLabelPrefix opts lab
-  | uncapitalizeFirst p `elem` prefixList opts = Just p
-  | otherwise = Nothing
-  where p = takeWhile (/=':') lab
+listLabels :: String -> String -> String -> NonEmpty RefDataComplete -> String
+listLabels p sep s = intercalate sep . NE.toList . NE.map ((p ++) . (++ s) . mkLaTeXLabel' . rdLabel)
 
-replaceRefsOther :: String -> Options -> [RefData] -> WS Inlines
-replaceRefsOther prefix opts cits = intercalate' (text ", ") <$>
-    mapM (replaceRefsOther' prefix opts) (groupBy citationGroupPred cits)
+replaceRefsOther :: Options -> NonEmpty RefDataComplete -> WS Inlines
+replaceRefsOther opts cits = intercalate' (text ", ") <$>
+    mapM (replaceRefsOther' opts) (NE.groupBy citationGroupPred cits)
 
-citationGroupPred :: RefData -> RefData -> Bool
+citationGroupPred :: RefDataComplete -> RefDataComplete -> Bool
 citationGroupPred = (==) `on` liftM2 (,) rdCitPrefix rdSuppressPrefix
 
-replaceRefsOther' :: String -> Options -> [RefData] -> WS Inlines
-replaceRefsOther' _prefix opts indices = do
+replaceRefsOther' :: Options -> NonEmpty RefDataComplete -> WS Inlines
+replaceRefsOther' opts indices = do
   let
-    RefDataComplete{..} = head indices
-    cap = rdUpperCase
-    writePrefix | rdSuppressPrefix
-                = id
-                | isNothing rdCitPrefix
-                = cmap $ getRefPrefix opts cap (length indices - 1) rdRec
-                | otherwise
-                = cmap ((fromJust rdCitPrefix <> space) <>)
     cmap f x
       | nameInLink opts
       , [Link attr t (y, z)] <- toList x = linkWith attr y z (f $ fromList t)
     cmap f x = f x
-  return $ writePrefix (makeIndices opts indices)
+  return $ cmap (writePrefix opts indices) (makeIndices opts indices)
 
-data RefData = RefDataIncomplete
-             { rdiLabel :: String
-             , rdSuffix :: Inlines
-             , rdCitation :: Citation
-             }
-             | RefDataComplete
-             { rdRec :: RefRec
-             , rdSuffix :: Inlines
-             , rdCitPrefix :: Maybe Inlines
-             , rdUpperCase :: Bool
-             , rdSuppressPrefix :: Bool
-             } deriving (Eq, Show)
+writePrefix :: Options -> NonEmpty RefDataComplete -> Inlines -> Inlines
+writePrefix opts (RefDataComplete{..}:|rds)
+  | rdSuppressPrefix = id
+  | isNothing rdCitPrefix = getRefPrefix opts rdUpperCase (length rds) rdRec
+  | otherwise = ((fromJust rdCitPrefix <> space) <>)
 
-rdIdx :: RefData -> Maybe Int
-rdIdx RefDataIncomplete{} = Nothing
-rdIdx RefDataComplete{rdRec} = Just $ refIndex rdRec
+data RefDataIncomplete = RefDataIncomplete
+                       { rdiLabel :: String
+                       , rdiSuffix :: Inlines
+                       , rdCitation :: Citation
+                       }
+data RefDataComplete = RefDataComplete
+                     { rdRec :: RefRec
+                     , rdcSuffix :: Inlines
+                     , rdCitPrefix :: Maybe Inlines
+                     , rdUpperCase :: Bool
+                     , rdSuppressPrefix :: Bool
+                     } deriving (Eq, Show)
 
-rdScope :: RefData -> Maybe RefRec
-rdScope RefDataIncomplete{} = Nothing
+type RefData = Either RefDataIncomplete RefDataComplete
+
+rdIdx :: RefDataComplete -> Int
+rdIdx RefDataComplete{rdRec} = refIndex rdRec
+
+rdScope :: RefDataComplete -> Maybe RefRec
 rdScope RefDataComplete{rdRec} = refScope rdRec
 
-rdPrefix :: RefData -> Maybe String
-rdPrefix RefDataIncomplete{} = Nothing
-rdPrefix RefDataComplete{rdRec} = Just $ refPfx rdRec
+rdPrefix :: RefDataComplete -> String
+rdPrefix RefDataComplete{rdRec} = refPfx rdRec
 
-rdLabel :: RefData -> String
-rdLabel RefDataIncomplete{rdiLabel} = rdiLabel
+rdLabel :: RefDataComplete -> String
 rdLabel RefDataComplete{rdRec} = refLabel rdRec
 
-instance Ord RefData where
+instance Ord RefDataComplete where
   (<=) = (<=) `on` rdIdx
 
 getRefData :: Citation -> WS RefData
@@ -182,14 +171,14 @@ getRefData c@Citation{..}
   = do
     ref <- M.lookup llab <$> get referenceData
     return $ case ref of
-      Nothing -> RefDataIncomplete
+      Nothing -> Left $ RefDataIncomplete
         { rdiLabel = llab
-        , rdSuffix = suf'
+        , rdiSuffix = suf'
         , rdCitation = c
         }
-      Just x -> RefDataComplete
+      Just x -> Right $ RefDataComplete
         { rdRec = x
-        , rdSuffix = suf'
+        , rdcSuffix = suf'
         , rdCitPrefix = if null citationPrefix
                         then Nothing
                         else Just $ fromList citationPrefix
@@ -199,19 +188,18 @@ getRefData c@Citation{..}
     where llab = uncapitalizeFirst citationId
           suf' = fromList citationSuffix
 
-data RefItem = RefRange RefData RefData | RefSingle RefData
+data RefItem = RefRange RefDataComplete RefDataComplete | RefSingle RefDataComplete
 
-makeIndices :: Options -> [RefData] -> Inlines
-makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
+makeIndices :: Options -> NonEmpty RefDataComplete -> Inlines
+makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub $ NE.toList s
   where
-  g :: RefData -> RefData -> Bool
-  g a b = all (null . rdSuffix) [a, b] && (
-            fromMaybe False ((liftM2 follows `on` rdIdx) b a) &&
-            ((==) `on` rdScope) a b
-          )
+  g :: RefDataComplete -> RefDataComplete -> Bool
+  g a b = all (null . rdcSuffix) [a, b]
+          && (follows `on` rdIdx) b a
+          && ((==) `on` rdScope) a b
   follows :: Int -> Int -> Bool
   follows a b = b + 1 == a
-  f :: [RefData] -> [RefItem]
+  f :: [RefDataComplete] -> [RefItem]
   f []  = []                          -- drop empty lists
   f [w] = [RefSingle w]                   -- single value
   f [w1,w2] = [RefSingle w1, RefSingle w2] -- two values
@@ -220,22 +208,18 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   format [] = mempty
   format [x] = show'' x
   format [x, y] = show'' x <> pairDelim o <> show'' y
-  format xs = intercalate' (refDelim o) init' <> lastDelim o <> last'
-    where initlast []     = error "emtpy list in initlast"
-          initlast [y]    = ([], y)
-          initlast (y:ys) = first (y:) $ initlast ys
-          (init', last') = initlast $ map show'' xs
+  format (x:xs) = intercalate' (refDelim o) init' <> lastDelim o <> last'
+    where initlast (y :| []) = ([], y)
+          initlast (y :| (z:zs)) = first (y:) $ initlast (z:|zs)
+          (init', last') = initlast $ NE.map show'' (x:|xs)
   show'' :: RefItem -> Inlines
   show'' (RefSingle x) = show' x
   show'' (RefRange x y) = show' x <> rangeDelim o <> show' y
-  show' :: RefData -> Inlines
+  show' :: RefDataComplete -> Inlines
   show' RefDataComplete{..}
     | linkReferences o = link ('#':refLabel rdRec) "" txt
     | otherwise = txt
-    where txt = applyIndexTemplate o rdSuffix rdRec
-  show' RefDataIncomplete{..} =
-    error ("Undefined cross-reference: " <> rdiLabel
-        <> ". This should not be possible, please report a bug")
+    where txt = applyIndexTemplate o rdcSuffix rdRec
 
 applyIndexTemplate :: Options -> Inlines -> RefRec -> Inlines
 applyIndexTemplate opts suf rr =
