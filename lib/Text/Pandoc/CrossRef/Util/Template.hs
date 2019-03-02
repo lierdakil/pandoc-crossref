@@ -23,10 +23,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Template
   ( Template
   , RefTemplate
+  , BlockTemplate
   , makeTemplate
+  , makeBlockTemplate
   , makeRefTemplate
   , applyTemplate
   , applyRefTemplate
+  , applyBlockTemplate
   ) where
 
 import Text.Pandoc.Definition
@@ -38,20 +41,27 @@ import Control.Applicative
 import Text.Read
 import Data.Char (isAlphaNum, isUpper, toLower)
 import Control.Monad ((<=<))
+import Data.Data (Data)
 
 type VarFunc = String -> Maybe MetaValue
 newtype Template = Template (VarFunc -> Inlines)
 newtype RefTemplate = RefTemplate (VarFunc -> Bool -> Inlines)
+newtype BlockTemplate = BlockTemplate (VarFunc -> Blocks)
 
 data State = StFirstVar | StIndex | StAfterIndex | StPrefix | StSuffix deriving Eq
 data ParseRes = ParseRes { prVar :: String, prIdx :: [String], prPfx :: String, prSfx :: String } deriving Show
 
+isVariableSym :: Char -> Bool
+isVariableSym '.' = True
+isVariableSym '_' = True
+isVariableSym c = isAlphaNum c
+
 parse :: State -> String -> ParseRes
 parse _ [] = ParseRes [] [] [] []
-parse StFirstVar cs@(c:_) | isAlphaNum c = let (var, rest) = span isAlphaNum cs in (parse StFirstVar rest){prVar = var}
+parse StFirstVar cs@(c:_) | isVariableSym c = let (var, rest) = span isVariableSym cs in (parse StFirstVar rest){prVar = var}
 parse s ('[':cs)
   | s == StAfterIndex || s == StFirstVar
-  = let (idx, rest) = span isAlphaNum cs in (\r -> r{prIdx = idx : prIdx r})(parse StIndex rest)
+  = let (idx, rest) = span isVariableSym cs in (\r -> r{prIdx = idx : prIdx r})(parse StIndex rest)
 parse StIndex (']':cs) = parse StAfterIndex cs
 parse StIndex _ = error "Unterminated [ in indexed variable"
 parse StAfterIndex ('[':cs) = parse StIndex cs
@@ -64,9 +74,13 @@ parse StSuffix cs = let (sfx, rest) = span (`notElem` "%#") cs in (parse StSuffi
 
 makeTemplate :: Settings -> Inlines -> Template
 makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> lookupSettings var dtv) $ toList xs'
+
+makeBlockTemplate :: Settings -> Blocks -> BlockTemplate
+makeBlockTemplate dtv xs' = BlockTemplate $ \vf -> fromList $ scan (\var -> vf var <|> lookupSettings var dtv) $ toList xs'
+
+scan :: (Data a) => (String -> Maybe MetaValue) -> [a] -> [a]
+scan = bottomUp . go
   where
-  scan :: (String -> Maybe MetaValue) -> [Inline] -> [Inline]
-  scan = bottomUp . go
   go vf (Math DisplayMath var:xs)
     | ParseRes{..} <- parse StFirstVar var
     = let replaceVar = maybe mempty (modifier . toInlines ("variable " ++ var))
@@ -97,3 +111,6 @@ applyRefTemplate (RefTemplate g) vars = g (fmap (MetaInlines . toList) . vars)
 
 applyTemplate :: (String -> Maybe Inlines) -> Template -> Inlines
 applyTemplate vars (Template g) = g $ fmap (MetaInlines . toList) . vars
+
+applyBlockTemplate :: VarFunc -> BlockTemplate -> Blocks
+applyBlockTemplate vars (BlockTemplate g) = g vars

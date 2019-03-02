@@ -87,35 +87,28 @@ defaultMeta = Settings $
   <> referenceIndexTemplate (var "i" <> var "suf")
   <> captionIndexTemplate (var "i")
   <> numbering "arabic"
+  <> listOfTitle (header 1 $ text "List of $$title$$s")
   <> prefixes' [
       "eq" .: [
         "ref" .= map str ["eq.", "eqns."],
         "captionTemplate" .= var "i",
-        "listOfTitle" .= header 1 $ text "List of Equations"
+        "title" .= "Equation"
       ],
       "fig" .: [
         "ref" .= map str ["fig.", "figs."],
-        "title" .= text "Figure",
-        "listOfTitle" .= header 1 $ text "List of Figures"
-      ],
-      "subfig" .: [
-        "captionTemplate" .= var "i",
-        "numbering" .= "alpha a"
+        "title" .= text "Figure"
       ],
       "lst" .: [
         "ref" .= map str ["lst.", "lsts."],
-        "title" .= text "Listing",
-        "listOfTitle" .= header 1 $ text "List of Listings"
+        "title" .= text "Listing"
       ],
       "tbl" .: [
         "ref" .= map str ["tbl.", "tbls."],
-        "title" .= text "Table",
-        "listOfTitle" .= header 1 $ text "List of Tables"
+        "title" .= text "Table"
       ],
       "sec" .: [
         "ref" .= map str ["sec.", "secs."],
-        "title" .= text "Section",
-        "listOfTitle" .= header 1 $ text "List of Sections"
+        "title" .= text "Section"
       ]
     ]
   where var = displayMath

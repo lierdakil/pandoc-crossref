@@ -52,13 +52,13 @@ getPrefixes varN dtv
       , prefixReferenceIndexTemplate = makeTemplate kv $ getTemplDefault "referenceIndexTemplate"
       , prefixCaptionIndexTemplate = makeTemplate kv $ getTemplDefault "captionIndexTemplate"
       , prefixScope = getMetaStringList "scope" kv
-      , prefixListOfTitle = getMetaBlock "listOfTitle" kv
       , prefixNumbering = \lvl ->
           let prettyVarName = varN <> "." <> k <> "." <> varName
               varName = "numbering"
           in mkLabel prettyVarName
                   (fromMaybe (reportError prettyVarName "Numbering")
                         $ lookupSettings varName kv >>= getList lvl)
+      , prefixListOfTitle = makeBlockTemplate kv $ getMetaBlock "listOfTitle" kv
       , prefixTitle = getMetaInlines "title" kv
       }
       where kv = Settings (Meta kv') <> dtv
@@ -76,8 +76,8 @@ data Prefix = Prefix {
     prefixCaptionTemplate :: !Template
   , prefixReferenceTemplate :: !RefTemplate
   , prefixScope :: ![String]
-  , prefixListOfTitle :: !Blocks
   , prefixNumbering :: !(Int -> Int -> String)
+  , prefixListOfTitle :: !BlockTemplate
   , prefixReferenceIndexTemplate :: !Template
   , prefixCaptionIndexTemplate :: !Template
   -- Used for LaTeX metadata; the same value is used in
