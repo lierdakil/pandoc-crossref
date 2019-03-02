@@ -136,7 +136,7 @@ replaceEqn :: Options -> Scope -> Attr -> String -> Maybe String -> WS (String, 
 replaceEqn opts scope (label, _, attrs) eq pfx = do
   let label' | null label = Left "eq"
              | otherwise = Right label
-  idxStr <- replaceAttr opts scope label' (lookup "label" attrs) mempty (fromMaybe "eq" pfx)
+  idxStr <- replaceAttr opts scope label' (lookup "label" attrs) (B.math eq) (fromMaybe "eq" pfx)
   let eq' | tableEqns opts = eq
           | otherwise = eq++"\\qquad("++stringify (refIxInl idxStr)++")"
   return (eq', stringify (refIxInl idxStr))
@@ -162,10 +162,10 @@ replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
           f | isLatexFormat f -> ialt
           _  -> applyTitleTemplate opts idxStr
     replaceNoRecurse $ Image attr alt' img
-replaceInline opts scope x@(Span (label,_,attrs) _content)
+replaceInline opts scope x@(Span (label,_,attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
-      rec' <- replaceAttr opts scope (Right label) (lookup "label" attrs) mempty pfx
+      rec' <- replaceAttr opts scope (Right label) (lookup "label" attrs) (B.fromList content) pfx
       replaceRecurse (newScope rec' scope) x
 replaceInline _ scope _ = noReplaceRecurse scope
 
