@@ -83,9 +83,9 @@ defaultMeta = Settings $
   ]
   -- these are merely the defaults, can (and will) be overridden in prefix configs
   <> captionTemplate (var "title" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
-  <> referenceTemplate (var "Ref[n][lvl]" <> str "\160" <> var "i")
-  <> referenceIndexTemplate (var "i" <> var "suf")
   <> captionIndexTemplate (var "i")
+  <> referenceTemplate (var "Ref[n][lvl]" <> str "\160" <> var "rs")
+  <> referenceIndexTemplate (var "i" <> var "suf")
   <> numbering "arabic"
   <> listOfTitle (header 1 $ text "List of $$title$$s")
   <> prefixes' [

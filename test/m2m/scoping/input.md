@@ -4,15 +4,15 @@ prefixes:
     ref: ["dfn.", "dfns."]
     title: "Definition"
     scope: "sec"
-    referenceIndexTemplate: "$$i$$$$scp# (%)$$"
+    referenceIndexTemplate: "$$i$$$$s.ref# (%)$$"
   cl:
     ref: ["cl.", "cls."]
     scope: "dfn"
-    referenceIndexTemplate: "$$i$$$$scp# (%)$$"
+    referenceIndexTemplate: "$$i$$$$s.ref# (%)$$"
   sec:
     captionTemplate: '$$titleName[lvl]% $$$$i$$$$titleDelim$$ $$t$$'
-    captionIndexTemplate: '$$s%.$$$$i$$'
-    referenceIndexTemplate: '$$i$$$$scp# (%)$$'
+    captionIndexTemplate: '$$s.i%.$$$$i$$'
+    referenceIndexTemplate: '$$i$$$$s.ref# (%)$$'
     scope: sec
     titleName:
       - Chapter

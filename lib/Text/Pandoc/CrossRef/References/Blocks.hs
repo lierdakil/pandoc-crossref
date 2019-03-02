@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, MultiWayIf, RecordWildCards #-}
+{-# LANGUAGE Rank2Types, MultiWayIf, RecordWildCards, NamedFieldPuns #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
@@ -39,6 +39,7 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
+import Text.Pandoc.CrossRef.Util.VarFunction
 import Control.Applicative
 import Data.Default (def)
 import Prelude
@@ -169,31 +170,15 @@ replaceInline opts scope x@(Span (label,_,attrs) _content)
 replaceInline _ scope _ = noReplaceRecurse scope
 
 applyTitleTemplate :: Options -> RefRec -> B.Inlines
-applyTitleTemplate opts rr@RefRec{..} =
-  applyTemplate vf $ pfxCaptionTemplate opts refPfx
-  where
-    vf x = case x of
-      "i" -> Just refIxInl
-      _ -> titleVarFunc opts rr x
+applyTitleTemplate opts rr@RefRec{refPfx} =
+  applyTemplate (fix defaultVarFunc rr) $ pfxCaptionTemplate opts refPfx
 
 applyTitleIndexTemplate :: Options -> RefRec -> B.Inlines -> B.Inlines
 applyTitleIndexTemplate opts rr@RefRec{..} label =
   applyTemplate vf $ pfxCaptionIndexTemplate opts refPfx
   where
-  vf x = case x of
-    "i" -> Just label
-    _ -> titleVarFunc opts rr x
-
-titleVarFunc :: Options -> RefRec -> String -> Maybe B.Inlines
-titleVarFunc opts RefRec{..} x = case x of
-   "t" -> Just refTitle
-   "lvl" -> Just $ B.str $ show refLevel
-   _ -> case refScope of
-     Just rs -> case x of
-       "s" -> Just $ Types.refIxInl rs
-       "scp" -> Just $ applyTitleTemplate opts rs
-       _ -> Nothing
-     _ -> Nothing
+  vf "i" = Just label
+  vf x = fix defaultVarFunc rr x
 
 divBlocks :: Options -> Block -> Block
 divBlocks opts (Table title align widths header cells)
