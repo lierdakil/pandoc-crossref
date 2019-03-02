@@ -35,8 +35,8 @@ Or in groups eqns. [1](#eq:0), [2](#eq:1), [4](#eq:3)
 
 Groups will be compacted eqns. [1](#eq:0)-[4](#eq:3)
 
-Unknown references will print labels eqns. **¿eq:none?**, [1](#eq:0),
-[3](#eq:2), [4](#eq:3)
+Unknown references will print labels eq. [1](#eq:0), [@eq:none],
+eqns. [3](#eq:2), [4](#eq:3)
 
 Reference prefix will override default prefix Equation [1](#eq:0),
 eqns. [3](#eq:2), [4](#eq:3)
