@@ -72,7 +72,8 @@ time of writing, pandoc-crossref is provided on the following platforms
 -   Arch Linux
 -   NixOS or Nix package manager (via `nixpkgs.haskellPackages`
     attribute)
--   MacOS (via Homebrew)
+-   MacOS (via [Homebrew](https://brew.sh))
+-   Any Linux distribution (via [Linuxbrew](https://docs.brew.sh/Linuxbrew))
 -   Gentoo Linux (via gentoo-haskell overlay)
 
 ### Building from Hackage with `cabal-install` and Haskell platform
