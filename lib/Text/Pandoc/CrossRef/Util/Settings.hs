@@ -92,7 +92,7 @@ defaultMeta = Settings $
       "eq" .: [
         "ref" .= map str ["eq.", "eqns."],
         "captionTemplate" .= var "i",
-        "title" .= "Equation"
+        "title" .= text "Equation"
       ],
       "fig" .: [
         "ref" .= map str ["fig.", "figs."],
