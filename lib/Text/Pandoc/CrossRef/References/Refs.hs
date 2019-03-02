@@ -75,11 +75,11 @@ replaceRefs _ x = return x
 
 getRefPrefix :: Options -> String -> Bool -> Int -> Int -> Inlines -> Inlines
 getRefPrefix opts prefix capitalize num lvl cit =
-  applyTemplate vf reftempl
-  where Prefix{prefixRef=refprefixf, prefixReferenceTemplate=reftempl} = fromMaybe undefined $ M.lookup prefix $ prefixes opts
-        refprefix = applyRefTemplate (refprefixf lvl) capitalize num
+  applyRefTemplate reftempl vf capitalize
+  where Prefix{prefixReferenceTemplate=reftempl} = fromMaybe undefined $ M.lookup prefix $ prefixes opts
         vf "i" = Just cit
-        vf "p" = Just refprefix
+        vf "n" = Just $ str $ show num
+        vf "lvl" = Just $ str $ show lvl
         vf _ = Nothing
 
 replaceRefsLatex :: String -> Options -> [RefData] -> WS Inlines

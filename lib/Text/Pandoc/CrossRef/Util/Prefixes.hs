@@ -46,43 +46,30 @@ getPrefixes varN dtv
   | Just (MetaMap m) <- lookupSettings varN dtv = M.mapWithKey m2p m
   | otherwise = error "Prefixes not defined"
   where
-    var = displayMath
-    m2p _ (MetaMap kv') = Prefix {
-        prefixRef = makeRefTemplate kv .
-          if isJust $ lookupSettings "refTemplate" kv
-          then fromInlines' . getMetaList (Inlines' . toInlines "refTemplate") "refTemplate" kv
-          else const $ var "Ref[n]"
-          -- tryCapitalizeM (\y -> getMetaList (Inlines' . toInlines "ref") y kv) "ref"
-      , prefixCaptionTemplate = makeTemplate kv $
-          if isJust $ lookupSettings "captionTemplate" kv
-          then getMetaInlines "captionTemplate" kv
-          else var "title" <> space <> var "i" <> var "titleDelim" <> space <> var "t"
-      , prefixReferenceTemplate = makeTemplate kv $
-          if isJust $ lookupSettings "referenceTemplate" kv
-          then getMetaInlines "referenceTemplate" kv
-          else var "p" <> str "\160" <> var "i"
+    m2p k (MetaMap kv') = Prefix {
+        prefixCaptionTemplate = makeTemplate kv $ getTemplDefault "captionTemplate"
+      , prefixReferenceTemplate = makeRefTemplate kv $ getTemplDefault "referenceTemplate"
+      , prefixReferenceIndexTemplate = makeTemplate kv $ getTemplDefault "referenceIndexTemplate"
+      , prefixCaptionIndexTemplate = makeTemplate kv $ getTemplDefault "captionIndexTemplate"
       , prefixScope = getMetaStringList "scope" kv
-      , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (MetaString "arabic") $ lookupSettings "numbering" kv)
+      , prefixNumbering = mkLabel (varN <> "." <> k <> "." <> "numbering")
+                                  (fromMaybe (MetaString "arabic") $ lookupSettings "numbering" kv)
       , prefixListOfTitle = getMetaBlock "listOfTitle" kv
       , prefixTitle = getMetaInlines "title" kv
-      , prefixReferenceIndexTemplate = makeTemplate kv $
-          if isJust $ lookupSettings "referenceIndexTemplate" kv
-          then getMetaInlines "referenceIndexTemplate" kv
-          else var "i" <> var "suf"
-      , prefixCaptionIndexTemplate = makeTemplate kv $
-          if isJust $ lookupSettings "captionIndexTemplate" kv
-          then getMetaInlines "captionIndexTemplate" kv
-          else var "i"
       }
       where kv = Settings (Meta kv') <> dtv
+            getTemplDefault n =
+              if isJust $ lookupSettings n kv
+              then getMetaInlines n kv
+              else error $ "Template meta variable " <> n <> " not set for " <> varN <> "." <> k
+                        <> ". This should not happen. Please report a bug"
     m2p k _ = error $ "Invalid value for prefix " <> k
 
 type Prefixes = M.Map String Prefix
 
 data Prefix = Prefix {
-    prefixRef :: !(Int -> RefTemplate)
-  , prefixCaptionTemplate :: !Template
-  , prefixReferenceTemplate :: !Template
+    prefixCaptionTemplate :: !Template
+  , prefixReferenceTemplate :: !RefTemplate
   , prefixScope :: ![String]
   , prefixNumbering :: !(Int -> String)
   , prefixListOfTitle :: !Blocks

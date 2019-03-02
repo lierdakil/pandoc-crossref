@@ -18,12 +18,9 @@ prefixes:
       - Chapter
       - Section
       - Paragraph
-    refTemplate:
-      - $$Chap[n]$$
-      - $$Ref[n]$$
-    chap:
-      - chp.
-      - chps.
+    ref:
+      - ["chp.", "sec.", "par."]
+      - ["chps.", "secs.", "pars."]
     title: Section
     titleDelim: '.'
 chapters: false

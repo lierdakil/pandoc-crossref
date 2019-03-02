@@ -33,6 +33,10 @@ nameDeriveSetters ''Options
 fmap concat $ mapM (makeAcc . mkName)
   [ "crossrefYaml"
   , "titleDelim"
+  , "captionTemplate"
+  , "referenceTemplate"
+  , "referenceIndexTemplate"
+  , "captionIndexTemplate"
   ]
 
 getOptions :: Settings -> Maybe Format -> Options

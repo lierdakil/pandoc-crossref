@@ -37,21 +37,24 @@ import Text.Pandoc.CrossRef.Util.Settings.Types
 import Control.Applicative
 import Text.Read
 import Data.Char (isAlphaNum, isUpper, toLower)
-import Control.Monad (join)
+import Control.Monad ((<=<))
 
 type VarFunc = String -> Maybe MetaValue
 newtype Template = Template (VarFunc -> Inlines)
-newtype RefTemplate = RefTemplate (Bool -> Int -> Inlines)
+newtype RefTemplate = RefTemplate (VarFunc -> Bool -> Inlines)
 
-data State = StFirstVar | StIndex | StAfterIndex | StPrefix | StSuffix
-data ParseRes = ParseRes { prVar :: String, prIdx :: Maybe String, prPfx :: String, prSfx :: String } deriving Show
+data State = StFirstVar | StIndex | StAfterIndex | StPrefix | StSuffix deriving Eq
+data ParseRes = ParseRes { prVar :: String, prIdx :: [String], prPfx :: String, prSfx :: String } deriving Show
 
 parse :: State -> String -> ParseRes
-parse _ [] = ParseRes [] Nothing [] []
+parse _ [] = ParseRes [] [] [] []
 parse StFirstVar cs@(c:_) | isAlphaNum c = let (var, rest) = span isAlphaNum cs in (parse StFirstVar rest){prVar = var}
-parse StFirstVar ('[':cs) = let (idx, rest) = span isAlphaNum cs in (parse StIndex rest){prIdx = Just idx}
+parse s ('[':cs)
+  | s == StAfterIndex || s == StFirstVar
+  = let (idx, rest) = span isAlphaNum cs in (\r -> r{prIdx = idx : prIdx r})(parse StIndex rest)
 parse StIndex (']':cs) = parse StAfterIndex cs
 parse StIndex _ = error "Unterminated [ in indexed variable"
+parse StAfterIndex ('[':cs) = parse StIndex cs
 parse _ ('%':cs) = parse StSuffix cs
 parse _ ('#':cs) = parse StPrefix cs
 parse StFirstVar s = error $ "Invalid variable name in " <> s
@@ -69,28 +72,28 @@ makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> loo
     = let replaceVar = maybe mempty (modifier . toInlines ("variable " ++ var))
           modifier = (<> text prSfx) . (text prPfx <>)
       in case prIdx of
-        Just idxVar ->
+        [] -> toList $ replaceVar (vf prVar) <> fromList xs
+        idxVars ->
           let
-            idx = readMaybe . toString ("index variable " ++ idxVar) =<< vf idxVar
-            arr = join $ getList <$> idx <*> vf prVar
+            idxs :: Maybe [Int]
+            idxs = mapM (readMaybe . toString ("index variables " ++ show idxVars) <=< vf) idxVars
+            arr = foldr (\i a -> getList i =<< a) (vf prVar) . reverse =<< idxs           
           in toList $ replaceVar arr <> fromList xs
-        Nothing -> toList $ replaceVar (vf prVar) <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
 
 makeRefTemplate :: Settings -> Inlines -> RefTemplate
 makeRefTemplate dtv xs' =
   let Template g = makeTemplate dtv xs'
-      vf _ n "n" = Just $ MetaInlines [Str $ show n]
-      vf cap _ (vc:vs)
+      vf cap (vc:vs)
         | isUpper vc && cap = capitalize (`lookupSettings` dtv) var
         | otherwise = lookupSettings var dtv
         where var = toLower vc : vs
-      vf _ _ [] = error "Empty variable name"
-  in RefTemplate $ \cap n -> g (vf cap n)
+      vf _ [] = error "Empty variable name"
+  in RefTemplate $ \vars cap -> g (\v -> vars v <|> vf cap v)
 
-applyRefTemplate :: RefTemplate -> Bool -> Int -> Inlines
-applyRefTemplate (RefTemplate g) = g
+applyRefTemplate :: RefTemplate -> (String -> Maybe Inlines) -> Bool -> Inlines
+applyRefTemplate (RefTemplate g) vars cap = g (fmap (MetaInlines . toList) . vars) cap
 
 applyTemplate :: (String -> Maybe Inlines) -> Template -> Inlines
 applyTemplate vars (Template g) = g $ fmap (MetaInlines . toList) . vars

@@ -81,6 +81,11 @@ defaultMeta = Settings $
     , "listing" .= "lst"
     , "section" .= "sec"
   ]
+  -- these are merely the defaults, can (and will) be overridden in prefix configs
+  <> captionTemplate (var "title" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
+  <> referenceTemplate (var "Ref[n][lvl]" <> str "\160" <> var "i")
+  <> referenceIndexTemplate (var "i" <> var "suf")
+  <> captionIndexTemplate (var "i")
   <> prefixes' [
       "eq" .: [
         "ref" .= map str ["eq.", "eqns."],

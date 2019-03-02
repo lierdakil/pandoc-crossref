@@ -37,7 +37,7 @@ Chapter 3. Section 3 {#section-3}
 -   cl. 1 (dfn. 1 (sec. 1.1 (chp. 1)))
 
 -   chp. 2
--   dfn. 1 (sec. 2.1.2 (sec. 2.1 (chp. 2)))
--   cl. 1 (dfn. 1 (sec. 2.1.2 (sec. 2.1 (chp. 2))))
--   Cl. 2 (dfn. 1 (sec. 2.1.2 (sec. 2.1 (chp. 2))))
--   Cl. 3 (dfn. 1 (sec. 2.1.2 (sec. 2.1 (chp. 2))))
+-   dfn. 1 (par. 2.1.2 (sec. 2.1 (chp. 2)))
+-   cl. 1 (dfn. 1 (par. 2.1.2 (sec. 2.1 (chp. 2))))
+-   Cl. 2 (dfn. 1 (par. 2.1.2 (sec. 2.1 (chp. 2))))
+-   Cl. 3 (dfn. 1 (par. 2.1.2 (sec. 2.1 (chp. 2))))
