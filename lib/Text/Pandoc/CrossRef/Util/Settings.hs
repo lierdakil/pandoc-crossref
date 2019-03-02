@@ -83,12 +83,12 @@ defaultMeta = Settings $
   ]
   <> prefixes' [
       "eq" .: [
-        "ref" .= ["eq.", "eqns."],
+        "ref" .= map str ["eq.", "eqns."],
         "captionTemplate" .= var "i",
         "listOfTitle" .= header 1 $ text "List of Equations"
       ],
       "fig" .: [
-        "ref" .= ["fig.", "figs."],
+        "ref" .= map str ["fig.", "figs."],
         "title" .= text "Figure",
         "listOfTitle" .= header 1 $ text "List of Figures"
       ],
@@ -97,17 +97,17 @@ defaultMeta = Settings $
         "numbering" .= "alpha a"
       ],
       "lst" .: [
-        "ref" .= ["lst.", "lsts."],
+        "ref" .= map str ["lst.", "lsts."],
         "title" .= text "Listing",
         "listOfTitle" .= header 1 $ text "List of Listings"
       ],
       "tbl" .: [
-        "ref" .= ["tbl.", "tbls."],
+        "ref" .= map str ["tbl.", "tbls."],
         "title" .= text "Table",
         "listOfTitle" .= header 1 $ text "List of Tables"
       ],
       "sec" .: [
-        "ref" .= ["sec.", "secs."],
+        "ref" .= map str ["sec.", "secs."],
         "title" .= text "Section",
         "listOfTitle" .= header 1 $ text "List of Sections"
       ]
