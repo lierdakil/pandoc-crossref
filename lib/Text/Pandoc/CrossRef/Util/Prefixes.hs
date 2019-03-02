@@ -52,17 +52,22 @@ getPrefixes varN dtv
       , prefixReferenceIndexTemplate = makeTemplate kv $ getTemplDefault "referenceIndexTemplate"
       , prefixCaptionIndexTemplate = makeTemplate kv $ getTemplDefault "captionIndexTemplate"
       , prefixScope = getMetaStringList "scope" kv
-      , prefixNumbering = mkLabel (varN <> "." <> k <> "." <> "numbering")
-                                  (fromMaybe (MetaString "arabic") $ lookupSettings "numbering" kv)
       , prefixListOfTitle = getMetaBlock "listOfTitle" kv
+      , prefixNumbering = \lvl ->
+          let prettyVarName = varN <> "." <> k <> "." <> varName
+              varName = "numbering"
+          in mkLabel prettyVarName
+                  (fromMaybe (reportError prettyVarName "Numbering")
+                        $ lookupSettings varName kv >>= getList lvl)
       , prefixTitle = getMetaInlines "title" kv
       }
       where kv = Settings (Meta kv') <> dtv
             getTemplDefault n =
               if isJust $ lookupSettings n kv
               then getMetaInlines n kv
-              else error $ "Template meta variable " <> n <> " not set for " <> varN <> "." <> k
-                        <> ". This should not happen. Please report a bug"
+              else reportError n "Template"
+            reportError n what = error $ what <> " meta variable " <> n <> " not set for "
+                              <> varN <> "." <> k <> ". This should not happen. Please report a bug"
     m2p k _ = error $ "Invalid value for prefix " <> k
 
 type Prefixes = M.Map String Prefix
@@ -71,8 +76,8 @@ data Prefix = Prefix {
     prefixCaptionTemplate :: !Template
   , prefixReferenceTemplate :: !RefTemplate
   , prefixScope :: ![String]
-  , prefixNumbering :: !(Int -> String)
   , prefixListOfTitle :: !Blocks
+  , prefixNumbering :: !(Int -> Int -> String)
   , prefixReferenceIndexTemplate :: !Template
   , prefixCaptionIndexTemplate :: !Template
   -- Used for LaTeX metadata; the same value is used in

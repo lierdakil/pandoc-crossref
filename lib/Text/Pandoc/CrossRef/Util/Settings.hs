@@ -86,6 +86,7 @@ defaultMeta = Settings $
   <> referenceTemplate (var "Ref[n][lvl]" <> str "\160" <> var "i")
   <> referenceIndexTemplate (var "i" <> var "suf")
   <> captionIndexTemplate (var "i")
+  <> numbering "arabic"
   <> prefixes' [
       "eq" .: [
         "ref" .= map str ["eq.", "eqns."],

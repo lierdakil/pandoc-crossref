@@ -233,7 +233,6 @@ replaceAttr :: Options -> Scope -> Either String String -> Maybe String -> B.Inl
 replaceAttr o scope label refLabel' title pfx
   = do
     let ropt = getPfx o pfx
-        customLabel = prefixNumbering ropt
         itemScope = find ((`elem` prefixScope ropt) . refPfx) scope
     cr <- (\CounterRec{..} -> CounterRec{
             crIndex = crIndex+1
@@ -243,6 +242,8 @@ replaceAttr o scope label refLabel' title pfx
     let label' = either (++ ':':'\0':show i) id label
         iInSc = fromJust $ M.lookup itemScope $ crIndexInScope cr
         i = crIndex cr
+        lvl = length $ filter ((== pfx) . refPfx) scope
+        customLabel = prefixNumbering ropt lvl
     hasLabel <- M.member label' <$> get referenceData
     when hasLabel $ error $ "Duplicate label: " ++ label'
     let rec' = RefRec {
@@ -251,7 +252,7 @@ replaceAttr o scope label refLabel' title pfx
       , refLabel = label'
       , refIxInl = applyTitleIndexTemplate o rec' $ B.text $ fromMaybe (customLabel iInSc) refLabel'
       , refScope = itemScope
-      , refLevel = length $ filter ((== pfx) . refPfx) scope
+      , refLevel = lvl
       , refPfx = pfx
       , refCaption = applyTitleTemplate o rec'
       }

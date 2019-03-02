@@ -37,6 +37,7 @@ fmap concat $ mapM (makeAcc . mkName)
   , "referenceTemplate"
   , "referenceIndexTemplate"
   , "captionIndexTemplate"
+  , "numbering"
   ]
 
 getOptions :: Settings -> Maybe Format -> Options
