@@ -18,6 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE RecordWildCards, NamedFieldPuns #-}
+
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Text.Pandoc.Definition
@@ -37,47 +39,50 @@ import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options hiding (getRefPrefix)
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Control.Applicative
-import Data.Char (toLower)
 import Debug.Trace
 import Prelude
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
 replaceRefs opts ils
   | Cite cits _:xs <- ils
-  = toList . (<> fromList xs) . intercalate' (text ", ") <$> mapM replaceRefs' (groupBy eqPrefix cits)
+  = do
+    refData <- mapM getRefData cits
+    toList . (<> fromList xs) . intercalate' (text ", ") <$> mapM replaceRefs' (groupBy eqPred refData)
   where
-    eqPrefix a b = uncurry (==) $
-      (fmap uncapitalizeFirst . getLabelPrefix opts . citationId) <***> (a,b)
-    (<***>) = join (***)
-    replaceRefs' cits'
-      | Just prefix <- allCitsPrefix opts cits'
-      = replaceRefs'' prefix opts cits'
+    eqPred :: RefData -> RefData -> Bool
+    eqPred = (==) `on` liftM2 (,) rdScope rdPrefix
+    replaceRefs' refs
+      | ref@RefDataComplete{} : _ <- refs
+      = replaceRefs'' (fromJust $ rdPrefix ref) opts refs
       | otherwise = return $ cite cits' il'
         where
+          cits' = mapMaybe getCit refs
+          getCit RefDataIncomplete{rdCitation, rdiLabel}
+            | takeWhile (/=':') rdiLabel `elem` M.keys (prefixes opts)
+            = trace ("Undefined cross-reference: " ++ rdiLabel) $ Just rdCitation
+            | otherwise = Just rdCitation
+          getCit RefDataComplete{} = error "Converting RefDataComplete back to Citation. This should not happen, please report a bug"
           il' = str "["
              <> intercalate' (text "; ") (map citationToInlines cits')
              <> str "]"
           citationToInlines c =
             fromList (citationPrefix c) <> text ("@" ++ citationId c)
               <> fromList (citationSuffix c)
-    replaceRefs'' = case outFormat opts of
-                    f | isLatexFormat f -> replaceRefsLatex
-                    _                      -> replaceRefsOther
+    replaceRefs''
+      | isLatexFormat (outFormat opts) = replaceRefsLatex
+      | otherwise = replaceRefsOther
 replaceRefs _ x = return x
 
-getRefPrefix :: Options -> String -> Bool -> Int -> Inlines -> Inlines
-getRefPrefix opts prefix capitalize num cit =
-  applyTemplate' (M.fromDistinctAscList [("i", cit), ("p", refprefix)]) reftempl
+getRefPrefix :: Options -> String -> Bool -> Int -> Int -> Inlines -> Inlines
+getRefPrefix opts prefix capitalize num lvl cit =
+  applyTemplate vf reftempl
   where Prefix{prefixRef=refprefixf, prefixReferenceTemplate=reftempl} = fromMaybe undefined $ M.lookup prefix $ prefixes opts
-        refprefix = refprefixf capitalize num
+        refprefix = applyRefTemplate (refprefixf lvl) capitalize num
+        vf "i" = Just cit
+        vf "p" = Just refprefix
+        vf _ = Nothing
 
-allCitsPrefix :: Options -> [Citation] -> Maybe String
-allCitsPrefix opts cits = find isCitationPrefix $ prefixList opts
-  where
-  isCitationPrefix p =
-    all (p ==) $ map (takeWhile (/=':') . uncapitalizeFirst . citationId) cits
-
-replaceRefsLatex :: String -> Options -> [Citation] -> WS Inlines
+replaceRefsLatex :: String -> Options -> [RefData] -> WS Inlines
 replaceRefsLatex prefix opts cits
   | cref opts
   = replaceRefsLatex' prefix opts cits
@@ -85,7 +90,7 @@ replaceRefsLatex prefix opts cits
   = intercalate' (text ", ") <$>
       mapM (replaceRefsLatex' prefix opts) (groupBy citationGroupPred cits)
 
-replaceRefsLatex' :: String -> Options -> [Citation] -> WS Inlines
+replaceRefsLatex' :: String -> Options -> [RefData] -> WS Inlines
 replaceRefsLatex' prefix opts cits =
   return $ p texcit
   where
@@ -94,22 +99,22 @@ replaceRefsLatex' prefix opts cits =
         cref'++"{"++listLabels prefix "" "," "" cits++"}"
         else
           listLabels prefix "\\ref{" ", " "}" cits
-    suppressAuthor = all (==SuppressAuthor) $ map citationMode cits
-    noPrefix = all null $ map citationPrefix cits
+    suppressPrefix = all rdSuppresPrefix cits
+    noPrefix = all isNothing $ map rdCitPrefix cits
     p | cref opts = id
-      | suppressAuthor
+      | suppressPrefix
       = id
       | noPrefix
-      = getRefPrefix opts prefix cap (length cits - 1)
-      | otherwise = ((fromList (citationPrefix (head cits)) <> space) <>)
-    cap = maybe False isFirstUpper $ getLabelPrefix opts . citationId . head $ cits
-    cref' | suppressAuthor = "\\labelcref"
+      = getRefPrefix opts prefix cap (length cits - 1) (fromMaybe 0 . rdLvl $ head cits)
+      | otherwise = ((fromJust (rdCitPrefix (head cits)) <> space) <>)
+    cap = maybe False isFirstUpper $ getLabelPrefix opts . rdLabel . head $ cits
+    cref' | suppressPrefix = "\\labelcref"
           | cap = "\\Cref"
           | otherwise = "\\cref"
 
-listLabels :: String -> String -> String -> String -> [Citation] -> String
+listLabels :: String -> String -> String -> String -> [RefData] -> String
 listLabels _prefix p sep s =
-  intercalate sep . map ((p ++) . (++ s) . mkLaTeXLabel' . citationId)
+  intercalate sep . map ((p ++) . (++ s) . mkLaTeXLabel' . rdLabel)
 
 getLabelPrefix :: Options -> String -> Maybe String
 getLabelPrefix opts lab
@@ -117,55 +122,88 @@ getLabelPrefix opts lab
   | otherwise = Nothing
   where p = takeWhile (/=':') lab
 
-replaceRefsOther :: String -> Options -> [Citation] -> WS Inlines
+replaceRefsOther :: String -> Options -> [RefData] -> WS Inlines
 replaceRefsOther prefix opts cits = intercalate' (text ", ") <$>
     mapM (replaceRefsOther' prefix opts) (groupBy citationGroupPred cits)
 
-citationGroupPred :: Citation -> Citation -> Bool
-citationGroupPred = (==) `on` liftM2 (,) citationPrefix citationMode
+citationGroupPred :: RefData -> RefData -> Bool
+citationGroupPred = (==) `on` liftM2 (,) rdCitPrefix rdSuppresPrefix
 
-replaceRefsOther' :: String -> Options -> [Citation] -> WS Inlines
-replaceRefsOther' prefix opts cits = do
-  indices <- mapM getRefIndex cits
+replaceRefsOther' :: String -> Options -> [RefData] -> WS Inlines
+replaceRefsOther' prefix opts indices = do
   let
-    cap = maybe False isFirstUpper $ getLabelPrefix opts . citationId . head $ cits
-    writePrefix | all (==SuppressAuthor) $ map citationMode cits
+    firstRef@RefDataComplete{..} = head indices
+    cap = rdUpperCase
+    depth = fromMaybe 0 $ rdLvl firstRef
+    writePrefix | rdSuppresPrefix
                 = id
-                | all null $ map citationPrefix cits
-                = cmap $ getRefPrefix opts prefix cap (length cits - 1)
+                | isNothing rdCitPrefix
+                = cmap $ getRefPrefix opts prefix cap (length indices - 1) depth
                 | otherwise
-                = cmap ((fromList (citationPrefix (head cits)) <> space) <>)
+                = cmap ((fromJust rdCitPrefix <> space) <>)
     cmap f x
       | nameInLink opts
       , [Link attr t (y, z)] <- toList x = linkWith attr y z (f $ fromList t)
     cmap f x = f x
   return $ writePrefix (makeIndices opts indices)
 
-data RefData = RefData { rdLabel :: String
-                       , rdIdx :: Maybe Index
-                       , rdSubfig :: Maybe Index
-                       , rdSuffix :: Inlines
-                       } deriving (Eq, Show)
+data RefData = RefDataIncomplete
+             { rdiLabel :: String
+             , rdSuffix :: Inlines
+             , rdCitation :: Citation
+             }
+             | RefDataComplete
+             { rdRec :: RefRec
+             , rdSuffix :: Inlines
+             , rdCitPrefix :: Maybe Inlines
+             , rdUpperCase :: Bool
+             , rdSuppresPrefix :: Bool
+             } deriving (Eq, Show)
+
+rdIdx :: RefData -> Maybe Int
+rdIdx RefDataIncomplete{} = Nothing
+rdIdx RefDataComplete{rdRec} = Just $ refIndex rdRec
+
+rdScope :: RefData -> Maybe RefRec
+rdScope RefDataIncomplete{} = Nothing
+rdScope RefDataComplete{rdRec} = refScope rdRec
+
+rdPrefix :: RefData -> Maybe String
+rdPrefix RefDataIncomplete{} = Nothing
+rdPrefix RefDataComplete{rdRec} = Just $ refPfx rdRec
+
+rdLvl :: RefData -> Maybe Int
+rdLvl RefDataIncomplete{} = Nothing
+rdLvl RefDataComplete{rdRec} = Just $ refLevel rdRec
+
+rdLabel :: RefData -> String
+rdLabel RefDataIncomplete{rdiLabel} = rdiLabel
+rdLabel RefDataComplete{rdRec} = refLabel rdRec
 
 instance Ord RefData where
   (<=) = (<=) `on` rdIdx
 
-getRefIndex :: Citation -> WS RefData
-getRefIndex Citation{citationId=cid,citationSuffix=suf}
+getRefData :: Citation -> WS RefData
+getRefData c@Citation{..}
   = do
     ref <- M.lookup llab <$> get referenceData
-    let sub = refSubfigure <$> ref
-        idx = refIndex <$> ref
-    return RefData
-      { rdLabel = llab
-      , rdIdx = idx
-      , rdSubfig = join sub
-      , rdSuffix = fromList suf
-      }
-  where
-  (pfx, lab) = span (/=':') cid
-  lpfx = map toLower pfx
-  llab = lpfx <> lab
+    return $ case ref of
+      Nothing -> RefDataIncomplete
+        { rdiLabel = llab
+        , rdSuffix = suf'
+        , rdCitation = c
+        }
+      Just x -> RefDataComplete
+        { rdRec = x
+        , rdSuffix = suf'
+        , rdCitPrefix = if null citationPrefix
+                        then Nothing
+                        else Just $ fromList citationPrefix
+        , rdUpperCase = isFirstUpper citationId
+        , rdSuppresPrefix = SuppressAuthor == citationMode
+        }
+    where llab = uncapitalizeFirst citationId
+          suf' = fromList citationSuffix
 
 data RefItem = RefRange RefData RefData | RefSingle RefData
 
@@ -174,17 +212,11 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   where
   g :: RefData -> RefData -> Bool
   g a b = all (null . rdSuffix) [a, b] && (
-            all (isNothing . rdSubfig) [a, b] &&
-            fromMaybe False ((liftM2 follows `on` rdIdx) b a) ||
-            rdIdx a == rdIdx b &&
-            fromMaybe False ((liftM2 follows `on` rdSubfig) b a)
+            fromMaybe False ((liftM2 follows `on` rdIdx) b a) &&
+            ((==) `on` rdScope) a b
           )
-  follows :: Index -> Index -> Bool
-  follows a b
-    | Just (ai, al) <- HT.viewR a
-    , Just (bi, bl) <- HT.viewR b
-    = ai == bi && fst bl + 1 == fst al
-  follows _ _ = False
+  follows :: Int -> Int -> Bool
+  follows a b = b + 1 == a
   f :: [RefData] -> [RefItem]
   f []  = []                          -- drop empty lists
   f [w] = [RefSingle w]                   -- single value
@@ -203,24 +235,28 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   show'' (RefSingle x) = show' x
   show'' (RefRange x y) = show' x <> rangeDelim o <> show' y
   show' :: RefData -> Inlines
-  show' RefData{rdLabel=l, rdIdx=Just i, rdSubfig = sub, rdSuffix = suf}
-    | linkReferences o = link ('#':l) "" txt
+  show' RefDataComplete{..}
+    | linkReferences o = link ('#':refLabel rdRec) "" txt
     | otherwise = txt
-    where
-      txt
-        | Just sub' <- sub
-        = let vars = M.fromDistinctAscList
-                      [ ("i", chapPrefix (chapDelim o) i)
-                      , ("s", chapPrefix (chapDelim o) sub')
-                      , ("suf", suf)
-                      ]
-          in applyTemplate' vars $ subfigureRefIndexTemplate o
-        | otherwise
-        = let vars = M.fromDistinctAscList
-                      [ ("i", chapPrefix (chapDelim o) i)
-                      , ("suf", suf)
-                      ]
-          in applyTemplate' vars $ refIndexTemplate o
-  show' RefData{rdLabel=l, rdIdx=Nothing, rdSuffix = suf} =
-    trace ("Undefined cross-reference: " ++ l)
-          (strong (text $ "¿" ++ l ++ "?") <> suf)
+    where txt = applyIndexTemplate o rdSuffix rdRec
+  show' RefDataIncomplete{..} =
+    error ("Undefined cross-reference: " <> rdiLabel
+        <> ". This should not be possible, please report a bug")
+
+applyIndexTemplate :: Options -> Many Inline -> RefRec -> Inlines
+applyIndexTemplate opts suf RefRec{..} =
+  let vars x = case x of
+        "i" -> Just refIxInl
+        "suf" -> Just suf
+        _ -> case refScope of
+          Just v -> case x of
+            "s" -> Just $ applyIndexTemplate opts mempty v
+            "scp" -> Just $ inlines False v
+            "Scp" -> Just $ inlines True v
+            _ -> Nothing
+          _ -> Nothing
+      template = prefixReferenceIndexTemplate pfxRec
+      pfxRec = getPfx opts refPfx
+      inlines cap ref@RefRec{refPfx=refPfx', refLevel=refLevel'} =
+        getRefPrefix opts refPfx' cap 0 refLevel' $ applyIndexTemplate opts mempty ref
+  in applyTemplate vars template

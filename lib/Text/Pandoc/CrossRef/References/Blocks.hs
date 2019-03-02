@@ -18,14 +18,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, MultiWayIf #-}
+{-# LANGUAGE Rank2Types, MultiWayIf, RecordWildCards #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
 
 import Text.Pandoc.Definition
 import qualified Text.Pandoc.Builder as B
-import Text.Pandoc.Shared (stringify)
+import Text.Pandoc.Shared (stringify, hierarchicalize, Element(..))
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import Data.Maybe
@@ -33,7 +33,7 @@ import Data.Monoid
 import qualified Data.Map as M
 
 import Data.Accessor.Monad.Trans.State
-import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Types as Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Prefixes
@@ -43,9 +43,11 @@ import Control.Applicative
 import Data.Default (def)
 import Prelude
 
-replaceAll :: (Data a) => Options -> a -> WS a
+replaceAll :: Options -> [Block] -> WS [Block]
 replaceAll opts =
-    runReplace (mkRR (replaceBlock opts) `extRR` replaceInline opts)
+    fmap unhierarchicalize
+  . runReplace [] (mkRR (replaceElement opts) `extRR` replaceBlock opts `extRR` replaceInline opts)
+  . hierarchicalize
   . runSplitMath
   . everywhere (mkT (divBlocks opts) `extT` spanInlines opts)
   . everywhere (mkT (mkCodeBlockCaptions opts))
@@ -55,238 +57,143 @@ replaceAll opts =
                  = everywhere (mkT splitMath)
                  | otherwise = id
 
-getCurPfx :: String -> WS (Maybe Index)
-getCurPfx pfx = M.lookup pfx <$> get curChap
+replaceElement :: Options -> Scope -> Element -> WS (ReplacedResult Element)
+replaceElement opts scope (Sec n ns (label, cls, attrs) text' body) = do
+  let label' = if autoSectionLabels opts && isNothing pfx
+               then "sec:"++label
+               else label
+      pfx = getRefPrefix opts label
+  if "unnumbered" `elem` cls
+  then replaceRecurse scope $ Sec n ns (label', cls, attrs) text' body
+  else do
+    let pfx' = getRefPrefix opts label'
+        ititle = B.fromList text'
+        defaultSecPfx = "sec"
+    rec' <- case pfx' of
+      Just p -> replaceAttr opts scope (Right label) (lookup "label" attrs) ititle p
+      Nothing -> replaceAttr opts scope (Left defaultSecPfx) (lookup "label" attrs) ititle defaultSecPfx
+    let title' = B.toList $
+          case outFormat opts of
+              f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
+              _  -> applyTitleTemplate opts rec'
+    replaceRecurse (newScope rec' scope) $ Sec n ns (label', cls, attrs) title' body
+replaceElement _ scope _ = noReplaceRecurse scope
 
-replaceBlock :: Options -> Block -> WS (ReplacedResult Block)
-replaceBlock opts (Header n (label, cls, attrs) text')
-  = do
-    let label' = if autoSectionLabels opts && not ("sec:" `isPrefixOf` label)
-                 then "sec:"++label
-                 else label
-    if "unnumbered" `elem` cls
-    then replaceNoRecurse $ Header n (label', cls, attrs) text'
-    else do
-      cur <- getCurPfx "sec"
-      let cc = fromMaybe [] cur
-          cl = lookup "label" attrs
-          inc l = let incd = fst (last l) + 1
-                  in init l ++ [(incd, fromMaybe (show incd) cl)]
-          cc'
-            | length cc >= n = inc $ take n cc
-            | otherwise = take (n-1) (cc ++ repeat (1, "1")) ++ [(1, fromMaybe "1" cl)]
-      modify curChap $ M.insert "sec" cc'
-      when (n <= chaptersDepth opts) $ do
-        modify pfxCounter $ M.singleton "sec" . fromMaybe 0 . M.lookup "sec"
-      when ("sec:" `isPrefixOf` label') $ do
-        modify referenceData $ M.insert label' RefRec {
-          refIndex = cc'
-        , refTitle = B.fromList text'
-        , refSubfigure = Nothing
-        }
-      let textCC | numberSections opts
-                 , sectionsDepth opts < 0
-                 || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
-                 = applyTemplate' (M.fromDistinctAscList [
-                      ("i", B.text (intercalate "." $ map snd cc'))
-                    , ("n", B.text $ show $ n - 1)
-                    , ("t", B.fromList text')
-                    ]) $ secHeaderTemplate opts
-                 | otherwise = B.fromList text'
-      replaceNoRecurse $ Header n (label', cls, attrs) $ B.toList textCC
--- sub-objects
-replaceBlock opts (Div (label,cls,attrs) images)
-  | Just pfx <- getRefPrefix opts label
-  , Para caption <- last images
-  = do
-    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) (B.fromList caption) pfx
-    let (cont, st) = runState (runReplace (mkRR $ replaceSubfigs opts') $ init images) def
-        collectedCaptions = B.toList $
-            intercalate' (ccsDelim opts)
-          $ map (collectCaps . snd)
-          $ sortOn (refIndex . snd)
-          $ filter (not . null . refTitle . snd)
-          $ M.toList
-          $ referenceData_ st
-        collectCaps v =
-              applyTemplate
-                (chapPrefix (chapDelim opts) (refIndex v))
-                (refTitle v)
-                (ccsTemplate opts)
-        vars = M.fromDistinctAscList
-                  [ ("ccs", B.fromList collectedCaptions)
-                  , ("i", idxStr)
-                  , ("t", B.fromList caption)
-                  ]
-        capt = applyTemplate' vars $ pfxCaptionTemplate opts pfx
-        opts' = opts {
-            prefixes = case M.lookup ("sub" <> pfx) $ prefixes opts of
-              Just sp -> M.insert pfx sp $ prefixes opts
-              Nothing -> prefixes opts
-            }
-    lastRef <- fromJust . M.lookup label <$> get referenceData
-    modify referenceData $ \old ->
-        M.union
-          old
-          (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
-          $ referenceData_ st)
-    case outFormat opts of
-          f | isLatexFormat f, pfx == "fig" ->
-            replaceNoRecurse $ Div nullAttr $
-              [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
-              ++ cont ++
-              [ Para [RawInline (Format "latex") "\\caption"
-                       , Span nullAttr caption]
-              , RawBlock (Format "latex") $ mkLaTeXLabel label
-              , RawBlock (Format "latex") "\\end{figure}"]
-          _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
-  where
-    toTable :: [Block] -> B.Inlines -> [Block]
-    toTable blks capt
-      | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, mkCaption opts "Image Caption" capt]
-      | otherwise = blks ++ [mkCaption opts "Image Caption" capt]
-      where
-        align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
-              | otherwise = error "Misformatted subfigures block"
-        widths | Para ils:_ <- blks
-               = fixZeros $ mapMaybe getWidth ils
-               | otherwise = error "Misformatted subfigures block"
-        getWidth (Image (_id, _class, as) _ _)
-          = Just $ maybe 0 percToDouble $ lookup "width" as
-        getWidth _ = Nothing
-        fixZeros :: [Double] -> [Double]
-        fixZeros ws
-          = let nz = length $ filter (== 0) ws
-                rzw = (0.99 - sum ws) / fromIntegral nz
-            in if nz>0
-               then map (\x -> if x == 0 then rzw else x) ws
-               else ws
-        percToDouble :: String -> Double
-        percToDouble percs
-          | '%' <- last percs
-          , perc <- read $ init percs
-          = perc/100.0
-          | otherwise = error "Only percent allowed in subfigure width!"
-        blkToRow :: Block -> [[Block]]
-        blkToRow (Para inls) = mapMaybe inlToCell inls
-        blkToRow x = [[x]]
-        inlToCell :: Inline -> Maybe [Block]
-        inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
-        inlToCell _ = Nothing
-        setW as = ("width", "100%"):filter ((/="width") . fst) as
-replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header cells])
+replaceBlock :: Options -> Scope -> Block -> WS (ReplacedResult Block)
+replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , Just pfx <- getRefPrefix opts label
   = do
     let ititle = B.fromList title
-    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ititle pfx
+    idxStr <- replaceAttr opts scope (Right label) (lookup "label" attrs) ititle pfx
     let title' = B.toList $
           case outFormat opts of
-              f | isLatexFormat f ->
-                B.rawInline "latex" (mkLaTeXLabel label) <> ititle
-              _  -> applyTemplate idxStr ititle $ pfxCaptionTemplate opts pfx
+              f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
+              _  -> applyTitleTemplate opts idxStr
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
-replaceBlock opts
-  (Div (label,"listing":_, [])
-    [Para caption, CodeBlock ([],classes,attrs) code])
+replaceBlock opts scope (Div (label,"listing":_, []) [Para caption, CodeBlock ([],classes,attrs) code])
   | not $ null label
   , Just pfx <- getRefPrefix opts label
-  = case outFormat opts of
-      f
-        --if used with listings package, return code block with caption
-        | isLatexFormat f, listings opts ->
-          replaceNoRecurse $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
-        --if not using listings, however, wrap it in a codelisting environment
-        | isLatexFormat f ->
-          replaceNoRecurse $ Div nullAttr [
-              RawBlock (Format "latex") "\\begin{codelisting}"
-            , Para [
-                RawInline (Format "latex") "\\caption"
-              , Span nullAttr caption
+  = do
+      let icaption = B.fromList caption
+      idxStr <- replaceAttr opts scope (Right label) (lookup "label" attrs) icaption pfx
+      let caption' = applyTitleTemplate opts idxStr
+      replaceNoRecurse $ case outFormat opts of
+        f --if used with listings package, return code block with caption
+          | isLatexFormat f, listings opts ->
+            CodeBlock (label,classes,("caption",stringify caption):attrs) code
+          --if not using listings, however, wrap it in a codelisting environment
+          | isLatexFormat f ->
+            Div nullAttr [
+                RawBlock (Format "latex") "\\begin{codelisting}"
+              , Para [
+                  RawInline (Format "latex") "\\caption"
+                , Span nullAttr caption
+                ]
+              , CodeBlock (label,classes,attrs) code
+              , RawBlock (Format "latex") "\\end{codelisting}"
               ]
-            , CodeBlock (label,classes,attrs) code
-            , RawBlock (Format "latex") "\\end{codelisting}"
-            ]
-      _ -> do
-        let icaption = B.fromList caption
-        idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) icaption pfx
-        let caption' = applyTemplate idxStr icaption $ pfxCaptionTemplate opts pfx
-        replaceNoRecurse $ Div (label, "listing":classes, []) [
+        _ -> Div (label, "listing":classes, []) [
             mkCaption opts "Caption" caption'
           , CodeBlock ([], classes, attrs) code
           ]
-replaceBlock opts (Para [Span attrs@(label, _, _) [Math DisplayMath eq]])
+replaceBlock opts scope (Para [Span attrs@(label, _, _) [Math DisplayMath eq]])
   | not $ isLatexFormat (outFormat opts)
   , tableEqns opts
   , pfx <- getRefPrefix opts label
   = do
-    (eq', idx) <- replaceEqn opts attrs eq pfx
+    (eq', idx) <- replaceEqn opts scope attrs eq pfx
     replaceNoRecurse $ Div attrs [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
-replaceBlock opts x@(Div (label, _, attrs) _content)
+replaceBlock opts scope x@(Div (label, _, attrs) _content)
   | Just pfx <- getRefPrefix opts label
   = do
-    void $ replaceAttr opts (Right label) (lookup "label" attrs) mempty pfx
-    replaceRecurse x
-replaceBlock _ _ = noReplaceRecurse
+    rec' <- replaceAttr opts scope (Right label) (lookup "label" attrs) mempty pfx
+    replaceRecurse (newScope rec' scope) x
+replaceBlock _ scope _ = noReplaceRecurse scope
 
-replaceEqn :: Options -> Attr -> String -> Maybe String -> WS (String, String)
-replaceEqn opts (label, _, attrs) eq pfx = do
+replaceEqn :: Options -> Scope -> Attr -> String -> Maybe String -> WS (String, String)
+replaceEqn opts scope (label, _, attrs) eq pfx = do
   let label' | null label = Left "eq"
              | otherwise = Right label
-  idxStr <- replaceAttr opts label' (lookup "label" attrs) mempty (fromMaybe "eq" pfx)
+  idxStr <- replaceAttr opts scope label' (lookup "label" attrs) mempty (fromMaybe "eq" pfx)
   let eq' | tableEqns opts = eq
-          | otherwise = eq++"\\qquad("++stringify idxStr++")"
-  return (eq', stringify idxStr)
+          | otherwise = eq++"\\qquad("++stringify (refIxInl idxStr)++")"
+  return (eq', stringify (refIxInl idxStr))
 
-replaceInline :: Options -> Inline -> WS (ReplacedResult Inline)
-replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
+replaceInline :: Options -> Scope -> Inline -> WS (ReplacedResult Inline)
+replaceInline opts scope (Span attrs@(label,_,_) [Math DisplayMath eq])
   | pfx <- getRefPrefix opts label
   , isJust pfx || null label && autoEqnLabels opts
-  = case outFormat opts of
-      f | isLatexFormat f ->
-        let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
-        in replaceNoRecurse $ RawInline (Format "latex") eqn
-      _ -> do
-        (eq', _) <- replaceEqn opts attrs eq pfx
-        replaceNoRecurse $ Span attrs [Math DisplayMath eq']
-replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
+  = do
+      (eq', _) <- replaceEqn opts scope attrs eq pfx
+      replaceNoRecurse $ case outFormat opts of
+        f | isLatexFormat f ->
+          let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
+          in RawInline (Format "latex") eqn
+        _ -> Span attrs [Math DisplayMath eq']
+replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
   | Just pfx <- getRefPrefix opts label
   , "fig:" `isPrefixOf` tit
   = do
     let ialt = B.fromList alt
-    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) ialt pfx
+    idxStr <- replaceAttr opts scope (Right label) (lookup "label" attrs) ialt pfx
     let alt' = B.toList $ case outFormat opts of
           f | isLatexFormat f -> ialt
-          _  -> applyTemplate idxStr ialt $ pfxCaptionTemplate opts pfx
+          _  -> applyTitleTemplate opts idxStr
     replaceNoRecurse $ Image attr alt' img
-replaceInline opts x@(Span (label,_,attrs) _content)
+replaceInline opts scope x@(Span (label,_,attrs) _content)
   | Just pfx <- getRefPrefix opts label
   = do
-      void $ replaceAttr opts (Right label) (lookup "label" attrs) mempty pfx
-      replaceRecurse x
-replaceInline _ _ = noReplaceRecurse
+      rec' <- replaceAttr opts scope (Right label) (lookup "label" attrs) mempty pfx
+      replaceRecurse (newScope rec' scope) x
+replaceInline _ scope _ = noReplaceRecurse scope
 
-replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
-replaceSubfigs opts = (replaceNoRecurse . concat =<<) . mapM (replaceSubfig opts)
+applyTitleTemplate :: Options -> RefRec -> B.Inlines
+applyTitleTemplate opts rr@RefRec{..} =
+  applyTemplate vf $ pfxCaptionTemplate opts refPfx
+  where
+    vf x = case x of
+      "i" -> Just refIxInl
+      _ -> titleVarFunc opts rr x
 
-replaceSubfig :: Options -> Inline -> WS [Inline]
-replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
-  = do
-      let label' | "fig:" `isPrefixOf` label = Right label
-                 | null label = Left "fig"
-                 | otherwise  = Right $ "fig:" ++ label
-      let ialt = B.fromList alt
-      idxStr <- replaceAttr opts label' (lookup "label" attrs) ialt "fig"
-      case outFormat opts of
-        f | isLatexFormat f ->
-          return $ latexSubFigure x label
-        _  ->
-          let alt' = B.toList $ applyTemplate idxStr ialt $ pfxCaptionTemplate opts "fig"
-              tit' | "nocaption" `elem` cls = fromMaybe tit $ stripPrefix "fig:" tit
-                   | "fig:" `isPrefixOf` tit = tit
-                   | otherwise = "fig:" ++ tit
-          in return [Image (label, cls, attrs) alt' (src, tit')]
-replaceSubfig _ x = return [x]
+applyTitleIndexTemplate :: Options -> RefRec -> B.Inlines -> B.Inlines
+applyTitleIndexTemplate opts rr@RefRec{..} label =
+  applyTemplate vf $ pfxCaptionIndexTemplate opts refPfx
+  where
+  vf x = case x of
+    "i" -> Just label
+    _ -> titleVarFunc opts rr x
+
+titleVarFunc :: Options -> RefRec -> String -> Maybe B.Inlines
+titleVarFunc opts RefRec{..} x = case x of
+   "t" -> Just refTitle
+   "lvl" -> Just $ B.str $ show refLevel
+   _ -> case refScope of
+     Just rs -> case x of
+       "s" -> Just $ Types.refIxInl rs
+       "scp" -> Just $ applyTitleTemplate opts rs
+       _ -> Nothing
+     _ -> Nothing
 
 divBlocks :: Options -> Block -> Block
 divBlocks opts (Table title align widths header cells)
@@ -322,52 +229,34 @@ spanInlines opts (math@(Math DisplayMath _eq):ils)
   = Span nullAttr [math]:ils
 spanInlines _ x = x
 
-replaceAttr :: Options -> Either String String -> Maybe String -> B.Inlines -> String -> WS B.Inlines
-replaceAttr o label refLabel title pfx
+replaceAttr :: Options -> Scope -> Either String String -> Maybe String -> B.Inlines -> String -> WS RefRec
+replaceAttr o scope label refLabel' title pfx
   = do
     let ropt = getPfx o pfx
-    cur <- get curChap
-    let chap = take (chaptersDepth o) . fromMaybe [] . M.lookup "sec" $ cur
-    i <- (1+) . fromMaybe 0 . M.lookup pfx <$> get pfxCounter
-    -- TODO: shouldReset should likely be a transitive closure...
-    let shouldReset = M.keys . M.filter (\p -> pfx `elem` prefixScope p) $ prefixes o
-    modify pfxCounter $ M.filterWithKey $ \k _ -> k `notElem` shouldReset
-    modify pfxCounter $ M.insert pfx i
-    let customLabel = prefixNumbering ropt
-        -- TODO: should we prepend scoped refrences with references to the scope they're in?
-        -- scop = join $ fmap (flip M.lookup cur) $ prefixScope ropt
-        index = chap ++ [(i, fromMaybe (customLabel i) refLabel)]
-        label' = either (++ ':':show index) id label
-    modify curChap $ M.insert pfx index
+        customLabel = prefixNumbering ropt
+        itemScope = find ((`elem` prefixScope ropt) . refPfx) scope
+    cr <- (\CounterRec{..} -> CounterRec{
+            crIndex = crIndex+1
+          , crIndexInScope = M.insertWith (+) itemScope 1 crIndexInScope
+          }) . fromMaybe def . M.lookup pfx <$> get pfxCounter
+    modify pfxCounter $ M.insert pfx cr
+    let label' = either (++ ':':'\0':show i) id label
+        iInSc = fromJust $ M.lookup itemScope $ crIndexInScope cr
+        i = crIndex cr
     hasLabel <- M.member label' <$> get referenceData
-    when hasLabel $
-      error $ "Duplicate label: " ++ label'
-    modify referenceData $ M.insert label' RefRec {
-      refIndex= index
-    , refTitle= title
-    , refSubfigure = Nothing
-    }
-    return $ chapPrefix (chapDelim o) index
-
-latexSubFigure :: Inline -> String -> [Inline]
-latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
-  let
-    title' = fromMaybe title $ stripPrefix "fig:" title
-    texlabel | null label = []
-             | otherwise = [RawInline (Format "latex") $ mkLaTeXLabel label]
-    texalt | "nocaption" `elem` cls  = []
-           | otherwise = concat
-              [ [ RawInline (Format "latex") "["]
-              , alt
-              , [ RawInline (Format "latex") "]"]
-              ]
-    img = Image (label, cls, attrs) alt (src, title')
-  in concat [
-      [ RawInline (Format "latex") "\\subfloat" ]
-      , texalt
-      , [Span nullAttr $ img:texlabel]
-      ]
-latexSubFigure x _ = [x]
+    when hasLabel $ error $ "Duplicate label: " ++ label'
+    let rec' = RefRec {
+        refIndex = i
+      , refTitle = title
+      , refLabel = label'
+      , refIxInl = applyTitleIndexTemplate o rec' $ B.text $ fromMaybe (customLabel iInSc) refLabel'
+      , refScope = itemScope
+      , refLevel = length $ filter ((== pfx) . refPfx) scope
+      , refPfx = pfx
+      , refCaption = applyTitleTemplate o rec'
+      }
+    modify referenceData $ M.insert label' rec'
+    return rec'
 
 mkCaption :: Options -> String -> B.Inlines -> Block
 mkCaption opts style

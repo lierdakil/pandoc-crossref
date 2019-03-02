@@ -18,55 +18,79 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE RecordWildCards #-}
+
 module Text.Pandoc.CrossRef.Util.Template
   ( Template
+  , RefTemplate
   , makeTemplate
+  , makeRefTemplate
   , applyTemplate
-  , applyTemplate'
+  , applyRefTemplate
   ) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.Generic
-import qualified Data.Map as M hiding (toList, fromList, singleton)
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Control.Applicative
 import Text.Read
+import Data.Char (isAlphaNum, isUpper, toLower)
+import Control.Monad (join)
 
 type VarFunc = String -> Maybe MetaValue
 newtype Template = Template (VarFunc -> Inlines)
+newtype RefTemplate = RefTemplate (Bool -> Int -> Inlines)
+
+data State = StFirstVar | StIndex | StAfterIndex | StPrefix | StSuffix
+data ParseRes = ParseRes { prVar :: String, prIdx :: Maybe String, prPfx :: String, prSfx :: String } deriving Show
+
+parse :: State -> String -> ParseRes
+parse _ [] = ParseRes [] Nothing [] []
+parse StFirstVar cs@(c:_) | isAlphaNum c = let (var, rest) = span isAlphaNum cs in (parse StFirstVar rest){prVar = var}
+parse StFirstVar ('[':cs) = let (idx, rest) = span isAlphaNum cs in (parse StIndex rest){prIdx = Just idx}
+parse StIndex (']':cs) = parse StAfterIndex cs
+parse StIndex _ = error "Unterminated [ in indexed variable"
+parse _ ('%':cs) = parse StSuffix cs
+parse _ ('#':cs) = parse StPrefix cs
+parse StFirstVar s = error $ "Invalid variable name in " <> s
+parse StAfterIndex (c:_) = error $ "Unexpected character " <> [c] <> " after parsing indexed variable"
+parse StPrefix cs = let (pfx, rest) = span (`notElem` "%#") cs in (parse StPrefix rest){prPfx = pfx}
+parse StSuffix cs = let (sfx, rest) = span (`notElem` "%#") cs in (parse StSuffix rest){prSfx = sfx}
 
 makeTemplate :: Settings -> Inlines -> Template
 makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> lookupSettings var dtv) $ toList xs'
   where
   scan :: (String -> Maybe MetaValue) -> [Inline] -> [Inline]
   scan = bottomUp . go
-  go vf ((Math DisplayMath var):xs)
-    | '[' `elem` var  && ']' == last var =
-      let (vn, idxBr) = span (/='[') var
-          idxVar = drop 1 $ takeWhile (/=']') idxBr
-          idx = readMaybe . toString ("index variable " ++ idxVar) =<< vf idxVar
-          arr = do
-            i <- idx
-            v <- lookupSettings vn dtv
-            getList i v
-      in toList $ (replaceVar arr id) <> fromList xs
-    | '#' `elem` var =
-      let (vn, pfx') = span (/='#') var
-          pfx = drop 1 pfx'
-      in toList $ (replaceVar (vf vn) (text pfx <>)) <> fromList xs
-    | otherwise = toList $ (replaceVar (vf var) id) <> fromList xs
-    where replaceVar val m = maybe mempty (m . toInlines ("variable " ++ var)) val
+  go vf (Math DisplayMath var:xs)
+    | ParseRes{..} <- parse StFirstVar var
+    = let replaceVar = maybe mempty (modifier . toInlines ("variable " ++ var))
+          modifier = (<> text prSfx) . (text prPfx <>)
+      in case prIdx of
+        Just idxVar ->
+          let
+            idx = readMaybe . toString ("index variable " ++ idxVar) =<< vf idxVar
+            arr = join $ getList <$> idx <*> vf prVar
+          in toList $ replaceVar arr <> fromList xs
+        Nothing -> toList $ replaceVar (vf prVar) <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
 
-applyTemplate' :: M.Map String Inlines -> Template -> Inlines
-applyTemplate' vars (Template g) = g internalVars
-  where
-  internalVars x | Just v <- M.lookup x vars = Just $ MetaInlines $ toList v
-  internalVars _   = Nothing
+makeRefTemplate :: Settings -> Inlines -> RefTemplate
+makeRefTemplate dtv xs' =
+  let Template g = makeTemplate dtv xs'
+      vf _ n "n" = Just $ MetaInlines [Str $ show n]
+      vf cap _ (vc:vs)
+        | isUpper vc && cap = capitalize (`lookupSettings` dtv) var
+        | otherwise = lookupSettings var dtv
+        where var = toLower vc : vs
+      vf _ _ [] = error "Empty variable name"
+  in RefTemplate $ \cap n -> g (vf cap n)
 
-applyTemplate :: Inlines -> Inlines -> Template -> Inlines
-applyTemplate i t =
-  applyTemplate' (M.fromDistinctAscList [("i", i), ("t", t)])
+applyRefTemplate :: RefTemplate -> Bool -> Int -> Inlines
+applyRefTemplate (RefTemplate g) = g
+
+applyTemplate :: (String -> Maybe Inlines) -> Template -> Inlines
+applyTemplate vars (Template g) = g $ fmap (MetaInlines . toList) . vars

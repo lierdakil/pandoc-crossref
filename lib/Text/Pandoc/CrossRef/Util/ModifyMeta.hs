@@ -92,27 +92,27 @@ modifyMeta opts meta
             ]
           | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++getListOfTitle "lst"++"}}"]
         cleveref = [ usepackage cleverefOpts "cleveref" ]
-          <> crefname "figure" (pfxRef "fig")
-          <> crefname "table" (pfxRef "tbl")
-          <> crefname "equation" (pfxRef "eq")
-          <> crefname "listing" (pfxRef "lst")
-          <> crefname "section" (pfxRef "sec")
-        pfxRef labelPrefix = prefixRef . flip getPfx labelPrefix
+          -- <> crefname "figure" (pfxRef "fig")
+          -- <> crefname "table" (pfxRef "tbl")
+          -- <> crefname "equation" (pfxRef "eq")
+          -- <> crefname "listing" (pfxRef "lst")
+          -- <> crefname "section" (pfxRef "sec")
+        -- pfxRef labelPrefix = prefixRef . flip getPfx labelPrefix
         cleverefCodelisting = [
             "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
           , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
           ]
         cleverefOpts | nameInLink opts = [ "nameinlink" ]
                      | otherwise = []
-        crefname n f = [
-            "\\crefname{" ++ n ++ "}" ++ prefix f False
-          , "\\Crefname{" ++ n ++ "}" ++ prefix f True
-          ]
+        -- crefname n f = [
+        --     "\\crefname{" ++ n ++ "}" ++ prefix f False
+        --   , "\\Crefname{" ++ n ++ "}" ++ prefix f True
+        --   ]
         usepackage [] p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage{"++p++"}}"
         usepackage xs p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage"++o++"{"++p++"}}"
           where o = "[" ++ intercalate "," xs ++ "]"
         toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
         getListOfTitle = toLatex . blocksToInlines . toList . getTitleForListOf opts
         getFloatCaption = toLatex . toList . prefixTitle . getPfx opts
-        prefix f uc = "{" ++ toLatex (toList $ f opts uc 0) ++ "}" ++
-                      "{" ++ toLatex (toList $ f opts uc 1) ++ "}"
+        -- prefix f uc = "{" ++ toLatex (toList $ f opts uc 0) ++ "}" ++
+        --               "{" ++ toLatex (toList $ f opts uc 1) ++ "}"

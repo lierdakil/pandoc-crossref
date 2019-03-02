@@ -54,17 +54,12 @@ getPfxData pfx = M.filterWithKey (\k _ -> (pfx <> ":") `isPrefixOf` k) <$> get r
 makeList :: Options -> String -> Blocks -> M.Map String RefRec -> WS Blocks
 makeList opts titlef xs refs
   = return $
-      getTitleForListOf opts titlef <>
-      (if chaptersDepth opts > 0
-        then divWith ("", ["list"], []) (mconcat $ map itemChap refsSorted)
-        else orderedList (map item refsSorted))
+      getTitleForListOf opts titlef
+      <> divWith ("", ["list"], []) (mconcat $ map itemChap refsSorted)
       <> xs
   where
     refsSorted :: [(String, RefRec)]
     refsSorted = sortBy compare' $ M.toList refs
     compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j
-    item = plain . refTitle . snd
     itemChap :: (String, RefRec) -> Blocks
-    itemChap = para . uncurry (\ x x0 -> x <> space <> x0) . ((numWithChap . refIndex) &&& refTitle) . snd
-    numWithChap :: Index -> Inlines
-    numWithChap = chapPrefix (chapDelim opts)
+    itemChap = para . uncurry (\ x x0 -> x <> space <> x0) . (refIxInl &&& refTitle) . snd

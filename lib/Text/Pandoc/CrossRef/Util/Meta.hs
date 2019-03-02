@@ -26,10 +26,11 @@ module Text.Pandoc.CrossRef.Util.Meta (
   , getMetaBlock
   , getMetaString
   , getMetaStringMaybe
+  , getMetaStringList
   , getList
   , toString
   , toInlines
-  , tryCapitalizeM
+  , capitalize
   ) where
 
 import Text.Pandoc.CrossRef.Util.Util
@@ -43,6 +44,12 @@ import Data.Maybe
 
 getMetaList :: (Default a) => (MetaValue -> a) -> String -> Settings -> Int -> a
 getMetaList f name (Settings meta) i = maybe def f $ lookupMeta name meta >>= getList i
+
+getMetaStringList :: String -> Settings -> [String]
+getMetaStringList name (Settings meta) = maybe [] (getList' name) $ lookupMeta name meta
+  where
+    getList' n (MetaList l) = map (toString n) l
+    getList' n x = [toString n x]
 
 getMetaBool :: String -> Settings -> Bool
 getMetaBool = getScalar toBool
@@ -120,15 +127,10 @@ getList i (MetaList l) = l !!? i
                    | otherwise = Nothing
 getList _ x = Just x
 
-tryCapitalizeM :: (Functor m, Monad m, Walkable Inline a, Default a, Eq a) =>
-        (String -> m a) -> String -> Bool -> m a
-tryCapitalizeM f varname capitalize
-  | capitalize = do
-    res <- f (capitalizeFirst varname)
-    case res of
-      xs | xs == def -> f varname >>= walkM capStrFst
-         | otherwise -> return xs
-  | otherwise  = f varname
+capitalize :: (Walkable Inline a) => (String -> Maybe a) -> String -> Maybe a
+capitalize f varname = case f (capitalizeFirst varname) of
+  Nothing -> walk capStrFst <$> f varname
+  Just xs -> Just xs
   where
-    capStrFst (Str s) = return $ Str $ capitalizeFirst s
-    capStrFst x = return x
+  capStrFst (Str s) = Str $ capitalizeFirst s
+  capStrFst x = x

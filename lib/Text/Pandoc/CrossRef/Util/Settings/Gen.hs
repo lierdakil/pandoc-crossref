@@ -24,7 +24,6 @@ module Text.Pandoc.CrossRef.Util.Settings.Gen where
 
 import Text.Pandoc.CrossRef.Util.Settings.Template
 import Text.Pandoc.CrossRef.Util.Settings.Types
-import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Options as O (Options(..))
 import Language.Haskell.TH (mkName)
 import Text.Pandoc.Definition
@@ -32,24 +31,9 @@ import Text.Pandoc.Definition
 nameDeriveSetters ''Options
 
 fmap concat $ mapM (makeAcc . mkName)
-  -- [ "figureTitle"
-  -- , "tableTitle"
-  -- , "listingTitle"
-  [ "titleDelim"
-  , "crossrefYaml"
-  -- , "subfigLabels"
-  , "chapters"
-  -- , "figLabels"
-  -- , "eqnLabels"
-  -- , "tblLabels"
-  -- , "lstLabels"
-  -- , "secLabels"
-  , "secHeaderDelim"
+  [ "crossrefYaml"
+  , "titleDelim"
   ]
 
 getOptions :: Settings -> Maybe Format -> Options
-getOptions dtv fmt =
-  let opts = $(makeCon ''Options 'Options)
-  in if getMetaBool "chapters" dtv
-     then opts
-     else opts{O.chaptersDepth = 0}
+getOptions dtv fmt = $(makeCon ''Options 'Options)

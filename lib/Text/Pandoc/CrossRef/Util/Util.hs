@@ -26,8 +26,8 @@ module Text.Pandoc.CrossRef.Util.Util
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.Definition
-import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Class
+import Text.Pandoc.Shared (Element(..))
 import Data.Char (toUpper, toLower, isUpper)
 import Data.Generics hiding (Prefix)
 import Text.Pandoc.Writers.LaTeX
@@ -58,47 +58,44 @@ isFirstUpper :: String -> Bool
 isFirstUpper (x:_) = isUpper x
 isFirstUpper [] = False
 
-chapPrefix :: Inlines -> Index -> Inlines
-chapPrefix delim index = intercalate' delim (map (str . snd) index)
+data ReplacedResult a = ReplacedRecurse Scope a
+                      | NotReplacedRecurse Scope
+                      | ReplacedNoRecurse a
+                      | NotReplacedNoRecurse
+type GenRR m = forall a. Data a => (Scope -> a -> m (ReplacedResult a))
+newtype RR m a = RR {unRR :: Scope -> a -> m (ReplacedResult a)}
 
-data ReplacedResult a = Replaced Bool a | NotReplaced Bool
-type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))
-newtype RR m a = RR {unRR :: a -> m (ReplacedResult a)}
-
-runReplace :: (Monad m) => GenRR m -> GenericM m
-runReplace f x = do
-  res <- f x
+runReplace :: (Monad m) => Scope -> GenRR m -> GenericM m
+runReplace s f x = do
+  res <- f s x
   case res of
-    Replaced True x' -> gmapM (runReplace f) x'
-    Replaced False x' -> return x'
-    NotReplaced True -> gmapM (runReplace f) x
-    NotReplaced False -> return x
+    ReplacedRecurse s' x' -> gmapM (runReplace s' f) x'
+    ReplacedNoRecurse x' -> return x'
+    NotReplacedRecurse s' -> gmapM (runReplace s' f) x
+    NotReplacedNoRecurse -> return x
 
 mkRR :: (Monad m, Typeable a, Typeable b)
-     => (b -> m (ReplacedResult b))
-     -> (a -> m (ReplacedResult a))
-mkRR = extRR (const noReplaceRecurse)
+     => (Scope -> b -> m (ReplacedResult b))
+     -> (Scope -> a -> m (ReplacedResult a))
+mkRR = extRR (\s _ -> noReplaceRecurse s)
 
 extRR :: ( Monad m, Typeable a, Typeable b)
-     => (a -> m (ReplacedResult a))
-     -> (b -> m (ReplacedResult b))
-     -> (a -> m (ReplacedResult a))
+     => (Scope -> a -> m (ReplacedResult a))
+     -> (Scope -> b -> m (ReplacedResult b))
+     -> (Scope -> a -> m (ReplacedResult a))
 extRR def' ext = unRR (RR def' `ext0` RR ext)
 
-replaceRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceRecurse = return . Replaced True
+replaceRecurse :: Monad m => Scope -> a -> m (ReplacedResult a)
+replaceRecurse s = return . ReplacedRecurse s
 
 replaceNoRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceNoRecurse = return . Replaced False
+replaceNoRecurse = return . ReplacedNoRecurse
 
-noReplace :: Monad m => Bool -> m (ReplacedResult a)
-noReplace recurse = return $ NotReplaced recurse
-
-noReplaceRecurse :: Monad m => m (ReplacedResult a)
-noReplaceRecurse = noReplace True
+noReplaceRecurse :: Monad m => Scope -> m (ReplacedResult a)
+noReplaceRecurse = return . NotReplacedRecurse
 
 noReplaceNoRecurse :: Monad m => m (ReplacedResult a)
-noReplaceNoRecurse = noReplace False
+noReplaceNoRecurse = return NotReplacedNoRecurse
 
 mkLaTeXLabel :: String -> String
 mkLaTeXLabel l
@@ -118,3 +115,15 @@ isLaTeXRawBlockFmt :: Format -> Bool
 isLaTeXRawBlockFmt (Format "latex") = True
 isLaTeXRawBlockFmt (Format "tex") = True
 isLaTeXRawBlockFmt _ = False
+
+safeHead :: [a] -> Maybe a
+safeHead [] = Nothing
+safeHead x = Just $ head x
+
+unhierarchicalize :: [Element] -> [Block]
+unhierarchicalize (Sec l _n attr title body:xs) = Header l attr title : unhierarchicalize body ++ unhierarchicalize xs
+unhierarchicalize (Blk bs:xs) = bs : unhierarchicalize xs
+unhierarchicalize [] = []
+
+newScope :: RefRec -> Scope -> Scope
+newScope = (:)

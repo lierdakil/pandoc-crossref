@@ -30,27 +30,16 @@ import Data.List.Extra
 import Text.Pandoc.CrossRef.Util.LatexPrefixes
 
 data Options = Options { cref :: Bool
-                       , chaptersDepth   :: Int
                        , listings :: Bool
                        , codeBlockCaptions  :: Bool
                        , autoSectionLabels  :: Bool
-                       , numberSections  :: Bool
-                       , sectionsDepth  :: Int
-                       , refIndexTemplate :: Template
-                       , subfigureRefIndexTemplate :: Template
-                       , secHeaderTemplate :: Template
-                       , chapDelim   :: Inlines
                        , rangeDelim  :: Inlines
                        , pairDelim  :: Inlines
                        , lastDelim  :: Inlines
                        , refDelim  :: Inlines
                        , outFormat   :: Maybe Format
-                       , ccsTemplate :: Template
-                       , ccsDelim :: Inlines
-                       , ccsLabelSep :: Inlines
                        , tableEqns :: Bool
                        , autoEqnLabels :: Bool
-                       , subfigGrid :: Bool
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , prefixes :: Prefixes
@@ -62,6 +51,9 @@ prefixList = M.keys . prefixes
 
 pfxCaptionTemplate :: Options -> String -> Template
 pfxCaptionTemplate opts pfx = prefixCaptionTemplate $ getPfx opts pfx
+
+pfxCaptionIndexTemplate :: Options -> String -> Template
+pfxCaptionIndexTemplate opts pfx = prefixCaptionIndexTemplate $ getPfx opts pfx
 
 getPfx :: Options -> String -> Prefix
 getPfx o pn = fromMaybe defaultPfx $ M.lookup pn $ prefixes o

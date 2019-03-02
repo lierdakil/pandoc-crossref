@@ -48,19 +48,31 @@ getPrefixes varN dtv
   where
     var = displayMath
     m2p _ (MetaMap kv') = Prefix {
-        prefixRef = (fromInlines' .) . tryCapitalizeM (flip (getMetaList (Inlines' . toInlines "ref")) kv) "ref"
+        prefixRef = makeRefTemplate kv .
+          if isJust $ lookupSettings "refTemplate" kv
+          then fromInlines' . getMetaList (Inlines' . toInlines "refTemplate") "refTemplate" kv
+          else const $ var "Ref[n]"
+          -- tryCapitalizeM (\y -> getMetaList (Inlines' . toInlines "ref") y kv) "ref"
       , prefixCaptionTemplate = makeTemplate kv $
           if isJust $ lookupSettings "captionTemplate" kv
           then getMetaInlines "captionTemplate" kv
-          else var "title" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> var "ccs#. "
+          else var "title" <> space <> var "i" <> var "titleDelim" <> space <> var "t"
       , prefixReferenceTemplate = makeTemplate kv $
           if isJust $ lookupSettings "referenceTemplate" kv
           then getMetaInlines "referenceTemplate" kv
           else var "p" <> str "\160" <> var "i"
-      , prefixScope = getMetaStringMaybe "scope" kv
+      , prefixScope = getMetaStringList "scope" kv
       , prefixNumbering = mkLabel (varN <> "." <> "numbering") (fromMaybe (MetaString "arabic") $ lookupSettings "numbering" kv)
       , prefixListOfTitle = getMetaBlock "listOfTitle" kv
       , prefixTitle = getMetaInlines "title" kv
+      , prefixReferenceIndexTemplate = makeTemplate kv $
+          if isJust $ lookupSettings "referenceIndexTemplate" kv
+          then getMetaInlines "referenceIndexTemplate" kv
+          else var "i" <> var "suf"
+      , prefixCaptionIndexTemplate = makeTemplate kv $
+          if isJust $ lookupSettings "captionIndexTemplate" kv
+          then getMetaInlines "captionIndexTemplate" kv
+          else var "i"
       }
       where kv = Settings (Meta kv') <> dtv
     m2p k _ = error $ "Invalid value for prefix " <> k
@@ -68,12 +80,14 @@ getPrefixes varN dtv
 type Prefixes = M.Map String Prefix
 
 data Prefix = Prefix {
-    prefixRef :: !(Bool -> Int -> Inlines)
+    prefixRef :: !(Int -> RefTemplate)
   , prefixCaptionTemplate :: !Template
   , prefixReferenceTemplate :: !Template
-  , prefixScope :: !(Maybe String)
+  , prefixScope :: ![String]
   , prefixNumbering :: !(Int -> String)
   , prefixListOfTitle :: !Blocks
+  , prefixReferenceIndexTemplate :: !Template
+  , prefixCaptionIndexTemplate :: !Template
   -- Used for LaTeX metadata; the same value is used in
   -- default value for prefixCaptionTemplate
   , prefixTitle :: Inlines
