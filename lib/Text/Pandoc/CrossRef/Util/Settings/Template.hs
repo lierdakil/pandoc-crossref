@@ -79,6 +79,8 @@ makeCon' t accName = do
     tmplT <- [t|$(conT t) -> Template|]
     clT <- [t|$(conT t) -> String -> Int -> Maybe String|]
     pfxT <- [t|$(conT t) -> Prefixes|]
+    strT <- [t|$(conT t) -> String|]
+    mstT <- [t|$(conT t) -> Maybe String|]
     let varName | Name (OccName n) _ <- accName = liftString n
     let dtv = return $ VarE $ mkName "dtv"
     body <-
@@ -92,5 +94,7 @@ makeCon' t accName = do
       | t' == clT -> [|customLabel $(dtv)|]
       | t' == fmtT -> return $ VarE $ mkName "fmt"
       | t' == pfxT -> [|getPrefixes $(varName) $(dtv)|]
+      | t' == strT -> [|getMetaString $(varName) $(dtv)|]
+      | t' == mstT -> [|getMetaStringMaybe $(varName) $(dtv)|]
       | otherwise -> fail $ show t'
     return [(accName, body)]

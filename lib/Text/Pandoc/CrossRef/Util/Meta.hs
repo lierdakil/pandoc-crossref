@@ -65,7 +65,7 @@ getMetaString :: String -> Settings -> String
 getMetaString = getScalar toString
 
 getMetaStringMaybe :: String -> Settings -> Maybe String
-getMetaStringMaybe = getScalar toMaybeString
+getMetaStringMaybe = getScalar (const toMaybeString)
 
 getScalar :: Def b => (String -> MetaValue -> b) -> String -> Settings -> b
 getScalar conv name (Settings meta) = maybe def' (conv name) $ lookupMeta name meta
@@ -112,13 +112,13 @@ toBlocks _ (MetaString s) = plain $ text s
 toBlocks n x = unexpectedError "blocks" n x
 
 toString :: String -> MetaValue -> String
-toString n x = fromMaybe (unexpectedError "string" n x) $ toMaybeString n x
+toString n x = fromMaybe (unexpectedError "string" n x) $ toMaybeString x
 
-toMaybeString :: String -> MetaValue -> Maybe String
-toMaybeString _ (MetaString s) = Just s
-toMaybeString _ (MetaBlocks b) = Just $ stringify b
-toMaybeString _ (MetaInlines i) = Just $ stringify i
-toMaybeString _ _ = Nothing
+toMaybeString :: MetaValue -> Maybe String
+toMaybeString (MetaString s) = Just s
+toMaybeString (MetaBlocks b) = Just $ stringify b
+toMaybeString (MetaInlines i) = Just $ stringify i
+toMaybeString _ = Nothing
 
 getList :: Int -> MetaValue -> Maybe MetaValue
 getList i (MetaList l) = l !!? i

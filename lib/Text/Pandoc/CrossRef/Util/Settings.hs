@@ -72,13 +72,12 @@ defaultMeta = Settings $
   <> refDelim (str "," <> space)
   <> crossrefYaml "pandoc-crossref.yaml"
   <> tableEqns False
-  <> autoEqnLabels False
   <> linkReferences False
   <> nameInLink False
   -- these are merely the defaults, can (and will) be overridden in prefix configs
   <> captionTemplate (var "title%\160" <> var "i" <> var "titleDelim" <> var "t")
   <> captionIndexTemplate (var "i")
-  <> referenceTemplate (var "Ref[n][lvl]%\160" <> var "rs")
+  <> referenceTemplate (var "Ref[n]%\160" <> var "rs")
   <> referenceIndexTemplate (var "i" <> var "suf")
   <> numbering "arabic"
   <> listOfTitle (header 1 $ text "List of " <> var "title" <> str "s")

@@ -33,6 +33,7 @@ import Data.Monoid
 import qualified Data.Map as M
 
 import Text.Pandoc.CrossRef.References.Types as Types
+import Text.Pandoc.CrossRef.References.Subfigures
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Prefixes
@@ -52,8 +53,9 @@ replaceAll opts =
   . runReplace [] (mkRR (replaceElement opts) `extRR` replaceBlock opts `extRR` replaceInline opts)
   . hierarchicalize
   . runSplitMath
+  . everywhere (mkT $ makeSubfigures opts)
   . everywhere (mkT (divBlocks opts) `extT` spanInlines opts)
-  . everywhere (mkT (mkCodeBlockCaptions opts))
+  . everywhere (mkT $ mkCodeBlockCaptions opts)
   where
     runSplitMath | tableEqns opts
                  , not $ isLatexFormat (outFormat opts)
@@ -117,46 +119,59 @@ replaceBlock opts scope (Div (label,"listing":_, []) [Para caption, CodeBlock ([
             mkCaption opts "Caption" caption'
           , CodeBlock ([], classes, attrs) code
           ]
-replaceBlock opts scope (Para [Span attrs@(label, _, _) [Math DisplayMath eq]])
+replaceBlock opts scope (Para [Span ats@(label, _, attrs) [Math DisplayMath eq]])
   | not $ isLatexFormat (outFormat opts)
   , tableEqns opts
-  , pfx <- getRefPrefix opts label
+  , Just pfx <- getRefPrefix opts label <|> autoEqnLabels opts
+  , Just lbl <- autoLabel pfx label
   = do
-    (eq', idx) <- replaceEqn opts scope attrs eq pfx
-    replaceNoRecurse $ Div attrs [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
-replaceBlock opts scope x@(Div (label, _, attrs) _content)
+    (eq', idx) <- replaceEqn opts scope lbl attrs eq pfx
+    replaceNoRecurse $ Div ats [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
+replaceBlock opts scope x@(Div ats@(label, _, attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
-    rec' <- replaceAttr opts scope (Right label) attrs mempty pfx
-    replaceRecurse (newScope rec' scope) x
+    let caption
+          | not (null content)
+          , Para (Str ":":Space:c) <- last content
+          = Just $ B.fromList c
+          | otherwise = Nothing
+    rec' <- replaceAttr opts scope (Right label) attrs (fromMaybe mempty caption) pfx
+    replaceRecurse (newScope rec' scope) $ case caption of
+      Nothing -> x
+      Just _ -> Div ats $ init content <> [Para $ B.toList (applyTitleTemplate rec')]
 replaceBlock _ scope _ = noReplaceRecurse scope
 
-replaceEqn :: Options -> Scope -> Attr -> String -> Maybe String -> WS (String, String)
-replaceEqn opts scope (label, _, attrs) eq pfx = do
-  let label' | null label = Left "eq"
-             | otherwise = Right label
-  idxStr <- replaceAttr opts scope label' attrs (B.math eq) (fromMaybe "eq" pfx)
+replaceEqn :: Options -> Scope -> Either String String -> [(String, String)] -> String -> String -> WS (String, String)
+replaceEqn opts scope label attrs eq pfx = do
+  idxStr <- replaceAttr opts scope label attrs (B.math eq) pfx
   let eq' | tableEqns opts = eq
           | otherwise = eq++"\\qquad("++stringify (refIxInl idxStr)++")"
   return (eq', stringify (refIxInl idxStr))
 
+autoLabel :: String -> String -> Maybe (Either String String)
+autoLabel pfx label
+  | null label = Just $ Left pfx
+  | (pfx <> ":") `isPrefixOf` label = Just $ Right label
+  | otherwise = Nothing
+
 replaceInline :: Options -> Scope -> Inline -> WS (ReplacedResult Inline)
-replaceInline opts scope (Span attrs@(label,_,_) [Math DisplayMath eq])
-  | pfx <- getRefPrefix opts label
-  , isJust pfx || null label && autoEqnLabels opts
+replaceInline opts scope (Span ats@(label,_,attrs) [Math DisplayMath eq])
+  | Just pfx <- getRefPrefix opts label <|> autoEqnLabels opts
+  , Just lbl <- autoLabel pfx label
   = do
-      (eq', _) <- replaceEqn opts scope attrs eq pfx
+      (eq', _) <- replaceEqn opts scope lbl attrs eq pfx
       replaceNoRecurse $ case outFormat opts of
         f | isLatexFormat f ->
           RawInline (Format "latex")
           $ "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
-        _ -> Span attrs [Math DisplayMath eq']
+        _ -> Span ats [Math DisplayMath eq']
 replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
-  | Just pfx <- getRefPrefix opts label
+  | Just pfx <- getRefPrefix opts label <|> autoFigLabels opts
+  , Just lbl <- autoLabel pfx label
   , "fig:" `isPrefixOf` tit
   = do
     let ialt = B.fromList alt
-    idxStr <- replaceAttr opts scope (Right label) attrs ialt pfx
+    idxStr <- replaceAttr opts scope lbl attrs ialt pfx
     let alt' = B.toList $ case outFormat opts of
           f | isLatexFormat f -> ialt
           _  -> applyTitleTemplate idxStr
@@ -209,20 +224,26 @@ spanInlines opts (math@(Math DisplayMath _eq):ils)
   | c:ils' <- dropWhile isSpace ils
   , Just label <- getRefLabel opts [c]
   = Span (label,[],[]) [math]:ils'
-  | autoEqnLabels opts
+  | isJust $ autoEqnLabels opts
   = Span nullAttr [math]:ils
 spanInlines _ x = x
 
 replaceAttr :: Options -> Scope -> Either String String -> [(String, String)] -> B.Inlines -> String -> WS RefRec
 replaceAttr o scope label attrs title pfx
   = do
-    ropt <- liftEither $ getPfx o pfx
+    roptMain <- liftEither $ getPfx o pfx
     let attrMap = M.fromListWith (flip (++)) $ map (second return) attrs
         metaAttrMap = M.map attr2meta attrMap
         attr2meta [s] = MetaString s
         attr2meta ss = MetaList $ map MetaString ss
         scopeSpecifier = fromMaybe (prefixScope ropt) $ M.lookup "scope" attrMap
         itemScope = find ((`elem` scopeSpecifier) . refPfx) scope
+        lvl = length $ filter ((== pfx) . refPfx) scope
+        ropt = recurseSub lvl roptMain
+        recurseSub 0 r = r
+        recurseSub l r
+          | Just i <- prefixSub r = recurseSub (l-1) i
+          | otherwise = r
     cr <- (\CounterRec{..} -> CounterRec{
             crIndex = crIndex+1
           , crIndexInScope = M.insertWith (+) itemScope 1 crIndexInScope
@@ -232,8 +253,7 @@ replaceAttr o scope label attrs title pfx
         label' = either (++ ':':'\0':show i) id label
         iInSc = fromJust $ M.lookup itemScope $ crIndexInScope cr
         i = crIndex cr
-        lvl = length $ filter ((== pfx) . refPfx) scope
-        customLabel = maybe (prefixNumbering ropt lvl)
+        customLabel = maybe (prefixNumbering ropt)
                             (mkLabel $ label' <> " attribute numbering")
                       $ M.lookup "numbering" metaAttrMap
     hasLabel <- M.member label' <$> get referenceData

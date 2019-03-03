@@ -85,10 +85,10 @@ replaceRefs opts ils
       | otherwise = replaceRefsOther opts
 replaceRefs _ x = return x
 
-getRefPrefix :: Options -> Bool -> Int -> RefRec -> Inlines -> Inlines
-getRefPrefix opts capitalize num rr@RefRec{..} cit =
+getRefPrefix :: Bool -> Int -> RefRec -> Inlines -> Inlines
+getRefPrefix capitalize num rr@RefRec{..} cit =
   applyRefTemplate reftempl vf capitalize
-  where Prefix{prefixReferenceTemplate=reftempl} = fromMaybe undefined $ M.lookup refPfx $ prefixes opts
+  where Prefix{prefixReferenceTemplate=reftempl} = refPfxRec
         vf "rs" = Just $ MetaInlines $ toList cit
         vf "n" = Just $ MetaString $ show num
         vf x = fix defaultVarFunc rr x
@@ -99,16 +99,16 @@ replaceRefsLatex opts cits
   = return . rawInline "tex" $ cref'++"{"++listLabels "" "," "" cits++"}"
   | otherwise
   = intercalate' (text ", ") <$>
-      mapM (replaceRefsLatex' opts) (NE.groupBy citationGroupPred cits)
+      mapM replaceRefsLatex' (NE.groupBy citationGroupPred cits)
   where
     RefDataComplete{rdSuppressPrefix, rdUpperCase} = NE.head cits
     cref' | rdSuppressPrefix = "\\labelcref"
           | rdUpperCase = "\\Cref"
           | otherwise = "\\cref"
 
-replaceRefsLatex' :: Options -> NonEmpty RefDataComplete -> WS Inlines
-replaceRefsLatex' opts cits
-  = return . writePrefix opts cits . rawInline "tex"
+replaceRefsLatex' :: NonEmpty RefDataComplete -> WS Inlines
+replaceRefsLatex' cits
+  = return . writePrefix cits . rawInline "tex"
   $ listLabels "\\ref{" ", " "}" cits
 
 listLabels :: String -> String -> String -> NonEmpty RefDataComplete -> String
@@ -128,12 +128,12 @@ replaceRefsOther' opts indices = do
       | nameInLink opts
       , [Link attr t (y, z)] <- toList x = linkWith attr y z (f $ fromList t)
     cmap f x = f x
-  return $ cmap (writePrefix opts indices) (makeIndices opts indices)
+  return $ cmap (writePrefix indices) (makeIndices opts indices)
 
-writePrefix :: Options -> NonEmpty RefDataComplete -> Inlines -> Inlines
-writePrefix opts (RefDataComplete{..}:|rds)
+writePrefix :: NonEmpty RefDataComplete -> Inlines -> Inlines
+writePrefix (RefDataComplete{..}:|rds)
   | rdSuppressPrefix = id
-  | isNothing rdCitPrefix = getRefPrefix opts rdUpperCase (length rds) rdRec
+  | isNothing rdCitPrefix = getRefPrefix rdUpperCase (length rds) rdRec
   | otherwise = ((fromJust rdCitPrefix <> space) <>)
 
 data RefDataIncomplete = RefDataIncomplete
@@ -236,5 +236,5 @@ applyIndexTemplate opts suf rr =
       vars rr' x = defaultVarFunc varsSc rr' x
       template = prefixReferenceIndexTemplate $ refPfxRec rr
       inlines cap ref = MetaInlines $ toList $
-        getRefPrefix opts cap 0 ref $ applyIndexTemplate opts mempty ref
+        getRefPrefix cap 0 ref $ applyIndexTemplate opts mempty ref
   in applyTemplate template (vars rr)

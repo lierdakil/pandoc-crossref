@@ -35,5 +35,8 @@ data Prefix = Prefix {
   , prefixReferenceTemplate :: !RefTemplate
   , prefixListOfTitle :: !BlockTemplate
   , prefixScope :: ![String]
-  , prefixNumbering :: !(Int -> Int -> String)
+  , prefixNumbering :: !(Int -> String)
+  , prefixSubcaptions :: !Bool
+  , prefixSubcaptionsGrid :: !Bool
+  , prefixSub :: !(Maybe Prefix)
 }

@@ -44,12 +44,15 @@ getPrefixes varN dtv
         , prefixListItemTemplate = mkT $ getTemplInline "listItemTemplate"
         , prefixListOfTitle = mkT $ getTemplBlock "listOfTitle"
         , prefixScope = getMetaStringList "scope" kv
-        , prefixNumbering = \lvl ->
+        , prefixNumbering =
             let prettyVarName = varN <> "." <> k <> "." <> varName
                 varName = "numbering"
             in mkLabel prettyVarName
                     (fromMaybe (reportError prettyVarName "Numbering")
-                          $ lookupSettings varName kv >>= getList lvl)
+                          $ lookupSettings varName kv)
+        , prefixSubcaptions = getMetaBool "subcaptions" kv
+        , prefixSubcaptionsGrid = getMetaBool "subcaptionsGrid" kv
+        , prefixSub = m2p k . (`merge` MetaMap kv') <$> lookupSettings "sub" (Settings (Meta kv') <> from)
         }
         where kv = Settings (Meta kv') <> from <> dtv
               from | Just fromRef <- M.lookup "from" kv'

@@ -10,19 +10,19 @@ prefixes:
     scope: "dfn"
     referenceIndexTemplate: "$$i$$$$s.ref# (%)$$"
   sec:
-    captionTemplate: '$$titleName[lvl]% $$$$i$$$$titleDelim$$ $$t$$'
+    captionTemplate: '$$title% $$$$i$$$$titleDelim$$ $$t$$'
     captionIndexTemplate: '$$s.i%.$$$$i$$'
     referenceIndexTemplate: '$$i$$$$s.ref# (%)$$'
     scope: sec
-    titleName:
-      - Chapter
-      - Section
-      - Paragraph
-    ref:
-      - ["chp.", "sec.", "par."]
-      - ["chps.", "secs.", "pars."]
-    title: Section
     titleDelim: '.'
+    title: Chapter
+    ref: ["chp.", "chps."]
+    sub:
+      title: Section
+      ref: ["sec.", "secs."]
+      sub:
+        title: Paragraph
+        ref: ["par.", "pars."]
 chapters: false
 ...
 

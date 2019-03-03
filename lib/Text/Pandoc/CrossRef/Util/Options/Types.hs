@@ -33,7 +33,8 @@ data Options = Options { cref :: Bool
                        , refDelim  :: Inlines
                        , outFormat   :: Maybe Format
                        , tableEqns :: Bool
-                       , autoEqnLabels :: Bool
+                       , autoEqnLabels :: Maybe String
+                       , autoFigLabels :: Maybe String
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , prefixes :: Prefixes

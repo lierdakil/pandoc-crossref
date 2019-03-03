@@ -1,6 +1,6 @@
 ---
 tableEqns: true
-autoEqnLabels: true
+autoEqnLabels: eq
 ...
 
 This is a test file with some referenced equations, line $$ this $$
