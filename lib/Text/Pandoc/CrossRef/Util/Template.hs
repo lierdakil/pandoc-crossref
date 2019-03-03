@@ -37,16 +37,12 @@ import Text.Pandoc.Builder
 import Text.Pandoc.Generic
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Settings.Types
+import Text.Pandoc.CrossRef.Util.Template.Types
 import Control.Applicative
 import Text.Read
 import Data.Char (isAlphaNum, isUpper, toLower)
 import Control.Monad ((<=<))
 import Data.Data (Data)
-
-type VarFunc = String -> Maybe MetaValue
-newtype Template = Template { applyTemplate :: VarFunc -> Inlines }
-newtype RefTemplate = RefTemplate { applyRefTemplate :: VarFunc -> Bool -> Inlines }
-newtype BlockTemplate = BlockTemplate { applyBlockTemplate :: VarFunc -> Blocks }
 
 data State = StFirstVar | StIndex | StAfterIndex | StPrefix | StSuffix deriving Eq
 data ParseRes = ParseRes { prVar :: String, prIdx :: [String], prPfx :: String, prSfx :: String } deriving Show

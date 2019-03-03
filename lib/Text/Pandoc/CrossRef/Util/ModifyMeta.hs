@@ -18,6 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE RecordWildCards #-}
+
 module Text.Pandoc.CrossRef.Util.ModifyMeta
     (
     modifyMeta
@@ -28,20 +30,17 @@ import Text.Pandoc
 import Text.Pandoc.Shared (blocksToInlines)
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Util
 import qualified Data.Text as T
-import Control.Monad.Writer
 
-modifyMeta :: Options -> Settings -> Meta
-modifyMeta opts meta
-  | isLatexFormat (outFormat opts)
-  = setMeta "header-includes"
-      (headerInc $ lookupSettings "header-includes" meta)
-      $ unSettings meta
-  | otherwise = unSettings meta
-  where
+modifyMeta :: CrossRef Meta
+modifyMeta = do
+  opts@Options{..} <- asks creOptions
+  settings <- asks creSettings
+  let
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = incList
     headerInc (Just (MetaList x)) = MetaList $ x ++ [incList]
@@ -51,68 +50,74 @@ modifyMeta opts meta
         tell subfig
         tell floatnames
         tell listnames
-        unless (listings opts) $
+        unless listings $
           tell codelisting
         tell lolcommand
-        when (cref opts) $ do
+        when cref $ do
           tell cleveref
-          unless (listings opts) $
+          unless listings $
             tell cleverefCodelisting
         tell [ "\\makeatother" ]
-      where
-        subfig = [
-            usepackage [] "subfig"
-          , usepackage [] "caption"
-          , "\\captionsetup[subfloat]{margin=0.5em}"
-          ]
-        floatnames = [
-            "\\AtBeginDocument{%"
-          , "\\renewcommand*\\figurename{"++getFloatCaption "fig"++"}"
-          , "\\renewcommand*\\tablename{"++getFloatCaption "tbl"++"}"
-          , "}"
-          ]
-        listnames = [
-            "\\AtBeginDocument{%"
-          , "\\renewcommand*\\listfigurename{"++getListOfTitle "fig"++"}"
-          , "\\renewcommand*\\listtablename{"++getListOfTitle "tbl"++"}"
-          , "}"
-          ]
-        codelisting = [
-            usepackage [] "float"
-          , "\\floatstyle{ruled}"
-          , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
-          , "\\floatname{codelisting}{"++getFloatCaption "lst"++"}"
-          ]
-        lolcommand
-          | listings opts = [
-              "\\newcommand*\\listoflistings\\lstlistoflistings"
-            , "\\AtBeginDocument{%"
-            , "\\renewcommand*{\\lstlistlistingname}{"++getListOfTitle "lst"++"}"
-            , "}"
-            ]
-          | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++getListOfTitle "lst"++"}}"]
-        cleveref = [ usepackage cleverefOpts "cleveref" ]
-          -- <> crefname "figure" (pfxRef "fig")
-          -- <> crefname "table" (pfxRef "tbl")
-          -- <> crefname "equation" (pfxRef "eq")
-          -- <> crefname "listing" (pfxRef "lst")
-          -- <> crefname "section" (pfxRef "sec")
-        -- pfxRef labelPrefix = prefixRef . flip getPfx labelPrefix
-        cleverefCodelisting = [
-            "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
-          , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
-          ]
-        cleverefOpts | nameInLink opts = [ "nameinlink" ]
-                     | otherwise = []
-        -- crefname n f = [
-        --     "\\crefname{" ++ n ++ "}" ++ prefix f False
-        --   , "\\Crefname{" ++ n ++ "}" ++ prefix f True
-        --   ]
-        usepackage [] p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage{"++p++"}}"
-        usepackage xs p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage"++o++"{"++p++"}}"
-          where o = "[" ++ intercalate "," xs ++ "]"
-        toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
-        getListOfTitle = toLatex . blocksToInlines . toList . getTitleForListOf opts
-        getFloatCaption = toLatex . toList . prefixTitle . getPfx opts
-        -- prefix f uc = "{" ++ toLatex (toList $ f opts uc 0) ++ "}" ++
-        --               "{" ++ toLatex (toList $ f opts uc 1) ++ "}"
+    subfig = [
+        usepackage [] "subfig"
+      , usepackage [] "caption"
+      , "\\captionsetup[subfloat]{margin=0.5em}"
+      ]
+    floatnames = [
+        "\\AtBeginDocument{%"
+      , "\\renewcommand*\\figurename{"++getFloatCaption "fig"++"}"
+      , "\\renewcommand*\\tablename{"++getFloatCaption "tbl"++"}"
+      , "}"
+      ]
+    listnames = [
+        "\\AtBeginDocument{%"
+      , "\\renewcommand*\\listfigurename{"++getListOfTitle "fig"++"}"
+      , "\\renewcommand*\\listtablename{"++getListOfTitle "tbl"++"}"
+      , "}"
+      ]
+    codelisting = [
+        usepackage [] "float"
+      , "\\floatstyle{ruled}"
+      , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
+      , "\\floatname{codelisting}{"++getFloatCaption "lst"++"}"
+      ]
+    lolcommand
+      | listings = [
+          "\\newcommand*\\listoflistings\\lstlistoflistings"
+        , "\\AtBeginDocument{%"
+        , "\\renewcommand*{\\lstlistlistingname}{"++getListOfTitle "lst"++"}"
+        , "}"
+        ]
+      | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++getListOfTitle "lst"++"}}"]
+    cleveref = [ usepackage cleverefOpts "cleveref" ]
+      -- <> crefname "figure" (pfxRef "fig")
+      -- <> crefname "table" (pfxRef "tbl")
+      -- <> crefname "equation" (pfxRef "eq")
+      -- <> crefname "listing" (pfxRef "lst")
+      -- <> crefname "section" (pfxRef "sec")
+    -- pfxRef labelPrefix = prefixRef . flip getPfx labelPrefix
+    cleverefCodelisting = [
+        "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
+      , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
+      ]
+    cleverefOpts | nameInLink = [ "nameinlink" ]
+                 | otherwise = []
+    -- crefname n f = [
+    --     "\\crefname{" ++ n ++ "}" ++ prefix f False
+    --   , "\\Crefname{" ++ n ++ "}" ++ prefix f True
+    --   ]
+    usepackage [] p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage{"++p++"}}"
+    usepackage xs p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage"++o++"{"++p++"}}"
+      where o = "[" ++ intercalate "," xs ++ "]"
+    toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
+    -- TODO: Log
+    getListOfTitle = either (const mempty) (toLatex . blocksToInlines . toList) . getTitleForListOf opts
+    getFloatCaption = either (const mempty) (toLatex . toList . prefixTitle) . getPfx opts
+    -- prefix f uc = "{" ++ toLatex (toList $ f opts uc 0) ++ "}" ++
+    --               "{" ++ toLatex (toList $ f opts uc 1) ++ "}"
+
+  return $ if isLatexFormat outFormat
+  then setMeta "header-includes"
+      (headerInc $ lookupSettings "header-includes" settings)
+      $ unSettings settings
+  else unSettings settings

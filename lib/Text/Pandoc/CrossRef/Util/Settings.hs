@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta, Settings(..)) where
+module Text.Pandoc.CrossRef.Util.Settings (readSettings, defaultMeta, Settings(..)) where
 
 import Text.Pandoc
 import Text.Pandoc.Builder hiding ((<>))
@@ -34,14 +34,14 @@ import System.IO
 import qualified Data.Text as T
 import qualified Data.Map as M
 
-getSettings :: Maybe Format -> Meta -> IO Settings
-getSettings fmt inMeta = do
+readSettings :: Maybe Format -> Meta -> IO Settings
+readSettings fmt inMeta = do
   let meta = Settings inMeta
   dirConfig <- readConfig (getMetaString "crossrefYaml" (meta <> defaultMeta))
   home <- getHomeDirectory
   globalConfig <- readConfig (home </> ".pandoc-crossref" </> "config.yaml")
   formatConfig <- maybe (return mempty) (readFmtConfig home) fmt
-  return $ meta <> dirConfig <> formatConfig <> globalConfig <> defaultMeta
+  return $ meta <> dirConfig <> formatConfig <> globalConfig
   where
     readConfig path =
       handle handler $ do

@@ -18,22 +18,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RankNTypes #-}
-module Text.Pandoc.CrossRef.Util.Util
-  ( module Text.Pandoc.CrossRef.Util.Util
-  , module Data.Generics
-  ) where
+{-# LANGUAGE FlexibleContexts, Rank2Types #-}
+module Text.Pandoc.CrossRef.Util.Util where
 
-import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Types.Ref
 import Text.Pandoc.Definition
 import Text.Pandoc.Class
 import Text.Pandoc.Shared (Element(..))
 import Data.Char (toUpper, toLower, isUpper)
-import Data.Generics hiding (Prefix)
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
 import Data.Monoid ((<>))
 import qualified Data.Text as T
+
+import qualified Data.Accessor.Basic as Accessor
+import qualified Control.Monad.State as State
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
 intercalate' s = foldr (\x acc -> if acc == mempty then x else x <> s <> acc) mempty
@@ -57,45 +56,6 @@ uncapitalizeFirst [] = []
 isFirstUpper :: String -> Bool
 isFirstUpper (x:_) = isUpper x
 isFirstUpper [] = False
-
-data ReplacedResult a = ReplacedRecurse Scope a
-                      | NotReplacedRecurse Scope
-                      | ReplacedNoRecurse a
-                      | NotReplacedNoRecurse
-type GenRR m = forall a. Data a => (Scope -> a -> m (ReplacedResult a))
-newtype RR m a = RR {unRR :: Scope -> a -> m (ReplacedResult a)}
-
-runReplace :: (Monad m) => Scope -> GenRR m -> GenericM m
-runReplace s f x = do
-  res <- f s x
-  case res of
-    ReplacedRecurse s' x' -> gmapM (runReplace s' f) x'
-    ReplacedNoRecurse x' -> return x'
-    NotReplacedRecurse s' -> gmapM (runReplace s' f) x
-    NotReplacedNoRecurse -> return x
-
-mkRR :: (Monad m, Typeable a, Typeable b)
-     => (Scope -> b -> m (ReplacedResult b))
-     -> (Scope -> a -> m (ReplacedResult a))
-mkRR = extRR (\s _ -> noReplaceRecurse s)
-
-extRR :: ( Monad m, Typeable a, Typeable b)
-     => (Scope -> a -> m (ReplacedResult a))
-     -> (Scope -> b -> m (ReplacedResult b))
-     -> (Scope -> a -> m (ReplacedResult a))
-extRR def' ext = unRR (RR def' `ext0` RR ext)
-
-replaceRecurse :: Monad m => Scope -> a -> m (ReplacedResult a)
-replaceRecurse s = return . ReplacedRecurse s
-
-replaceNoRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceNoRecurse = return . ReplacedNoRecurse
-
-noReplaceRecurse :: Monad m => Scope -> m (ReplacedResult a)
-noReplaceRecurse = return . NotReplacedRecurse
-
-noReplaceNoRecurse :: Monad m => m (ReplacedResult a)
-noReplaceNoRecurse = return NotReplacedNoRecurse
 
 mkLaTeXLabel :: String -> String
 mkLaTeXLabel l
@@ -127,3 +87,14 @@ unhierarchicalize [] = []
 
 newScope :: RefRec -> Scope -> Scope
 newScope = (:)
+
+-- * accessors in the form of actions in the state monad
+
+set :: (State.MonadState r s) => Accessor.T r a -> a -> s ()
+set f x = State.modify (Accessor.set f x)
+
+get :: (State.MonadState r s) => Accessor.T r a -> s a
+get f = State.gets (Accessor.get f)
+
+modify :: (State.MonadState r s) => Accessor.T r a -> (a -> a) -> s ()
+modify f g = State.modify (Accessor.modify f g)

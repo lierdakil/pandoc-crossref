@@ -18,50 +18,37 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.Util.Options where
+module Text.Pandoc.CrossRef.Util.Options (
+    module Text.Pandoc.CrossRef.Util.Options
+  , module Text.Pandoc.CrossRef.Util.Options.Types
+) where
+
 import Text.Pandoc.Definition
+import Text.Pandoc.CrossRef.Util.Options.Types
+import Text.Pandoc.CrossRef.References.Types.Monad
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Prefixes
 import qualified Data.Map as M
 import Text.Pandoc.Builder
-import Data.Maybe
 import Data.List
 import Data.List.Extra
-import Text.Pandoc.CrossRef.Util.LatexPrefixes
-
-data Options = Options { cref :: Bool
-                       , listings :: Bool
-                       , codeBlockCaptions  :: Bool
-                       , autoSectionLabels  :: Bool
-                       , rangeDelim  :: Inlines
-                       , pairDelim  :: Inlines
-                       , lastDelim  :: Inlines
-                       , refDelim  :: Inlines
-                       , outFormat   :: Maybe Format
-                       , tableEqns :: Bool
-                       , autoEqnLabels :: Bool
-                       , linkReferences :: Bool
-                       , nameInLink :: Bool
-                       , prefixes :: Prefixes
-                       , latexPrefixes :: LatexPrefixes
-                       }
 
 prefixList :: Options -> [String]
 prefixList = M.keys . prefixes
 
-pfxCaptionTemplate :: Options -> String -> Template
-pfxCaptionTemplate opts pfx = prefixCaptionTemplate $ getPfx opts pfx
+pfxCaptionTemplate :: Options -> String -> PureErr Template
+pfxCaptionTemplate opts pfx = prefixCaptionTemplate <$> getPfx opts pfx
 
-pfxListItemTemplate :: Options -> String -> Template
-pfxListItemTemplate opts pfx = prefixListItemTemplate $ getPfx opts pfx
+pfxListItemTemplate :: Options -> String -> PureErr Template
+pfxListItemTemplate opts pfx = prefixListItemTemplate <$> getPfx opts pfx
 
-pfxCaptionIndexTemplate :: Options -> String -> Template
-pfxCaptionIndexTemplate opts pfx = prefixCaptionIndexTemplate $ getPfx opts pfx
+pfxCaptionIndexTemplate :: Options -> String -> PureErr Template
+pfxCaptionIndexTemplate opts pfx = prefixCaptionIndexTemplate <$> getPfx opts pfx
 
-getPfx :: Options -> String -> Prefix
-getPfx o pn = fromMaybe defaultPfx $ M.lookup pn $ prefixes o
+getPfx :: Options -> String -> PureErr Prefix
+getPfx o pn = maybe defaultPfx return $ M.lookup pn $ prefixes o
   where
-    defaultPfx = error $ "Undefined prefix: \"" <> pn <> "\""
+    defaultPfx = Left $ WSENoSuchPrefix pn
 
 getRefPrefix :: Options -> String -> Maybe String
 getRefPrefix opts label
@@ -82,5 +69,5 @@ getRefLabel opts ils
   = Just lbl
 getRefLabel _ _ = Nothing
 
-getTitleForListOf :: Options -> String -> Blocks
-getTitleForListOf opts = flip applyBlockTemplate (const Nothing) . prefixListOfTitle . getPfx opts
+getTitleForListOf :: Options -> String -> PureErr Blocks
+getTitleForListOf opts = fmap (flip applyBlockTemplate (const Nothing) . prefixListOfTitle) . getPfx opts

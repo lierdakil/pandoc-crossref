@@ -24,7 +24,6 @@ module Text.Pandoc.CrossRef.References.List (listOf) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
-import Data.Accessor.Monad.Trans.State
 import Data.List
 import Data.Function
 import qualified Data.Map as M
@@ -33,6 +32,7 @@ import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.Prefixes.Types
 import Text.Pandoc.CrossRef.Util.VarFunction
 
 listOf :: Options -> [Block] -> WS [Block]
@@ -58,16 +58,17 @@ getPfxData pfx = M.filterWithKey (\k _ -> (pfx <> ":") `isPrefixOf` k) <$> get r
 
 makeList :: Options -> String -> Blocks -> M.Map String RefRec -> WS Blocks
 makeList opts titlef xs refs
-  = return $
-      getTitleForListOf opts titlef
+  = do
+    title <- liftEither $ getTitleForListOf opts titlef
+    return $ title
       <> divWith ("", ["list"], []) (mconcat $ map itemChap refsSorted)
       <> xs
   where
     refsSorted :: [RefRec]
     refsSorted = sortBy (compare `on` refIndex) $ M.elems refs
     itemChap :: RefRec -> Blocks
-    itemChap = para . applyListItemTemplate opts
+    itemChap = para . applyListItemTemplate
 
-applyListItemTemplate :: Options -> RefRec -> Inlines
-applyListItemTemplate opts rr@RefRec{refPfx} =
-  applyTemplate (pfxListItemTemplate opts refPfx) (fix defaultVarFunc rr)
+applyListItemTemplate :: RefRec -> Inlines
+applyListItemTemplate rr@RefRec{refPfxRec} =
+  applyTemplate (prefixListItemTemplate refPfxRec) (fix defaultVarFunc rr)

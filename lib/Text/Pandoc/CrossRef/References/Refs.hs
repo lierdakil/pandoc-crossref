@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RecordWildCards, NamedFieldPuns, FlexibleInstances #-}
+{-# LANGUAGE RecordWildCards, NamedFieldPuns, FlexibleInstances, FlexibleContexts #-}
 
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
@@ -34,7 +34,6 @@ import qualified Data.List.NonEmpty as NE
 import Data.List.NonEmpty (NonEmpty(..))
 import Control.Arrow as A
 
-import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
@@ -43,7 +42,6 @@ import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.VarFunction
 import Control.Applicative
 import Data.Either
-import Debug.Trace
 import Prelude
 
 groupEither :: [Either a b] -> [Either [a] [b]]
@@ -67,15 +65,17 @@ replaceRefs opts ils
     intrclt = intercalate' (text ", ")
     replaceRefs' (Left xs) = restoreCits' xs
     replaceRefs' (Right xs) = intrclt <$> mapM replaceRefs'' (NE.groupBy eqPred xs)
-    restoreCits' refs = return $ cite cits' il'
+    restoreCits' refs = liftM2 cite cits' il'
         where
-          cits' = map getCit refs
+          cits' = mapM getCit refs
           getCit RefDataIncomplete{rdCitation, rdiLabel}
             | takeWhile (/=':') rdiLabel `elem` M.keys (prefixes opts)
-            = trace ("Undefined cross-reference: " ++ rdiLabel) rdCitation
-            | otherwise = rdCitation
-          il' = str "["
-             <> intercalate' (text "; ") (map citationToInlines cits')
+            = tell ["Undefined cross-reference: " <> rdiLabel] >> return rdCitation
+            | otherwise = return rdCitation
+          il' = do
+            i <- map citationToInlines <$> cits'
+            return $ str "["
+             <> intercalate' (text "; ") i
              <> str "]"
           citationToInlines c =
             fromList (citationPrefix c) <> text ("@" ++ citationId c)
@@ -147,7 +147,7 @@ data RefDataComplete = RefDataComplete
                      , rdCitPrefix :: Maybe Inlines
                      , rdUpperCase :: Bool
                      , rdSuppressPrefix :: Bool
-                     } deriving (Eq, Show)
+                     }
 
 type RefData = Either RefDataIncomplete RefDataComplete
 
@@ -163,8 +163,11 @@ rdPrefix RefDataComplete{rdRec} = refPfx rdRec
 rdLabel :: RefDataComplete -> String
 rdLabel RefDataComplete{rdRec} = refLabel rdRec
 
+instance Eq RefDataComplete where
+  (==) = (==) `on` rdRec
+
 instance Ord RefDataComplete where
-  (<=) = (<=) `on` rdIdx
+  (<=) = (<=) `on` rdRec
 
 getRefData :: Citation -> WS RefData
 getRefData c@Citation{..}
@@ -228,8 +231,7 @@ applyIndexTemplate opts suf rr =
       varsSc rr' x = defaultVarFunc varsSc rr' x
       vars _ "suf" = Just $ MetaInlines $ toList suf
       vars rr' x = defaultVarFunc varsSc rr' x
-      template = prefixReferenceIndexTemplate pfxRec
-      pfxRec = getPfx opts (refPfx rr)
+      template = prefixReferenceIndexTemplate $ refPfxRec rr
       inlines cap ref = MetaInlines $ toList $
         getRefPrefix opts cap 0 ref $ applyIndexTemplate opts mempty ref
   in applyTemplate template (vars rr)

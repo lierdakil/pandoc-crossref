@@ -1,7 +1,7 @@
 {-
 pandoc-crossref is a pandoc filter for numbering figures,
 equations, tables and cross-references to them.
-Copyright (C) 2015  Nikolay Yakimov <root@livid.pp.ru>
+Copyright (C) 2019  Nikolay Yakimov <root@livid.pp.ru>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,9 +18,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.References.Types (
-    module X
-) where
+module Text.Pandoc.CrossRef.Util.Prefixes.Types where
 
-import Text.Pandoc.CrossRef.References.Types.Ref as X
-import Text.Pandoc.CrossRef.References.Types.Monad as X
+import qualified Data.Map as M
+import Text.Pandoc.CrossRef.Util.Template.Types
+import Text.Pandoc.Builder
+
+type Prefixes = M.Map String Prefix
+
+data Prefix = Prefix {
+    prefixCaptionTemplate :: !Template
+  , prefixReferenceTemplate :: !RefTemplate
+  , prefixScope :: ![String]
+  , prefixNumbering :: !(Int -> Int -> String)
+  , prefixListOfTitle :: !BlockTemplate
+  , prefixReferenceIndexTemplate :: !Template
+  , prefixCaptionIndexTemplate :: !Template
+  , prefixListItemTemplate :: !Template
+  -- Used for LaTeX metadata; the same value is used in
+  -- default value for prefixCaptionTemplate
+  , prefixTitle :: Inlines
+}

@@ -18,28 +18,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
-module Text.Pandoc.CrossRef.Util.Prefixes where
+module Text.Pandoc.CrossRef.Util.Prefixes (
+    getPrefixes
+  , module Types
+) where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Walk (Walkable(..))
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.Prefixes.Types as Types
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.CustomLabels
 import qualified Data.Map as M
-import Text.Pandoc.Builder hiding ((<>))
-import Data.Default
 import Data.Maybe
-
-newtype Inlines' = Inlines' { fromInlines' :: Inlines } deriving (Eq, Semigroup, Monoid)
-instance Default Inlines' where
-  def = mempty
-instance Walkable Inline Inlines' where
-  walk f (Inlines' x) = Inlines' $ walk f x
-  walkM f (Inlines' x) = Inlines' <$> walkM f x
-  query f (Inlines' x) = query f x
-
 
 getPrefixes :: String -> Settings -> Prefixes
 getPrefixes varN dtv
@@ -70,19 +61,3 @@ getPrefixes varN dtv
             reportError n what = error $ what <> " meta variable " <> n <> " not set for "
                               <> varN <> "." <> k <> ". This should not happen. Please report a bug"
     m2p k _ = error $ "Invalid value for prefix " <> k
-
-type Prefixes = M.Map String Prefix
-
-data Prefix = Prefix {
-    prefixCaptionTemplate :: !Template
-  , prefixReferenceTemplate :: !RefTemplate
-  , prefixScope :: ![String]
-  , prefixNumbering :: !(Int -> Int -> String)
-  , prefixListOfTitle :: !BlockTemplate
-  , prefixReferenceIndexTemplate :: !Template
-  , prefixCaptionIndexTemplate :: !Template
-  , prefixListItemTemplate :: !Template
-  -- Used for LaTeX metadata; the same value is used in
-  -- default value for prefixCaptionTemplate
-  , prefixTitle :: Inlines
-}

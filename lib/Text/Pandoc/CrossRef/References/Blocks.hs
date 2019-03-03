@@ -32,7 +32,6 @@ import Data.Maybe
 import Data.Monoid
 import qualified Data.Map as M
 
-import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types as Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
@@ -40,6 +39,7 @@ import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.VarFunction
+import Text.Pandoc.CrossRef.Util.Replace
 import Control.Applicative
 import Control.Arrow (second)
 import Data.Default (def)
@@ -77,7 +77,7 @@ replaceElement opts scope (Sec n ns (label, cls, attrs) text' body) = do
     let title' = B.toList $
           case outFormat opts of
               f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
-              _  -> applyTitleTemplate opts rec'
+              _  -> applyTitleTemplate rec'
     replaceRecurse (newScope rec' scope) $ Sec n ns (label', cls, attrs) title' body
 replaceElement _ scope _ = noReplaceRecurse scope
 
@@ -91,7 +91,7 @@ replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths he
     let title' = B.toList $
           case outFormat opts of
               f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
-              _  -> applyTitleTemplate opts idxStr
+              _  -> applyTitleTemplate idxStr
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
 replaceBlock opts scope (Div (label,"listing":_, []) [Para caption, CodeBlock ([],classes,attrs) code])
   | not $ null label
@@ -99,7 +99,7 @@ replaceBlock opts scope (Div (label,"listing":_, []) [Para caption, CodeBlock ([
   = do
       let icaption = B.fromList caption
       idxStr <- replaceAttr opts scope (Right label) attrs icaption pfx
-      let caption' = applyTitleTemplate opts idxStr
+      let caption' = applyTitleTemplate idxStr
       replaceNoRecurse $ case outFormat opts of
         f --if used with listings package, return code block with caption
           | isLatexFormat f, listings opts ->
@@ -161,7 +161,7 @@ replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
     idxStr <- replaceAttr opts scope (Right label) attrs ialt pfx
     let alt' = B.toList $ case outFormat opts of
           f | isLatexFormat f -> ialt
-          _  -> applyTitleTemplate opts idxStr
+          _  -> applyTitleTemplate idxStr
     replaceNoRecurse $ Image attr alt' img
 replaceInline opts scope x@(Span (label,_,attrs) content)
   | Just pfx <- getRefPrefix opts label
@@ -170,13 +170,13 @@ replaceInline opts scope x@(Span (label,_,attrs) content)
       replaceRecurse (newScope rec' scope) x
 replaceInline _ scope _ = noReplaceRecurse scope
 
-applyTitleTemplate :: Options -> RefRec -> B.Inlines
-applyTitleTemplate opts rr@RefRec{refPfx} =
-  applyTemplate (pfxCaptionTemplate opts refPfx) (fix defaultVarFunc rr)
+applyTitleTemplate :: RefRec -> B.Inlines
+applyTitleTemplate rr@RefRec{refPfxRec} =
+  applyTemplate (prefixCaptionTemplate refPfxRec) (fix defaultVarFunc rr)
 
-applyTitleIndexTemplate :: Options -> RefRec -> B.Inlines -> B.Inlines
-applyTitleIndexTemplate opts rr@RefRec{..} label =
-  applyTemplate (pfxCaptionIndexTemplate opts refPfx) vf
+applyTitleIndexTemplate :: RefRec -> B.Inlines -> B.Inlines
+applyTitleIndexTemplate rr@RefRec{..} label =
+  applyTemplate (prefixCaptionIndexTemplate refPfxRec) vf
   where
   vf "i" = Just $ MetaInlines $ B.toList label
   vf x = fix defaultVarFunc rr x
@@ -218,8 +218,8 @@ spanInlines _ x = x
 replaceAttr :: Options -> Scope -> Either String String -> [(String, String)] -> B.Inlines -> String -> WS RefRec
 replaceAttr o scope label attrs title pfx
   = do
-    let ropt = getPfx o pfx
-        itemScope = find ((`elem` prefixScope ropt) . refPfx) scope
+    ropt <- liftEither $ getPfx o pfx
+    let itemScope = find ((`elem` prefixScope ropt) . refPfx) scope
         refLabel' = lookup "label" attrs
     cr <- (\CounterRec{..} -> CounterRec{
             crIndex = crIndex+1
@@ -232,16 +232,17 @@ replaceAttr o scope label attrs title pfx
         lvl = length $ filter ((== pfx) . refPfx) scope
         customLabel = prefixNumbering ropt lvl
     hasLabel <- M.member label' <$> get referenceData
-    when hasLabel $ error $ "Duplicate label: " ++ label'
+    when hasLabel $ throwError $ WSEDuplicateLabel label'
     let rec' = RefRec {
         refIndex = i
       , refTitle = title
       , refLabel = label'
-      , refIxInl = applyTitleIndexTemplate o rec' $ B.text $ fromMaybe (customLabel iInSc) refLabel'
+      , refIxInl = applyTitleIndexTemplate rec' $ B.text $ fromMaybe (customLabel iInSc) refLabel'
       , refScope = itemScope
       , refLevel = lvl
       , refPfx = pfx
-      , refCaption = applyTitleTemplate o rec'
+      , refPfxRec = ropt
+      , refCaption = applyTitleTemplate rec'
       , refAttrs = M.fromListWith (flip (++)) $ map (second return) attrs
       }
     modify referenceData $ M.insert label' rec'
