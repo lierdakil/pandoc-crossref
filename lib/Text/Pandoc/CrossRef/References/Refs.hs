@@ -61,7 +61,7 @@ replaceRefs opts ils
     toList . (<> fromList xs) . intrclt <$> mapM replaceRefs' citRefData
   where
     eqPred :: RefDataComplete -> RefDataComplete -> Bool
-    eqPred = (==) `on` liftM2 (,) rdScope rdPrefix
+    eqPred = (==) `on` liftM2 (,) rdLevel rdPrefix
     intrclt = intercalate' (text ", ")
     replaceRefs' (Left xs) = restoreCits' xs
     replaceRefs' (Right xs) = intrclt <$> mapM replaceRefs'' (NE.groupBy eqPred xs)
@@ -162,6 +162,9 @@ rdPrefix RefDataComplete{rdRec} = refPfx rdRec
 
 rdLabel :: RefDataComplete -> String
 rdLabel RefDataComplete{rdRec} = refLabel rdRec
+
+rdLevel :: RefDataComplete -> Int
+rdLevel RefDataComplete{rdRec} = refLevel rdRec
 
 instance Eq RefDataComplete where
   (==) = (==) `on` rdRec

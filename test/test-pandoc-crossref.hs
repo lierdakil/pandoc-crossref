@@ -56,7 +56,7 @@ main = hspec $ do
       it "Labels equations" $
         testAll (plain $ equation' "a^2+b^2=c^2" "equation")
         (plain $ spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
+          (referenceData =: M.fromList [refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1"]) .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the middle of text" $
@@ -68,7 +68,7 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
+          (referenceData =: M.fromList [refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1"]) .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the beginning of text" $
@@ -78,7 +78,7 @@ main = hspec $ do
         (plain $
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
+          (referenceData =: M.fromList [refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1"]) .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the end of text" $
@@ -88,7 +88,7 @@ main = hspec $ do
         (plain $
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
+          (referenceData =: M.fromList [refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1"]) .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
 
@@ -100,7 +100,7 @@ main = hspec $ do
       it "Labels images" $
         testAll (figure "test.jpg" [] "Test figure" "figure")
         (figure "test.jpg" [] "Figure 1: Test figure" "figure",
-          (referenceData =: M.fromList $ refRec' "fig:figure" 1 "Test figure" "Figure 1: Test figure") .
+          (referenceData =: M.fromList [refRec' "fig:figure" 1 "Test figure" "Figure 1: Test figure"]) .
           (pfxCounter =: M.singleton "fig" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       -- it "Labels subfigures" $
@@ -171,7 +171,7 @@ main = hspec $ do
       it "Labels equations" $
         testAll (equation "a^2+b^2=c^2" "equation")
         (para $ spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
+          (referenceData =: M.fromList [refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1"]) .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the middle of text" $
@@ -183,7 +183,7 @@ main = hspec $ do
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
+          (referenceData =: M.fromList [refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1"]) .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the beginning of text" $
@@ -193,7 +193,7 @@ main = hspec $ do
         (para $
            spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" [])
         <> text " it should be labeled",
-          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
+          (referenceData =: M.fromList [refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1"]) .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels equations in the end of text" $
@@ -203,31 +203,31 @@ main = hspec $ do
         (para $
            text "This is an equation: "
         <> spanWith ("eq:equation", [], []) (equation' "a^2+b^2=c^2\\qquad(1)" []),
-          (referenceData =: M.fromList $ refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1") .
+          (referenceData =: M.fromList [refRec' "eq:equation" 1 (math "a^2+b^2=c^2") "1"]) .
           (pfxCounter =: M.singleton "eq" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels tables" $
         testAll (table' "Test table" "table")
         (divWith ("tbl:table", [], []) $ table' "Table 1: Test table" [],
-          (referenceData =: M.fromList $ refRec' "tbl:table" 1 "Test table" "Table 1: Test table") .
+          (referenceData =: M.fromList [refRec' "tbl:table" 1 "Test table" "Table 1: Test table"]) .
           (pfxCounter =: M.singleton "tbl" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels code blocks" $
         testAll (codeBlock' "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          (referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block" "Listing 1: Test code block") .
+          (referenceData =: M.fromList [refRec' "lst:codeblock" 1 "Test code block" "Listing 1: Test code block"]) .
           (pfxCounter =: M.singleton "lst" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels code block divs" $
         testAll (codeBlockDiv "Test code block" "codeblock")
         (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          (referenceData =: M.fromList $ refRec' "lst:codeblock" 1 "Test code block" "Listing 1: Test code block") .
+          (referenceData =: M.fromList [refRec' "lst:codeblock" 1 "Test code block" "Listing 1: Test code block"]) .
           (pfxCounter =: M.singleton "lst" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels sections divs" $
         testAll (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
-            (referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header" ""))
+            (referenceData ^= M.fromList [refRec' "sec:section" 1 "Section Header" ""])
           . (pfxCounter =: M.singleton "sec" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
 
@@ -253,7 +253,14 @@ main = hspec $ do
       it "References multiple sections" $
         testRefs' "sec:" [1..3] [4..6] referenceData "secs.\160\&4-6"
       it "Separates references to different chapter items by a comma" $
-        testRefs'' "lst:" [1..6] (zip [1,1..] [4..6] ++ zip [2,2..] [7..9]) referenceData "lsts.\160\&1.4-1.6, 2.7-2.9"
+        let p = "lst:"
+            cites = citeGen p [1..6]
+            chap1 = snd $ refRec' "sec:1" 1 "Section 1" "Section 1"
+            chap2 = snd $ refRec' "sec:2" 2 "Section 2" "Section 2"
+            refs1 = M.map (\r -> r{refScope = Just chap1}) $ refGen p [1..3] [4..6]
+            refs2 = M.map (\r -> r{refScope = Just chap2}) $ refGen p [4..6] [7..9]
+            res = "lsts.\160\&4-6, 7-9"
+        in testRefs (para cites) (setVal referenceData (refs1 <> refs2) def) (para $ text res)
 
     describe "References.Refs.replaceRefs capitalization" $ do
       it "References one image" $
@@ -280,11 +287,11 @@ main = hspec $ do
     describe "References.List.listOf" $ do
       it "Generates list of tables" $
         testList (rawBlock "latex" "\\listoftables")
-                 (referenceData =: M.fromList $ refRec' "tbl:1" 4 "4" "Table 4: 4" <> refRec' "tbl:2" 5 "5" "Table 5: 5" <> refRec' "tbl:3" 6 "6" "Table 6: 6")
+                 (referenceData =: M.fromList [let l = "tbl:" <> show i; n = i + 3; sn = str $ show n in refRec' l n sn ("Table " <> sn <> ": " <> sn) | i <- [1..3]])
                  (header 1 (text "List of Tables") <> divWith ("",["list"],[]) (foldl1' (<>) $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
       it "Generates list of figures" $
         testList (rawBlock "latex" "\\listoffigures")
-                 (referenceData =: M.fromList $ refRec' "fig:1" 4 "4" "Figure 4: 4" <> refRec' "fig:2" 5 "5" "Figure 5: 5" <> refRec' "fig:3" 6 "6" "Figure 6: 6")
+                 (referenceData =: M.fromList [let l = "fig:" <> show i; n = i + 3; sn = str $ show n in refRec' l n sn ("Figure " <> sn <> ": " <> sn) | i <- [1..3]])
                  (header 1 (text "List of Figures") <> divWith ("",["list"],[]) (foldl1' (<>) $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
 
     describe "Util.CodeBlockCaptions" $
@@ -386,36 +393,17 @@ citeGen p l = cite (mconcat $ map (cit . (p++) . show) l) $ text $
   "[" ++ intercalate "; " (map (("@"++) . (p++) . show) l) ++ "]"
 
 refGen :: String -> [Int] -> [Int] -> M.Map String RefRec
-refGen p l1 l2 = M.fromList $ mconcat $ zipWith (\r i -> refRec' r i mempty mempty) (((uncapitalizeFirst p++) . show) `map` l1) l2
+refGen p l1 l2 = M.fromList $ zipWith (\r i -> refRec' r i mempty mempty) (((uncapitalizeFirst p++) . show) `map` l1) l2
 
-refGen' :: String -> [Int] -> [(Int, Int)] -> M.Map String RefRec
-refGen' p l1 l2 = M.fromList $ mconcat $ zipWith refRec''' (((uncapitalizeFirst p++) . show) `map` l1) l2
-
-refRec' :: String -> Int -> Inlines -> String -> [(String, RefRec)]
+refRec' :: String -> Int -> Inlines -> Inlines -> (String, RefRec)
 refRec' ref i tit cap =
   let pfx = takeWhile (/=':') ref
-  in [(ref
+  in ( ref
      , RefRec
        { refIndex=i
        , refIxInl = str $ show i
-       , refCaption= text cap,refTitle=tit,refScope=Nothing
-       , refLevel=0
-       , refPfx=pfx
-       , refLabel=ref
-       , refAttrs = M.empty
-       , refPfxRec = fromJust $ M.lookup pfx defaultPrefixes
-       }
-     )]
-
-refRec''' :: String -> (Int, Int) -> [(String, RefRec)]
-refRec''' ref (c,i) =
-  let pfx = takeWhile (/=':') ref
-  in [(ref
-     , RefRec
-       { refIndex=c+i
-       , refIxInl = str $ show i
-       , refCaption=str $ show i
-       , refTitle=text []
+       , refCaption= cap
+       , refTitle=tit
        , refScope=Nothing
        , refLevel=0
        , refPfx=pfx
@@ -423,13 +411,13 @@ refRec''' ref (c,i) =
        , refAttrs = M.empty
        , refPfxRec = fromJust $ M.lookup pfx defaultPrefixes
        }
-     )]
+     )
+
+testRefs :: Blocks -> References -> Blocks -> Expectation
+testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, id)
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen p l1 l2) def) (para $ text res)
-
-testRefs'' :: String -> [Int] -> [(Int, Int)] -> Accessor References (M.Map String RefRec) -> String -> Expectation
-testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen' p l1 l2) def) (para $ text res)
 
 testAll :: Many Block -> (Many Block, References -> References) -> Expectation
 testAll = testState f def
@@ -453,9 +441,6 @@ deriving instance Eq WSException
 testState :: (Eq a1, Show a1) => ([a] -> WS [a1]) -> References -> Many a -> (Many a1, References -> References) -> Expectation
 testState f init' arg (r, s) = evalCrossRefM $
   (`shouldBe` (toList r, s init')) <$> runStateT (unWS . f $ toList arg) init'
-
-testRefs :: Blocks -> References -> Blocks -> Expectation
-testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, id)
 
 testCBCaptions :: Blocks -> Blocks -> Expectation
 testCBCaptions bs res = bottomUp (Util.CodeBlockCaptions.mkCodeBlockCaptions defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}) (toList bs) `shouldBe` toList res

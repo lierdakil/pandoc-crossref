@@ -72,12 +72,9 @@ replaceElement opts scope (Sec n ns (label, cls, attrs) text' body) = do
         ititle = B.fromList text'
         defaultSecPfx = "sec"
     rec' <- case pfx' of
-      Just p -> replaceAttr opts scope (Right label) attrs ititle p
+      Just p -> replaceAttr opts scope (Right label') attrs ititle p
       Nothing -> replaceAttr opts scope (Left defaultSecPfx) attrs ititle defaultSecPfx
-    let title' = B.toList $
-          case outFormat opts of
-              f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
-              _  -> applyTitleTemplate rec'
+    let title' = B.toList $ applyTitleTemplate rec'
     replaceRecurse (newScope rec' scope) $ Sec n ns (label', cls, attrs) title' body
 replaceElement _ scope _ = noReplaceRecurse scope
 

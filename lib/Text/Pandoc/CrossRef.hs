@@ -87,6 +87,7 @@ import Control.Monad.Writer as W
 import Control.Monad.Reader as R
 import Text.Pandoc as P
 import Data.Monoid ((<>))
+import System.IO
 
 import Text.Pandoc.CrossRef.References
 import Text.Pandoc.CrossRef.Util.Settings
@@ -144,5 +145,5 @@ runCrossRefIO :: forall b. Meta -> Maybe Format -> CrossRef b -> IO b
 runCrossRefIO meta fmt action = do
   Settings meta' <- readSettings fmt meta
   let (res, lg) = runCrossRef meta' fmt action
-  mapM_ putStrLn lg
+  mapM_ (hPutStrLn stderr) lg
   return $ either (error . pretty) id res
