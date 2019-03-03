@@ -71,7 +71,7 @@ run = do
       return ()
     go Nothing _ = toJSONFilter f
     f fmt p@(Pandoc meta _) =
-      runCrossRefIO meta fmt defaultCrossRefAction p
+      runCrossRefIO meta fmt $ defaultCrossRefAction p
 
 main :: IO ()
 main = join $ execParser opts

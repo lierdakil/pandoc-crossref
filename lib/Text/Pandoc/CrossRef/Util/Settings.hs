@@ -110,7 +110,8 @@ defaultMeta = Settings $
       ],
       "sec" .: [
         "ref" .= map str ["sec.", "secs."],
-        "title" .= text "Section"
+        "title" .= text "Section",
+        "captionTemplate" .= var "t"
       ]
     ]
   where var = displayMath

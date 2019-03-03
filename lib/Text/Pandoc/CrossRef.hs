@@ -76,8 +76,9 @@ module Text.Pandoc.CrossRef (
   , runCrossRefIO
   , module SG
   , defaultMeta
-  , CrossRefM
+  , CrossRef
   , CrossRefEnv(..)
+  , WSException(..)
   ) where
 
 import Control.Monad.State
@@ -126,9 +127,8 @@ defaultCrossRefAction (Pandoc _ bs) = do
 {- | Run an action in 'CrossRefM' monad with argument, and return pure result.
 
 This is primary function to work with 'CrossRefM' -}
-runCrossRef :: forall a b. Meta -> Maybe Format -> (a -> CrossRef b) -> a -> (Either WSException b, [String])
-runCrossRef meta fmt action arg =
-  flip runReader env . runWriterT . runExceptT . unCrossRef $ action arg
+runCrossRef :: forall b. Meta -> Maybe Format -> CrossRef b -> (Either WSException b, [String])
+runCrossRef meta fmt = flip runReader env . runWriterT . runExceptT . unCrossRef
   where
     settings = Settings meta <> defaultMeta
     env = CrossRefEnv {
@@ -140,9 +140,9 @@ runCrossRef meta fmt action arg =
 
 This function will attempt to read pandoc-crossref settings from settings
 file specified by crossrefYaml metadata field. -}
-runCrossRefIO :: forall a b. Meta -> Maybe Format -> (a -> CrossRef b) -> a -> IO b
-runCrossRefIO meta fmt action arg = do
+runCrossRefIO :: forall b. Meta -> Maybe Format -> CrossRef b -> IO b
+runCrossRefIO meta fmt action = do
   Settings meta' <- readSettings fmt meta
-  let (res, lg) = runCrossRef meta' fmt action arg
+  let (res, lg) = runCrossRef meta' fmt action
   mapM_ putStrLn lg
   return $ either (error . pretty) id res

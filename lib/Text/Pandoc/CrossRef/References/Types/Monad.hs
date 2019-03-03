@@ -36,6 +36,7 @@ import qualified Control.Monad.Fail as Fail
 data WSException = WSENoSuchPrefix String
                  | WSEDuplicateLabel String
                  | WSEFail String
+                 deriving Show
 
 type PureErr a = Either WSException a
 

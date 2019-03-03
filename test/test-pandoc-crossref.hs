@@ -18,19 +18,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, TypeSynonymInstances, FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, TypeSynonymInstances
+           , FlexibleInstances, StandaloneDeriving #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder
 import Control.Monad.State
 import Data.List
+import Data.Maybe
 import Control.Arrow
 import qualified Data.Map as M
 import qualified Data.Text as T
-import qualified Data.Default as Df
 
 import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Settings.Types
@@ -224,7 +227,8 @@ main = hspec $ do
       it "Labels sections divs" $
         testAll (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
-          referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header" "")
+            (referenceData ^= M.fromList (refRec' "sec:section" 1 "Section Header" ""))
+          . (pfxCounter =: M.singleton "sec" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
 
     describe "References.Refs.replaceRefs" $ do
@@ -277,11 +281,11 @@ main = hspec $ do
       it "Generates list of tables" $
         testList (rawBlock "latex" "\\listoftables")
                  (referenceData =: M.fromList $ refRec' "tbl:1" 4 "4" "Table 4: 4" <> refRec' "tbl:2" 5 "5" "Table 5: 5" <> refRec' "tbl:3" 6 "6" "Table 6: 6")
-                 (header 1 (text "List of Tables") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
+                 (header 1 (text "List of Tables") <> divWith ("",["list"],[]) (foldl1' (<>) $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
       it "Generates list of figures" $
         testList (rawBlock "latex" "\\listoffigures")
                  (referenceData =: M.fromList $ refRec' "fig:1" 4 "4" "Figure 4: 4" <> refRec' "fig:2" 5 "5" "Figure 5: 5" <> refRec' "fig:3" 6 "6" "Figure 6: 6")
-                 (header 1 (text "List of Figures") <> orderedList ((plain . str . show) `map` [4..6 :: Int]))
+                 (header 1 (text "List of Figures") <> divWith ("",["list"],[]) (foldl1' (<>) $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
 
     describe "Util.CodeBlockCaptions" $
       it "Transforms table-style codeBlock captions to codeblock divs" $ do
@@ -323,20 +327,22 @@ main = hspec $ do
       it "demo.md matches demo.native" $ do
         demomd <- readFile =<< getDataFileName "docs/demo/demo.md"
         Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
-        runCrossRef m Nothing crossRefBlocks b `shouldBe` Native.demo
+        let (res, _warn) = runCrossRef m Nothing $ crossRefBlocks b
+        res `shouldBe` Right Native.demo
 
       it "demo.md with chapters matches demo-chapters.native" $ do
         demomd <- readFile =<< getDataFileName "docs/demo/demo.md"
         Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
         let m' = setMeta "chapters" True m
-        runCrossRef m' Nothing crossRefBlocks b `shouldBe` Native.demochapters
+        let (res, _warn) = runCrossRef m' Nothing $ crossRefBlocks b
+        res `shouldBe` Right Native.demochapters
 #endif
 
     describe "LaTeX" $ do
       let test = test' nullMeta
           infixr 5 `test`
           test' m i o = getLatex m i `shouldBe` o
-          getLatex m i = either (fail . show) T.unpack (runPure $ writeLaTeX def (Pandoc m $ runCrossRef m (Just $ Format "latex") crossRefBlocks (toList i)))
+          getLatex m i = either (fail . show) T.unpack (runPure $ writeLaTeX def (Pandoc m . evalCrossRefRes . runCrossRef m (Just $ Format "latex") $ crossRefBlocks (toList i)))
 
       describe "Labels" $ do
 
@@ -386,10 +392,38 @@ refGen' :: String -> [Int] -> [(Int, Int)] -> M.Map String RefRec
 refGen' p l1 l2 = M.fromList $ mconcat $ zipWith refRec''' (((uncapitalizeFirst p++) . show) `map` l1) l2
 
 refRec' :: String -> Int -> Inlines -> String -> [(String, RefRec)]
-refRec' ref i tit cap = [(ref, RefRec{refIndex=i, refIxInl = str $ show i, refCaption= text cap,refTitle=tit,refScope=Nothing, refLevel=0, refPfx=takeWhile (/=':') ref, refLabel=ref, refAttrs = M.empty})]
+refRec' ref i tit cap =
+  let pfx = takeWhile (/=':') ref
+  in [(ref
+     , RefRec
+       { refIndex=i
+       , refIxInl = str $ show i
+       , refCaption= text cap,refTitle=tit,refScope=Nothing
+       , refLevel=0
+       , refPfx=pfx
+       , refLabel=ref
+       , refAttrs = M.empty
+       , refPfxRec = fromJust $ M.lookup pfx defaultPrefixes
+       }
+     )]
 
 refRec''' :: String -> (Int, Int) -> [(String, RefRec)]
-refRec''' ref (c,i) = [(ref, RefRec{refIndex=c+i,refIxInl = str $ show i, refCaption=str $ show i,refTitle=text [],refScope=Nothing, refLevel=0, refPfx=takeWhile (/=':') ref, refLabel=ref, refAttrs = M.empty})]
+refRec''' ref (c,i) =
+  let pfx = takeWhile (/=':') ref
+  in [(ref
+     , RefRec
+       { refIndex=c+i
+       , refIxInl = str $ show i
+       , refCaption=str $ show i
+       , refTitle=text []
+       , refScope=Nothing
+       , refLevel=0
+       , refPfx=pfx
+       , refLabel=ref
+       , refAttrs = M.empty
+       , refPfxRec = fromJust $ M.lookup pfx defaultPrefixes
+       }
+     )]
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen p l1 l2) def) (para $ text res)
@@ -401,9 +435,24 @@ testAll :: Many Block -> (Many Block, References -> References) -> Expectation
 testAll = testState f def
   where f = References.Blocks.replaceAll defaultOptions
 
-testState :: (Eq s, Eq a1, Show s, Show a1, Df.Default s) =>
-               ([a] -> State s [a1]) -> s -> Many a -> (Many a1, s -> s) -> Expectation
-testState f init' arg (r, s) = runState (f $ toList arg) init' `shouldBe` (toList r, s init')
+evalCrossRefM :: CrossRefM c -> c
+evalCrossRefM = evalCrossRefRes . runCrossRef (unSettings defaultMeta) Nothing . CrossRef
+
+evalCrossRefRes :: (Either WSException c, b) -> c
+evalCrossRefRes = either (error . show) id . fst
+
+instance Show Prefix where
+  show _ = "Prefix{}"
+deriving instance Show RefRec
+deriving instance Show CounterRec
+deriving instance Eq CounterRec
+deriving instance Show References
+deriving instance Eq References
+deriving instance Eq WSException
+
+testState :: (Eq a1, Show a1) => ([a] -> WS [a1]) -> References -> Many a -> (Many a1, References -> References) -> Expectation
+testState f init' arg (r, s) = evalCrossRefM $
+  (`shouldBe` (toList r, s init')) <$> runStateT (unWS . f $ toList arg) init'
 
 testRefs :: Blocks -> References -> Blocks -> Expectation
 testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, id)
@@ -412,7 +461,7 @@ testCBCaptions :: Blocks -> Blocks -> Expectation
 testCBCaptions bs res = bottomUp (Util.CodeBlockCaptions.mkCodeBlockCaptions defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}) (toList bs) `shouldBe` toList res
 
 testList :: Blocks -> (References -> References) -> Blocks -> Expectation
-testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) (st def) `shouldBe` (toList res, st def)
+testList bs st res = testState (bottomUpM (References.List.listOf defaultOptions)) (st def) bs (res, st)
 
 figure :: String -> String -> String -> String -> Blocks
 figure = (((para .) .) .) . figure' "fig:"
@@ -473,3 +522,6 @@ cit r = [defCit{citationId=r}]
 infixr 0 =:
 (=:) :: Accessor r a -> a -> r -> r
 a =: b = a ^= b
+
+defaultPrefixes :: Prefixes
+defaultPrefixes = getPrefixes "prefixes" defaultMeta
