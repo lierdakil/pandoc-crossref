@@ -181,13 +181,19 @@ replaceInline opts scope (Span (label,_,attrs) content)
   = do
       rec' <- replaceAttr opts scope (Right label) attrs (B.fromList content) pfx
       noReplaceRecurse (newScope rec' scope)
-replaceInline _opts (scope@RefRec{refPfxRec=Prefix{..}}:_) (Span ("",_,_) []) = do
+replaceInline _opts (scope@RefRec{refPfxRec=Prefix{..}}:_) (Span ("",_,attrs) []) = do
   rd <- get referenceData
   let ccd = filter ((== Just scope) . refScope) . M.elems $ rd
-  replaceNoRecurse . Span nullAttr . B.toList . mconcat
-      . intersperse prefixCollectedCaptionDelim
-      . map (applyTemplate prefixCollectedCaptionTemplate . fix defaultVarFunc)
-      $ sort ccd
+      prefix = maybe mempty B.str $ lookup "prefix" attrs
+      suffix = maybe mempty B.str $ lookup "suffix" attrs
+      delim = maybe prefixCollectedCaptionDelim B.str $ lookup "delim" attrs
+      varFunc rr x = fix defaultVarFunc rr x <|> (MetaString <$> lookup x attrs)
+  replaceNoRecurse . Span nullAttr . B.toList $
+      prefix <> (
+        mconcat
+      . intersperse delim
+      . map (applyTemplate prefixCollectedCaptionTemplate . varFunc)
+      $ sort ccd) <> suffix
 replaceInline _ scope _ = noReplaceRecurse scope
 
 applyTitleTemplate :: RefRec -> B.Inlines

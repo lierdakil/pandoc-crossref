@@ -1,11 +1,18 @@
 ---
 codeBlockCaptions: True
+autoFigLabels: fig
 prefixes:
   fig:
     title: |
       Figure #
     listOfTitle: |
       ## List of Figures
+    subcaptions: true
+    sub:
+      numbering: alpha a
+      referenceIndexTemplate: $$s.i$$ ($$i$$)
+      captionTemplate: $$i$$
+      scope: "fig"
   tbl:
     listOfTitle: |
       ## List of Tables
@@ -48,7 +55,7 @@ Subfigures are supported, see [@fig:subfigures; @fig:subfigureB]
 
 ![Subfigure b](img1.jpg){#fig:subfigureB}
 
-Subfigures caption
+\: Subfigures caption. []{}
 </div>
 
 # Chapter 2. Equations {#sec:sec2}
