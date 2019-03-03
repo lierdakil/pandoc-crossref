@@ -3,7 +3,7 @@ autoFigLabels: fig
 prefixes:
   fig:
     subcaptions: true
-    subcaptionsGrid: true
+    captionTemplate: '$$title% $$$$i$$$$titleDelim$$$$t$$. []{}'
     sub:
       numbering: alpha a
       referenceIndexTemplate: $$s.i$$ ($$i$$)
@@ -14,19 +14,19 @@ prefixes:
 You can define subfigures:
 
 <div id="fig:subfigures">
-  ![1](fig1.png){#fig:subfig1 width=30%}
-  ![2](fig2.png){#fig:subfig2 width=30%}
-  ![3](fig3.png){width=30%}
+  ![1](fig1.png){#fig:subfig1}
+  ![2](fig2.png){#fig:subfig2}
+  ![3](fig3.png)
 
-  ![4](fig4.png){#fig:subfig4 width=30%}
-  ![5](fig5.png){width=30%}
-  ![6](fig6.png){#fig:subfig6 width=30%}
+  ![4](fig4.png){#fig:subfig4}
+  ![5](fig5.png)
+  ![6](fig6.png){#fig:subfig6}
 
-  ![7](fig7.png){#fig:subfig7 width=30%}
-  ![8](fig8.png){width=30%}
-  ![9](fig9.png){#fig:subfig9 width=30%}
+  ![7](fig7.png){#fig:subfig7}
+  ![8](fig8.png)
+  ![9](fig9.png){#fig:subfig9}
 
-  : Caption. []{}
+  : Caption
 </div>
 
 <div id="fig:subfigures2">
@@ -48,7 +48,7 @@ You can define subfigures:
 
   ![9](fig9.png){#fig:subfig29}
 
-  \: Caption. []{}
+  \: Caption
 </div>
 
 Figures themselves can be referenced @fig:subfigures2, as well as individual subfigures: [@fig:subfig1; @fig:subfig2; @fig:subfig29]

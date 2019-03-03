@@ -176,11 +176,18 @@ replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
           f | isLatexFormat f -> ialt
           _  -> applyTitleTemplate idxStr
     replaceNoRecurse $ Image attr alt' img
-replaceInline opts scope x@(Span (label,_,attrs) content)
+replaceInline opts scope (Span (label,_,attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
       rec' <- replaceAttr opts scope (Right label) attrs (B.fromList content) pfx
-      replaceRecurse (newScope rec' scope) x
+      noReplaceRecurse (newScope rec' scope)
+replaceInline _opts (scope@RefRec{refPfxRec=Prefix{..}}:_) (Span ("",_,_) []) = do
+  rd <- get referenceData
+  let ccd = filter ((== Just scope) . refScope) . M.elems $ rd
+  replaceNoRecurse . Span nullAttr . B.toList . mconcat
+      . intersperse prefixCollectedCaptionDelim
+      . map (applyTemplate prefixCollectedCaptionTemplate . fix defaultVarFunc)
+      $ sort ccd
 replaceInline _ scope _ = noReplaceRecurse scope
 
 applyTitleTemplate :: RefRec -> B.Inlines

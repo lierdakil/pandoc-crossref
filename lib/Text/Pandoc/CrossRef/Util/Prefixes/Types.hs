@@ -24,6 +24,7 @@ module Text.Pandoc.CrossRef.Util.Prefixes.Types where
 
 import qualified Data.Map as M
 import Text.Pandoc.CrossRef.Util.Template.Types
+import Text.Pandoc.Builder
 
 type Prefixes = M.Map String Prefix
 
@@ -32,8 +33,10 @@ data Prefix = Prefix {
   , prefixReferenceIndexTemplate :: !Template
   , prefixCaptionIndexTemplate :: !Template
   , prefixListItemTemplate :: !Template
+  , prefixCollectedCaptionTemplate :: !Template
   , prefixReferenceTemplate :: !RefTemplate
   , prefixListOfTitle :: !BlockTemplate
+  , prefixCollectedCaptionDelim :: !Inlines
   , prefixScope :: ![String]
   , prefixNumbering :: !(Int -> String)
   , prefixSubcaptions :: !Bool

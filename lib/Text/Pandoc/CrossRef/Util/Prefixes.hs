@@ -42,7 +42,9 @@ getPrefixes varN dtv
         , prefixReferenceIndexTemplate = mkT $ getTemplInline "referenceIndexTemplate"
         , prefixCaptionIndexTemplate = mkT $ getTemplInline "captionIndexTemplate"
         , prefixListItemTemplate = mkT $ getTemplInline "listItemTemplate"
+        , prefixCollectedCaptionTemplate = mkT $ getTemplInline "collectedCaptionTemplate"
         , prefixListOfTitle = mkT $ getTemplBlock "listOfTitle"
+        , prefixCollectedCaptionDelim = getMetaInlines "collectedCaptionDelim" kv
         , prefixScope = getMetaStringList "scope" kv
         , prefixNumbering =
             let prettyVarName = varN <> "." <> k <> "." <> varName

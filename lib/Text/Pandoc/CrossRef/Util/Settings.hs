@@ -74,14 +74,17 @@ defaultMeta = Settings $
   <> tableEqns False
   <> linkReferences False
   <> nameInLink False
+  <> collectedCaptionDelim (str "," <> space)
+  <> collectedCaptionItemDelim (space <> str "–" <> space)
   -- these are merely the defaults, can (and will) be overridden in prefix configs
   <> captionTemplate (var "title%\160" <> var "i" <> var "titleDelim" <> var "t")
   <> captionIndexTemplate (var "i")
   <> referenceTemplate (var "Ref[n]%\160" <> var "rs")
-  <> referenceIndexTemplate (var "i" <> var "suf")
-  <> numbering "arabic"
-  <> listOfTitle (header 1 $ text "List of " <> var "title" <> str "s")
   <> listItemTemplate (var "i" <> var "listItemNumberDelim" <> var "t")
+  <> collectedCaptionTemplate (var "i" <> var "collectedCaptionItemDelim" <> var "t")
+  <> referenceIndexTemplate (var "i" <> var "suf")
+  <> listOfTitle (header 1 $ text "List of " <> var "title" <> str "s")
+  <> numbering "arabic"
   <> prefixes' [
       "eq" .: [
         "ref" .= map str ["eq.", "eqns."],

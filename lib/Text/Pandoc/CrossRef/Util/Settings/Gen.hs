@@ -41,6 +41,9 @@ fmap concat $ mapM (makeAcc . mkName)
   , "listItemTemplate"
   , "numbering"
   , "listOfTitle"
+  , "collectedCaptionDelim"
+  , "collectedCaptionItemDelim"
+  , "collectedCaptionTemplate"
   ]
 
 getOptions :: Settings -> Maybe Format -> Options
