@@ -31,7 +31,6 @@ import Text.Pandoc.Shared (blocksToInlines)
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Util
 import qualified Data.Text as T
@@ -112,7 +111,7 @@ modifyMeta = do
     toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
     -- TODO: Log
     getListOfTitle = either (const mempty) (toLatex . blocksToInlines . toList) . getTitleForListOf opts
-    getFloatCaption = either (const mempty) (toLatex . toList . prefixTitle) . getPfx opts
+    getFloatCaption = const mempty
     -- prefix f uc = "{" ++ toLatex (toList $ f opts uc 0) ++ "}" ++
     --               "{" ++ toLatex (toList $ f opts uc 1) ++ "}"
 

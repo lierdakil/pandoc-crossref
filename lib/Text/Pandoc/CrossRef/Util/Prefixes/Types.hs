@@ -18,24 +18,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE Rank2Types, TypeFamilies #-}
+
 module Text.Pandoc.CrossRef.Util.Prefixes.Types where
 
 import qualified Data.Map as M
 import Text.Pandoc.CrossRef.Util.Template.Types
-import Text.Pandoc.Builder
 
 type Prefixes = M.Map String Prefix
 
 data Prefix = Prefix {
     prefixCaptionTemplate :: !Template
-  , prefixReferenceTemplate :: !RefTemplate
-  , prefixScope :: ![String]
-  , prefixNumbering :: !(Int -> Int -> String)
-  , prefixListOfTitle :: !BlockTemplate
   , prefixReferenceIndexTemplate :: !Template
   , prefixCaptionIndexTemplate :: !Template
   , prefixListItemTemplate :: !Template
-  -- Used for LaTeX metadata; the same value is used in
-  -- default value for prefixCaptionTemplate
-  , prefixTitle :: Inlines
+  , prefixReferenceTemplate :: !RefTemplate
+  , prefixListOfTitle :: !BlockTemplate
+  , prefixScope :: ![String]
+  , prefixNumbering :: !(Int -> Int -> String)
 }

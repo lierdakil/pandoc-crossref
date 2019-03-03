@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, TypeSynonymInstances
            , FlexibleInstances, StandaloneDeriving #-}
 import Test.Hspec
-import Text.Pandoc hiding (getDataFileName)
+import Text.Pandoc hiding (getDataFileName, Template)
 import Text.Pandoc.Builder
 import Control.Monad.State
 import Data.List
@@ -36,6 +36,7 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Template.Types
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Data.Accessor hiding ((=:))
 import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
@@ -99,7 +100,7 @@ main = hspec $ do
     describe "References.Blocks.replaceBlocks" $ do
       it "Labels images" $
         testAll (figure "test.jpg" [] "Test figure" "figure")
-        (figure "test.jpg" [] "Figure 1: Test figure" "figure",
+        (figure "test.jpg" [] "Figure\160\&1: Test figure" "figure",
           (referenceData =: M.fromList [refRec' "fig:figure" 1 "Test figure" "Figure 1: Test figure"]) .
           (pfxCounter =: M.singleton "fig" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
@@ -208,20 +209,20 @@ main = hspec $ do
           )
       it "Labels tables" $
         testAll (table' "Test table" "table")
-        (divWith ("tbl:table", [], []) $ table' "Table 1: Test table" [],
+        (divWith ("tbl:table", [], []) $ table' "Table\160\&1: Test table" [],
           (referenceData =: M.fromList [refRec' "tbl:table" 1 "Test table" "Table 1: Test table"]) .
           (pfxCounter =: M.singleton "tbl" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels code blocks" $
         testAll (codeBlock' "Test code block" "codeblock")
-        (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          (referenceData =: M.fromList [refRec' "lst:codeblock" 1 "Test code block" "Listing 1: Test code block"]) .
+        (codeBlockDiv "Listing\160\&1: Test code block" "codeblock",
+          (referenceData =: M.fromList [refRec' "lst:codeblock" 1 "Test code block" "Listing\160\&1: Test code block"]) .
           (pfxCounter =: M.singleton "lst" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels code block divs" $
         testAll (codeBlockDiv "Test code block" "codeblock")
-        (codeBlockDiv "Listing 1: Test code block" "codeblock",
-          (referenceData =: M.fromList [refRec' "lst:codeblock" 1 "Test code block" "Listing 1: Test code block"]) .
+        (codeBlockDiv "Listing\160\&1: Test code block" "codeblock",
+          (referenceData =: M.fromList [refRec' "lst:codeblock" 1 "Test code block" "Listing\160\&1: Test code block"]) .
           (pfxCounter =: M.singleton "lst" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels sections divs" $
@@ -288,11 +289,11 @@ main = hspec $ do
       it "Generates list of tables" $
         testList (rawBlock "latex" "\\listoftables")
                  (referenceData =: M.fromList [let l = "tbl:" <> show i; n = i + 3; sn = str $ show n in refRec' l n sn ("Table " <> sn <> ": " <> sn) | i <- [1..3]])
-                 (header 1 (text "List of Tables") <> divWith ("",["list"],[]) (foldl1' (<>) $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
+                 (header 1 (text "List of Tables") <> divWith ("",["list"],[]) (mconcat $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
       it "Generates list of figures" $
         testList (rawBlock "latex" "\\listoffigures")
                  (referenceData =: M.fromList [let l = "fig:" <> show i; n = i + 3; sn = str $ show n in refRec' l n sn ("Figure " <> sn <> ": " <> sn) | i <- [1..3]])
-                 (header 1 (text "List of Figures") <> divWith ("",["list"],[]) (foldl1' (<>) $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
+                 (header 1 (text "List of Figures") <> divWith ("",["list"],[]) (mconcat $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
 
     describe "Util.CodeBlockCaptions" $
       it "Transforms table-style codeBlock captions to codeblock divs" $ do
@@ -398,6 +399,7 @@ refGen p l1 l2 = M.fromList $ zipWith (\r i -> refRec' r i mempty mempty) (((unc
 refRec' :: String -> Int -> Inlines -> Inlines -> (String, RefRec)
 refRec' ref i tit cap =
   let pfx = takeWhile (/=':') ref
+      pfxRec = fromJust $ M.lookup pfx defaultPrefixes
   in ( ref
      , RefRec
        { refIndex=i
@@ -409,7 +411,7 @@ refRec' ref i tit cap =
        , refPfx=pfx
        , refLabel=ref
        , refAttrs = M.empty
-       , refPfxRec = fromJust $ M.lookup pfx defaultPrefixes
+       , refPfxRec = pfxRec
        }
      )
 
@@ -431,6 +433,8 @@ evalCrossRefRes = either (error . show) id . fst
 
 instance Show Prefix where
   show _ = "Prefix{}"
+instance Show Template where
+  show _ = "Template{}"
 deriving instance Show RefRec
 deriving instance Show CounterRec
 deriving instance Eq CounterRec

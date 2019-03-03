@@ -34,30 +34,38 @@ import Data.Maybe
 
 getPrefixes :: String -> Settings -> Prefixes
 getPrefixes varN dtv
-  | Just (MetaMap m) <- lookupSettings varN dtv = M.mapWithKey m2p m
+  | Just (MetaMap m) <- lookupSettings varN dtv =
+    let
+      m2p k (MetaMap kv') = Prefix {
+          prefixCaptionTemplate = mkT $ getTemplInline "captionTemplate"
+        , prefixReferenceTemplate = mkT $ getTemplInline "referenceTemplate"
+        , prefixReferenceIndexTemplate = mkT $ getTemplInline "referenceIndexTemplate"
+        , prefixCaptionIndexTemplate = mkT $ getTemplInline "captionIndexTemplate"
+        , prefixListItemTemplate = mkT $ getTemplInline "listItemTemplate"
+        , prefixListOfTitle = mkT $ getTemplBlock "listOfTitle"
+        , prefixScope = getMetaStringList "scope" kv
+        , prefixNumbering = \lvl ->
+            let prettyVarName = varN <> "." <> k <> "." <> varName
+                varName = "numbering"
+            in mkLabel prettyVarName
+                    (fromMaybe (reportError prettyVarName "Numbering")
+                          $ lookupSettings varName kv >>= getList lvl)
+        }
+        where kv = Settings (Meta kv') <> from <> dtv
+              from | Just fromRef <- M.lookup "from" kv'
+                   , Just (MetaMap kv'') <- M.lookup (toString "from" fromRef) m
+                   = Settings (Meta kv'')
+                   | otherwise = mempty
+              mkT :: MakeTemplate a => ElemT a -> a
+              mkT = makeTemplate kv
+              getTemplInline = getTemplDefault getMetaInlines
+              getTemplBlock = getTemplDefault getMetaBlock
+              getTemplDefault f n =
+                if isJust $ lookupSettings n kv
+                then f n kv
+                else reportError n "Template"
+              reportError n what = error $ what <> " meta variable " <> n <> " not set for "
+                                <> varN <> "." <> k <> ". This should not happen. Please report a bug"
+      m2p k _ = error $ "Invalid value for prefix " <> k
+    in M.mapWithKey m2p m
   | otherwise = error "Prefixes not defined"
-  where
-    m2p k (MetaMap kv') = Prefix {
-        prefixCaptionTemplate = makeTemplate kv $ getTemplDefault "captionTemplate"
-      , prefixReferenceTemplate = makeRefTemplate kv $ getTemplDefault "referenceTemplate"
-      , prefixReferenceIndexTemplate = makeTemplate kv $ getTemplDefault "referenceIndexTemplate"
-      , prefixCaptionIndexTemplate = makeTemplate kv $ getTemplDefault "captionIndexTemplate"
-      , prefixListItemTemplate = makeTemplate kv $ getTemplDefault "listItemTemplate"
-      , prefixScope = getMetaStringList "scope" kv
-      , prefixNumbering = \lvl ->
-          let prettyVarName = varN <> "." <> k <> "." <> varName
-              varName = "numbering"
-          in mkLabel prettyVarName
-                  (fromMaybe (reportError prettyVarName "Numbering")
-                        $ lookupSettings varName kv >>= getList lvl)
-      , prefixListOfTitle = makeBlockTemplate kv $ getMetaBlock "listOfTitle" kv
-      , prefixTitle = getMetaInlines "title" kv
-      }
-      where kv = Settings (Meta kv') <> dtv
-            getTemplDefault n =
-              if isJust $ lookupSettings n kv
-              then getMetaInlines n kv
-              else reportError n "Template"
-            reportError n what = error $ what <> " meta variable " <> n <> " not set for "
-                              <> varN <> "." <> k <> ". This should not happen. Please report a bug"
-    m2p k _ = error $ "Invalid value for prefix " <> k

@@ -75,17 +75,10 @@ defaultMeta = Settings $
   <> autoEqnLabels False
   <> linkReferences False
   <> nameInLink False
-  <> latexPrefixes' [
-      "figure" .= "fig"
-    , "table" .= "tbl"
-    , "equation" .= "eq"
-    , "listing" .= "lst"
-    , "section" .= "sec"
-  ]
   -- these are merely the defaults, can (and will) be overridden in prefix configs
-  <> captionTemplate (var "title" <> space <> var "i" <> var "titleDelim" <> var "t")
+  <> captionTemplate (var "title%\160" <> var "i" <> var "titleDelim" <> var "t")
   <> captionIndexTemplate (var "i")
-  <> referenceTemplate (var "Ref[n][lvl]" <> str "\160" <> var "rs")
+  <> referenceTemplate (var "Ref[n][lvl]%\160" <> var "rs")
   <> referenceIndexTemplate (var "i" <> var "suf")
   <> numbering "arabic"
   <> listOfTitle (header 1 $ text "List of " <> var "title" <> str "s")
@@ -118,9 +111,6 @@ defaultMeta = Settings $
 
 prefixes' :: [(String, MetaValue)] -> Meta
 prefixes' = prefixes . MetaMap . M.fromList
-
-latexPrefixes' :: [(String, MetaValue)] -> Meta
-latexPrefixes' = latexPrefixes . MetaMap . M.fromList
 
 infixr 0 .:
 (.:) :: String -> [(String, MetaValue)] -> (String, MetaValue)

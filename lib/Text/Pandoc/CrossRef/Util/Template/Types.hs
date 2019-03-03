@@ -18,12 +18,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE TypeFamilies #-}
+
 module Text.Pandoc.CrossRef.Util.Template.Types where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
+import Text.Pandoc.CrossRef.Util.Settings.Types
 
 type VarFunc = String -> Maybe MetaValue
 newtype Template = Template { applyTemplate :: VarFunc -> Inlines }
 newtype RefTemplate = RefTemplate { applyRefTemplate :: VarFunc -> Bool -> Inlines }
 newtype BlockTemplate = BlockTemplate { applyBlockTemplate :: VarFunc -> Blocks }
+
+class MakeTemplate a where
+  type ElemT a
+  makeTemplate :: Settings -> ElemT a -> a

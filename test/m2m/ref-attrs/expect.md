@@ -1,10 +1,10 @@
-![Test1 1: Image 1](img.png){#fig:1 ref="img." ref="imgs."
+![Test1 1: Image 1](img.png){#fig:1 ref="img." ref="imgs."
 title="Test1"}
 
-![Test2 2: Image 2](img.png){#fig:2 ref="img." ref="imgs."
+![Test2 2: Image 2](img.png){#fig:2 ref="img." ref="imgs."
 title="Test2"}
 
-![Figure 3: Image 3](img.png){#fig:3}
+![Figure 3: Image 3](img.png){#fig:3}
 
 This should have custom prefix: img. 1
 

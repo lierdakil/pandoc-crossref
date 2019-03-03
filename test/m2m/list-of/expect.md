@@ -1,18 +1,18 @@
 [$$eqn1\qquad(1)$$]{#eq:1} [$$eqn2\qquad(2)$$]{#eq:2}
 [$$eqn3\qquad(3)$$]{#eq:3}
 
-![Figure 1: Image 1](img.png){#fig:1}
+![Figure 1: Image 1](img.png){#fig:1}
 
-![Figure 2: Image 2](img.png){#fig:2}
+![Figure 2: Image 2](img.png){#fig:2}
 
-![Figure 3: Image 3](img.png){#fig:3}
+![Figure 3: Image 3](img.png){#fig:3}
 
 ::: {#tbl:1}
   a   b
   --- ---
   c   d
 
-  : Table 1: Table 1
+  : Table 1: Table 1
 :::
 
 ::: {#tbl:2}
@@ -20,7 +20,7 @@
   --- ---
   c   d
 
-  : Table 2: Table 2
+  : Table 2: Table 2
 :::
 
 ::: {#tbl:3}
@@ -28,7 +28,7 @@
   --- ---
   c   d
 
-  : Table 3: Table 3
+  : Table 3: Table 3
 :::
 
 List of Figures

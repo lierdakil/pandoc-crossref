@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, MultiWayIf, RecordWildCards, NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards, NamedFieldPuns, TypeFamilies #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
@@ -37,6 +37,7 @@ import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.CustomLabels
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.VarFunction
 import Text.Pandoc.CrossRef.Util.Replace
@@ -105,7 +106,7 @@ replaceBlock opts scope (Div (label,"listing":_, []) [Para caption, CodeBlock ([
           | isLatexFormat f ->
             Div nullAttr [
                 RawBlock (Format "latex") "\\begin{codelisting}"
-              , Para [
+              , Plain [
                   RawInline (Format "latex") "\\caption"
                 , Span nullAttr caption
                 ]
@@ -147,8 +148,8 @@ replaceInline opts scope (Span attrs@(label,_,_) [Math DisplayMath eq])
       (eq', _) <- replaceEqn opts scope attrs eq pfx
       replaceNoRecurse $ case outFormat opts of
         f | isLatexFormat f ->
-          let eqn = "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
-          in RawInline (Format "latex") eqn
+          RawInline (Format "latex")
+          $ "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
         _ -> Span attrs [Math DisplayMath eq']
 replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
   | Just pfx <- getRefPrefix opts label
@@ -216,18 +217,25 @@ replaceAttr :: Options -> Scope -> Either String String -> [(String, String)] ->
 replaceAttr o scope label attrs title pfx
   = do
     ropt <- liftEither $ getPfx o pfx
-    let itemScope = find ((`elem` prefixScope ropt) . refPfx) scope
-        refLabel' = lookup "label" attrs
+    let attrMap = M.fromListWith (flip (++)) $ map (second return) attrs
+        metaAttrMap = M.map attr2meta attrMap
+        attr2meta [s] = MetaString s
+        attr2meta ss = MetaList $ map MetaString ss
+        scopeSpecifier = fromMaybe (prefixScope ropt) $ M.lookup "scope" attrMap
+        itemScope = find ((`elem` scopeSpecifier) . refPfx) scope
     cr <- (\CounterRec{..} -> CounterRec{
             crIndex = crIndex+1
           , crIndexInScope = M.insertWith (+) itemScope 1 crIndexInScope
           }) . fromMaybe def . M.lookup pfx <$> get pfxCounter
     modify pfxCounter $ M.insert pfx cr
-    let label' = either (++ ':':'\0':show i) id label
+    let refLabel' = lookup "label" attrs
+        label' = either (++ ':':'\0':show i) id label
         iInSc = fromJust $ M.lookup itemScope $ crIndexInScope cr
         i = crIndex cr
         lvl = length $ filter ((== pfx) . refPfx) scope
-        customLabel = prefixNumbering ropt lvl
+        customLabel = maybe (prefixNumbering ropt lvl)
+                            (mkLabel $ label' <> " attribute numbering")
+                      $ M.lookup "numbering" metaAttrMap
     hasLabel <- M.member label' <$> get referenceData
     when hasLabel $ throwError $ WSEDuplicateLabel label'
     let rec' = RefRec {
@@ -240,7 +248,7 @@ replaceAttr o scope label attrs title pfx
       , refPfx = pfx
       , refPfxRec = ropt
       , refCaption = applyTitleTemplate rec'
-      , refAttrs = M.fromListWith (flip (++)) $ map (second return) attrs
+      , refAttrs = metaAttrMap
       }
     modify referenceData $ M.insert label' rec'
     return rec'

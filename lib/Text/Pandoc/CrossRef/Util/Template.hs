@@ -18,15 +18,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RecordWildCards #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE RecordWildCards, TypeFamilies #-}
 
 module Text.Pandoc.CrossRef.Util.Template
   ( Template
   , RefTemplate
   , BlockTemplate
-  , makeTemplate
-  , makeBlockTemplate
-  , makeRefTemplate
+  , MakeTemplate(..)
   , applyTemplate
   , applyRefTemplate
   , applyBlockTemplate
@@ -68,13 +67,30 @@ parse StAfterIndex (c:_) = error $ "Unexpected character " <> [c] <> " after par
 parse StPrefix cs = let (pfx, rest) = span (`notElem` "%#") cs in (parse StPrefix rest){prPfx = pfx}
 parse StSuffix cs = let (sfx, rest) = span (`notElem` "%#") cs in (parse StSuffix rest){prSfx = sfx}
 
-makeTemplate :: Settings -> Inlines -> Template
-makeTemplate dtv xs' = Template $ \vf -> fromList $ scan (\var -> vf var <|> lookupSettings var dtv) $ toList xs'
+instance MakeTemplate Template where
+  type ElemT Template = Inlines
+  makeTemplate dtv xs' = Template (genTemplate dtv xs')
 
-makeBlockTemplate :: Settings -> Blocks -> BlockTemplate
-makeBlockTemplate dtv xs' = BlockTemplate $ \vf -> fromList $ scan (\var -> vf var <|> lookupSettings var dtv) $ toList xs'
+instance MakeTemplate BlockTemplate where
+  type ElemT BlockTemplate = Blocks
+  makeTemplate dtv xs' = BlockTemplate (genTemplate dtv xs')
 
-scan :: (Data a) => (String -> Maybe MetaValue) -> [a] -> [a]
+instance MakeTemplate RefTemplate where
+  type ElemT RefTemplate = Inlines
+  makeTemplate dtv xs' = RefTemplate $ \vars cap -> g (vf vars cap)
+    where Template g = makeTemplate dtv xs'
+          vf vars cap (vc:vs)
+            | isUpper vc && cap = capitalize lookup' var
+            | otherwise = lookup' var
+            where
+              var = toLower vc : vs
+              lookup' x = vars x <|> lookupSettings x dtv
+          vf _ _ [] = error "Empty variable name"
+
+genTemplate :: (Data a) => Settings -> Many a -> VarFunc -> Many a
+genTemplate dtv xs' vf = fromList $ scan (\var -> vf var <|> lookupSettings var dtv) $ toList xs'
+
+scan :: (Data a) => VarFunc -> [a] -> [a]
 scan = bottomUp . go
   where
   go vf (Math DisplayMath var:xs)
@@ -91,15 +107,3 @@ scan = bottomUp . go
           in toList $ replaceVar arr <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
-
-makeRefTemplate :: Settings -> Inlines -> RefTemplate
-makeRefTemplate dtv xs' =
-  let Template g = makeTemplate dtv xs'
-      vf vars cap (vc:vs)
-        | isUpper vc && cap = capitalize lookup' var
-        | otherwise = lookup' var
-        where
-          var = toLower vc : vs
-          lookup' x = vars x <|> lookupSettings x dtv
-      vf _ _ [] = error "Empty variable name"
-  in RefTemplate $ \vars cap -> g (vf vars cap)

@@ -41,7 +41,4 @@ defaultVarFunc self RefRec{..} x = case x of
    _ | Just y <- stripPrefix "s." x
      , Just rs <- refScope
      -> self rs y
-   _ -> case M.lookup x refAttrs of
-          Just [s] -> Just $ MetaString s
-          Just ss -> Just $ MetaList $ map MetaString ss
-          _ -> Nothing
+   _ -> M.lookup x refAttrs

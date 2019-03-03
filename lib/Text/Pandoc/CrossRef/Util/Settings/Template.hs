@@ -30,7 +30,6 @@ import Language.Haskell.TH.Syntax hiding (Inline)
 import Data.List
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Prefixes
-import Text.Pandoc.CrossRef.Util.LatexPrefixes
 
 namedFields :: Con -> [VarStrictType]
 namedFields (RecC _ fs) = fs
@@ -80,7 +79,6 @@ makeCon' t accName = do
     tmplT <- [t|$(conT t) -> Template|]
     clT <- [t|$(conT t) -> String -> Int -> Maybe String|]
     pfxT <- [t|$(conT t) -> Prefixes|]
-    lpsT <- [t|$(conT t) -> LatexPrefixes|]
     let varName | Name (OccName n) _ <- accName = liftString n
     let dtv = return $ VarE $ mkName "dtv"
     body <-
@@ -94,6 +92,5 @@ makeCon' t accName = do
       | t' == clT -> [|customLabel $(dtv)|]
       | t' == fmtT -> return $ VarE $ mkName "fmt"
       | t' == pfxT -> [|getPrefixes $(varName) $(dtv)|]
-      | t' == lpsT -> [|getLatexPrefixes $(varName) $(dtv)|]
       | otherwise -> fail $ show t'
     return [(accName, body)]

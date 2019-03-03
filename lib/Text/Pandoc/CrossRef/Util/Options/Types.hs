@@ -22,7 +22,6 @@ module Text.Pandoc.CrossRef.Util.Options.Types where
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.Builder
-import Text.Pandoc.CrossRef.Util.LatexPrefixes
 
 data Options = Options { cref :: Bool
                        , listings :: Bool
@@ -38,5 +37,4 @@ data Options = Options { cref :: Bool
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , prefixes :: Prefixes
-                       , latexPrefixes :: LatexPrefixes
                        }
