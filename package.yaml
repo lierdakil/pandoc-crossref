@@ -18,7 +18,7 @@ data-files:
 - test/m2m/*/*
 dependencies:
 - base >=4.11 && <5
-- pandoc >=2.3 && < 2.7
+- pandoc >=2.3 && < 2.8
 - pandoc-types >=1.17.5.1 && < 1.18
 - mtl >=1.1 && <2.3
 - containers >=0.1 && <0.7
