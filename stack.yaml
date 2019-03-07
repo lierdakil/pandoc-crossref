@@ -8,4 +8,4 @@ packages:
 allow-newer: false
 extra-deps:
 - roman-numerals-0.5.1.5
-resolver: nightly-2019-02-15
+resolver: nightly-2019-03-07
