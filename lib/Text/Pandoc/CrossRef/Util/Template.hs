@@ -37,13 +37,13 @@ import Text.Pandoc.Generic
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Template.Types
-import Control.Applicative
-import Text.Read
+import Control.Applicative hiding (many, optional)
+import Text.Read hiding ((<++), (+++))
 import Data.Char (isAlphaNum, isUpper, toLower)
 import Control.Monad ((<=<))
 import Data.Data (Data)
+import Text.ParserCombinators.ReadP
 
-data State = StFirstVar | StIndex | StAfterIndex | StPrefix | StSuffix deriving Eq
 data ParseRes = ParseRes { prVar :: String, prIdx :: [String], prPfx :: String, prSfx :: String } deriving Show
 
 isVariableSym :: Char -> Bool
@@ -51,21 +51,15 @@ isVariableSym '.' = True
 isVariableSym '_' = True
 isVariableSym c = isAlphaNum c
 
-parse :: State -> String -> ParseRes
-parse _ [] = ParseRes [] [] [] []
-parse StFirstVar cs@(c:_) | isVariableSym c = let (var, rest) = span isVariableSym cs in (parse StFirstVar rest){prVar = var}
-parse s ('[':cs)
-  | s == StAfterIndex || s == StFirstVar
-  = let (idx, rest) = span isVariableSym cs in (\r -> r{prIdx = idx : prIdx r})(parse StIndex rest)
-parse StIndex (']':cs) = parse StAfterIndex cs
-parse StIndex _ = error "Unterminated [ in indexed variable"
-parse StAfterIndex ('[':cs) = parse StIndex cs
-parse _ ('%':cs) = parse StSuffix cs
-parse _ ('#':cs) = parse StPrefix cs
-parse StFirstVar s = error $ "Invalid variable name in " <> s
-parse StAfterIndex (c:_) = error $ "Unexpected character " <> [c] <> " after parsing indexed variable"
-parse StPrefix cs = let (pfx, rest) = span (`notElem` "%#") cs in (parse StPrefix rest){prPfx = pfx}
-parse StSuffix cs = let (sfx, rest) = span (`notElem` "%#") cs in (parse StSuffix rest){prSfx = sfx}
+parse :: ReadP ParseRes
+parse = uncurry <$> (ParseRes <$> varName <*> many varIdx) <*> option ("", "") ps <* eof
+  where
+    varName = munch1 isVariableSym
+    varIdx = between (char '[') (char ']') varName
+    prefix = char '#' *> many (satisfy (/='%'))
+    suffix = char '%' *> many (satisfy (/='#'))
+    ps = (flip (,) <$> suffix <*> option "" prefix)
+          +++ ((,) <$> prefix <*> option "" suffix)
 
 instance MakeTemplate Template where
   type ElemT Template = Inlines
@@ -94,7 +88,7 @@ scan :: (Data a) => VarFunc -> [a] -> [a]
 scan = bottomUp . go
   where
   go vf (Math DisplayMath var:xs)
-    | ParseRes{..} <- parse StFirstVar var
+    | ParseRes{..} <- fst . head $ readP_to_S parse var
     = let replaceVar = maybe mempty (modifier . toInlines ("variable " ++ var))
           modifier = (<> text prSfx) . (text prPfx <>)
       in case prIdx of
