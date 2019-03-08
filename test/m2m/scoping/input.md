@@ -59,6 +59,8 @@ A _ring_ is a triple $(R,+,*)$ satisfying:
 - @dfn:group
 - @cl:grpmul
 
+---
+
 - @sec:2
 - @dfn:ring
 - @cl:addgp
