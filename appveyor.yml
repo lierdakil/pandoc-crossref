@@ -18,7 +18,7 @@ environment:
     ARCH: "x64"
     CHOCO_OPTS: ""
   matrix:
-  - PANDOC_VERSION: "2.6"
+  - PANDOC_VERSION: "2.7"
 
 skip_commits:
   files:
