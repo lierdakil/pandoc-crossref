@@ -54,6 +54,9 @@ getPrefixes varN dtv
                           $ lookupSettings varName kv)
         , prefixSubcaptions = getMetaBool "subcaptions" kv
         , prefixSubcaptionsGrid = getMetaBool "subcaptionsGrid" kv
+        , prefixCaptionPosition = case getMetaString "captionPosition" kv of
+            "above" -> Above
+            _ -> Below
         , prefixSub = m2p k . (`merge` MetaMap kv') <$> lookupSettings "sub" (Settings (Meta kv') <> from)
         }
         where kv = Settings (Meta kv') <> from <> dtv

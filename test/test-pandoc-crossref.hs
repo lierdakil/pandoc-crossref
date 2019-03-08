@@ -215,13 +215,13 @@ main = hspec $ do
           )
       it "Labels code blocks" $
         testAll (codeBlock' "Test code block" "codeblock")
-        (codeBlockDiv "Listing\160\&1: Test code block" "codeblock",
+        (codeBlockDiv' "Listing\160\&1: Test code block" "codeblock",
           (referenceData =: M.fromList [refRec' "lst:codeblock" 1 "Test code block" "Listing\160\&1: Test code block"]) .
           (pfxCounter =: M.singleton "lst" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
       it "Labels code block divs" $
         testAll (codeBlockDiv "Test code block" "codeblock")
-        (codeBlockDiv "Listing\160\&1: Test code block" "codeblock",
+        (codeBlockDiv' "Listing\160\&1: Test code block" "codeblock",
           (referenceData =: M.fromList [refRec' "lst:codeblock" 1 "Test code block" "Listing\160\&1: Test code block"]) .
           (pfxCounter =: M.singleton "lst" $ CounterRec {crIndex = 1, crIndexInScope = M.singleton Nothing 1})
           )
@@ -413,6 +413,7 @@ refRec' ref i tit cap =
        , refLabel=ref
        , refAttrs = M.empty
        , refPfxRec = pfxRec
+       , refCaptionPosition = Below
        }
      )
 
@@ -437,6 +438,7 @@ instance Show Prefix where
 instance Show Template where
   show _ = "Template{}"
 deriving instance Show RefRec
+deriving instance Show CaptionPosition
 deriving instance Show CounterRec
 deriving instance Eq CounterRec
 deriving instance Show References
@@ -485,10 +487,14 @@ paraText :: String -> Blocks
 paraText s = para $ text s
 
 codeBlockDiv :: String -> String -> Blocks
-codeBlockDiv title ref = divWith ("lst:"++ref, ["listing","haskell"],[]) $
-  para (text title) <>
-  codeBlockWith
-    ("",["haskell"],[]) "main :: IO ()"
+codeBlockDiv title ref = divWith ("lst:"++ref, [], []) $
+  codeBlockWith ("",["haskell"],[]) "main :: IO ()"
+  <> para (text $ ": " <> title)
+
+codeBlockDiv' :: String -> String -> Blocks
+codeBlockDiv' title ref = divWith ("lst:"++ref, ["listing", "haskell"], []) $
+  para (text title)
+  <> codeBlockWith ("",["haskell"],[]) "main :: IO ()"
 
 ref' :: String -> String -> Inlines
 ref' p n | null n  = mempty

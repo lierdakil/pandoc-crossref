@@ -40,6 +40,7 @@ data RefRec = RefRec { refIndex :: !Int -- global ordinal number for prefix
                      , refPfxRec :: !Prefix -- reference prefix, the part in label before :
                      , refCaption :: Inlines -- caption after applying template; must be non-strict
                      , refAttrs :: !(M.Map String MetaValue) -- attribute map
+                     , refCaptionPosition :: !CaptionPosition
                      }
 
 instance Eq RefRec where

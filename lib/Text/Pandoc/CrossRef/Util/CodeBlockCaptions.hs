@@ -42,14 +42,14 @@ orderAgnostic opts (Para ils:CodeBlock (label,classes,attrs) code:xs)
   , Just caption <- getCodeBlockCaption ils
   , not $ null label
   , Just _ <- getRefPrefix opts label
-  = return $ Div (label,"listing":classes, [])
-      [Para caption, CodeBlock ([],classes,attrs) code] : xs
+  = return $ Div (label, [], [])
+      [CodeBlock ([],classes,attrs) code, Para $ Str ":":Space:caption] : xs
 orderAgnostic opts (Para ils:CodeBlock (_,classes,attrs) code:xs)
   | codeBlockCaptions opts
   , Just (caption, labinl) <- splitLast <$> getCodeBlockCaption ils
   , Just label <- getRefLabel opts labinl
-  = return $ Div (label,"listing":classes, [])
-      [Para $ init caption, CodeBlock ([],classes,attrs) code] : xs
+  = return $ Div (label, [], [])
+      [CodeBlock ([],classes,attrs) code, Para $ Str ":":Space:init caption] : xs
   where
     splitLast xs' = splitAt (length xs' - 1) xs'
 orderAgnostic _ _ = Nothing

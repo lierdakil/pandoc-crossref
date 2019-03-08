@@ -28,6 +28,8 @@ import Text.Pandoc.Builder
 
 type Prefixes = M.Map String Prefix
 
+data CaptionPosition = Above | Below
+
 data Prefix = Prefix {
     prefixCaptionTemplate :: !Template
   , prefixReferenceIndexTemplate :: !Template
@@ -41,5 +43,6 @@ data Prefix = Prefix {
   , prefixNumbering :: !(Int -> String)
   , prefixSubcaptions :: !Bool
   , prefixSubcaptionsGrid :: !Bool
+  , prefixCaptionPosition :: !CaptionPosition
   , prefixSub :: !(Maybe Prefix)
 }

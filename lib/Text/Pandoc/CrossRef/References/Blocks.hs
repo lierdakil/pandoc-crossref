@@ -77,11 +77,12 @@ replaceElement opts scope (Sec n ns (label, cls, attrs) text' body) = do
     rec' <- case pfx' of
       Just p -> replaceAttr opts scope (Right label') attrs ititle p
       Nothing -> replaceAttr opts scope (Left defaultSecPfx) attrs ititle defaultSecPfx
-    let title' = B.toList $ applyTitleTemplate rec'
+    let title' = B.toList $ refCaption rec'
     replaceRecurse (newScope rec' scope) $ Sec n ns (label', cls, attrs) title' body
 replaceElement _ scope _ = noReplaceRecurse scope
 
 replaceBlock :: Options -> Scope -> Block -> WS (ReplacedResult Block)
+-- tables
 replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths header cells])
   | not $ null title
   , Just pfx <- getRefPrefix opts label
@@ -91,19 +92,17 @@ replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths he
     let title' = B.toList $
           case outFormat opts of
               f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
-              _  -> applyTitleTemplate idxStr
+              _  -> refCaption idxStr
     replaceNoRecurse $ Div divOps [Table title' align widths header cells]
-replaceBlock opts scope (Div (label,"listing":_, []) [Para caption, CodeBlock ([],classes,attrs) code])
-  | not $ null label
-  , Just pfx <- getRefPrefix opts label
+-- code blocks
+replaceBlock opts scope (Div (label, [], divattrs) [CodeBlock ([],classes,cbattrs) code, Para (Str ":":Space:caption)])
+  | Just pfx <- getRefPrefix opts label
   = do
-      let icaption = B.fromList caption
-      idxStr <- replaceAttr opts scope (Right label) attrs icaption pfx
-      let caption' = applyTitleTemplate idxStr
+      idxStr <- replaceAttr opts scope (Right label) divattrs (B.fromList caption) pfx
       replaceNoRecurse $ case outFormat opts of
         f --if used with listings package, return code block with caption
           | isLatexFormat f, listings opts ->
-            CodeBlock (label,classes,("caption",stringify caption):attrs) code
+            CodeBlock (label,classes,("caption",stringify caption):cbattrs) code
           --if not using listings, however, wrap it in a codelisting environment
           | isLatexFormat f ->
             Div nullAttr [
@@ -112,13 +111,12 @@ replaceBlock opts scope (Div (label,"listing":_, []) [Para caption, CodeBlock ([
                   RawInline (Format "latex") "\\caption"
                 , Span nullAttr caption
                 ]
-              , CodeBlock (label,classes,attrs) code
+              , CodeBlock (label,classes,cbattrs) code
               , RawBlock (Format "latex") "\\end{codelisting}"
               ]
-        _ -> Div (label, "listing":classes, []) [
-            mkCaption opts "Caption" caption'
-          , CodeBlock ([], classes, attrs) code
-          ]
+        _ -> Div (label, "listing":classes, []) $ placeCaption opts idxStr
+              [CodeBlock ([], classes, cbattrs) code]
+-- Table display math
 replaceBlock opts scope (Para [Span ats@(label, _, attrs) [Math DisplayMath eq]])
   | not $ isLatexFormat (outFormat opts)
   , tableEqns opts
@@ -127,6 +125,7 @@ replaceBlock opts scope (Para [Span ats@(label, _, attrs) [Math DisplayMath eq]]
   = do
     (eq', idx) <- replaceEqn opts scope lbl attrs eq pfx
     replaceNoRecurse $ Div ats [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
+-- Generic div
 replaceBlock opts scope x@(Div ats@(label, _, attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
@@ -138,8 +137,15 @@ replaceBlock opts scope x@(Div ats@(label, _, attrs) content)
     rec' <- replaceAttr opts scope (Right label) attrs (fromMaybe mempty caption) pfx
     replaceRecurse (newScope rec' scope) $ case caption of
       Nothing -> x
-      Just _ -> Div ats $ init content <> [Para $ B.toList (applyTitleTemplate rec')]
+      Just _ -> Div ats . placeCaption opts rec' $ init content
 replaceBlock _ scope _ = noReplaceRecurse scope
+
+placeCaption :: Options -> RefRec -> [Block] -> [Block]
+placeCaption opts RefRec{..} body
+  | Above <- refCaptionPosition
+  = mkCaption opts "Caption" refCaption : body
+  | Below <- refCaptionPosition
+  = body <> [mkCaption opts "Caption" refCaption]
 
 replaceEqn :: Options -> Scope -> Either String String -> [(String, String)] -> String -> String -> WS (String, String)
 replaceEqn opts scope label attrs eq pfx = do
@@ -174,7 +180,7 @@ replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
     idxStr <- replaceAttr opts scope lbl attrs ialt pfx
     let alt' = B.toList $ case outFormat opts of
           f | isLatexFormat f -> ialt
-          _  -> applyTitleTemplate idxStr
+          _  -> refCaption idxStr
     replaceNoRecurse $ Image attr alt' img
 replaceInline opts scope (Span (label,_,attrs) content)
   | Just pfx <- getRefPrefix opts label
@@ -209,16 +215,20 @@ applyTitleIndexTemplate rr@RefRec{..} =
   vf x = fix defaultVarFunc rr x
 
 divBlocks :: Options -> Block -> Block
+divBlocks opts (Table [Span (label, cls, attr) title] align widths header cells)
+  | not $ null title
+  , isJust $ getRefPrefix opts label
+  = Div (label, cls, attr) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
 divBlocks opts (Table title align widths header cells)
   | not $ null title
   , Just label <- getRefLabel opts [last title]
   = Div (label,[],[]) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
 divBlocks opts (CodeBlock (label, classes, attrs) code)
   | Just caption <- lookup "caption" attrs
-  , Just _ <- getRefPrefix opts label
-  = let p   = Para $ B.toList $ B.text caption
+  , isJust $ getRefPrefix opts label
+  = let p   = Para $ Str ":" : Space : B.toList (B.text caption)
         cb' = CodeBlock ([], classes, delete ("caption", caption) attrs) code
-    in Div (label,"listing":classes, []) [p, cb']
+    in Div (label, [], []) [cb', p]
 divBlocks _ x = x
 
 splitMath :: [Block] -> [Block]
@@ -284,6 +294,7 @@ replaceAttr o scope label attrs title pfx
       , refPfxRec = ropt
       , refCaption = applyTitleTemplate rec'
       , refAttrs = metaAttrMap
+      , refCaptionPosition = prefixCaptionPosition ropt
       }
     modify referenceData $ M.insert label' rec'
     return rec'

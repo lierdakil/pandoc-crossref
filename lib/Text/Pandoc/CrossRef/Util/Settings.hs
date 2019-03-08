@@ -97,7 +97,8 @@ defaultMeta = Settings $
       ],
       "lst" .: [
         "ref" .= map str ["lst.", "lsts."],
-        "title" .= text "Listing"
+        "title" .= text "Listing",
+        "captionPosition" .= "above"
       ],
       "tbl" .: [
         "ref" .= map str ["tbl.", "tbls."],
