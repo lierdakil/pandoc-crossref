@@ -62,8 +62,7 @@ defaultMeta = Settings $
      cref False
   <> listings False
   <> codeBlockCaptions False
-  <> autoSectionLabels False
-  -- <> numberSections False
+  <> defaultSectionPrefix "sec"
   <> titleDelim (str ":" <> space)
   <> listItemNumberDelim (str "." <> space)
   <> rangeDelim (str "-")

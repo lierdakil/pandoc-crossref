@@ -26,7 +26,8 @@ import Text.Pandoc.Builder
 data Options = Options { cref :: Bool
                        , listings :: Bool
                        , codeBlockCaptions  :: Bool
-                       , autoSectionLabels  :: Bool
+                       , autoSectionLabels  :: Maybe String
+                       , defaultSectionPrefix :: String
                        , rangeDelim  :: Inlines
                        , pairDelim  :: Inlines
                        , lastDelim  :: Inlines

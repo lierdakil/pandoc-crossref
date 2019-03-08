@@ -50,7 +50,7 @@ import Prelude
 replaceAll :: Options -> [Block] -> WS [Block]
 replaceAll opts =
     fmap unhierarchicalize
-  . runReplace [] (mkRR (replaceElement opts) `extRR` replaceBlock opts `extRR` replaceInline opts)
+  . runReplace [] (mkRR replaceElement `extRR` replaceBlock opts `extRR` replaceInline opts)
   . hierarchicalize
   . runSplitMath
   . everywhere (mkT $ makeSubfigures opts)
@@ -62,10 +62,11 @@ replaceAll opts =
                  = everywhere (mkT splitMath)
                  | otherwise = id
 
-replaceElement :: Options -> Scope -> Element -> WS (ReplacedResult Element)
-replaceElement opts scope (Sec n ns (label, cls, attrs) text' body) = do
-  let label' = if autoSectionLabels opts && isNothing pfx
-               then "sec:"++label
+replaceElement :: Scope -> Element -> WS (ReplacedResult Element)
+replaceElement scope (Sec n ns (label, cls, attrs) text' body) = do
+  opts@Options{..} <- asks creOptions
+  let label' = if isNothing pfx
+               then maybe label (<> ":" <> label) autoSectionLabels
                else label
       pfx = getRefPrefix opts label
   if "unnumbered" `elem` cls
@@ -73,13 +74,13 @@ replaceElement opts scope (Sec n ns (label, cls, attrs) text' body) = do
   else do
     let pfx' = getRefPrefix opts label'
         ititle = B.fromList text'
-        defaultSecPfx = "sec"
+        defaultSecPfx = fromMaybe defaultSectionPrefix autoSectionLabels
     rec' <- case pfx' of
       Just p -> replaceAttr opts scope (Right label') attrs ititle p
       Nothing -> replaceAttr opts scope (Left defaultSecPfx) attrs ititle defaultSecPfx
     let title' = B.toList $ refCaption rec'
     replaceRecurse (newScope rec' scope) $ Sec n ns (label', cls, attrs) title' body
-replaceElement _ scope _ = noReplaceRecurse scope
+replaceElement scope _ = noReplaceRecurse scope
 
 replaceBlock :: Options -> Scope -> Block -> WS (ReplacedResult Block)
 -- tables
