@@ -44,7 +44,13 @@ import Control.Monad ((<=<))
 import Data.Data (Data)
 import Text.ParserCombinators.ReadP
 
-data ParseRes = ParseRes { prVar :: String, prIdx :: [String], prPfx :: String, prSfx :: String } deriving Show
+data PRVar = PRVar { prvName :: String
+                   , prvIdx :: [[PRVar]]
+                   } deriving Show
+data ParseRes = ParseRes { prVar :: [PRVar]
+                         , prPfx :: String
+                         , prSfx :: String
+                         } deriving Show
 
 isVariableSym :: Char -> Bool
 isVariableSym '.' = True
@@ -52,10 +58,11 @@ isVariableSym '_' = True
 isVariableSym c = isAlphaNum c
 
 parse :: ReadP ParseRes
-parse = uncurry <$> (ParseRes <$> varName <*> many varIdx) <*> option ("", "") ps <* eof
+parse = uncurry <$> (ParseRes <$> var) <*> option ("", "") ps <* eof
   where
+    var = sepBy1 (PRVar <$> varName <*> many varIdx) (char '?')
     varName = munch1 isVariableSym
-    varIdx = between (char '[') (char ']') varName
+    varIdx = between (char '[') (char ']') var
     prefix = char '#' *> many (satisfy (/='%'))
     suffix = char '%' *> many (satisfy (/='#'))
     ps = (flip (,) <$> suffix <*> option "" prefix)
@@ -91,13 +98,19 @@ scan = bottomUp . go
     | ParseRes{..} <- fst . head $ readP_to_S parse var
     = let replaceVar = maybe mempty (modifier . toInlines ("variable " ++ var))
           modifier = (<> text prSfx) . (text prPfx <>)
-      in case prIdx of
-        [] -> toList $ replaceVar (vf prVar) <> fromList xs
-        idxVars ->
-          let
-            idxs :: Maybe [Int]
-            idxs = mapM (readMaybe . toString ("index variables " ++ show idxVars) <=< vf) idxVars
-            arr = foldr (\i a -> getList i =<< a) (vf prVar) . reverse =<< idxs
-          in toList $ replaceVar arr <> fromList xs
+          tryVar PRVar{..} =
+            case prvIdx of
+              [] -> vf prvName
+              idxVars ->
+                let
+                  idxs :: Maybe [String]
+                  idxs = mapM (Just . toString ("index variables " ++ show idxVars) <=< tryVars) idxVars
+                  arr = foldr (\i a -> getObjOrList i =<< a) (vf prvName) . reverse =<< idxs
+                  getObjOrList :: String -> MetaValue -> Maybe MetaValue
+                  getObjOrList i x = getObj i x <|> (readMaybe i >>= flip getList x)
+                in arr
+          tryVars = foldr ((<|>) . tryVar) Nothing
+
+      in toList $ replaceVar (tryVars prVar) <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []

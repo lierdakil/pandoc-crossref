@@ -28,6 +28,7 @@ module Text.Pandoc.CrossRef.Util.Meta (
   , getMetaStringMaybe
   , getMetaStringList
   , getList
+  , getObj
   , toString
   , toInlines
   , capitalize
@@ -127,6 +128,10 @@ getList i (MetaList l) = l !!? i
                    | not $ null list = Just $ last list
                    | otherwise = Nothing
 getList _ x = Just x
+
+getObj :: String -> MetaValue -> Maybe MetaValue
+getObj i (MetaMap m) = M.lookup i m
+getObj _ _ = Nothing
 
 capitalize :: (String -> Maybe MetaValue) -> String -> Maybe MetaValue
 capitalize f varname = case f (capitalizeFirst varname) of
