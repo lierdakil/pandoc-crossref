@@ -225,10 +225,10 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub $ NE.toList s
   show' RefDataComplete{..}
     | linkReferences o = link ('#':refLabel rdRec) "" txt
     | otherwise = txt
-    where txt = applyIndexTemplate o rdcSuffix rdRec
+    where txt = applyIndexTemplate rdcSuffix rdRec
 
-applyIndexTemplate :: Options -> Inlines -> RefRec -> Inlines
-applyIndexTemplate opts suf rr =
+applyIndexTemplate :: Inlines -> RefRec -> Inlines
+applyIndexTemplate suf rr =
   let varsSc rr' "ref" = Just $ inlines False rr'
       varsSc rr' "Ref" = Just $ inlines True rr'
       varsSc rr' x = defaultVarFunc varsSc rr' x
@@ -236,5 +236,5 @@ applyIndexTemplate opts suf rr =
       vars rr' x = defaultVarFunc varsSc rr' x
       template = prefixReferenceIndexTemplate $ refPfxRec rr
       inlines cap ref = MetaInlines $ toList $
-        getRefPrefix cap 0 ref $ applyIndexTemplate opts mempty ref
+        getRefPrefix cap 0 ref $ applyIndexTemplate mempty ref
   in applyTemplate template (vars rr)

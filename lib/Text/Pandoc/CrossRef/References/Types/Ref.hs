@@ -30,7 +30,8 @@ import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Prefixes.Types
 
 data RefRec = RefRec { refIndex :: !Int -- global ordinal number for prefix
-                     , refIxInl :: Inlines -- index as inilnes
+                     , refIxInl :: Inlines -- templated index as inilnes
+                     , refIxInlRaw :: !Inlines -- raw index as inilnes
                      , refTitle :: !Inlines -- title text
                      , refScope :: !(Maybe RefRec) -- reference to parent scope label (as specified in scopes array)
                      , refLevel :: !Int -- number of upper scopes of the same prefix

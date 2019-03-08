@@ -23,9 +23,9 @@ chp. 1;
 
 chp. 2;
 
-sec. 2.2.1;
+sec. 2.1;
 
-sec. 2.2.2;
+sec. 2.2;
 
 prt. II;
 

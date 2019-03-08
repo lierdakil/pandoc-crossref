@@ -18,8 +18,7 @@ prefixes:
       title: Section
       ref: ["sec.", "secs."]
       # We also want to show parent scope number in reference and title
-      captionIndexTemplate: '$$s.i$$.$$i$$'
-      referenceIndexTemplate: '$$s.i$$.$$i$$'
+      captionIndexTemplate: '$$s.i$$.$$ri$$'
 ...
 
 # First part {#prt:prt1}

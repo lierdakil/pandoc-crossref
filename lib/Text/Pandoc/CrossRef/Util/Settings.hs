@@ -78,7 +78,7 @@ defaultMeta = Settings $
   <> collectedCaptionItemDelim (space <> str "–" <> space)
   -- these are merely the defaults, can (and will) be overridden in prefix configs
   <> captionTemplate (var "title%\160" <> var "i" <> var "titleDelim" <> var "t")
-  <> captionIndexTemplate (var "i")
+  <> captionIndexTemplate (var "ri")
   <> referenceTemplate (var "Ref[n]%\160" <> var "rs")
   <> listItemTemplate (var "i" <> var "listItemNumberDelim" <> var "t")
   <> collectedCaptionTemplate (var "i" <> var "collectedCaptionItemDelim" <> var "t")

@@ -404,6 +404,7 @@ refRec' ref i tit cap =
      , RefRec
        { refIndex=i
        , refIxInl = str $ show i
+       , refIxInlRaw = str $ show i
        , refCaption= cap
        , refTitle=tit
        , refScope=Nothing

@@ -11,7 +11,7 @@ prefixes:
     referenceIndexTemplate: "$$i$$$$s.ref# (%)$$"
   sec:
     captionTemplate: '$$title% $$$$i$$$$titleDelim$$ $$t$$'
-    captionIndexTemplate: '$$s.i%.$$$$i$$'
+    captionIndexTemplate: '$$s.i%.$$$$ri$$'
     referenceIndexTemplate: '$$i$$$$s.ref# (%)$$'
     scope: sec
     titleDelim: '.'

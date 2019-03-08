@@ -200,11 +200,12 @@ applyTitleTemplate :: RefRec -> B.Inlines
 applyTitleTemplate rr@RefRec{refPfxRec} =
   applyTemplate (prefixCaptionTemplate refPfxRec) (fix defaultVarFunc rr)
 
-applyTitleIndexTemplate :: RefRec -> B.Inlines -> B.Inlines
-applyTitleIndexTemplate rr@RefRec{..} label =
+applyTitleIndexTemplate :: RefRec -> B.Inlines
+applyTitleIndexTemplate rr@RefRec{..} =
   applyTemplate (prefixCaptionIndexTemplate refPfxRec) vf
   where
-  vf "i" = Just $ MetaInlines $ B.toList label
+  vf "i" = Nothing
+  vf "ri" = Just $ MetaInlines $ B.toList refIxInlRaw
   vf x = fix defaultVarFunc rr x
 
 divBlocks :: Options -> Block -> Block
@@ -275,7 +276,8 @@ replaceAttr o scope label attrs title pfx
         refIndex = i
       , refTitle = title
       , refLabel = label'
-      , refIxInl = applyTitleIndexTemplate rec' $ B.text $ fromMaybe (customLabel iInSc) refLabel'
+      , refIxInl = applyTitleIndexTemplate rec'
+      , refIxInlRaw = B.text $ fromMaybe (customLabel iInSc) refLabel'
       , refScope = itemScope
       , refLevel = lvl
       , refPfx = pfx

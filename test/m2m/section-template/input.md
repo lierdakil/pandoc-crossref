@@ -2,7 +2,7 @@
 prefixes:
   sec:
     captionTemplate: $$titleName[lvl]$$$$i$$. $$t$$
-    captionIndexTemplate: '$$s.i%.$$$$i$$'
+    captionIndexTemplate: '$$s.i%.$$$$ri$$'
     scope: sec
     titleName:
       - "Chapter&#32;"
