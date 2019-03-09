@@ -58,7 +58,6 @@ replaceAll opts =
   . everywhere (mkT $ mkCodeBlockCaptions opts)
   where
     runSplitMath | tableEqns opts
-                 , not $ isLatexFormat (outFormat opts)
                  = everywhere (mkT splitMath)
                  | otherwise = id
 
@@ -89,56 +88,36 @@ replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths he
   , Just pfx <- getRefPrefix opts label
   = do
     let ititle = B.fromList title
-    idxStr <- replaceAttr opts scope (Right label) attrs ititle pfx
-    let title' = B.toList $
-          case outFormat opts of
-              f | isLatexFormat f -> B.rawInline "latex" (mkLaTeXLabel label) <> ititle
-              _  -> refCaption idxStr
-    replaceNoRecurse $ Div divOps [Table title' align widths header cells]
+    RefRec{..} <- replaceAttr opts scope (Right label) attrs ititle pfx
+    replaceNoRecurse $ Div divOps [Table (B.toList refCaption) align widths header cells]
 -- code blocks
 replaceBlock opts scope (Div (label, [], divattrs) [CodeBlock ([],classes,cbattrs) code, Para (Str ":":Space:caption)])
   | Just pfx <- getRefPrefix opts label
   = do
-      idxStr <- replaceAttr opts scope (Right label) divattrs (B.fromList caption) pfx
-      replaceNoRecurse $ case outFormat opts of
-        f --if used with listings package, return code block with caption
-          | isLatexFormat f, listings opts ->
-            CodeBlock (label,classes,("caption",stringify caption):cbattrs) code
-          --if not using listings, however, wrap it in a codelisting environment
-          | isLatexFormat f ->
-            Div nullAttr [
-                RawBlock (Format "latex") "\\begin{codelisting}"
-              , Plain [
-                  RawInline (Format "latex") "\\caption"
-                , Span nullAttr caption
-                ]
-              , CodeBlock (label,classes,cbattrs) code
-              , RawBlock (Format "latex") "\\end{codelisting}"
-              ]
-        _ -> Div (label, "listing":classes, []) $ placeCaption opts idxStr
-              [CodeBlock ([], classes, cbattrs) code]
+    ref <- replaceAttr opts scope (Right label) divattrs (B.fromList caption) pfx
+    replaceNoRecurse $
+      Div (label, "listing":classes, [])
+        $ placeCaption opts ref [CodeBlock ([], classes, cbattrs) code]
 -- Table display math
 replaceBlock opts scope (Para [Span ats@(label, _, attrs) [Math DisplayMath eq]])
-  | not $ isLatexFormat (outFormat opts)
-  , tableEqns opts
+  | tableEqns opts
   , Just pfx <- getRefPrefix opts label <|> autoEqnLabels opts
   , Just lbl <- autoLabel pfx label
   = do
     (eq', idx) <- replaceEqn opts scope lbl attrs eq pfx
     replaceNoRecurse $ Div ats [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
 -- Generic div
-replaceBlock opts scope x@(Div ats@(label, _, attrs) content)
+replaceBlock opts scope (Div ats@(label, _, attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
-    let caption
+    let (caption, content')
           | not (null content)
           , Para (Str ":":Space:c) <- last content
-          = Just $ B.fromList c
-          | otherwise = Nothing
-    rec' <- replaceAttr opts scope (Right label) attrs (fromMaybe mempty caption) pfx
-    replaceRecurse (newScope rec' scope) $ case caption of
-      Nothing -> x
-      Just _ -> Div ats . placeCaption opts rec' $ init content
+          = (B.fromList c, init content)
+          | otherwise = (mempty, content)
+    ref <- replaceAttr opts scope (Right label) attrs caption pfx
+    replaceRecurse (newScope ref scope) $
+      Div ats $ placeCaption opts ref content'
 replaceBlock _ scope _ = noReplaceRecurse scope
 
 placeCaption :: Options -> RefRec -> [Block] -> [Block]
@@ -167,27 +146,21 @@ replaceInline opts scope (Span ats@(label,_,attrs) [Math DisplayMath eq])
   , Just lbl <- autoLabel pfx label
   = do
       (eq', _) <- replaceEqn opts scope lbl attrs eq pfx
-      replaceNoRecurse $ case outFormat opts of
-        f | isLatexFormat f ->
-          RawInline (Format "latex")
-          $ "\\begin{equation}"++eq++mkLaTeXLabel label++"\\end{equation}"
-        _ -> Span ats [Math DisplayMath eq']
+      replaceNoRecurse $ Span ats [Math DisplayMath eq']
 replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
   | Just pfx <- getRefPrefix opts label <|> autoFigLabels opts
   , Just lbl <- autoLabel pfx label
   , "fig:" `isPrefixOf` tit
   = do
-    let ialt = B.fromList alt
-    idxStr <- replaceAttr opts scope lbl attrs ialt pfx
-    let alt' = B.toList $ case outFormat opts of
-          f | isLatexFormat f -> ialt
-          _  -> refCaption idxStr
-    replaceNoRecurse $ Image attr alt' img
-replaceInline opts scope (Span (label,_,attrs) content)
+    RefRec{..} <- replaceAttr opts scope lbl attrs (B.fromList alt) pfx
+    replaceNoRecurse $ Image attr (B.toList refCaption) img
+-- generic span
+replaceInline opts scope (Span (label,cls,attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
-      rec' <- replaceAttr opts scope (Right label) attrs (B.fromList content) pfx
-      noReplaceRecurse (newScope rec' scope)
+      ref@RefRec{..} <- replaceAttr opts scope (Right label) attrs (B.fromList content) pfx
+      replaceRecurse (newScope ref scope) . Span (label, cls, attrs)
+         . B.toList $ applyTitleTemplate ref
 replaceInline _opts (scope@RefRec{refPfxRec=Prefix{..}}:_) (Span ("",_,attrs) []) = do
   rd <- get referenceData
   let ccd = filter ((== Just scope) . refScope) . M.elems $ rd

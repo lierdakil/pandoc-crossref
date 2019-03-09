@@ -59,9 +59,7 @@ readSettings fmt inMeta = do
 
 defaultMeta :: Settings
 defaultMeta = Settings $
-     cref False
-  <> listings False
-  <> codeBlockCaptions False
+     codeBlockCaptions False
   <> defaultSectionPrefix "sec"
   <> titleDelim (str ":" <> space)
   <> listItemNumberDelim (str "." <> space)

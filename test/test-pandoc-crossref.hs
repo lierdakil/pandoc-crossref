@@ -287,11 +287,11 @@ main = hspec $ do
 
     describe "References.List.listOf" $ do
       it "Generates list of tables" $
-        testList (rawBlock "latex" "\\listoftables")
+        testList (rawBlock "latex" "\\listof{tbl}")
                  (referenceData =: M.fromList [let l = "tbl:" <> show i; n = i + 3; sn = str $ show n in refRec' l n sn ("Table " <> sn <> ": " <> sn) | i <- [1..3]])
                  (header 1 (text "List of Tables") <> divWith ("",["list"],[]) (mconcat $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
       it "Generates list of figures" $
-        testList (rawBlock "latex" "\\listoffigures")
+        testList (rawBlock "latex" "\\listof{fig}")
                  (referenceData =: M.fromList [let l = "fig:" <> show i; n = i + 3; sn = str $ show n in refRec' l n sn ("Figure " <> sn <> ": " <> sn) | i <- [1..3]])
                  (header 1 (text "List of Figures") <> divWith ("",["list"],[]) (mconcat $ map (\i -> let n = show i in para $ text (n <> ". " <> n) ) [4..6 :: Int]))
 
@@ -345,49 +345,6 @@ main = hspec $ do
         let (res, _warn) = runCrossRef m' Nothing $ crossRefBlocks b
         res `shouldBe` Right Native.demochapters
 #endif
-
-    describe "LaTeX" $ do
-      let test = test' nullMeta
-          infixr 5 `test`
-          test' m i o = getLatex m i `shouldBe` o
-          getLatex m i = either (fail . show) T.unpack (runPure $ writeLaTeX def (Pandoc m . evalCrossRefRes . runCrossRef m (Just $ Format "latex") $ crossRefBlocks (toList i)))
-
-      describe "Labels" $ do
-
-        it "Section labels" $
-          headerWith ("sec:section_label1", [], []) 1 (text "Section")
-            <> para (citeGen "sec:section_label" [1])
-            `test` "\\hypertarget{sec:section_label1}{%\n\\section{Section}\\label{sec:section_label1}}\n\nsec.~\\ref{sec:section_label1}"
-
-        it "Image labels" $
-          figure "img.png" [] "Title" "figure_label1"
-            <> para (citeGen "fig:figure_label" [1])
-            `test` "\\begin{figure}\n\\hypertarget{fig:figure_label1}{%\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
-
-        it "Eqn labels" $
-          equation "x^2" "some_equation1"
-            <> para (citeGen "eq:some_equation" [1])
-            `test` "\\begin{equation}x^2\\label{eq:some_equation1}\\end{equation}\n\neq.~\\ref{eq:some_equation1}"
-
-#ifdef FLAKY
-        it "Tbl labels" $
-          table' "A table" "some_table1"
-            <> para (citeGen "tbl:some_table" [1])
-            `test` "\\hypertarget{tbl:some_table1}{}\n\\begin{longtable}[]{@{}@{}}\n\\caption{\\label{tbl:some_table1}A table}\\tabularnewline\n\\toprule\n\\endhead\n\\tabularnewline\n\\bottomrule\n\\end{longtable}\n\ntbl.~\\ref{tbl:some_table1}"
-#endif
-
-        it "Code block labels" $ do
-          codeBlock' "A code block" "some_codeblock1"
-            <> para (citeGen "lst:some_codeblock" [1])
-            `test` "\\begin{codelisting}\n\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
-          codeBlock' "A code block with under_score" "some_codeblock1"
-            <> para (citeGen "lst:some_codeblock" [1])
-            `test` "\\begin{codelisting}\n\n\\caption{A code block with under\\_score}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
-          let test1 = test' $ setMeta "codeBlockCaptions" True nullMeta
-              infixr 5 `test1`
-          codeBlockForTable "some_codeblock1" <> paraText ": A code block"
-            <> para (citeGen "lst:some_codeblock" [1])
-            `test1` "\\begin{codelisting}\n\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
 
 citeGen :: String -> [Int] -> Inlines
 citeGen p l = cite (mconcat $ map (cit . (p++) . show) l) $ text $

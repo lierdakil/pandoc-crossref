@@ -87,33 +87,33 @@ toTable blks = [Table [] align widths [] $ map blkToRow blks]
     inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
     inlToCell _ = Nothing
     setW as = ("width", "100%"):filter ((/="width") . fst) as
-
-latexSubFigure :: Inline -> String -> [Inline]
-latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
-  let
-    title' = fromMaybe title $ stripPrefix "fig:" title
-    texlabel | null label = []
-             | otherwise = [RawInline (Format "latex") $ mkLaTeXLabel label]
-    texalt | "nocaption" `elem` cls  = []
-           | otherwise = concat
-              [ [ RawInline (Format "latex") "["]
-              , alt
-              , [ RawInline (Format "latex") "]"]
-              ]
-    img = Image (label, cls, attrs) alt (src, title')
-  in concat [
-      [ RawInline (Format "latex") "\\subfloat" ]
-      , texalt
-      , [Span nullAttr $ img:texlabel]
-      ]
-latexSubFigure x _ = [x]
-
-latexEnv :: String -> [Block] -> [Inline] -> String -> Block
-latexEnv env contents caption label =
-  Div (label, [], []) $
-    [ RawBlock (Format "latex") $ "\\begin{"<>env<>"}\n\\centering" ]
-    ++ contents ++
-    [ Para [RawInline (Format "latex") "\\caption"
-             , Span nullAttr caption]
-    , RawBlock (Format "latex") $ mkLaTeXLabel label
-    , RawBlock (Format "latex") $ "\\end{"<>env<>"}"]
+--
+-- latexSubFigure :: Inline -> String -> [Inline]
+-- latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
+--   let
+--     title' = fromMaybe title $ stripPrefix "fig:" title
+--     texlabel | null label = []
+--              | otherwise = [RawInline (Format "latex") $ mkLaTeXLabel label]
+--     texalt | "nocaption" `elem` cls  = []
+--            | otherwise = concat
+--               [ [ RawInline (Format "latex") "["]
+--               , alt
+--               , [ RawInline (Format "latex") "]"]
+--               ]
+--     img = Image (label, cls, attrs) alt (src, title')
+--   in concat [
+--       [ RawInline (Format "latex") "\\subfloat" ]
+--       , texalt
+--       , [Span nullAttr $ img:texlabel]
+--       ]
+-- latexSubFigure x _ = [x]
+--
+-- latexEnv :: String -> [Block] -> [Inline] -> String -> Block
+-- latexEnv env contents caption label =
+--   Div (label, [], []) $
+--     [ RawBlock (Format "latex") $ "\\begin{"<>env<>"}\n\\centering" ]
+--     ++ contents ++
+--     [ Para [RawInline (Format "latex") "\\caption"
+--              , Span nullAttr caption]
+--     , RawBlock (Format "latex") $ mkLaTeXLabel label
+--     , RawBlock (Format "latex") $ "\\end{"<>env<>"}"]

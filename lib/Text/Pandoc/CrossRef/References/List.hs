@@ -41,16 +41,6 @@ listOf opts (RawBlock fmt cmd:xs)
   , Just pfxBrace <- "\\listof{" `stripPrefix` cmd
   , (pfx, "}") <- span (/='}') pfxBrace
   = getPfxData pfx >>= fmap toList . makeList opts pfx (fromList xs)
-listOf Options{outFormat=f} x | isLatexFormat f = return x
-listOf opts (RawBlock fmt "\\listoffigures":xs)
-  | isLaTeXRawBlockFmt fmt
-  = getPfxData "fig" >>= fmap toList . makeList opts "fig" (fromList xs)
-listOf opts (RawBlock fmt "\\listoftables":xs)
-  | isLaTeXRawBlockFmt fmt
-  = getPfxData "tbl" >>= fmap toList . makeList opts "tbl" (fromList xs)
-listOf opts (RawBlock fmt "\\listoflistings":xs)
-  | isLaTeXRawBlockFmt fmt
-  = getPfxData "lst" >>= fmap toList . makeList opts "lst" (fromList xs)
 listOf _ x = return x
 
 getPfxData :: String -> WS RefMap

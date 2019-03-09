@@ -64,24 +64,5 @@ List of Tables
 3\. Table 3
 :::
 
-List of Figures
-===============
-
-::: {.list}
-1\. Image 1
-
-2\. Image 2
-
-3\. Image 3
-:::
-
-List of Tables
-==============
-
-::: {.list}
-1\. Table 1
-
-2\. Table 2
-
-3\. Table 3
-:::
+\listoffigures
+\listoftables

@@ -64,7 +64,7 @@ replaceRefs opts ils
     eqPred = (==) `on` liftM2 (,) rdLevel rdPrefix
     intrclt = intercalate' (text ", ")
     replaceRefs' (Left xs) = restoreCits' xs
-    replaceRefs' (Right xs) = intrclt <$> mapM replaceRefs'' (NE.groupBy eqPred xs)
+    replaceRefs' (Right xs) = intrclt <$> mapM (replaceRefsOther opts) (NE.groupBy eqPred xs)
     restoreCits' refs = liftM2 cite cits' il'
         where
           cits' = mapM getCit refs
@@ -80,9 +80,6 @@ replaceRefs opts ils
           citationToInlines c =
             fromList (citationPrefix c) <> text ("@" ++ citationId c)
               <> fromList (citationSuffix c)
-    replaceRefs''
-      | isLatexFormat (outFormat opts) = replaceRefsLatex opts
-      | otherwise = replaceRefsOther opts
 replaceRefs _ x = return x
 
 getRefPrefix :: Bool -> Int -> RefRec -> Inlines -> Inlines
@@ -92,27 +89,6 @@ getRefPrefix capitalize num rr@RefRec{..} cit =
         vf "rs" = Just $ MetaInlines $ toList cit
         vf "n" = Just $ MetaString $ show num
         vf x = fix defaultVarFunc rr x
-
-replaceRefsLatex :: Options -> NonEmpty RefDataComplete -> WS Inlines
-replaceRefsLatex opts cits
-  | cref opts
-  = return . rawInline "tex" $ cref'++"{"++listLabels "" "," "" cits++"}"
-  | otherwise
-  = intercalate' (text ", ") <$>
-      mapM replaceRefsLatex' (NE.groupBy citationGroupPred cits)
-  where
-    RefDataComplete{rdSuppressPrefix, rdUpperCase} = NE.head cits
-    cref' | rdSuppressPrefix = "\\labelcref"
-          | rdUpperCase = "\\Cref"
-          | otherwise = "\\cref"
-
-replaceRefsLatex' :: NonEmpty RefDataComplete -> WS Inlines
-replaceRefsLatex' cits
-  = return . writePrefix cits . rawInline "tex"
-  $ listLabels "\\ref{" ", " "}" cits
-
-listLabels :: String -> String -> String -> NonEmpty RefDataComplete -> String
-listLabels p sep s = intercalate sep . NE.toList . NE.map ((p ++) . (++ s) . mkLaTeXLabel' . rdLabel)
 
 replaceRefsOther :: Options -> NonEmpty RefDataComplete -> WS Inlines
 replaceRefsOther opts cits = intercalate' (text ", ") <$>
@@ -159,9 +135,6 @@ rdScope RefDataComplete{rdRec} = refScope rdRec
 
 rdPrefix :: RefDataComplete -> String
 rdPrefix RefDataComplete{rdRec} = refPfx rdRec
-
-rdLabel :: RefDataComplete -> String
-rdLabel RefDataComplete{rdRec} = refLabel rdRec
 
 rdLevel :: RefDataComplete -> Int
 rdLevel RefDataComplete{rdRec} = refLevel rdRec

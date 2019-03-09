@@ -25,19 +25,16 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
     modifyMeta
     ) where
 
-import Data.List (intercalate)
 import Text.Pandoc
-import Text.Pandoc.Shared (blocksToInlines)
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Util
-import qualified Data.Text as T
 
 modifyMeta :: CrossRef Meta
 modifyMeta = do
-  opts@Options{..} <- asks creOptions
+  Options{..} <- asks creOptions
   settings <- asks creSettings
   let
     headerInc :: Maybe MetaValue -> MetaValue
@@ -46,75 +43,8 @@ modifyMeta = do
     headerInc (Just x) = MetaList [x, incList]
     incList = MetaBlocks $ return $ RawBlock (Format "latex") $ unlines $ execWriter $ do
         tell [ "\\makeatletter" ]
-        tell subfig
-        tell floatnames
-        tell listnames
-        unless listings $
-          tell codelisting
-        tell lolcommand
-        when cref $ do
-          tell cleveref
-          unless listings $
-            tell cleverefCodelisting
+        tell [ "\\@ifpackageloaded{caption}{\\captionsetup{labelformat=empty}}{\\usepackage[labelformat=empty]{caption}}" ]
         tell [ "\\makeatother" ]
-    subfig = [
-        usepackage [] "subfig"
-      , usepackage [] "caption"
-      , "\\captionsetup[subfloat]{margin=0.5em}"
-      ]
-    floatnames = [
-        "\\AtBeginDocument{%"
-      , "\\renewcommand*\\figurename{"++getFloatCaption "fig"++"}"
-      , "\\renewcommand*\\tablename{"++getFloatCaption "tbl"++"}"
-      , "}"
-      ]
-    listnames = [
-        "\\AtBeginDocument{%"
-      , "\\renewcommand*\\listfigurename{"++getListOfTitle "fig"++"}"
-      , "\\renewcommand*\\listtablename{"++getListOfTitle "tbl"++"}"
-      , "}"
-      ]
-    codelisting = [
-        usepackage [] "float"
-      , "\\floatstyle{ruled}"
-      , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
-      , "\\floatname{codelisting}{"++getFloatCaption "lst"++"}"
-      ]
-    lolcommand
-      | listings = [
-          "\\newcommand*\\listoflistings\\lstlistoflistings"
-        , "\\AtBeginDocument{%"
-        , "\\renewcommand*{\\lstlistlistingname}{"++getListOfTitle "lst"++"}"
-        , "}"
-        ]
-      | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++getListOfTitle "lst"++"}}"]
-    cleveref = [ usepackage cleverefOpts "cleveref" ]
-      -- <> crefname "figure" (pfxRef "fig")
-      -- <> crefname "table" (pfxRef "tbl")
-      -- <> crefname "equation" (pfxRef "eq")
-      -- <> crefname "listing" (pfxRef "lst")
-      -- <> crefname "section" (pfxRef "sec")
-    -- pfxRef labelPrefix = prefixRef . flip getPfx labelPrefix
-    cleverefCodelisting = [
-        "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
-      , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
-      ]
-    cleverefOpts | nameInLink = [ "nameinlink" ]
-                 | otherwise = []
-    -- crefname n f = [
-    --     "\\crefname{" ++ n ++ "}" ++ prefix f False
-    --   , "\\Crefname{" ++ n ++ "}" ++ prefix f True
-    --   ]
-    usepackage [] p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage{"++p++"}}"
-    usepackage xs p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage"++o++"{"++p++"}}"
-      where o = "[" ++ intercalate "," xs ++ "]"
-    toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
-    -- TODO: Log
-    getListOfTitle = either (const mempty) (toLatex . blocksToInlines . toList) . getTitleForListOf opts
-    getFloatCaption = const mempty
-    -- prefix f uc = "{" ++ toLatex (toList $ f opts uc 0) ++ "}" ++
-    --               "{" ++ toLatex (toList $ f opts uc 1) ++ "}"
-
   return $ if isLatexFormat outFormat
   then setMeta "header-includes"
       (headerInc $ lookupSettings "header-includes" settings)

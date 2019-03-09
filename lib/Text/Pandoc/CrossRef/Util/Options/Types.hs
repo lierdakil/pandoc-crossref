@@ -23,9 +23,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.Builder
 
-data Options = Options { cref :: Bool
-                       , listings :: Bool
-                       , codeBlockCaptions  :: Bool
+data Options = Options { codeBlockCaptions  :: Bool
                        , autoSectionLabels  :: Maybe String
                        , defaultSectionPrefix :: String
                        , rangeDelim  :: Inlines

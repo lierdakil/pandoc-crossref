@@ -7,7 +7,9 @@ Section 1.1. Section 1.1 {#sec:11}
 ::: {#dfn:group}
 A *group* is a pair $(R,*)$ satisfying:
 
-1.  [$*$ is a monoid]{#cl:grpmul}
+1.  [1: $*$ is a monoid]{#cl:grpmul}
+
+Definition 1:
 :::
 
 Chapter 2. Section 2 {#sec:2}
@@ -23,9 +25,11 @@ Section 2.1. Section 2.1 {#sec:21}
 ::: {#dfn:ring}
 A *ring* is a triple $(R,+,*)$ satisfying:
 
-1.  [$+$ is an abelian group]{#cl:addgp}
-2.  [$*$ is a monoid]{#cl:multmon}
-3.  [$*$ distributes over $+$]{#cl:distrib}
+1.  [1: $+$ is an abelian group]{#cl:addgp}
+2.  [2: $*$ is a monoid]{#cl:multmon}
+3.  [3: $*$ distributes over $+$]{#cl:distrib}
+
+Definition 1:
 :::
 
 Chapter 3. Section 3 {#section-3}
