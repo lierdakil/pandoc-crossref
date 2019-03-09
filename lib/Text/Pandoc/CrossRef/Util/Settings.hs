@@ -68,7 +68,6 @@ defaultMeta = Settings $
   <> lastDelim (str "," <> space)
   <> refDelim (str "," <> space)
   <> crossrefYaml "pandoc-crossref.yaml"
-  <> tableEqns False
   <> linkReferences False
   <> nameInLink False
   <> collectedCaptionDelim (str "," <> space)
@@ -85,7 +84,7 @@ defaultMeta = Settings $
   <> prefixes' [
       "eq" .: [
         "ref" .= map str ["eq.", "eqns."],
-        "captionTemplate" .= var "i",
+        "captionTemplate" .= var "t" <> str "\\qquad(" <> var "i" <> str ")",
         "title" .= text "Equation"
       ],
       "fig" .: [

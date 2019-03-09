@@ -52,14 +52,9 @@ replaceAll opts =
     fmap unhierarchicalize
   . runReplace [] (mkRR replaceElement `extRR` replaceBlock opts `extRR` replaceInline opts)
   . hierarchicalize
-  . runSplitMath
   . everywhere (mkT $ makeSubfigures opts)
   . everywhere (mkT (divBlocks opts) `extT` spanInlines opts)
   . everywhere (mkT $ mkCodeBlockCaptions opts)
-  where
-    runSplitMath | tableEqns opts
-                 = everywhere (mkT splitMath)
-                 | otherwise = id
 
 replaceElement :: Scope -> Element -> WS (ReplacedResult Element)
 replaceElement scope (Sec n ns (label, cls, attrs) text' body) = do
@@ -98,14 +93,6 @@ replaceBlock opts scope (Div (label, [], divattrs) [CodeBlock ([],classes,cbattr
     replaceNoRecurse $
       Div (label, "listing":classes, [])
         $ placeCaption opts ref [CodeBlock ([], classes, cbattrs) code]
--- Table display math
-replaceBlock opts scope (Para [Span ats@(label, _, attrs) [Math DisplayMath eq]])
-  | tableEqns opts
-  , Just pfx <- getRefPrefix opts label <|> autoEqnLabels opts
-  , Just lbl <- autoLabel pfx label
-  = do
-    (eq', idx) <- replaceEqn opts scope lbl attrs eq pfx
-    replaceNoRecurse $ Div ats [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" ++ idx ++ ")"]]]]]
 -- Generic div
 replaceBlock opts scope (Div ats@(label, _, attrs) content)
   | Just pfx <- getRefPrefix opts label
@@ -127,13 +114,6 @@ placeCaption opts RefRec{..} body
   | Below <- refCaptionPosition
   = body <> [mkCaption opts "Caption" refCaption]
 
-replaceEqn :: Options -> Scope -> Either String String -> [(String, String)] -> String -> String -> WS (String, String)
-replaceEqn opts scope label attrs eq pfx = do
-  idxStr <- replaceAttr opts scope label attrs (B.math eq) pfx
-  let eq' | tableEqns opts = eq
-          | otherwise = eq++"\\qquad("++stringify (refIxInl idxStr)++")"
-  return (eq', stringify (refIxInl idxStr))
-
 autoLabel :: String -> String -> Maybe (Either String String)
 autoLabel pfx label
   | null label = Just $ Left pfx
@@ -145,8 +125,8 @@ replaceInline opts scope (Span ats@(label,_,attrs) [Math DisplayMath eq])
   | Just pfx <- getRefPrefix opts label <|> autoEqnLabels opts
   , Just lbl <- autoLabel pfx label
   = do
-      (eq', _) <- replaceEqn opts scope lbl attrs eq pfx
-      replaceNoRecurse $ Span ats [Math DisplayMath eq']
+      RefRec{..} <- replaceAttr opts scope lbl attrs (B.displayMath eq) pfx
+      replaceNoRecurse $ Span ats [Math DisplayMath $ stringify refCaption]
 replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
   | Just pfx <- getRefPrefix opts label <|> autoFigLabels opts
   , Just lbl <- autoLabel pfx label
@@ -204,18 +184,6 @@ divBlocks opts (CodeBlock (label, classes, attrs) code)
         cb' = CodeBlock ([], classes, delete ("caption", caption) attrs) code
     in Div (label, [], []) [cb', p]
 divBlocks _ x = x
-
-splitMath :: [Block] -> [Block]
-splitMath (Para ils:xs)
-  | length ils > 1 = map Para (split [] [] ils) ++ xs
-  where
-    split res acc [] = reverse (reverse acc : res)
-    split res acc (x@(Span _ [Math DisplayMath _]):ys) =
-      split ([x] : reverse (dropSpaces acc) : res)
-            [] (dropSpaces ys)
-    split res acc (y:ys) = split res (y:acc) ys
-    dropSpaces = dropWhile isSpace
-splitMath xs = xs
 
 spanInlines :: Options -> [Inline] -> [Inline]
 spanInlines opts (math@(Math DisplayMath _eq):ils)

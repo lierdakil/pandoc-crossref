@@ -31,7 +31,6 @@ data Options = Options { codeBlockCaptions  :: Bool
                        , lastDelim  :: Inlines
                        , refDelim  :: Inlines
                        , outFormat   :: Maybe Format
-                       , tableEqns :: Bool
                        , autoEqnLabels :: Maybe String
                        , autoFigLabels :: Maybe String
                        , linkReferences :: Bool
