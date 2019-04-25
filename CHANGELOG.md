@@ -1,3 +1,11 @@
+## 0.3.4.1
+
+-   Fix custom labels defined via list (and clarify docs)
+-   Encoding-aware console output
+-   Changes to CI
+-   Cosmetic fixes
+-   Documentation updates
+
 ## 0.3.4.0
 
 -   Updates for pandoc 2.4 and GHC 8.6
