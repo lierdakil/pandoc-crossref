@@ -34,12 +34,13 @@ customLabel meta ref i
 
 mkLabel :: Int -> String -> MetaValue -> Maybe String
 mkLabel i n lt
+  | MetaList _ <- lt
+  , Just val <- toString n <$> getList (i-1) lt
+  = Just val
   | toString n lt == "arabic"
   = Nothing
   | toString n lt == "roman"
   = Just $ toRoman i
   | Just (startWith:_) <- stripPrefix "alpha " $ toString n lt
   = Just [[startWith..] !! (i-1)]
-  | Just val <- toString n <$> getList (i-1) lt
-  = Just val
   | otherwise = error $ "Unknown numeration type: " ++ show lt

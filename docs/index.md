@@ -738,11 +738,11 @@ controlled by several metadata options, consult
     http://www.fileformat.info/info/unicode/block/basic\_latin/utf8test.htm
     for general idea on letter progression.
 -   list of strings. You can define a YAML array for numbers. Mapping is
-    1:1. For example, `yaml   figLabels: [α, β, γ, 1, 2, 3, I, II, III]`
-    will give first figure label 'α', second -- 'β', etc.
+    1:1. For example, `figLabels: [α, β, γ, δ, ε]`
+    will give first object label 'α', second -- 'β', etc, up until the fifths.
 
     Note that it will repeat last item in list indefinitely if there are
-    more images than items in list.
+    more references than items in list, i.e. in the example above, sixths object and all after that will also have label 'ε'.
 
 ## Settings file
 
