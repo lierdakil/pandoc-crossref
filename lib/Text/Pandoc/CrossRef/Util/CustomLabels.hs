@@ -27,12 +27,13 @@ import Text.Numeral.Roman
 
 mkLabel :: String -> MetaValue -> Int -> String
 mkLabel n lt i
+  | MetaList _ <- lt
+  , Just val <- toString n <$> getList (i-1) lt
+  = val
   | toString n lt == "arabic"
   = show i
   | toString n lt == "roman"
   = toRoman i
   | Just (startWith:_) <- stripPrefix "alpha " $ toString n lt
   = [[startWith..] !! (i-1)]
-  | Just val <- toString n <$> getList (i-1) lt
-  = val
   | otherwise = error $ "Unknown numeration type: " ++ show lt
