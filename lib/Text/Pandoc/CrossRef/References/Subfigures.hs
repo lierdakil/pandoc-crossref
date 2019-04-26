@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Subfigures where
 
 import Text.Pandoc.Definition
-import Text.Pandoc.Walk
 import Data.List
 import Data.Maybe
 import Data.Monoid
@@ -40,20 +39,23 @@ makeSubfigures opts (Div (label,cls,attrs) contents)
     $ if prefixSubcaptionsGrid pfxRec
       then toTable (init cont) ++ [last cont]
       else cont
-  where cont = walk figImageParas contents -- modified contents
+  where cont = map figImageParas contents -- modified contents
         figImageParas (Para cs)
           | all isImageOrSpace cs
-          = Para $ map addFigureAttr cs
+          = Para $ mapMaybe mkFigure cs
         figImageParas (Plain cs)
           | all isImageOrSpace cs
-          = Plain $ map addFigureAttr cs
+          = Para $ mapMaybe mkFigure cs
         figImageParas x = x
         isImageOrSpace Image{} = True
         isImageOrSpace x = isSpace x
-        addFigureAttr (Image attr alt (src, tit))
-          | not $ "fig:" `isPrefixOf` tit
-          = Image attr alt (src, "fig:" <> tit)
-        addFigureAttr x = x
+        mkFigure (Image attr alt (src, tit))
+          = Just $ Image attr alt (src,
+              if "fig:" `isPrefixOf` tit
+              then tit
+              else "fig:" <> tit
+              )
+        mkFigure _ = Nothing
 makeSubfigures _ x = x
 
 toTable :: [Block] -> [Block]
