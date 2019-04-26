@@ -91,7 +91,7 @@ toTable blks = [Table [] align widths [] $ map blkToRow blks]
     blkToRow (Para inls) = mapMaybe inlToCell inls
     blkToRow x = [[x]]
     inlToCell :: Inline -> Maybe [Block]
-    inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
+    inlToCell (Image (id', cs, as) txt tgt)  = Just [Div nullAttr [Para [Image (id', cs, setW as) txt tgt]]]
     inlToCell _ = Nothing
     setW as = ("width", "100%"):filter ((/="width") . fst) as
 --
