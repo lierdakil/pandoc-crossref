@@ -3,6 +3,7 @@ autoFigLabels: fig
 prefixes:
   fig:
     subcaptions: true
+    subcaptionsGrid: false
     collectedCaptionDelim: ";&#32;"
     sub:
       numbering: alpha a

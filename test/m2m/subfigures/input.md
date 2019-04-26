@@ -3,7 +3,7 @@ autoFigLabels: fig
 prefixes:
   fig:
     subcaptions: true
-    # subcaptionsGrid: true
+    subcaptionsGrid: false
     sub:
       numbering: alpha a
       referenceIndexTemplate: $$s.i$$ ($$i$$)

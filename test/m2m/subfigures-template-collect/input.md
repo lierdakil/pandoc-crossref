@@ -3,6 +3,7 @@ autoFigLabels: fig
 prefixes:
   fig:
     subcaptions: true
+    subcaptionsGrid: false
     captionTemplate: '$$title% $$$$i$$$$titleDelim$$$$t$$. []{}'
     sub:
       numbering: alpha a

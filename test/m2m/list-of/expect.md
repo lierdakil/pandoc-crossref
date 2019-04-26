@@ -46,11 +46,11 @@ List of Equations
 =================
 
 ::: {.list}
-1\. $eqn1$
+1\. $$eqn1$$
 
-2\. $eqn2$
+2\. $$eqn2$$
 
-3\. $eqn3$
+3\. $$eqn3$$
 :::
 
 List of Tables
