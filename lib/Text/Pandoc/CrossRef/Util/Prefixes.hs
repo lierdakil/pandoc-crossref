@@ -53,7 +53,7 @@ getPrefixes varN dtv
                     (fromMaybe (reportError prettyVarName "Numbering")
                           $ lookupSettings varName kv)
         , prefixSubcaptions = getMetaBool "subcaptions" kv
-        , prefixSubcaptionsGrid = getMetaBool "subcaptionsGrid" kv
+        , prefixSubcaptionsGrid = getMetaBoolDefault "subcaptionsGrid" kv True
         , prefixCaptionPosition = case getMetaString "captionPosition" kv of
             "above" -> Above
             _ -> Below

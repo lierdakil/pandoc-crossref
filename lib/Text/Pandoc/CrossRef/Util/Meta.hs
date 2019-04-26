@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Meta (
     getMetaList
   , getMetaBool
+  , getMetaBoolDefault
   , getMetaInlines
   , getMetaBlock
   , getMetaString
@@ -56,6 +57,9 @@ getMetaStringList name (Settings meta) = maybe [] (getList' name) $ lookupMeta n
 getMetaBool :: String -> Settings -> Bool
 getMetaBool = getScalar toBool
 
+getMetaBoolDefault :: String -> Settings -> Bool -> Bool
+getMetaBoolDefault = getScalarDefault toBool
+
 getMetaInlines :: String -> Settings -> Inlines
 getMetaInlines = getScalar toInlines
 
@@ -70,6 +74,9 @@ getMetaStringMaybe = getScalar (const toMaybeString)
 
 getScalar :: Def b => (String -> MetaValue -> b) -> String -> Settings -> b
 getScalar conv name (Settings meta) = maybe def' (conv name) $ lookupMeta name meta
+
+getScalarDefault :: (String -> MetaValue -> b) -> String -> Settings -> b -> b
+getScalarDefault conv name (Settings meta) dv = maybe dv (conv name) $ lookupMeta name meta
 
 class Def a where
   def' :: a
