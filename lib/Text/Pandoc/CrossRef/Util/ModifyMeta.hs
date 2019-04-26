@@ -44,6 +44,7 @@ modifyMeta = do
     incList = MetaBlocks $ return $ RawBlock (Format "latex") $ unlines $ execWriter $ do
         tell [ "\\makeatletter" ]
         tell [ "\\@ifpackageloaded{caption}{\\captionsetup{labelformat=empty}}{\\usepackage[labelformat=empty]{caption}}" ]
+        tell [ "\\newenvironment{pandoccrossrefsubcaption}{\\renewcommand{\\toprule}{}\\renewcommand{\\bottomrule}{}}{}" ]
         tell [ "\\makeatother" ]
   return $ if isLatexFormat outFormat
   then setMeta "header-includes"

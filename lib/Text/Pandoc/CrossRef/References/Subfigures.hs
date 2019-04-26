@@ -37,7 +37,7 @@ makeSubfigures opts (Div (label,cls,attrs) contents)
   , prefixSubcaptions pfxRec
   = Div (label, "subcaption":cls, attrs)
     $ if prefixSubcaptionsGrid pfxRec
-      then toTable (init cont) ++ [last cont]
+      then wrapSubcaptionEnv (toTable (init cont)) <> [last cont]
       else cont
   where cont = map figImageParas contents -- modified contents
         figImageParas (Para cs)
@@ -56,6 +56,11 @@ makeSubfigures opts (Div (label,cls,attrs) contents)
               else "fig:" <> tit
               )
         mkFigure _ = Nothing
+        wrapSubcaptionEnv p
+          | isLatexFormat $ outFormat opts
+          = RawBlock (Format "latex") "\\begin{pandoccrossrefsubcaption}\n" :
+            (p <> [RawBlock (Format "latex") "\\end{pandoccrossrefsubcaption}\n"])
+          | otherwise = p
 makeSubfigures _ x = x
 
 toTable :: [Block] -> [Block]
