@@ -18,7 +18,12 @@ prefixes:
       ## List of Tables
     captionTemplate: |
       *$$title$$ $$i$$*$$titleDelim$$ $$t$$
-autoSectionLabels: True
+  sec:
+    scope: sec
+    sub:
+      referenceIndexTemplate: $$s.i%.$$$$i$$
+      captionTemplate: $$i$$. $$t$$
+autoSectionLabels: sec
 title: pandoc-crossref demo document
 ---
 
@@ -132,11 +137,11 @@ $$ S(x) = \int_{x_1}^{x_2} a x+b \  \mathrm{d}x $$ {#eq:eqn2}
 
 It's also possible to show lists of figures and tables, like this:
 
-\listoffigures
+\listof{fig}
 
-\listoftables
+\listof{tbl}
 
-\listoflistings
+\listof{lst}
 
 # Appendix A. Custom labels {label=AppA}
 
