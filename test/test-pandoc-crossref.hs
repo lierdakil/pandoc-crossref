@@ -376,7 +376,7 @@ testAll :: Many Block -> (Many Block, References -> References) -> Expectation
 testAll = testState References.Blocks.replaceAll def
 
 evalCrossRefM :: CrossRefM c -> c
-evalCrossRefM = evalCrossRefRes . runCrossRef defaultMeta Nothing . CrossRef
+evalCrossRefM = evalCrossRefRes . runCrossRef (defaultMeta mempty) Nothing . CrossRef
 
 evalCrossRefRes :: (Either WSException c, b) -> c
 evalCrossRefRes = either (error . show) id . fst
@@ -451,7 +451,7 @@ ref' p n | null n  = mempty
          | otherwise = space <> str ("{#"++p++":"++n++"}")
 
 defaultOptions :: Options
-defaultOptions = getOptions defaultMeta Nothing
+defaultOptions = getOptions (defaultMeta mempty) Nothing
 
 defCit :: Citation
 defCit = Citation{citationId = ""
@@ -470,4 +470,4 @@ infixr 0 =:
 a =: b = a ^= b
 
 defaultPrefixes :: Prefixes
-defaultPrefixes = getPrefixes Nothing "prefixes" defaultMeta
+defaultPrefixes = getPrefixes Nothing "prefixes" (defaultMeta mempty)
