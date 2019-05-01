@@ -37,7 +37,6 @@ import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Template.Types
-import Text.Pandoc.CrossRef.Util.Settings.Types
 import Data.Accessor hiding ((=:))
 import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
 import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
@@ -335,14 +334,14 @@ main = hspec $ do
       it "demo.md matches demo.native" $ do
         demomd <- readFile =<< getDataFileName "docs/demo/demo.md"
         Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
-        let (res, _warn) = runCrossRef m Nothing $ crossRefBlocks b
+        let (res, _warn) = runCrossRef (Settings m) Nothing $ crossRefBlocks b
         res `shouldBe` Right Native.demo
 
       it "demo.md with chapters matches demo-chapters.native" $ do
         demomd <- readFile =<< getDataFileName "docs/demo/demo.md"
         Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
         let m' = setMeta "chapters" True m
-        let (res, _warn) = runCrossRef m' Nothing $ crossRefBlocks b
+        let (res, _warn) = runCrossRef (Settings m') Nothing $ crossRefBlocks b
         res `shouldBe` Right Native.demochapters
 #endif
 
@@ -384,7 +383,7 @@ testAll :: Many Block -> (Many Block, References -> References) -> Expectation
 testAll = testState References.Blocks.replaceAll def
 
 evalCrossRefM :: CrossRefM c -> c
-evalCrossRefM = evalCrossRefRes . runCrossRef (unSettings defaultMeta) Nothing . CrossRef
+evalCrossRefM = evalCrossRefRes . runCrossRef defaultMeta Nothing . CrossRef
 
 evalCrossRefRes :: (Either WSException c, b) -> c
 evalCrossRefRes = either (error . show) id . fst

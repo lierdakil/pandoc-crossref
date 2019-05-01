@@ -40,7 +40,7 @@ m2m dir
     let ro = def { readerExtensions = pandocExtensions }
         wo = def { writerExtensions = pandocExtensions, writerHighlightStyle=Just pygments }
     p@(Pandoc meta _) <- runIO $ either (error . show) id <$> P.runIO (readMarkdown ro $ T.pack input)
-    let actual_md = either (fail . show) T.unpack $ runPure $ writeMarkdown wo . evalCrossRefRes . runCrossRef meta (Just $ Format "markdown") $ defaultCrossRefAction p
+    let actual_md = either (fail . show) T.unpack $ runPure $ writeMarkdown wo . evalCrossRefRes . runCrossRef (Settings meta) (Just $ Format "markdown") $ defaultCrossRefAction p
     it "Markdown" $ do
       zipWithM_ shouldBe (lines' actual_md) (lines' expect_md)
       length' (lines' actual_md) `shouldBe` length' (lines' expect_md)

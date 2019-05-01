@@ -36,8 +36,12 @@ import qualified Data.Map as M
 
 readSettings :: Maybe Format -> Meta -> IO Settings
 readSettings fmt inMeta = do
-  let meta = Settings inMeta
-  dirConfig <- readConfig (getMetaString "crossrefYaml" (meta <> defaultMeta))
+  let meta =
+        case inMeta of
+          Meta m | Just (MetaMap cm) <- M.lookup "crossref" m
+                -> Settings (Meta cm)
+          _ -> Settings inMeta
+  dirConfig <- readConfig (getMetaString "crossrefYaml" (meta <> defaultMeta meta))
   home <- getHomeDirectory
   globalConfig <- readConfig (home </> ".pandoc-crossref" </> "config.yaml")
   formatConfig <- maybe (return mempty) (readFmtConfig home) fmt
@@ -57,8 +61,60 @@ readSettings fmt inMeta = do
     fmtStr (Format fmtstr) = fmtstr
 
 
-defaultMeta :: Settings
-defaultMeta = Settings $
+defaultMeta :: Settings -> Settings
+defaultMeta userSettings
+  | null option = basicMeta
+  | option == ["none"] = mempty
+  | otherwise = mconcat . reverse $ basicMeta : map name2set option
+  where
+    option = getMetaStringList "defaultOption" userSettings
+    name2set "chapters" = chaptersMeta
+    name2set "subfigures" = subfiguresMeta
+    name2set "numberSections" = numberSectionsMeta
+    name2set x = error $ "Unknown defaultOption value: " <> x
+
+chaptersMeta :: Settings
+chaptersMeta = Settings $
+     captionIndexTemplate (var "s.i%." <> var "ri")
+  <> customMeta [ "scope" .= "sec" ]
+  <> prefixes' [
+      "sec" .: [
+        "title" .= "Chapter",
+        "sub" .: [
+          "title" .= "Section",
+          "referenceIndexTemplate" .= var "i" <> var "suf"
+        ]
+      ]
+  ]
+
+numberSectionsMeta :: Settings
+numberSectionsMeta = Settings $
+  prefixes' [
+    "sec" .: [
+      "captionTemplate" .= var "title" <> space <> var "i"
+          <> str "." <> space <> var "t"
+    ]
+  ]
+
+subfiguresMeta :: Settings
+subfiguresMeta = Settings $
+  prefixes' [
+    "fig" .: [
+      "subcaptions" .= True,
+      "sub" .: [
+        "numbering" .= "alpha a",
+        "referenceIndexTemplate" .= si,
+        "listItemTemplate" .= (si <> var "listItemNumberDelim" <> var "t"),
+        "captionTemplate" .= var "i",
+        "scope" .= ["fig"],
+        "captionIndexTemplate" .= var "ri"
+      ]
+    ]
+  ]
+  where si = var "s.i" <> str "(" <> var "i" <> str ")"
+
+basicMeta :: Settings
+basicMeta = Settings $
      codeBlockCaptions False
   <> adjustSectionIdentifiers False
   <> autoSectionLabels "sec"
@@ -104,13 +160,22 @@ defaultMeta = Settings $
       "sec" .: [
         "ref" .= map str ["sec.", "secs."],
         "title" .= text "Section",
-        "captionTemplate" .= var "t"
+        "captionTemplate" .= var "t",
+        "scope" .= ["sec"],
+        "sub" .: [
+          "referenceIndexTemplate" .= var "s.i%." <> var "i" <> var "suf"
+        ]
       ]
     ]
-  where var = displayMath
+
+var :: String -> Inlines
+var = displayMath
 
 prefixes' :: [(String, MetaValue)] -> Meta
 prefixes' = prefixes . MetaMap . M.fromList
+
+customMeta :: [(String, MetaValue)] -> Meta
+customMeta = Meta . M.fromList
 
 infixr 0 .:
 (.:) :: String -> [(String, MetaValue)] -> (String, MetaValue)

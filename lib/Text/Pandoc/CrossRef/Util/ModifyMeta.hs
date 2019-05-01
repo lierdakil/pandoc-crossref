@@ -32,10 +32,10 @@ import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Util
 
-modifyMeta :: CrossRef Meta
-modifyMeta = do
+modifyMeta :: Meta -> CrossRef Meta
+modifyMeta meta = do
   Options{..} <- asks creOptions
-  settings <- asks creSettings
+  Settings (Meta settingskv) <- asks creSettings
   let
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = incList
@@ -46,8 +46,11 @@ modifyMeta = do
         tell [ "\\@ifpackageloaded{caption}{\\captionsetup{labelformat=empty}}{\\usepackage[labelformat=empty]{caption}}" ]
         tell [ "\\newenvironment{pandoccrossrefsubcaption}{\\renewcommand{\\toprule}{}\\renewcommand{\\bottomrule}{}}{}" ]
         tell [ "\\makeatother" ]
+    tweakedMeta
+      | Just _ <- lookupMeta "crossref" meta = setMeta "crossref" (MetaMap settingskv) meta
+      | otherwise = Meta settingskv
   return $ if isLatexFormat outFormat
   then setMeta "header-includes"
-      (headerInc $ lookupSettings "header-includes" settings)
-      $ unSettings settings
-  else unSettings settings
+      (headerInc $ lookupMeta "header-includes" meta)
+      tweakedMeta
+  else tweakedMeta
