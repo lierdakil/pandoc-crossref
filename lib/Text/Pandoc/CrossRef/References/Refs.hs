@@ -53,34 +53,35 @@ groupEither (Right x:xs)
   = Right (x:rights ys) : groupEither zs
   where (ys,zs) = span isRight xs
 
-replaceRefs :: Options -> [Inline] -> WS [Inline]
-replaceRefs opts ils
+replaceRefs :: [Inline] -> WS [Inline]
+replaceRefs ils
   | Cite cits _:xs <- ils
   = do
+    opts <- asks creOptions
+    let
+      eqPred :: RefDataComplete -> RefDataComplete -> Bool
+      eqPred = (==) `on` liftM2 (,) rdLevel rdPrefix
+      intrclt = intercalate' (text ", ")
+      replaceRefs' (Left xs') = restoreCits' xs'
+      replaceRefs' (Right xs') = intrclt <$> mapM (replaceRefsOther opts) (NE.groupBy eqPred xs')
+      restoreCits' refs = liftM2 cite cits' il'
+          where
+            cits' = mapM getCit refs
+            getCit RefDataIncomplete{rdCitation, rdiLabel}
+              | takeWhile (/=':') rdiLabel `elem` M.keys (prefixes opts)
+              = tell ["Undefined cross-reference: " <> rdiLabel] >> return rdCitation
+              | otherwise = return rdCitation
+            il' = do
+              i <- map citationToInlines <$> cits'
+              return $ str "["
+               <> intercalate' (text "; ") i
+               <> str "]"
+            citationToInlines c =
+              fromList (citationPrefix c) <> text ("@" ++ citationId c)
+                <> fromList (citationSuffix c)
     citRefData <- groupEither <$> mapM getRefData cits
     toList . (<> fromList xs) . intrclt <$> mapM replaceRefs' citRefData
-  where
-    eqPred :: RefDataComplete -> RefDataComplete -> Bool
-    eqPred = (==) `on` liftM2 (,) rdLevel rdPrefix
-    intrclt = intercalate' (text ", ")
-    replaceRefs' (Left xs) = restoreCits' xs
-    replaceRefs' (Right xs) = intrclt <$> mapM (replaceRefsOther opts) (NE.groupBy eqPred xs)
-    restoreCits' refs = liftM2 cite cits' il'
-        where
-          cits' = mapM getCit refs
-          getCit RefDataIncomplete{rdCitation, rdiLabel}
-            | takeWhile (/=':') rdiLabel `elem` M.keys (prefixes opts)
-            = tell ["Undefined cross-reference: " <> rdiLabel] >> return rdCitation
-            | otherwise = return rdCitation
-          il' = do
-            i <- map citationToInlines <$> cits'
-            return $ str "["
-             <> intercalate' (text "; ") i
-             <> str "]"
-          citationToInlines c =
-            fromList (citationPrefix c) <> text ("@" ++ citationId c)
-              <> fromList (citationSuffix c)
-replaceRefs _ x = return x
+replaceRefs x = return x
 
 getRefPrefix :: Bool -> Int -> RefRec -> Inlines -> Inlines
 getRefPrefix capitalize num rr@RefRec{..} cit =

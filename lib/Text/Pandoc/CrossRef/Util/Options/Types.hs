@@ -24,15 +24,15 @@ import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.Builder
 
 data Options = Options { codeBlockCaptions  :: Bool
-                       , autoSectionLabels  :: Maybe String
-                       , defaultSectionPrefix :: String
+                       , autoSectionLabels :: Maybe String
+                       , autoEqnLabels :: Maybe String
+                       , autoFigLabels :: Maybe String
+                       , adjustSectionIdentifiers :: Bool
                        , rangeDelim  :: Inlines
                        , pairDelim  :: Inlines
                        , lastDelim  :: Inlines
                        , refDelim  :: Inlines
                        , outFormat   :: Maybe Format
-                       , autoEqnLabels :: Maybe String
-                       , autoFigLabels :: Maybe String
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , prefixes :: Prefixes

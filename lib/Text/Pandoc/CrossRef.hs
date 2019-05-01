@@ -98,14 +98,11 @@ import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
 
 Works in 'CrossRefM' monad. -}
 crossRefBlocks :: [Block] -> CrossRef [Block]
-crossRefBlocks blocks = do
-  opts <- R.asks creOptions
-  let
-    doWalk =
-      replaceAll opts blocks
-      >>= bottomUpM (replaceRefs opts)
-      >>= bottomUpM (listOf opts)
-  CrossRef $ flip evalStateT def . unWS $ doWalk
+crossRefBlocks blocks = CrossRef $ flip evalStateT def . unWS $ doWalk
+  where doWalk =
+          replaceAll blocks
+          >>= bottomUpM replaceRefs
+          >>= bottomUpM listOf
 
 {- | Modifies metadata for LaTeX output, adding header-includes instructions
 to setup custom and builtin environments.

@@ -60,7 +60,8 @@ readSettings fmt inMeta = do
 defaultMeta :: Settings
 defaultMeta = Settings $
      codeBlockCaptions False
-  <> defaultSectionPrefix "sec"
+  <> adjustSectionIdentifiers False
+  <> autoSectionLabels "sec"
   <> titleDelim (str ":" <> space)
   <> listItemNumberDelim (str "." <> space)
   <> rangeDelim (str "-")

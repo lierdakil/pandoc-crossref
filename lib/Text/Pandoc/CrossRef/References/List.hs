@@ -35,20 +35,21 @@ import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Prefixes.Types
 import Text.Pandoc.CrossRef.Util.VarFunction
 
-listOf :: Options -> [Block] -> WS [Block]
-listOf opts (RawBlock fmt cmd:xs)
+listOf :: [Block] -> WS [Block]
+listOf (RawBlock fmt cmd:xs)
   | isLaTeXRawBlockFmt fmt
   , Just pfxBrace <- "\\listof{" `stripPrefix` cmd
   , (pfx, "}") <- span (/='}') pfxBrace
-  = getPfxData pfx >>= fmap toList . makeList opts pfx (fromList xs)
-listOf _ x = return x
+  = getPfxData pfx >>= fmap toList . makeList pfx (fromList xs)
+listOf x = return x
 
 getPfxData :: String -> WS RefMap
 getPfxData pfx = M.filterWithKey (\k _ -> (pfx <> ":") `isPrefixOf` k) <$> get referenceData
 
-makeList :: Options -> String -> Blocks -> M.Map String RefRec -> WS Blocks
-makeList opts titlef xs refs
+makeList :: String -> Blocks -> M.Map String RefRec -> WS Blocks
+makeList titlef xs refs
   = do
+    opts <- asks creOptions
     title <- liftEither $ getTitleForListOf opts titlef
     return $ title
       <> divWith ("", ["list"], []) (mconcat $ map itemChap refsSorted)

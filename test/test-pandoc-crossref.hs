@@ -375,14 +375,13 @@ refRec' ref i tit cap =
      )
 
 testRefs :: Blocks -> References -> Blocks -> Expectation
-testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, id)
+testRefs bs st rbs = testState (bottomUpM References.Refs.replaceRefs) st bs (rbs, id)
 
 testRefs' :: String -> [Int] -> [Int] -> Accessor References (M.Map String RefRec) -> String -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen p l1 l2) def) (para $ text res)
 
 testAll :: Many Block -> (Many Block, References -> References) -> Expectation
-testAll = testState f def
-  where f = References.Blocks.replaceAll defaultOptions
+testAll = testState References.Blocks.replaceAll def
 
 evalCrossRefM :: CrossRefM c -> c
 evalCrossRefM = evalCrossRefRes . runCrossRef (unSettings defaultMeta) Nothing . CrossRef
@@ -412,7 +411,7 @@ testCBCaptions :: Blocks -> Blocks -> Expectation
 testCBCaptions bs res = bottomUp (Util.CodeBlockCaptions.mkCodeBlockCaptions defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}) (toList bs) `shouldBe` toList res
 
 testList :: Blocks -> (References -> References) -> Blocks -> Expectation
-testList bs st res = testState (bottomUpM (References.List.listOf defaultOptions)) (st def) bs (res, st)
+testList bs st res = testState (bottomUpM References.List.listOf) (st def) bs (res, st)
 
 figure :: String -> String -> String -> String -> Blocks
 figure = (((para .) .) .) . figure' "fig:"
