@@ -38,14 +38,15 @@ import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Template.Types
 import Control.Applicative hiding (many, optional)
 import Text.Read hiding ((<++), (+++))
-import Data.Char (isAlphaNum, isUpper, toLower)
+import Data.Char (isAlphaNum, isUpper, toLower, isDigit)
 import Control.Monad ((<=<))
 import Data.Data (Data)
 import Text.ParserCombinators.ReadP
 
 data PRVar = PRVar { prvName :: String
-                   , prvIdx :: [[PRVar]]
+                   , prvIdx :: [IdxT]
                    } deriving Show
+data IdxT = IdxVar [PRVar] | IdxStr String | IdxNum String deriving Show
 data ParseRes = ParseRes { prVar :: [PRVar]
                          , prPfx :: String
                          , prSfx :: String
@@ -61,7 +62,9 @@ parse = uncurry <$> (ParseRes <$> var) <*> option ("", "") ps <* eof
   where
     var = sepBy1 (PRVar <$> varName <*> many varIdx) (char '?')
     varName = munch1 isVariableSym
-    varIdx = between (char '[') (char ']') var
+    varIdx = between (char '[') (char ']') (IdxVar <$> var <|> IdxStr <$> litStr <|> IdxNum <$> litNum)
+    litStr = between (char '"') (char '"') (many (satisfy (/='"')))
+    litNum = many (satisfy isDigit)
     prefix = char '#' *> many (satisfy (/='%'))
     suffix = char '%' *> many (satisfy (/='#'))
     ps = (flip (,) <$> suffix <*> option "" prefix)
@@ -102,11 +105,14 @@ scan = bottomUp . go
               idxVars ->
                 let
                   idxs :: Maybe [String]
-                  idxs = mapM (Just . toString ("index variables " ++ show idxVars) <=< tryVars) idxVars
+                  idxs = mapM (Just . toString ("index variables " ++ show idxVars) <=< tryIdxs) idxVars
                   arr = foldr (\i a -> getObjOrList i =<< a) (vf prvName) . reverse =<< idxs
                   getObjOrList :: String -> MetaValue -> Maybe MetaValue
                   getObjOrList i x = getObj i x <|> (readMaybe i >>= flip getList x)
                 in arr
+          tryIdxs (IdxVar vars) = tryVars vars
+          tryIdxs (IdxStr s) = Just $ MetaString s
+          tryIdxs (IdxNum n) = Just $ MetaString n
           tryVars = foldr ((<|>) . tryVar) Nothing
 
       in toList $ replaceVar (tryVars prVar) <> fromList xs
