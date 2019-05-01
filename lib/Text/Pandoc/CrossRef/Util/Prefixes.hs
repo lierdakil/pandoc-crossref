@@ -32,8 +32,8 @@ import Text.Pandoc.CrossRef.Util.CustomLabels
 import qualified Data.Map as M
 import Data.Maybe
 
-getPrefixes :: String -> Settings -> Prefixes
-getPrefixes varN dtv
+getPrefixes :: Maybe Format -> String -> Settings -> Prefixes
+getPrefixes fmt varN dtv
   | Just (MetaMap m) <- lookupSettings varN dtv =
     let
       m2p k (MetaMap kv') = Prefix {
@@ -60,7 +60,12 @@ getPrefixes varN dtv
         , prefixSub = m2p k . (`merge` MetaMap kv') <$> lookupSettings "sub" (Settings (Meta kv') <> from)
         , prefixDef = (`lookupSettings` kv)
         }
-        where kv = Settings (Meta kv') <> from <> dtv
+        where kv = Settings (Meta kv')
+                   <> from
+                   <> dtv
+                   <> Settings (Meta fmtm)
+              fmtm | Just (Format fmt') <- fmt = M.singleton "crossrefOutputFormat" $ MetaString fmt'
+                   | otherwise = M.empty
               from | Just fromRef <- M.lookup "from" kv'
                    , Just (MetaMap kv'') <- M.lookup (toString "from" fromRef) m
                    = Settings (Meta kv'')

@@ -478,4 +478,4 @@ infixr 0 =:
 a =: b = a ^= b
 
 defaultPrefixes :: Prefixes
-defaultPrefixes = getPrefixes "prefixes" defaultMeta
+defaultPrefixes = getPrefixes Nothing "prefixes" defaultMeta

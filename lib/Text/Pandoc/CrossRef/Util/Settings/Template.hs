@@ -78,15 +78,16 @@ makeCon' t accName = do
     strT <- [t|$(conT t) -> String|]
     mstT <- [t|$(conT t) -> Maybe String|]
     let varName | Name (OccName n) _ <- accName = liftString n
-    let dtv = return $ VarE $ mkName "dtv"
+        dtv = return $ VarE $ mkName "dtv"
+        fmt = return $ VarE $ mkName "fmt"
     body <-
       if
       | t' == boolT -> [|getMetaBool $(varName) $(dtv)|]
       | t' == intT -> [|read $ getMetaString $(varName) $(dtv)|]
       | t' == inlT -> [|getMetaInlines $(varName) $(dtv)|]
       | t' == blkT -> [|getMetaBlock $(varName) $(dtv)|]
-      | t' == fmtT -> return $ VarE $ mkName "fmt"
-      | t' == pfxT -> [|getPrefixes $(varName) $(dtv)|]
+      | t' == fmtT -> fmt
+      | t' == pfxT -> [|getPrefixes $(fmt) $(varName) $(dtv)|]
       | t' == strT -> [|getMetaString $(varName) $(dtv)|]
       | t' == mstT -> [|getMetaStringMaybe $(varName) $(dtv)|]
       | otherwise -> fail $ show t'
