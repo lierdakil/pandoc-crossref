@@ -336,13 +336,6 @@ main = hspec $ do
         Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
         let (res, _warn) = runCrossRef (Settings m) Nothing $ crossRefBlocks b
         res `shouldBe` Right Native.demo
-
-      it "demo.md with chapters matches demo-chapters.native" $ do
-        demomd <- readFile =<< getDataFileName "docs/demo/demo.md"
-        Pandoc m b <- handleError $ runPure $ readMarkdown def {readerExtensions = pandocExtensions} $ T.pack demomd
-        let m' = setMeta "chapters" True m
-        let (res, _warn) = runCrossRef (Settings m') Nothing $ crossRefBlocks b
-        res `shouldBe` Right Native.demochapters
 #endif
 
 citeGen :: String -> [Int] -> Inlines
