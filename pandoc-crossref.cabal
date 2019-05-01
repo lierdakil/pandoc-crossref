@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 29a16982bbf4d0374a7ea424d1f675afda7029727f410eadca021ecf8636ee26
+-- hash: e350c271ccc68235166df64b7a25b7e408f3b33f487064958bc2936eaf58d672
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -19,7 +19,6 @@ license:        GPL-2
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
-    test/demo-chapters.inc
     test/demo.inc
     CHANGELOG.md
 data-files:
