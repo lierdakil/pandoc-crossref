@@ -35,7 +35,6 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.Generic
 import Text.Pandoc.CrossRef.Util.Meta
-import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Template.Types
 import Control.Applicative hiding (many, optional)
 import Text.Read hiding ((<++), (+++))
@@ -70,26 +69,25 @@ parse = uncurry <$> (ParseRes <$> var) <*> option ("", "") ps <* eof
 
 instance MakeTemplate Template where
   type ElemT Template = Inlines
-  makeTemplate dtv xs' = Template (genTemplate dtv xs')
+  makeTemplate xs' = Template (genTemplate xs')
 
 instance MakeTemplate BlockTemplate where
   type ElemT BlockTemplate = Blocks
-  makeTemplate dtv xs' = BlockTemplate (genTemplate dtv xs')
+  makeTemplate xs' = BlockTemplate (genTemplate xs')
 
 instance MakeTemplate RefTemplate where
   type ElemT RefTemplate = Inlines
-  makeTemplate dtv xs' = RefTemplate $ \vars cap -> g (vf vars cap)
-    where Template g = makeTemplate dtv xs'
+  makeTemplate xs' = RefTemplate $ \vars cap -> g (vf vars cap)
+    where Template g = makeTemplate xs'
           vf vars cap (vc:vs)
-            | isUpper vc && cap = capitalize lookup' var
-            | otherwise = lookup' var
+            | isUpper vc && cap = capitalize vars var
+            | otherwise = vars var
             where
               var = toLower vc : vs
-              lookup' x = vars x <|> lookupSettings x dtv
           vf _ _ [] = error "Empty variable name"
 
-genTemplate :: (Data a) => Settings -> Many a -> VarFunc -> Many a
-genTemplate dtv xs' vf = fromList $ scan (\var -> vf var <|> lookupSettings var dtv) $ toList xs'
+genTemplate :: (Data a) => Many a -> VarFunc -> Many a
+genTemplate xs' vf = fromList $ scan vf $ toList xs'
 
 scan :: (Data a) => VarFunc -> [a] -> [a]
 scan = bottomUp . go

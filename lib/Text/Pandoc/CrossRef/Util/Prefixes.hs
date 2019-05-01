@@ -37,13 +37,13 @@ getPrefixes varN dtv
   | Just (MetaMap m) <- lookupSettings varN dtv =
     let
       m2p k (MetaMap kv') = Prefix {
-          prefixCaptionTemplate = mkT $ getTemplInline "captionTemplate"
-        , prefixReferenceTemplate = mkT $ getTemplInline "referenceTemplate"
-        , prefixReferenceIndexTemplate = mkT $ getTemplInline "referenceIndexTemplate"
-        , prefixCaptionIndexTemplate = mkT $ getTemplInline "captionIndexTemplate"
-        , prefixListItemTemplate = mkT $ getTemplInline "listItemTemplate"
-        , prefixCollectedCaptionTemplate = mkT $ getTemplInline "collectedCaptionTemplate"
-        , prefixListOfTitle = mkT $ getTemplBlock "listOfTitle"
+          prefixCaptionTemplate = makeTemplate $ getTemplInline "captionTemplate"
+        , prefixReferenceTemplate = makeTemplate $ getTemplInline "referenceTemplate"
+        , prefixReferenceIndexTemplate = makeTemplate $ getTemplInline "referenceIndexTemplate"
+        , prefixCaptionIndexTemplate = makeTemplate $ getTemplInline "captionIndexTemplate"
+        , prefixListItemTemplate = makeTemplate $ getTemplInline "listItemTemplate"
+        , prefixCollectedCaptionTemplate = makeTemplate $ getTemplInline "collectedCaptionTemplate"
+        , prefixListOfTitle = makeTemplate $ getTemplBlock "listOfTitle"
         , prefixCollectedCaptionDelim = getMetaInlines "collectedCaptionDelim" kv
         , prefixScope = getMetaStringList "scope" kv
         , prefixNumbering =
@@ -58,14 +58,13 @@ getPrefixes varN dtv
             "above" -> Above
             _ -> Below
         , prefixSub = m2p k . (`merge` MetaMap kv') <$> lookupSettings "sub" (Settings (Meta kv') <> from)
+        , prefixDef = (`lookupSettings` kv)
         }
         where kv = Settings (Meta kv') <> from <> dtv
               from | Just fromRef <- M.lookup "from" kv'
                    , Just (MetaMap kv'') <- M.lookup (toString "from" fromRef) m
                    = Settings (Meta kv'')
                    | otherwise = mempty
-              mkT :: MakeTemplate a => ElemT a -> a
-              mkT = makeTemplate kv
               getTemplInline = getTemplDefault getMetaInlines
               getTemplBlock = getTemplDefault getMetaBlock
               getTemplDefault f n =

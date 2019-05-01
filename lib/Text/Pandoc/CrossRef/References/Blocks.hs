@@ -235,7 +235,7 @@ replaceAttr o scope label attrs title pfx
       , refPfx = pfx
       , refPfxRec = ropt
       , refCaption = applyTitleTemplate rec'
-      , refAttrs = metaAttrMap
+      , refAttrs = (`M.lookup` metaAttrMap)
       , refCaptionPosition = prefixCaptionPosition ropt
       }
     modify referenceData $ M.insert label' rec'

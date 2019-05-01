@@ -24,7 +24,6 @@ module Text.Pandoc.CrossRef.Util.Template.Types where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
-import Text.Pandoc.CrossRef.Util.Settings.Types
 
 type VarFunc = String -> Maybe MetaValue
 newtype Template = Template { applyTemplate :: VarFunc -> Inlines }
@@ -33,4 +32,4 @@ newtype BlockTemplate = BlockTemplate { applyBlockTemplate :: VarFunc -> Blocks 
 
 class MakeTemplate a where
   type ElemT a
-  makeTemplate :: Settings -> ElemT a -> a
+  makeTemplate :: ElemT a -> a

@@ -70,4 +70,6 @@ getRefLabel opts ils
 getRefLabel _ _ = Nothing
 
 getTitleForListOf :: Options -> String -> PureErr Blocks
-getTitleForListOf opts = fmap (flip applyBlockTemplate (const Nothing) . prefixListOfTitle) . getPfx opts
+getTitleForListOf opts pfxn = do
+  pfx <- getPfx opts pfxn
+  return $ applyBlockTemplate (prefixListOfTitle pfx) (prefixDef pfx)

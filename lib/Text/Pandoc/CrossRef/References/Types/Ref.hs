@@ -39,7 +39,7 @@ data RefRec = RefRec { refIndex :: !Int -- global ordinal number for prefix
                      , refPfx   :: !String -- reference prefix, the part in label before :
                      , refPfxRec :: !Prefix -- reference prefix, the part in label before :
                      , refCaption :: Inlines -- caption after applying template; must be non-strict
-                     , refAttrs :: !(M.Map String MetaValue) -- attribute map
+                     , refAttrs :: !(String -> Maybe MetaValue) -- attribute map
                      , refCaptionPosition :: !CaptionPosition
                      }
 

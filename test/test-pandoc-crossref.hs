@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, TypeSynonymInstances
+{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings
            , FlexibleInstances, StandaloneDeriving #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName, Template)
@@ -306,10 +306,10 @@ main = hspec $ do
     describe "Util.Template" $
       it "Applies templates" $
         let template=Util.Template.makeTemplate
-              (defaultMeta <> Settings (Meta (M.singleton "figureTitle" (toMetaValue $ text "Figure"))))
               (displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
             vf "i" = Just $ MetaInlines $ toList $ text "1"
             vf "t" = Just $ MetaInlines $ toList $ text "title"
+            vf "figureTitle" = Just $ toMetaValue $ text "Figure"
             vf _ = Nothing
         in Util.Template.applyTemplate template vf `shouldBe`
            (str "Figure" <> str "1" <> str "title")
@@ -368,7 +368,7 @@ refRec' ref i tit cap =
        , refLevel=0
        , refPfx=pfx
        , refLabel=ref
-       , refAttrs = M.empty
+       , refAttrs = const Nothing
        , refPfxRec = pfxRec
        , refCaptionPosition = Below
        }
@@ -394,6 +394,8 @@ instance Show Prefix where
   show _ = "Prefix{}"
 instance Show Template where
   show _ = "Template{}"
+instance Show (String -> Maybe MetaValue) where
+  show _ = "String -> Maybe MetaValue"
 deriving instance Show RefRec
 deriving instance Show CaptionPosition
 deriving instance Show CounterRec

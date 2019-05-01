@@ -22,12 +22,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.Util.VarFunction where
 
+import Control.Applicative
 import Text.Pandoc.Definition
 import qualified Text.Pandoc.Builder as B
 
 import Data.List
-import qualified Data.Map as M
-import Text.Pandoc.CrossRef.References.Types as Types
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Prefixes.Types
 
 defaultVarFunc :: (RefRec -> String -> Maybe MetaValue)
                -> RefRec -> String -> Maybe MetaValue
@@ -42,4 +43,6 @@ defaultVarFunc self RefRec{..} x = case x of
    _ | Just y <- stripPrefix "s." x
      , Just rs <- refScope
      -> self rs y
-   _ -> M.lookup x refAttrs
+   _ | Just y <- stripPrefix "def." x
+     -> prefixDef refPfxRec y
+   _ -> refAttrs x <|> prefixDef refPfxRec x

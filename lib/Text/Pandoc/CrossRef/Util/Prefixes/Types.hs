@@ -45,4 +45,5 @@ data Prefix = Prefix {
   , prefixSubcaptionsGrid :: !Bool
   , prefixCaptionPosition :: !CaptionPosition
   , prefixSub :: !(Maybe Prefix)
+  , prefixDef :: !(String -> Maybe MetaValue)
 }
