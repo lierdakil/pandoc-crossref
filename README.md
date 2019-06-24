@@ -129,11 +129,12 @@ This will install pandoc-crossef executable to `$HOME/.local/bin`. You might als
 ### Notice Fedora users
 
 `cabal-install` package is not enough to build pandoc-crossref (see
-\#132). To get sane Haskell build environment, you need to install
-`haskell-platform` package (`yum install haskell-platform`).
+[\#132](https://github.com/lierdakil/pandoc-crossref/issues/132)). 
+To get a sane Haskell build environment, you need to install the
+`haskell-platform` package (`dnf install haskell-platform`).
 
 While on topic, if you don't want to rebuild pandoc itself from source,
-make sure you have `pandoc` and `ghc-pandoc-devel` yum packages before
+make sure you have `pandoc` and `ghc-pandoc-devel` dnf packages before
 attempting to build pandoc-crossref.
 
 ## Usage
