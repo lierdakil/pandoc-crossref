@@ -1,5 +1,6 @@
 language: c
 sudo: true
+osx_image: xcode10.2
 
 cache:
   directories:
