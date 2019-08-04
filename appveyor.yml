@@ -13,12 +13,12 @@ environment:
     GHC_MINOR_VERSION: "8.4.4"
     GHC: "C:\\ProgramData\\chocolatey\\lib\\ghc\\tools\\ghc-%GHC_MINOR_VERSION%\\bin\\ghc.exe"
     CABAL_VERSION: "2.4.1.0"
-    CABAL_OPTS: "--constraint pandoc==%PANDOC_VERSION%.* --enable-executable-stripping --enable-split-sections"
+    CABAL_OPTS: "--constraint pandoc==%PANDOC_VERSION% --enable-executable-stripping --enable-split-sections"
     GHC_OPTS: ""
     ARCH: "x64"
     CHOCO_OPTS: ""
   matrix:
-  - PANDOC_VERSION: "2.7"
+  - PANDOC_VERSION: "2.7.3"
 
 skip_commits:
   files:
