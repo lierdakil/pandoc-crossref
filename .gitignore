@@ -3,6 +3,8 @@ static-build
 .stack-work
 .cabal-sandbox
 .pandoc-*
+pandoc
+cabal.project.local
 dist
 dist-newstyle
 cabal.sandbox.config
