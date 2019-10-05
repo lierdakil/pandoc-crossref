@@ -1,0 +1,4 @@
+packages: pandoc-crossref.cabal
+optimization: 2
+package pandoc-crossref
+  flags: +enable_flaky_tests

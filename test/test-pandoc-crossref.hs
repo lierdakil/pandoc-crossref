@@ -29,7 +29,6 @@ import Data.List
 import Data.Maybe
 import Control.Arrow
 import qualified Data.Map as M
-import qualified Data.Text as T
 
 import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
@@ -44,8 +43,11 @@ import qualified Text.Pandoc.CrossRef.References.List as References.List
 import qualified Text.Pandoc.CrossRef.Util.Template as Util.Template
 import qualified Text.Pandoc.CrossRef.Util.CodeBlockCaptions as Util.CodeBlockCaptions
 
+#ifdef FLAKY
+import qualified Data.Text as T
 import qualified Native
 import Paths_pandoc_crossref
+#endif
 
 import Data.String
 import Prelude
