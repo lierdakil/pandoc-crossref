@@ -59,8 +59,9 @@ embedManualText = embedManual $ P.writePlain P.def
 
 embedManualHtml :: Q Exp
 embedManualHtml = do
-  t <- runIO $ fmap (either (error . show) id) $ P.runIO $ P.getDefaultTemplate "html5"
-  tt <- runIO $ either (error . show) id <$> PT.compileTemplate "html5.txt" t
+  tt <- fmap (either (error . show) id) . runIO . P.runIO
+          $   P.getDefaultTemplate "html5"
+          >>= fmap (either (error . show) id) . PT.compileTemplate ""
   embedManual $ P.writeHtml5String P.def{
     P.writerTemplate = Just tt
   , P.writerHighlightStyle = Just pygments
