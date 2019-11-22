@@ -1,0 +1,3 @@
+brew 'cabal-install'
+brew 'ghc@8.6'
+brew 'upx'

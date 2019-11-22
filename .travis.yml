@@ -9,10 +9,7 @@ cache:
 
 addons:
   homebrew:
-    packages:
-    - ghc
-    - cabal-install
-    - upx
+    brewfile: osx/Brewfile
 
 env:
   global:

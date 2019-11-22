@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export PATH="/usr/local/opt/ghc@8.6/bin:$PATH"
+echo "GHC version is:"
+ghc --version
 export PANDOC="$HOME/.cabal/bin/pandoc"
 rm "$PANDOC" || true
 cabal new-update
