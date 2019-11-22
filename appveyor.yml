@@ -9,8 +9,8 @@ environment:
     TMP: "c:\\tmp"
     # see #4201, https://github.com/haskell-tools/haskell-tools/issues/277
     OSARCH: "windows-x86_64"
-    GHC_VERSION: "8.4.4"
-    GHC_MINOR_VERSION: "8.4.4"
+    GHC_VERSION: "8.6.5"
+    GHC_MINOR_VERSION: "8.6.5"
     GHC: "C:\\ProgramData\\chocolatey\\lib\\ghc\\tools\\ghc-%GHC_MINOR_VERSION%\\bin\\ghc.exe"
     CABAL_VERSION: "2.4.1.0"
     CABAL_OPTS: "--constraint pandoc==%PANDOC_VERSION% --enable-executable-stripping --enable-split-sections"
