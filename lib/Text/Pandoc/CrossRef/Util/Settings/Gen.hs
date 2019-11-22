@@ -39,7 +39,7 @@ fmap concat $ mapM (makeAcc . mkName)
   , "subfigLabels"
   , "chapters"
   , "figLabels"
-  , "eqnLabels"
+  , "eqLabels"
   , "tblLabels"
   , "lstLabels"
   , "secLabels"

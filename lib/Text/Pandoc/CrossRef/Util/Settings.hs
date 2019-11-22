@@ -65,7 +65,7 @@ defaultMeta =
   <> numberSections False
   <> sectionsDepth (MetaString "0")
   <> figLabels (MetaString "arabic")
-  <> eqnLabels (MetaString "arabic")
+  <> eqLabels (MetaString "arabic")
   <> tblLabels (MetaString "arabic")
   <> lstLabels (MetaString "arabic")
   <> secLabels (MetaString "arabic")
