@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e9bd74570b11e59ea02b2ab92961bfa5fa55114589a4f25bfe69d5ad1dafe2d1
+-- hash: edd11ea020cd9236b745c8aa8d2a9728ac41f337c5648fc1d98b28e62e7f4584
 
 name:           pandoc-crossref
 version:        0.3.4.2
@@ -134,7 +134,7 @@ executable pandoc-crossref
     , gitrev >=1.3.1 && <1.4
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
-    , optparse-applicative >=0.13 && <0.15
+    , optparse-applicative >=0.13 && <0.16
     , pandoc >=2.3 && <2.8
     , pandoc-crossref
     , pandoc-types >=1.17.5.1 && <1.18
