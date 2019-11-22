@@ -224,7 +224,7 @@ titles, it would be hard to navigate anyway.
 Pandoc doesn't properly support numbering sections in some output
 formats, and section reference labels (see below).
 
-You can let pandoc-crossref handle section numbering instedad. This is
+You can let pandoc-crossref handle section numbering instead. This is
 done via `numberSections` and `sectionsDepth` metadata options.
 
 `numberSections` controls if pandoc-crossref handles numbering sections,
