@@ -1,3 +1,8 @@
+## 0.3.4.2
+
+-   Fix eqLabels in documentation and default meta
+-   Readme updates
+
 ## 0.3.4.1
 
 -   Fix custom labels defined via list (and clarify docs)
