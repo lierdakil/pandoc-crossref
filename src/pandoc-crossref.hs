@@ -26,6 +26,7 @@ import Text.Pandoc.CrossRef
 import Options.Applicative
 import qualified Options.Applicative as O
 import Control.Monad
+import System.Environment
 import Web.Browser
 import System.IO.Temp
 import System.IO hiding (putStrLn)
@@ -70,7 +71,12 @@ run = do
       threadDelay 5000000
       return ()
     go Nothing _ = toJSONFilter f
-    f fmt p@(Pandoc meta _) =
+    f fmt p@(Pandoc meta _) = do
+      runv <- getEnv "PANDOC_VERSION"
+      when (VERSION_pandoc /= runv) $ hPutStrLn stderr $
+        "WARNING: pandoc-crossref was compiled with pandoc " <> VERSION_pandoc <>
+        " but is being run through " <> runv <> ". This is not supported. " <>
+        " Strange things may (and likely will) happen silently."
       runCrossRefIO meta fmt defaultCrossRefAction p
 
 main :: IO ()
