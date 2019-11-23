@@ -20,13 +20,6 @@ environment:
   matrix:
   - PANDOC_VERSION: "2.8"
 
-skip_commits:
-  files:
-    - 'README.md'
-    - '.travis.yml'
-    - 'linux/*'
-    - 'osx/*'
-
 matrix:
   fast_finish: true
 
