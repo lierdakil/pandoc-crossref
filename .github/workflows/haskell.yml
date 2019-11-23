@@ -25,7 +25,9 @@ jobs:
       run: cabal v2-test
     - name: Find artifact
       run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+    - name: Package artifact
+      run:  xz pandoc-crossref
     - uses: actions/upload-artifact@v1
       with:
-        name: pandoc-crossref
-        path: ./pandoc-crossref
+        name: pandoc-crossref.xz
+        path: ./pandoc-crossref.xz
