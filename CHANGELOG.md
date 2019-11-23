@@ -1,3 +1,22 @@
+##  0.3.5.0
+
+-   Updates for pandoc 2.8
+
+-   Pandoc < 2.8 no longer supported
+
+-   Check pandoc version when running through pandoc and issue a warning
+    when it doesn't match the one pandoc-crossref was built with.
+
+-   Running pandoc-crossref as a UNIX pipe implicitly, i.e.
+    `pandoc -t json text.md | pandoc-crossref | pandoc -f json`
+    is no longer supported. Use the `--pipe` (short `-p` is also supported) option, e.g.
+    `pandoc -t json text.md | pandoc-crossref --pipe | pandoc -f json`
+
+-   Running pandoc-crossref as a UNIX pipe with specified output format, i.e.
+    `pandoc -t json text.md | pandoc-crossref html | pandoc -f json`
+    is deprecated. Please use the `--pipe` (short `-p` is also supported) option, e.g.
+    `pandoc -t json text.md | pandoc-crossref --pipe html | pandoc -f json`
+
 ## 0.3.4.2
 
 -   Fix eqLabels in documentation and default meta
