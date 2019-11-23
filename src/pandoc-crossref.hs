@@ -81,12 +81,12 @@ run = do
       ]
     go Nothing _ = do
       Env.lookupEnv "PANDOC_VERSION" >>= \case
-        Just runv | VERSION_pandoc /= runv ->
-          hPutStrLn stderr $
+        Just runv ->
+          when (VERSION_pandoc /= runv) $ hPutStrLn stderr $
             "WARNING: pandoc-crossref was compiled with pandoc " <> VERSION_pandoc <>
             " but is being run through " <> runv <> ". This is not supported. " <>
             "Strange things may (and likely will) happen silently."
-        _ -> hPutStr stderr $ unlines
+        Nothing -> hPutStr stderr $ unlines
           [ "WARNING: Running pandoc-crossref in \"pipe mode\" implicitly is deprecated. Please use"
           , "\tpandoc-crossref --pipe [FORMAT]"
           , "instead."
