@@ -11,8 +11,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Copy build config
+    - name: Copy build config from image
       run: |
+        cp -vr /root/.cabal /root/.ghc "$HOME"
         cp /root/cabal.project.local ./
     - name: Install dependencies
       run: |
