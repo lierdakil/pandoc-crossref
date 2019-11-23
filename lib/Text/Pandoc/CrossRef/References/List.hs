@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.References.List (listOf) where
 
 import Text.Pandoc.Definition
@@ -25,6 +26,7 @@ import Data.Accessor.Monad.Trans.State
 import Control.Arrow
 import Data.List
 import qualified Data.Map as M
+import qualified Data.Text as T
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
@@ -43,7 +45,7 @@ listOf opts (RawBlock fmt "\\listoflistings":xs)
   = get lstRefs >>= makeList opts lolTitle xs
 listOf _ x = return x
 
-makeList :: Options -> (Options -> [Block]) -> [Block] -> M.Map String RefRec -> WS [Block]
+makeList :: Options -> (Options -> [Block]) -> [Block] -> M.Map T.Text RefRec -> WS [Block]
 makeList opts titlef xs refs
   = return $
       titlef opts ++

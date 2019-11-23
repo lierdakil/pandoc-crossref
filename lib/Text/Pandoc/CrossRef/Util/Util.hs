@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RankNTypes, OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Util
   ( module Text.Pandoc.CrossRef.Util.Util
   , module Data.Generics
@@ -29,7 +29,6 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Class
 import Data.Char (toUpper, toLower, isUpper)
-import Data.List (isSuffixOf, isPrefixOf, stripPrefix)
 import Data.Maybe (fromMaybe)
 import Data.Generics
 import Text.Pandoc.Writers.LaTeX
@@ -38,30 +37,35 @@ import Data.Monoid ((<>))
 import qualified Data.Text as T
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
-intercalate' s = foldr (\x acc -> if acc == mempty then x else x <> s <> acc) mempty
+intercalate' s xs
+  | null xs = mempty
+  | otherwise = foldr1 (\x acc -> x <> s <> acc) xs
 
-isFormat :: String -> Maybe Format -> Bool
-isFormat fmt (Just (Format f)) = takeWhile (`notElem` "+-") f == fmt
+isFormat :: T.Text -> Maybe Format -> Bool
+isFormat fmt (Just (Format f)) = T.takeWhile (`notElem` ("+-" :: String)) f == fmt
 isFormat _ Nothing = False
 
 isLatexFormat :: Maybe Format -> Bool
 isLatexFormat = isFormat "latex" `or'` isFormat "beamer"
   where a `or'` b = (||) <$> a <*> b
 
-capitalizeFirst :: String -> String
-capitalizeFirst (x:xs) = toUpper x : xs
-capitalizeFirst [] = []
+capitalizeFirst :: T.Text -> T.Text
+capitalizeFirst t
+  | Just (x, xs) <- T.uncons t = toUpper x `T.cons` xs
+  | otherwise = T.empty
 
-uncapitalizeFirst :: String -> String
-uncapitalizeFirst (x:xs) = toLower x : xs
-uncapitalizeFirst [] = []
+uncapitalizeFirst :: T.Text -> T.Text
+uncapitalizeFirst t
+  | Just (x, xs) <- T.uncons t = toLower x `T.cons` xs
+  | otherwise = T.empty
 
-isFirstUpper :: String -> Bool
-isFirstUpper (x:_) = isUpper x
-isFirstUpper [] = False
+isFirstUpper :: T.Text -> Bool
+isFirstUpper xs
+  | Just (x, _) <- T.uncons xs  = isUpper x
+  | otherwise = False
 
 chapPrefix :: [Inline] -> Index -> [Inline]
-chapPrefix delim index = toList $ intercalate' (fromList delim) (map (str . uncurry (fromMaybe . show)) index)
+chapPrefix delim index = toList $ intercalate' (fromList delim) (map (str . uncurry (fromMaybe . T.pack . show)) index)
 
 data ReplacedResult a = Replaced Bool a | NotReplaced Bool
 type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))
@@ -102,25 +106,25 @@ noReplaceRecurse = noReplace True
 noReplaceNoRecurse :: Monad m => m (ReplacedResult a)
 noReplaceNoRecurse = noReplace False
 
-mkLaTeXLabel :: String -> String
+mkLaTeXLabel :: T.Text -> T.Text
 mkLaTeXLabel l
- | null l = []
- | otherwise = "\\label{" ++ mkLaTeXLabel' l ++ "}"
+ | T.null l = ""
+ | otherwise = "\\label{" <> mkLaTeXLabel' l <> "}"
 
-mkLaTeXLabel' :: String -> String
+mkLaTeXLabel' :: T.Text -> T.Text
 mkLaTeXLabel' l =
-  let ll = either (error . show) T.unpack $
+  let ll = either (error . show) id $
             runPure (writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []])
-  in takeWhile (/='}') . drop 1 . dropWhile (/='{') $ ll
+  in T.takeWhile (/='}') . T.drop 1 . T.dropWhile (/='{') $ ll
 
-getRefLabel :: String -> [Inline] -> Maybe String
+getRefLabel :: T.Text -> [Inline] -> Maybe T.Text
 getRefLabel _ [] = Nothing
 getRefLabel tag ils
   | Str attr <- last ils
   , all (==Space) (init ils)
-  , "}" `isSuffixOf` attr
-  , ("{#"++tag++":") `isPrefixOf` attr
-  = init `fmap` stripPrefix "{#" attr
+  , "}" `T.isSuffixOf` attr
+  , ("{#"<>tag<>":") `T.isPrefixOf` attr
+  = T.init `fmap` T.stripPrefix "{#" attr
 getRefLabel _ _ = Nothing
 
 isSpace :: Inline -> Bool

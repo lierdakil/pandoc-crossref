@@ -26,15 +26,16 @@ import Text.Pandoc.Definition
 import Control.Monad.State
 import Data.Default
 import Data.Accessor.Template
+import Data.Text (Text)
 
-type Index = [(Int, Maybe String)]
+type Index = [(Int, Maybe Text)]
 
 data RefRec = RefRec { refIndex :: Index
                      , refTitle :: [Inline]
                      , refSubfigure :: Maybe Index
                      } deriving (Show, Eq)
 
-type RefMap = M.Map String RefRec
+type RefMap = M.Map Text RefRec
 
 -- state data type
 data References = References { imgRefs_ :: RefMap

@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Template
   ( Template
   , makeTemplate
@@ -32,8 +33,9 @@ import qualified Data.Map as M hiding (toList, fromList, singleton)
 import Text.Pandoc.CrossRef.Util.Meta
 import Control.Applicative
 import Text.Read
+import qualified Data.Text as T
 
-type VarFunc = String -> Maybe MetaValue
+type VarFunc = T.Text -> Maybe MetaValue
 newtype Template = Template (VarFunc -> [Inline])
 
 makeTemplate :: Meta -> [Inline] -> Template
@@ -41,10 +43,11 @@ makeTemplate dtv xs' = Template $ \vf -> scan (\var -> vf var <|> lookupMeta var
   where
   scan = bottomUp . go
   go vf (x@(Math DisplayMath var):xs)
-    | '[' `elem` var  && ']' == last var =
-      let (vn, idxBr) = span (/='[') var
-          idxVar = drop 1 $ takeWhile (/=']') idxBr
-          idx = readMaybe . toString ("index variable " ++ idxVar) =<< vf idxVar
+    | (vn, idxBr) <- T.span (/='[') var
+    , not (T.null idxBr)
+    , T.last idxBr == ']'
+    = let idxVar = T.drop 1 $ T.takeWhile (/=']') idxBr
+          idx = readMaybe . T.unpack . toString ("index variable " <> idxVar) =<< vf idxVar
           arr = do
             i <- idx
             v <- lookupMeta vn dtv
@@ -53,9 +56,9 @@ makeTemplate dtv xs' = Template $ \vf -> scan (\var -> vf var <|> lookupMeta var
     | otherwise = toList $ fromList (replaceVar var (vf var) [x]) <> fromList xs
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
-  replaceVar var val def' = maybe def' (toInlines ("variable " ++ var)) val
+  replaceVar var val def' = maybe def' (toInlines ("variable " <> var)) val
 
-applyTemplate' :: M.Map String [Inline] -> Template -> [Inline]
+applyTemplate' :: M.Map T.Text [Inline] -> Template -> [Inline]
 applyTemplate' vars (Template g) = g internalVars
   where
   internalVars x | Just v <- M.lookup x vars = Just $ MetaInlines v

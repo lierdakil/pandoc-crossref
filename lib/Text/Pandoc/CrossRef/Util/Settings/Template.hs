@@ -30,6 +30,8 @@ import Language.Haskell.TH.Syntax hiding (Inline)
 import Data.List
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.CustomLabels (customLabel)
+import Data.Text (Text)
+import qualified Data.Text as T
 
 namedFields :: Con -> [VarStrictType]
 namedFields (RecC _ fs) = fs
@@ -77,13 +79,13 @@ makeCon' t accName = do
     boolT <- [t|$(conT t) -> Bool|]
     intT <- [t|$(conT t) -> Int|]
     tmplT <- [t|$(conT t) -> Template|]
-    clT <- [t|$(conT t) -> String -> Int -> Maybe String|]
+    clT <- [t|$(conT t) -> Text -> Int -> Maybe Text|]
     let varName | Name (OccName n) _ <- accName = liftString n
     let dtv = return $ VarE $ mkName "dtv"
     body <-
       if
       | t' == boolT -> [|getMetaBool $(varName) $(dtv)|]
-      | t' == intT -> [|read $ getMetaString $(varName) $(dtv)|]
+      | t' == intT -> [|read $ T.unpack $ getMetaString $(varName) $(dtv)|]
       | t' == funT -> [|tryCapitalizeM (flip (getMetaList (toInlines $(varName))) $(dtv)) $(varName)|]
       | t' == inlT -> [|getMetaInlines $(varName) $(dtv)|]
       | t' == blkT -> [|getMetaBlock $(varName) $(dtv)|]

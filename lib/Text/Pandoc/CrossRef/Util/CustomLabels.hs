@@ -18,21 +18,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.CustomLabels (customLabel) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Meta
-import Data.List
 import Text.Numeral.Roman
+import qualified Data.Text as T
 
-customLabel :: Meta -> String -> Int -> Maybe String
+customLabel :: Meta -> T.Text -> Int -> Maybe T.Text
 customLabel meta ref i
-  | refLabel <- takeWhile (/=':') ref
-  , Just cl <- lookupMeta (refLabel++"Labels") meta
-  = mkLabel i (refLabel++"Labels") cl
+  | refLabel <- T.takeWhile (/=':') ref
+  , Just cl <- lookupMeta (refLabel <> "Labels") meta
+  = mkLabel i (refLabel <> "Labels") cl
   | otherwise = Nothing
 
-mkLabel :: Int -> String -> MetaValue -> Maybe String
+mkLabel :: Int -> T.Text -> MetaValue -> Maybe T.Text
 mkLabel i n lt
   | MetaList _ <- lt
   , Just val <- toString n <$> getList (i-1) lt
@@ -41,6 +42,6 @@ mkLabel i n lt
   = Nothing
   | toString n lt == "roman"
   = Just $ toRoman i
-  | Just (startWith:_) <- stripPrefix "alpha " $ toString n lt
-  = Just [[startWith..] !! (i-1)]
+  | Just (startWith, _) <- T.uncons =<< T.stripPrefix "alpha " (toString n lt)
+  = Just . T.singleton $ [startWith..] !! (i-1)
   | otherwise = error $ "Unknown numeration type: " ++ show lt

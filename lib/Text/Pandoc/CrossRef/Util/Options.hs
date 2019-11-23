@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Options (Options(..)) where
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Template
+import Data.Text (Text)
 
 data Options = Options { cref :: Bool
                        , chaptersDepth   :: Int
@@ -57,7 +58,7 @@ data Options = Options { cref :: Bool
                        , ccsTemplate :: Template
                        , tableTemplate  :: Template
                        , listingTemplate :: Template
-                       , customLabel :: String -> Int -> Maybe String
+                       , customLabel :: Text -> Int -> Maybe Text
                        , ccsDelim :: [Inline]
                        , ccsLabelSep :: [Inline]
                        , tableEqns :: Bool

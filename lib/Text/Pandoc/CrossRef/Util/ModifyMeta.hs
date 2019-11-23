@@ -18,12 +18,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.ModifyMeta
     (
     modifyMeta
     ) where
 
-import Data.List (intercalate)
 import Text.Pandoc
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Options
@@ -42,9 +42,9 @@ modifyMeta opts meta
   where
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = incList
-    headerInc (Just (MetaList x)) = MetaList $ x ++ [incList]
+    headerInc (Just (MetaList x)) = MetaList $ x <> [incList]
     headerInc (Just x) = MetaList [x, incList]
-    incList = MetaBlocks $ return $ RawBlock (Format "latex") $ unlines $ execWriter $ do
+    incList = MetaBlocks $ return $ RawBlock (Format "latex") $ T.unlines $ execWriter $ do
         tell [ "\\makeatletter" ]
         tell subfig
         tell floatnames
@@ -65,30 +65,30 @@ modifyMeta opts meta
           ]
         floatnames = [
             "\\AtBeginDocument{%"
-          , "\\renewcommand*\\figurename{"++metaString "figureTitle"++"}"
-          , "\\renewcommand*\\tablename{"++metaString "tableTitle"++"}"
+          , "\\renewcommand*\\figurename{" <> metaString "figureTitle" <> "}"
+          , "\\renewcommand*\\tablename{" <> metaString "tableTitle" <> "}"
           , "}"
           ]
         listnames = [
             "\\AtBeginDocument{%"
-          , "\\renewcommand*\\listfigurename{"++metaString' "lofTitle"++"}"
-          , "\\renewcommand*\\listtablename{"++metaString' "lotTitle"++"}"
+          , "\\renewcommand*\\listfigurename{" <> metaString' "lofTitle" <> "}"
+          , "\\renewcommand*\\listtablename{" <> metaString' "lotTitle" <> "}"
           , "}"
           ]
         codelisting = [
             usepackage [] "float"
           , "\\floatstyle{ruled}"
           , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
-          , "\\floatname{codelisting}{"++metaString "listingTitle"++"}"
+          , "\\floatname{codelisting}{" <> metaString "listingTitle" <> "}"
           ]
         lolcommand
           | listings opts = [
               "\\newcommand*\\listoflistings\\lstlistoflistings"
             , "\\AtBeginDocument{%"
-            , "\\renewcommand*{\\lstlistlistingname}{"++metaString' "lolTitle"++"}"
+            , "\\renewcommand*{\\lstlistlistingname}{" <> metaString' "lolTitle" <> "}"
             , "}"
             ]
-          | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{"++metaString' "lolTitle"++"}}"]
+          | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{" <> metaString' "lolTitle" <> "}}"]
         cleveref = [ usepackage cleverefOpts "cleveref" ]
           <> crefname "figure" figPrefix
           <> crefname "table" tblPrefix
@@ -102,14 +102,14 @@ modifyMeta opts meta
         cleverefOpts | nameInLink opts = [ "nameinlink" ]
                      | otherwise = []
         crefname n f = [
-            "\\crefname{" ++ n ++ "}" ++ prefix f False
-          , "\\Crefname{" ++ n ++ "}" ++ prefix f True
+            "\\crefname{" <> n <> "}" <> prefix f False
+          , "\\Crefname{" <> n <> "}" <> prefix f True
           ]
-        usepackage [] p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage{"++p++"}}"
-        usepackage xs p = "\\@ifpackageloaded{"++p++"}{}{\\usepackage"++o++"{"++p++"}}"
-          where o = "[" ++ intercalate "," xs ++ "]"
-        toLatex = either (error . show) T.unpack . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
+        usepackage [] p = "\\@ifpackageloaded{" <> p <> "}{}{\\usepackage{" <> p <> "}}"
+        usepackage xs p = "\\@ifpackageloaded{" <> p <> "}{}{\\usepackage" <> o <> "{" <> p <> "}}"
+          where o = "[" <> T.intercalate "," xs <> "]"
+        toLatex = either (error . show) id . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
         metaString s = toLatex $ getMetaInlines s meta
         metaString' s = toLatex [Str $ getMetaString s meta]
-        prefix f uc = "{" ++ toLatex (f opts uc 0) ++ "}" ++
-                      "{" ++ toLatex (f opts uc 1) ++ "}"
+        prefix f uc = "{" <> toLatex (f opts uc 0) <> "}"  <>
+                      "{" <> toLatex (f opts uc 1) <> "}"

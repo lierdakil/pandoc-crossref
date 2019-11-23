@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2f4fe34cf2805278f96d96410f404e425f98f053031b5adcd73f25e2e16eb715
+-- hash: 687fe16beac2bf05405a0f58a865e76f50971758d90614f06a51116717839e64
 
 name:           pandoc-crossref
 version:        0.3.5.0
@@ -105,7 +105,7 @@ library
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
     , pandoc >=2.8 && <2.9
-    , pandoc-types >=1.17.5.1 && <1.18
+    , pandoc-types >=1.20 && <1.21
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -137,7 +137,7 @@ executable pandoc-crossref
     , optparse-applicative >=0.13 && <0.16
     , pandoc >=2.8 && <2.9
     , pandoc-crossref
-    , pandoc-types >=1.17.5.1 && <1.18
+    , pandoc-types >=1.20 && <1.21
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -165,7 +165,7 @@ test-suite test-integrative
     , mtl >=1.1 && <2.3
     , pandoc >=2.8 && <2.9
     , pandoc-crossref
-    , pandoc-types >=1.17.5.1 && <1.18
+    , pandoc-types >=1.20 && <1.21
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -213,7 +213,7 @@ test-suite test-pandoc-crossref
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
     , pandoc >=2.8 && <2.9
-    , pandoc-types >=1.17.5.1 && <1.18
+    , pandoc-types >=1.20 && <1.21
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0

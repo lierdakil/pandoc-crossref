@@ -19,7 +19,7 @@ data-files:
 dependencies:
 - base >=4.11 && <5
 - pandoc >=2.8 && < 2.9
-- pandoc-types >=1.17.5.1 && < 1.18
+- pandoc-types >=1.20 && < 1.21
 - mtl >=1.1 && <2.3
 - containers >=0.1 && <0.7
 - data-default >=0.4 && <0.8

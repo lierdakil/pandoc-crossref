@@ -37,23 +37,24 @@ import Text.Pandoc.Builder
 import Data.Default
 import Text.Pandoc.Walk
 import Text.Pandoc.Shared hiding (capitalize, toString)
+import qualified Data.Text as T
 
-getMetaList :: (Default a) => (MetaValue -> a) -> String -> Meta -> Int -> a
+getMetaList :: (Default a) => (MetaValue -> a) -> T.Text -> Meta -> Int -> a
 getMetaList f name meta i = maybe def f $ lookupMeta name meta >>= getList i
 
-getMetaBool :: String -> Meta -> Bool
+getMetaBool :: T.Text -> Meta -> Bool
 getMetaBool = getScalar toBool
 
-getMetaInlines :: String -> Meta -> [Inline]
+getMetaInlines :: T.Text -> Meta -> [Inline]
 getMetaInlines = getScalar toInlines
 
-getMetaBlock :: String -> Meta -> [Block]
+getMetaBlock :: T.Text -> Meta -> [Block]
 getMetaBlock = getScalar toBlocks
 
-getMetaString :: String -> Meta -> String
+getMetaString :: T.Text -> Meta -> T.Text
 getMetaString = getScalar toString
 
-getScalar :: Def b => (String -> MetaValue -> b) -> String -> Meta -> b
+getScalar :: Def b => (T.Text -> MetaValue -> b) -> T.Text -> Meta -> b
 getScalar conv name meta = maybe def' (conv name) $ lookupMeta name meta
 
 class Def a where
@@ -65,8 +66,11 @@ instance Def Bool where
 instance Def [a] where
   def' = []
 
-unexpectedError :: forall a. String -> String -> MetaValue -> a
-unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> n <> " but got " <> g x
+instance Def T.Text where
+  def' = T.empty
+
+unexpectedError :: forall a. String -> T.Text -> MetaValue -> a
+unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> T.unpack n <> " but got " <> g x
   where
     g (MetaBlocks _) = "blocks"
     g (MetaString _) = "string"
@@ -75,23 +79,23 @@ unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> n <
     g (MetaMap _) = "map"
     g (MetaList _) = "list"
 
-toInlines :: String -> MetaValue -> [Inline]
+toInlines :: T.Text -> MetaValue -> [Inline]
 toInlines _ (MetaBlocks s) = blocksToInlines s
 toInlines _ (MetaInlines s) = s
 toInlines _ (MetaString s) = toList $ text s
 toInlines n x = unexpectedError "inlines" n x
 
-toBool :: String -> MetaValue -> Bool
+toBool :: T.Text -> MetaValue -> Bool
 toBool _ (MetaBool b) = b
 toBool n x = unexpectedError "bool" n x
 
-toBlocks :: String -> MetaValue -> [Block]
+toBlocks :: T.Text -> MetaValue -> [Block]
 toBlocks _ (MetaBlocks bs) = bs
 toBlocks _ (MetaInlines ils) = [Plain ils]
 toBlocks _ (MetaString s) = toList $ plain $ text s
 toBlocks n x = unexpectedError "blocks" n x
 
-toString :: String -> MetaValue -> String
+toString :: T.Text -> MetaValue -> T.Text
 toString _ (MetaString s) = s
 toString _ (MetaBlocks b) = stringify b
 toString _ (MetaInlines i) = stringify i
@@ -106,7 +110,7 @@ getList i (MetaList l) = l !!? i
 getList _ x = Just x
 
 tryCapitalizeM :: (Functor m, Monad m, Walkable Inline a, Default a, Eq a) =>
-        (String -> m a) -> String -> Bool -> m a
+        (T.Text -> m a) -> T.Text -> Bool -> m a
 tryCapitalizeM f varname capitalize
   | capitalize = do
     res <- f (capitalizeFirst varname)

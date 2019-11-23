@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
 
 import Text.Pandoc
@@ -34,11 +35,11 @@ import qualified Data.Text as T
 
 getSettings :: Maybe Format -> Meta -> IO Meta
 getSettings fmt meta = do
-  dirConfig <- readConfig (getMetaString "crossrefYaml" (meta <> defaultMeta))
+  dirConfig <- readConfig (T.unpack $ getMetaString "crossrefYaml" (meta <> defaultMeta))
   home <- getHomeDirectory
   globalConfig <- readConfig (home </> ".pandoc-crossref" </> "config.yaml")
   formatConfig <- maybe (return nullMeta) (readFmtConfig home) fmt
-  return $ meta <> dirConfig <> formatConfig <> globalConfig <> defaultMeta
+  return $ defaultMeta <> globalConfig <> formatConfig <> dirConfig <> meta
   where
     readConfig path =
       handle handler $ do
@@ -51,7 +52,7 @@ getSettings fmt meta = do
     readFmtConfig home fmt' = readConfig (home </> ".pandoc-crossref" </> "config-" ++ fmtStr fmt' ++ ".yaml")
     handler :: IOException -> IO Meta
     handler _ = return nullMeta
-    fmtStr (Format fmtstr) = fmtstr
+    fmtStr (Format fmtstr) = T.unpack fmtstr
 
 
 defaultMeta :: Meta

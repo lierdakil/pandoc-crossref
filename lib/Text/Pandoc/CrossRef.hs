@@ -142,7 +142,7 @@ This is primary function to work with 'CrossRefM' -}
 runCrossRef :: forall a b. Meta -> Maybe Format -> (a -> CrossRefM b) -> a -> b
 runCrossRef meta fmt action arg = R.runReader (action arg) env
   where
-    settings = meta <> defaultMeta
+    settings = defaultMeta <> meta
     env = CrossRefEnv {
             creSettings = settings
           , creOptions = getOptions settings fmt
