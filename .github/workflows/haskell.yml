@@ -1,0 +1,21 @@
+name: Haskell CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    container:
+      image: lierdakil/pandoc-crossref-build:latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        cabal v2-update
+        cabal v2-install --only-dependencies --enable-tests
+    - name: Build
+      run: cabal v2-build
+    - name: Run tests
+      run: cabal v2-test
