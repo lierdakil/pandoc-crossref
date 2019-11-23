@@ -11,20 +11,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Explore environment
+    - name: Copy build config
       run: |
-        echo "$PWD"
-        echo "$GITHUB_WORKSPACE"
-        pwd
-        echo "$PATH"
-        ls "$GITHUB_WORKSPACE"
-        ls "$GITHUB_WORKSPACE"/*
-        ls "$PWD"
-        ls "/root"
+        cp /root/cabal.project.local ./
     - name: Install dependencies
       run: |
         cabal v2-update
-        cabal v2-install --only-dependencies --enable-tests
+        cabal v2-build --only-dependencies --enable-tests
     - name: Build
       run: cabal v2-build
     - name: Run tests
