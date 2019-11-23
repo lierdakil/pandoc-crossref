@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
     (
     mkCodeBlockCaptions
@@ -26,6 +27,7 @@ module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.Definition
 import Data.List (stripPrefix)
 import Text.Pandoc.CrossRef.Util.Options
+import qualified Data.Text as T
 
 mkCodeBlockCaptions :: Options -> [Block] -> [Block]
 mkCodeBlockCaptions opts (cb@(CodeBlock _ _):p@(Para _):xs)
@@ -40,16 +42,16 @@ orderAgnostic :: Options -> [Block] -> Maybe [Block]
 orderAgnostic opts (Para ils:CodeBlock (label,classes,attrs) code:xs)
   | codeBlockCaptions opts
   , Just caption <- getCodeBlockCaption ils
-  , not $ null label
+  , not $ T.null label
   , Just _ <- getRefPrefix opts label
   = return $ Div (label, [], [])
-      [CodeBlock ([],classes,attrs) code, Para $ Str ":":Space:caption] : xs
+      [CodeBlock ("",classes,attrs) code, Para $ Str ":":Space:caption] : xs
 orderAgnostic opts (Para ils:CodeBlock (_,classes,attrs) code:xs)
   | codeBlockCaptions opts
   , Just (caption, labinl) <- splitLast <$> getCodeBlockCaption ils
   , Just label <- getRefLabel opts labinl
   = return $ Div (label, [], [])
-      [CodeBlock ([],classes,attrs) code, Para $ Str ":":Space:init caption] : xs
+      [CodeBlock ("",classes,attrs) code, Para $ Str ":":Space:init caption] : xs
   where
     splitLast xs' = splitAt (length xs' - 1) xs'
 orderAgnostic _ _ = Nothing

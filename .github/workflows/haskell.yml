@@ -1,0 +1,33 @@
+name: Haskell CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    container:
+      image: lierdakil/pandoc-crossref-build:latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Copy build config from image
+      run: |
+        cp -r /root/.cabal "$HOME"
+        cp /root/cabal.project.local ./
+    - name: Install dependencies
+      run: |
+        cabal v2-update
+        cabal v2-build --only-dependencies --enable-tests
+    - name: Build
+      run: cabal v2-build
+    - name: Run tests
+      run: cabal v2-test
+    - name: Find artifact
+      run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+    - name: Package artifact
+      run:  xz pandoc-crossref
+    - uses: actions/upload-artifact@v1
+      with:
+        name: pandoc-crossref.xz
+        path: ./pandoc-crossref.xz

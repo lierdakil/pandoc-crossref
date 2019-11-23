@@ -18,12 +18,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.References.Subfigures where
 
 import Text.Pandoc.Definition
 import Data.List
 import Data.Maybe
 import Data.Monoid
+import qualified Data.Text as T
+import qualified Data.Text.Read as T
 
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
@@ -51,7 +54,7 @@ makeSubfigures opts (Div (label,cls,attrs) contents)
         isImageOrSpace x = isSpace x
         mkFigure (Image attr alt (src, tit))
           = Just $ Image attr alt (src,
-              if "fig:" `isPrefixOf` tit
+              if "fig:" `T.isPrefixOf` tit
               then tit
               else "fig:" <> tit
               )
@@ -81,10 +84,9 @@ toTable blks = [Table [] align widths [] $ map blkToRow blks]
         in if nz>0
            then map (\x -> if x == 0 then rzw else x) ws
            else ws
-    percToDouble :: String -> Double
+    percToDouble :: T.Text -> Double
     percToDouble percs
-      | '%' <- last percs
-      , perc <- read $ init percs
+      | Right (perc, "%") <- T.double percs
       = perc/100.0
       | otherwise = error "Only percent allowed in subfigure width!"
     blkToRow :: Block -> [[Block]]

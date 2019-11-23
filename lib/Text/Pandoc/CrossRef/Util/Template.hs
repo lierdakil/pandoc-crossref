@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE RecordWildCards, TypeFamilies #-}
+{-# LANGUAGE RecordWildCards, TypeFamilies, OverloadedStrings #-}
 
 module Text.Pandoc.CrossRef.Util.Template
   ( Template
@@ -42,14 +42,16 @@ import Data.Char (isAlphaNum, isUpper, toLower, isDigit)
 import Control.Monad ((<=<))
 import Data.Data (Data)
 import Text.ParserCombinators.ReadP
+import qualified Data.Text as T
+import qualified Data.Text.Read as T
 
-data PRVar = PRVar { prvName :: String
+data PRVar = PRVar { prvName :: T.Text
                    , prvIdx :: [IdxT]
                    } deriving Show
-data IdxT = IdxVar [PRVar] | IdxStr String | IdxNum String deriving Show
+data IdxT = IdxVar [PRVar] | IdxStr T.Text | IdxNum T.Text deriving Show
 data ParseRes = ParseRes { prVar :: [PRVar]
-                         , prPfx :: String
-                         , prSfx :: String
+                         , prPfx :: T.Text
+                         , prSfx :: T.Text
                          } deriving Show
 
 isVariableSym :: Char -> Bool
@@ -61,12 +63,12 @@ parse :: ReadP ParseRes
 parse = uncurry <$> (ParseRes <$> var) <*> option ("", "") ps <* eof
   where
     var = sepBy1 (PRVar <$> varName <*> many varIdx) (char '?')
-    varName = munch1 isVariableSym
+    varName = T.pack <$> munch1 isVariableSym
     varIdx = between (char '[') (char ']') (IdxVar <$> var <|> IdxStr <$> litStr <|> IdxNum <$> litNum)
-    litStr = between (char '"') (char '"') (many (satisfy (/='"')))
-    litNum = many (satisfy isDigit)
-    prefix = char '#' *> many (satisfy (/='%'))
-    suffix = char '%' *> many (satisfy (/='#'))
+    litStr = T.pack <$> between (char '"') (char '"') (many (satisfy (/='"')))
+    litNum = T.pack <$> many (satisfy isDigit)
+    prefix = T.pack <$> (char '#' *> many (satisfy (/='%')))
+    suffix = T.pack <$> (char '%' *> many (satisfy (/='#')))
     ps = (flip (,) <$> suffix <*> option "" prefix)
           +++ ((,) <$> prefix <*> option "" suffix)
 
@@ -82,12 +84,14 @@ instance MakeTemplate RefTemplate where
   type ElemT RefTemplate = Inlines
   makeTemplate xs' = RefTemplate $ \vars cap -> g (vf vars cap)
     where Template g = makeTemplate xs'
-          vf vars cap (vc:vs)
-            | isUpper vc && cap = capitalize vars var
-            | otherwise = vars var
-            where
-              var = toLower vc : vs
-          vf _ _ [] = error "Empty variable name"
+          vf :: VarFunc -> Bool -> VarFunc
+          vf vars cap vt
+            | Just (vc, vs) <- T.uncons vt
+            = let var = toLower vc `T.cons` vs
+              in if isUpper vc && cap
+              then capitalize vars var
+              else vars var
+            | otherwise = error "Empty variable name"
 
 genTemplate :: (Data a) => Many a -> VarFunc -> Many a
 genTemplate xs' vf = fromList $ scan vf $ toList xs'
@@ -96,19 +100,21 @@ scan :: (Data a) => VarFunc -> [a] -> [a]
 scan = bottomUp . go
   where
   go vf (Math DisplayMath var:xs)
-    | ParseRes{..} <- fst . head $ readP_to_S parse var
-    = let replaceVar = maybe mempty (modifier . toInlines ("variable " ++ var))
+    | ParseRes{..} <- fst . head $ readP_to_S parse $ T.unpack var
+    = let replaceVar = maybe mempty (modifier . toInlines ("variable " <> var))
           modifier = (<> text prSfx) . (text prPfx <>)
           tryVar PRVar{..} =
             case prvIdx of
               [] -> vf prvName
               idxVars ->
                 let
-                  idxs :: Maybe [String]
-                  idxs = mapM (Just . toString ("index variables " ++ show idxVars) <=< tryIdxs) idxVars
+                  idxs :: Maybe [T.Text]
+                  idxs = mapM (Just . toString ("index variables " <> T.pack (show idxVars)) <=< tryIdxs) idxVars
                   arr = foldr (\i a -> getObjOrList i =<< a) (vf prvName) . reverse =<< idxs
-                  getObjOrList :: String -> MetaValue -> Maybe MetaValue
-                  getObjOrList i x = getObj i x <|> (readMaybe i >>= flip getList x)
+                  getObjOrList :: T.Text -> MetaValue -> Maybe MetaValue
+                  getObjOrList i x = getObj i x <|> tryGetList
+                    where tryGetList | Right (ii, "") <- T.decimal i = getList ii x
+                                     | otherwise = Nothing
                 in arr
           tryIdxs (IdxVar vars) = tryVars vars
           tryIdxs (IdxStr s) = Just $ MetaString s

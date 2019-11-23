@@ -25,6 +25,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Meta
 import qualified Data.Map as M
+import qualified Data.Text as T
 import Language.Haskell.TH hiding (Inline)
 import Language.Haskell.TH.Syntax hiding (Inline)
 import Data.List
@@ -76,14 +77,14 @@ makeCon' t accName = do
     intT <- [t|$(conT t) -> Int|]
     pfxT <- [t|$(conT t) -> Prefixes|]
     strT <- [t|$(conT t) -> String|]
-    mstT <- [t|$(conT t) -> Maybe String|]
+    mstT <- [t|$(conT t) -> Maybe T.Text|]
     let varName | Name (OccName n) _ <- accName = liftString n
         dtv = return $ VarE $ mkName "dtv"
         fmt = return $ VarE $ mkName "fmt"
     body <-
       if
       | t' == boolT -> [|getMetaBool $(varName) $(dtv)|]
-      | t' == intT -> [|read $ getMetaString $(varName) $(dtv)|]
+      | t' == intT -> [|read . T.unpack $ getMetaString $(varName) $(dtv)|]
       | t' == inlT -> [|getMetaInlines $(varName) $(dtv)|]
       | t' == blkT -> [|getMetaBlock $(varName) $(dtv)|]
       | t' == fmtT -> fmt

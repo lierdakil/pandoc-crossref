@@ -18,13 +18,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, RecordWildCards #-}
+{-# LANGUAGE FlexibleContexts, OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Util where
 
 import Text.Pandoc.CrossRef.References.Types.Ref
 import Text.Pandoc.Definition
 import Text.Pandoc.Class
-import Text.Pandoc.Shared (Element(..))
 import Data.Char (toUpper, toLower, isUpper)
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
@@ -35,38 +34,43 @@ import qualified Data.Accessor.Basic as Accessor
 import qualified Control.Monad.State as State
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
-intercalate' s = foldr (\x acc -> if acc == mempty then x else x <> s <> acc) mempty
+intercalate' s xs
+  | null xs = mempty
+  | otherwise = foldr1 (\x acc -> x <> s <> acc) xs
 
-isFormat :: String -> Maybe Format -> Bool
-isFormat fmt (Just (Format f)) = takeWhile (`notElem` "+-") f == fmt
+isFormat :: T.Text -> Maybe Format -> Bool
+isFormat fmt (Just (Format f)) = T.takeWhile (`notElem` ("+-" :: String)) f == fmt
 isFormat _ Nothing = False
 
 isLatexFormat :: Maybe Format -> Bool
 isLatexFormat = isFormat "latex" `or'` isFormat "beamer"
   where a `or'` b = (||) <$> a <*> b
 
-capitalizeFirst :: String -> String
-capitalizeFirst (x:xs) = toUpper x : xs
-capitalizeFirst [] = []
+capitalizeFirst :: T.Text -> T.Text
+capitalizeFirst t
+  | Just (x, xs) <- T.uncons t = toUpper x `T.cons` xs
+  | otherwise = T.empty
 
-uncapitalizeFirst :: String -> String
-uncapitalizeFirst (x:xs) = toLower x : xs
-uncapitalizeFirst [] = []
+uncapitalizeFirst :: T.Text -> T.Text
+uncapitalizeFirst t
+  | Just (x, xs) <- T.uncons t = toLower x `T.cons` xs
+  | otherwise = T.empty
 
-isFirstUpper :: String -> Bool
-isFirstUpper (x:_) = isUpper x
-isFirstUpper [] = False
+isFirstUpper :: T.Text -> Bool
+isFirstUpper xs
+  | Just (x, _) <- T.uncons xs  = isUpper x
+  | otherwise = False
 
-mkLaTeXLabel :: String -> String
+mkLaTeXLabel :: T.Text -> T.Text
 mkLaTeXLabel l
- | null l = []
- | otherwise = "\\label{" ++ mkLaTeXLabel' l ++ "}"
+ | T.null l = ""
+ | otherwise = "\\label{" <> mkLaTeXLabel' l <> "}"
 
-mkLaTeXLabel' :: String -> String
+mkLaTeXLabel' :: T.Text -> T.Text
 mkLaTeXLabel' l =
-  let ll = either (error . show) T.unpack $
+  let ll = either (error . show) id $
             runPure (writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []])
-  in takeWhile (/='}') . drop 1 . dropWhile (/='{') $ ll
+  in T.takeWhile (/='}') . T.drop 1 . T.dropWhile (/='{') $ ll
 
 isSpace :: Inline -> Bool
 isSpace = (||) <$> (==Space) <*> (==SoftBreak)
@@ -80,9 +84,11 @@ safeHead :: [a] -> Maybe a
 safeHead [] = Nothing
 safeHead x = Just $ head x
 
-unhierarchicalize :: [Element] -> [Block]
-unhierarchicalize (Sec l _n attr title body:xs) = Header l attr title : unhierarchicalize body ++ unhierarchicalize xs
-unhierarchicalize (Blk bs:xs) = bs : unhierarchicalize xs
+unhierarchicalize :: [Block] -> [Block]
+unhierarchicalize
+  (Div (dident, "section":dcls, dkvs) (Header level (hident,hcls,hkvs) ils : xs) : ys)
+  | T.null hident, null dkvs, null dcls = Header level (dident, hcls, hkvs) ils : unhierarchicalize xs <> unhierarchicalize ys
+unhierarchicalize (x:xs) = x : unhierarchicalize xs
 unhierarchicalize [] = []
 
 newScope :: RefRec -> Scope -> Scope

@@ -224,7 +224,7 @@ titles, it would be hard to navigate anyway.
 Pandoc doesn't properly support numbering sections in some output
 formats, and section reference labels (see below).
 
-You can let pandoc-crossref handle section numbering instedad. This is
+You can let pandoc-crossref handle section numbering instead. This is
 done via `numberSections` and `sectionsDepth` metadata options.
 
 `numberSections` controls if pandoc-crossref handles numbering sections,
@@ -576,13 +576,13 @@ reference capitailzation settings.
 
 See [Custom Numbering Schemes](#custom-numbering-schemes)
 
--   `figLabels`, default unset: custom numbering scheme for figures.
--   `subfigLabels`, default `alpha a`: custom numbering scheme for
+-   `figLabels`, default `arabic`: the numbering scheme for figures.
+-   `subfigLabels`, default `alpha a`: the numbering scheme for
     subfigures.
--   `eqnLabels`, default unset: custom numbering scheme for equations.
--   `tblLabels`, default unset: custom numbering scheme for tables.
--   `lstLabels`, default unset: custom numbering scheme for listings.
--   `secLabels`, default unset: custom numbering scheme for sections.
+-   `eqLabels`, default `arabic`: the numbering scheme for equations.
+-   `tblLabels`, default `arabic`: the numbering scheme for tables.
+-   `lstLabels`, default `arabic`: the numbering scheme for listings.
+-   `secLabels`, default `arabic`: the numbering scheme for sections.
 
 ### Item title templates
 

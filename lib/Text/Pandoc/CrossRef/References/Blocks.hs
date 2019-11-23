@@ -18,19 +18,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RecordWildCards, NamedFieldPuns, TupleSections #-}
+{-# LANGUAGE RecordWildCards, NamedFieldPuns, TupleSections, OverloadedStrings #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
 
 import Text.Pandoc.Definition
 import qualified Text.Pandoc.Builder as B
-import Text.Pandoc.Shared (stringify, hierarchicalize, Element(..))
+import Text.Pandoc.Shared (stringify, makeSections)
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import Data.Maybe
 import Data.Monoid
 import qualified Data.Map as M
+import qualified Data.Text as T
 
 import Text.Pandoc.CrossRef.References.Types as Types
 import Text.Pandoc.CrossRef.References.Subfigures
@@ -52,15 +53,16 @@ replaceAll bs =
   asks creOptions >>= \opts ->
   let run =
           fmap unhierarchicalize
-        . runReplace [] (mkRR (replaceElement opts) `extRR` replaceBlock opts `extRR` replaceInline opts)
-        . hierarchicalize
+        . runReplace [] (mkRR (replaceBlock opts) `extRR` replaceInline opts)
+        . makeSections False Nothing
         . everywhere (mkT $ makeSubfigures opts)
         . everywhere (mkT (divBlocks opts) `extT` spanInlines opts)
         . everywhere (mkT $ mkCodeBlockCaptions opts)
   in run bs
 
-replaceElement :: Options -> Scope -> Element -> WS (ReplacedResult Element)
-replaceElement opts scope (Sec n ns (label, cls, attrs) text' body)
+replaceBlock :: Options -> Scope -> Block -> WS (ReplacedResult Block)
+-- sections
+replaceBlock opts scope (Div (ident, "section":cls, attr) (Header lvl (hident, hcls, hattr) text' : body))
   | Just (pfx, label') <-
           fmap (, ExplicitLabel label) (getRefPrefix opts label)
       <|> (autoSectionLabels opts >>= \asl -> return $
@@ -68,17 +70,20 @@ replaceElement opts scope (Sec n ns (label, cls, attrs) text' body)
               then let l = asl <> ":" <> label in (asl, ExplicitLabel l)
               else (asl, AutoLabel)
           )
-  = let newlabel = fromMaybe label $ labelToMaybe label' in
-    if "unnumbered" `elem` cls
-    then replaceRecurse scope $ Sec n ns (newlabel, cls, attrs) text' body
+  = let newlabel = fromMaybe label $ labelToMaybe label'
+        (newident, newhident)
+          | T.null hident = (newlabel, hident)
+          | otherwise = (ident, newlabel)
+        result title = Div (newident, "section":cls, attr) (Header lvl (newhident, hcls, hattr) title : body)
+    in if "unnumbered" `elem` cls
+    then replaceRecurse scope $ result text'
     else do
       let ititle = B.fromList text'
-      rec' <- replaceAttr opts scope label' attrs ititle pfx
+      rec' <- replaceAttr opts scope label' hattr ititle pfx
       let title' = B.toList $ refCaption rec'
-      replaceRecurse (newScope rec' scope) $ Sec n ns (newlabel, cls, attrs) title' body
-replaceElement _ scope _ = noReplaceRecurse scope
-
-replaceBlock :: Options -> Scope -> Block -> WS (ReplacedResult Block)
+      replaceRecurse (newScope rec' scope) $ result title'
+  where label | T.null hident = ident
+              | otherwise = hident
 -- tables
 replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths header cells])
   | not $ null title
@@ -88,13 +93,13 @@ replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths he
     RefRec{..} <- replaceAttr opts scope (ExplicitLabel label) attrs ititle pfx
     replaceNoRecurse $ Div divOps [Table (B.toList refCaption) align widths header cells]
 -- code blocks
-replaceBlock opts scope (Div (label, [], divattrs) [CodeBlock ([],classes,cbattrs) code, Para (Str ":":Space:caption)])
+replaceBlock opts scope (Div (label, [], divattrs) [CodeBlock ("",classes,cbattrs) code, Para (Str ":":Space:caption)])
   | Just pfx <- getRefPrefix opts label
   = do
     ref <- replaceAttr opts scope (ExplicitLabel label) divattrs (B.fromList caption) pfx
     replaceNoRecurse $
       Div (label, "listing":classes, [])
-        $ placeCaption opts ref [CodeBlock ([], classes, cbattrs) code]
+        $ placeCaption opts ref [CodeBlock ("", classes, cbattrs) code]
 -- Generic div
 replaceBlock opts scope (Div ats@(label, _, attrs) content)
   | Just pfx <- getRefPrefix opts label
@@ -116,16 +121,16 @@ placeCaption opts RefRec{..} body
   | Below <- refCaptionPosition
   = body <> [mkCaption opts "Caption" refCaption]
 
-data ItemLabel = ExplicitLabel String | AutoLabel
+data ItemLabel = ExplicitLabel T.Text | AutoLabel
 
-labelToMaybe :: ItemLabel -> Maybe String
+labelToMaybe :: ItemLabel -> Maybe T.Text
 labelToMaybe (ExplicitLabel s) = Just s
 labelToMaybe AutoLabel = Nothing
 
-autoLabel :: String -> String -> Maybe ItemLabel
+autoLabel :: T.Text -> T.Text -> Maybe ItemLabel
 autoLabel pfx label
-  | null label = Just AutoLabel
-  | (pfx <> ":") `isPrefixOf` label = Just $ ExplicitLabel label
+  | T.null label = Just AutoLabel
+  | (pfx <> ":") `T.isPrefixOf` label = Just $ ExplicitLabel label
   | otherwise = Nothing
 
 replaceInline :: Options -> Scope -> Inline -> WS (ReplacedResult Inline)
@@ -138,7 +143,7 @@ replaceInline opts scope (Span ats@(label,_,attrs) [Math DisplayMath eq])
 replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
   | Just pfx <- getRefPrefix opts label <|> autoFigLabels opts
   , Just lbl <- autoLabel pfx label
-  , "fig:" `isPrefixOf` tit
+  , "fig:" `T.isPrefixOf` tit
   = do
     RefRec{..} <- replaceAttr opts scope lbl attrs (B.fromList alt) pfx
     replaceNoRecurse $ Image attr (B.toList refCaption) img
@@ -189,7 +194,7 @@ divBlocks opts (CodeBlock (label, classes, attrs) code)
   | Just caption <- lookup "caption" attrs
   , isJust $ getRefPrefix opts label
   = let p   = Para $ Str ":" : Space : B.toList (B.text caption)
-        cb' = CodeBlock ([], classes, delete ("caption", caption) attrs) code
+        cb' = CodeBlock ("", classes, delete ("caption", caption) attrs) code
     in Div (label, [], []) [cb', p]
 divBlocks _ x = x
 
@@ -202,7 +207,7 @@ spanInlines opts (math@(Math DisplayMath _eq):ils)
   = Span nullAttr [math]:ils
 spanInlines _ x = x
 
-replaceAttr :: Options -> Scope -> ItemLabel -> [(String, String)] -> B.Inlines -> String -> WS RefRec
+replaceAttr :: Options -> Scope -> ItemLabel -> [(T.Text, T.Text)] -> B.Inlines -> T.Text -> WS RefRec
 replaceAttr o scope label attrs title pfx
   = do
     roptMain <- liftEither $ getPfx o pfx
@@ -227,7 +232,7 @@ replaceAttr o scope label attrs title pfx
         label' =
           case label of
             ExplicitLabel l -> l
-            AutoLabel -> pfx <> (':':'\0':show i)
+            AutoLabel -> pfx <> T.pack (':':'\0':show i)
         iInSc = fromJust $ M.lookup itemScope $ crIndexInScope cr
         i = crIndex cr
         customLabel = maybe (prefixNumbering ropt)
@@ -252,7 +257,7 @@ replaceAttr o scope label attrs title pfx
     modify referenceData $ M.insert label' rec'
     return rec'
 
-mkCaption :: Options -> String -> B.Inlines -> Block
+mkCaption :: Options -> T.Text -> B.Inlines -> Block
 mkCaption opts style
-  | outFormat opts == Just (Format "docx") = Div ([], [], [("custom-style", style)]) . B.toList . B.para
+  | outFormat opts == Just (Format "docx") = Div ("", [], [("custom-style", style)]) . B.toList . B.para
   | otherwise = Para . B.toList

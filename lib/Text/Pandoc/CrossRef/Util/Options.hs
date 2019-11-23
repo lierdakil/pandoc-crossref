@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Options (
     module Text.Pandoc.CrossRef.Util.Options
   , module Text.Pandoc.CrossRef.Util.Options.Types
@@ -30,46 +31,45 @@ import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Prefixes
 import qualified Data.Map as M
 import Text.Pandoc.Builder
-import Data.List
-import Data.List.Extra
+import qualified Data.Text as T
 
-prefixList :: Options -> [String]
+prefixList :: Options -> [T.Text]
 prefixList = M.keys . prefixes
 
-pfxCaptionTemplate :: Options -> String -> PureErr Template
+pfxCaptionTemplate :: Options -> T.Text -> PureErr Template
 pfxCaptionTemplate opts pfx = prefixCaptionTemplate <$> getPfx opts pfx
 
-pfxListItemTemplate :: Options -> String -> PureErr Template
+pfxListItemTemplate :: Options -> T.Text -> PureErr Template
 pfxListItemTemplate opts pfx = prefixListItemTemplate <$> getPfx opts pfx
 
-pfxCaptionIndexTemplate :: Options -> String -> PureErr Template
+pfxCaptionIndexTemplate :: Options -> T.Text -> PureErr Template
 pfxCaptionIndexTemplate opts pfx = prefixCaptionIndexTemplate <$> getPfx opts pfx
 
-getPfx :: Options -> String -> PureErr Prefix
+getPfx :: Options -> T.Text -> PureErr Prefix
 getPfx o pn = maybe defaultPfx return $ M.lookup pn $ prefixes o
   where
     defaultPfx = Left $ WSENoSuchPrefix pn
 
-getRefPrefix :: Options -> String -> Maybe String
+getRefPrefix :: Options -> T.Text -> Maybe T.Text
 getRefPrefix opts label
-  | ':' `notElem` label = Nothing
-  | otherwise =
-    let pfx = takeWhile (/=':') label
-    in if pfx `elem` prefixList opts
-       then Just pfx
-       else Nothing
+  | (pfx, rest) <- T.span (/=':') label
+  , not $ T.null rest
+  = if pfx `elem` prefixList opts
+    then Just pfx
+    else Nothing
+  | otherwise = Nothing
 
-getRefLabel :: Options -> [Inline] -> Maybe String
+getRefLabel :: Options -> [Inline] -> Maybe T.Text
 getRefLabel _ [] = Nothing
 getRefLabel opts ils
   | Str attr <- last ils
   , all (==Space) (init ils)
-  , Just lbl <- stripPrefix "{#" attr >>= stripSuffix "}"
+  , Just lbl <- T.stripPrefix "{#" attr >>= T.stripSuffix "}"
   , Just _ <- getRefPrefix opts lbl
   = Just lbl
 getRefLabel _ _ = Nothing
 
-getTitleForListOf :: Options -> String -> PureErr Blocks
+getTitleForListOf :: Options -> T.Text -> PureErr Blocks
 getTitleForListOf opts pfxn = do
   pfx <- getPfx opts pfxn
   return $ applyBlockTemplate (prefixListOfTitle pfx) (prefixDef pfx)

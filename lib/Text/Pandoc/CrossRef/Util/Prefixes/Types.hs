@@ -23,10 +23,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Prefixes.Types where
 
 import qualified Data.Map as M
+import qualified Data.Text as T
 import Text.Pandoc.CrossRef.Util.Template.Types
 import Text.Pandoc.Builder
 
-type Prefixes = M.Map String Prefix
+type Prefixes = M.Map T.Text Prefix
 
 data CaptionPosition = Above | Below
 
@@ -39,11 +40,11 @@ data Prefix = Prefix {
   , prefixReferenceTemplate :: !RefTemplate
   , prefixListOfTitle :: !BlockTemplate
   , prefixCollectedCaptionDelim :: !Inlines
-  , prefixScope :: ![String]
-  , prefixNumbering :: !(Int -> String)
+  , prefixScope :: ![T.Text]
+  , prefixNumbering :: !(Int -> T.Text)
   , prefixSubcaptions :: !Bool
   , prefixSubcaptionsGrid :: !Bool
   , prefixCaptionPosition :: !CaptionPosition
   , prefixSub :: !(Maybe Prefix)
-  , prefixDef :: !(String -> Maybe MetaValue)
+  , prefixDef :: !(T.Text -> Maybe MetaValue)
 }

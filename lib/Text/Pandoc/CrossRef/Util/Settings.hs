@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Settings (readSettings, defaultMeta, Settings(..)) where
 
 import Text.Pandoc
@@ -41,11 +42,11 @@ readSettings fmt inMeta = do
           Meta m | Just (MetaMap cm) <- M.lookup "crossref" m
                 -> Settings (Meta cm)
           _ -> Settings inMeta
-  dirConfig <- readConfig (getMetaString "crossrefYaml" (meta <> defaultMeta meta))
+  dirConfig <- readConfig . T.unpack $ getMetaString "crossrefYaml" (meta <> defaultMeta meta)
   home <- getHomeDirectory
   globalConfig <- readConfig (home </> ".pandoc-crossref" </> "config.yaml")
   formatConfig <- maybe (return mempty) (readFmtConfig home) fmt
-  return $ meta <> dirConfig <> formatConfig <> globalConfig
+  return $ globalConfig <> formatConfig <> dirConfig <> meta
   where
     readConfig path =
       handle handler $ do
@@ -55,7 +56,7 @@ readSettings fmt inMeta = do
         Pandoc meta' _ <- readMd $ T.pack $ unlines ["---", yaml, "---"]
         return $ Settings meta'
     readMd = handleError . runPure . readMarkdown def{readerExtensions=pandocExtensions}
-    readFmtConfig home fmt' = readConfig (home </> ".pandoc-crossref" </> "config-" ++ fmtStr fmt' ++ ".yaml")
+    readFmtConfig home fmt' = readConfig (home </> ".pandoc-crossref" </> "config-" ++ T.unpack (fmtStr fmt') ++ ".yaml")
     handler :: IOException -> IO Settings
     handler _ = return mempty
     fmtStr (Format fmtstr) = fmtstr
@@ -71,17 +72,17 @@ defaultMeta userSettings
     name2set "chapters" = chaptersMeta
     name2set "subfigures" = subfiguresMeta
     name2set "numberSections" = numberSectionsMeta
-    name2set x = error $ "Unknown defaultOption value: " <> x
+    name2set x = error . T.unpack $ "Unknown defaultOption value: " <> x
 
 chaptersMeta :: Settings
 chaptersMeta = Settings $
      captionIndexTemplate (var "s.i%." <> var "ri")
-  <> customMeta [ "scope" .= "sec" ]
+  <> customMeta [ "scope" .= ("sec" :: T.Text) ]
   <> prefixes' [
       "sec" .: [
-        "title" .= "Chapter",
+        "title" .= ("Chapter" :: T.Text),
         "sub" .: [
-          "title" .= "Section",
+          "title" .= ("Section" :: T.Text),
           "referenceIndexTemplate" .= var "i" <> var "suf"
         ]
       ]
@@ -102,11 +103,11 @@ subfiguresMeta = Settings $
     "fig" .: [
       "subcaptions" .= True,
       "sub" .: [
-        "numbering" .= "alpha a",
+        "numbering" .= ("alpha a" :: T.Text),
         "referenceIndexTemplate" .= si,
         "listItemTemplate" .= (si <> var "listItemNumberDelim" <> var "t"),
         "captionTemplate" .= var "i",
-        "scope" .= ["fig"],
+        "scope" .= ["fig" :: T.Text],
         "captionIndexTemplate" .= var "ri"
       ]
     ]
@@ -117,14 +118,14 @@ basicMeta :: Settings
 basicMeta = Settings $
      codeBlockCaptions False
   <> adjustSectionIdentifiers False
-  <> autoSectionLabels "sec"
+  <> autoSectionLabels ("sec" :: T.Text)
   <> titleDelim (str ":" <> space)
   <> listItemNumberDelim (str "." <> space)
   <> rangeDelim (str "-")
   <> pairDelim (str "," <> space)
   <> lastDelim (str "," <> space)
   <> refDelim (str "," <> space)
-  <> crossrefYaml "pandoc-crossref.yaml"
+  <> crossrefYaml ("pandoc-crossref.yaml" :: T.Text)
   <> linkReferences False
   <> nameInLink False
   <> collectedCaptionDelim (str "," <> space)
@@ -137,7 +138,7 @@ basicMeta = Settings $
   <> collectedCaptionTemplate (var "i" <> var "collectedCaptionItemDelim" <> var "t")
   <> referenceIndexTemplate (var "i" <> var "suf")
   <> listOfTitle (header 1 $ text "List of " <> var "title" <> str "s")
-  <> numbering "arabic"
+  <> numbering ("arabic" :: T.Text)
   <> prefixes' [
       "eq" .: [
         "ref" .= map str ["eq.", "eqns."],
@@ -151,7 +152,7 @@ basicMeta = Settings $
       "lst" .: [
         "ref" .= map str ["lst.", "lsts."],
         "title" .= text "Listing",
-        "captionPosition" .= "above"
+        "captionPosition" .= ("above" :: T.Text)
       ],
       "tbl" .: [
         "ref" .= map str ["tbl.", "tbls."],
@@ -161,26 +162,26 @@ basicMeta = Settings $
         "ref" .= map str ["sec.", "secs."],
         "title" .= text "Section",
         "captionTemplate" .= var "t",
-        "scope" .= ["sec"],
+        "scope" .= ["sec" :: T.Text],
         "sub" .: [
           "referenceIndexTemplate" .= var "s.i%." <> var "i" <> var "suf"
         ]
       ]
     ]
 
-var :: String -> Inlines
+var :: T.Text -> Inlines
 var = displayMath
 
-prefixes' :: [(String, MetaValue)] -> Meta
+prefixes' :: [(T.Text, MetaValue)] -> Meta
 prefixes' = prefixes . MetaMap . M.fromList
 
-customMeta :: [(String, MetaValue)] -> Meta
+customMeta :: [(T.Text, MetaValue)] -> Meta
 customMeta = Meta . M.fromList
 
 infixr 0 .:
-(.:) :: String -> [(String, MetaValue)] -> (String, MetaValue)
+(.:) :: T.Text -> [(T.Text, MetaValue)] -> (T.Text, MetaValue)
 key .: val = (key, MetaMap $ M.fromList val)
 
 infixr 0 .=
-(.=) :: ToMetaValue a => String -> a -> (String, MetaValue)
+(.=) :: ToMetaValue a => T.Text -> a -> (T.Text, MetaValue)
 key .= val = (key, toMetaValue val)

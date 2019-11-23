@@ -1,3 +1,5 @@
+    - DOCKER_IMAGE_VERSION: b5789c3d3b0e6286d5b7d08d30981680043d0bc4
+    - PANDOC_VERSION: "2.8"
 language: c
 sudo: true
 osx_image: xcode10.2
@@ -9,16 +11,11 @@ cache:
 
 addons:
   homebrew:
-    packages:
-    - ghc
-    - cabal-install
-    - upx
+    brewfile: osx/Brewfile
 
 env:
   global:
     - RUN_UPX: yes
-    - DOCKER_IMAGE_VERSION: latest
-    - PANDOC_VERSION: 2.7.3
     - CABAL_OPTS="--constraint pandoc==$PANDOC_VERSION"
 
 services:

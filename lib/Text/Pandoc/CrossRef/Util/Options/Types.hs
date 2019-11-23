@@ -22,11 +22,12 @@ module Text.Pandoc.CrossRef.Util.Options.Types where
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Prefixes
 import Text.Pandoc.Builder
+import qualified Data.Text as T
 
 data Options = Options { codeBlockCaptions  :: Bool
-                       , autoSectionLabels :: Maybe String
-                       , autoEqnLabels :: Maybe String
-                       , autoFigLabels :: Maybe String
+                       , autoSectionLabels :: Maybe T.Text
+                       , autoEqnLabels :: Maybe T.Text
+                       , autoFigLabels :: Maybe T.Text
                        , adjustSectionIdentifiers :: Bool
                        , rangeDelim  :: Inlines
                        , pairDelim  :: Inlines

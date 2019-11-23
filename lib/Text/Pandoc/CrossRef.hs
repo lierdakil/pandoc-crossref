@@ -87,6 +87,8 @@ import Control.Monad.Except
 import Control.Monad.Writer as W
 import Control.Monad.Reader as R
 import Text.Pandoc as P
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 import Data.Monoid ((<>))
 import System.IO
 
@@ -128,7 +130,7 @@ defaultCrossRefAction (Pandoc meta bs) = do
 {- | Run an action in 'CrossRefM' monad with argument, and return pure result.
 
 This is primary function to work with 'CrossRefM' -}
-runCrossRef :: forall b. Settings -> Maybe Format -> CrossRef b -> (Either WSException b, [String])
+runCrossRef :: forall b. Settings -> Maybe Format -> CrossRef b -> (Either WSException b, [T.Text])
 runCrossRef metaset fmt = flip runReader env . runWriterT . runExceptT . unCrossRef
   where
     settings = metaset <> defaultMeta metaset
@@ -145,5 +147,5 @@ runCrossRefIO :: forall b. Meta -> Maybe Format -> CrossRef b -> IO b
 runCrossRefIO meta fmt action = do
   metaset <- readSettings fmt meta
   let (res, lg) = runCrossRef metaset fmt action
-  mapM_ (hPutStrLn stderr) lg
-  return $ either (error . pretty) id res
+  mapM_ (T.hPutStrLn stderr) lg
+  return $ either (error . T.unpack . pretty) id res

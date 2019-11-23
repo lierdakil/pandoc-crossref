@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, OverloadedStrings #-}
 module Text.Pandoc.CrossRef.References.Types.Monad (
     module Text.Pandoc.CrossRef.References.Types.Monad
   , module X
@@ -32,10 +32,11 @@ import Control.Monad.Reader as X
 import Control.Monad.Writer as X
 import Control.Monad.Except as X
 import qualified Control.Monad.Fail as Fail
+import qualified Data.Text as T
 
-data WSException = WSENoSuchPrefix String
-                 | WSEDuplicateLabel String
-                 | WSEFail String
+data WSException = WSENoSuchPrefix T.Text
+                 | WSEDuplicateLabel T.Text
+                 | WSEFail T.Text
                  deriving Show
 
 type PureErr a = Either WSException a
@@ -47,23 +48,23 @@ data CrossRefEnv = CrossRefEnv {
                    }
 
 -- | Essentially a reader monad for basic pandoc-crossref environment
-type CrossRefM = ExceptT WSException (WriterT [String] (Reader CrossRefEnv))
+type CrossRefM = ExceptT WSException (WriterT [T.Text] (Reader CrossRefEnv))
 
 newtype CrossRef a = CrossRef { unCrossRef :: CrossRefM a }
    deriving ( Functor, Applicative, Monad
            , MonadError WSException, MonadReader CrossRefEnv
-           , MonadWriter [String] )
+           , MonadWriter [T.Text] )
 --state monad
 newtype WS a = WS {
   unWS :: StateT References CrossRefM a
   } deriving ( Functor, Applicative, Monad, MonadState References
            , MonadError WSException, MonadReader CrossRefEnv
-           , MonadWriter [String] )
+           , MonadWriter [T.Text] )
 
 instance Fail.MonadFail WS where
-  fail s = throwError $ WSEFail s
+  fail s = throwError $ WSEFail $ T.pack s
 
-pretty :: WSException -> String
+pretty :: WSException -> T.Text
 pretty (WSENoSuchPrefix s) = "No such prefix: " <> s
 pretty (WSEDuplicateLabel s) = "Duplicate label: " <> s
 pretty (WSEFail s) = "Generic failure: " <> s

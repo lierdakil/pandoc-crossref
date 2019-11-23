@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns, OverloadedStrings #-}
 
 module Text.Pandoc.CrossRef.References.List (listOf) where
 
@@ -27,6 +27,7 @@ import Text.Pandoc.Builder
 import Data.List
 import Data.Function
 import qualified Data.Map as M
+import qualified Data.Text as T
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
@@ -38,15 +39,15 @@ import Text.Pandoc.CrossRef.Util.VarFunction
 listOf :: [Block] -> WS [Block]
 listOf (RawBlock fmt cmd:xs)
   | isLaTeXRawBlockFmt fmt
-  , Just pfxBrace <- "\\listof{" `stripPrefix` cmd
-  , (pfx, "}") <- span (/='}') pfxBrace
+  , Just pfxBrace <- "\\listof{" `T.stripPrefix` cmd
+  , (pfx, "}") <- T.span (/='}') pfxBrace
   = getPfxData pfx >>= fmap toList . makeList pfx (fromList xs)
 listOf x = return x
 
-getPfxData :: String -> WS RefMap
-getPfxData pfx = M.filterWithKey (\k _ -> (pfx <> ":") `isPrefixOf` k) <$> get referenceData
+getPfxData :: T.Text -> WS RefMap
+getPfxData pfx = M.filterWithKey (\k _ -> (pfx <> ":") `T.isPrefixOf` k) <$> get referenceData
 
-makeList :: String -> Blocks -> M.Map String RefRec -> WS Blocks
+makeList :: T.Text -> Blocks -> M.Map T.Text RefRec -> WS Blocks
 makeList titlef xs refs
   = do
     opts <- asks creOptions

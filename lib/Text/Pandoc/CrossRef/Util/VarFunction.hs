@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards, OverloadedStrings #-}
 
 module Text.Pandoc.CrossRef.Util.VarFunction where
 
@@ -26,23 +26,23 @@ import Control.Applicative
 import Text.Pandoc.Definition
 import qualified Text.Pandoc.Builder as B
 
-import Data.List
+import qualified Data.Text as T
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Prefixes.Types
 
-defaultVarFunc :: (RefRec -> String -> Maybe MetaValue)
-               -> RefRec -> String -> Maybe MetaValue
+defaultVarFunc :: (RefRec -> T.Text -> Maybe MetaValue)
+               -> RefRec -> T.Text -> Maybe MetaValue
 defaultVarFunc self RefRec{..} x = case x of
-   "idx" -> Just $ MetaString $ show refIndex
+   "idx" -> Just $ MetaString $ T.pack $ show refIndex
    "ri" -> Just $ MetaInlines $ B.toList refIxInlRaw
    "i" -> Just $ MetaInlines $ B.toList refIxInl
    "t" -> Just $ MetaInlines $ B.toList refTitle
-   "lvl" -> Just $ MetaString $ show refLevel
+   "lvl" -> Just $ MetaString $ T.pack $ show refLevel
    "lbl" -> Just $ MetaString refLabel
    "pfx" -> Just $ MetaString refPfx
-   _ | Just y <- stripPrefix "s." x
+   _ | Just y <- T.stripPrefix "s." x
      , Just rs <- refScope
      -> self rs y
-   _ | Just y <- stripPrefix "def." x
+   _ | Just y <- T.stripPrefix "def." x
      -> prefixDef refPfxRec y
    _ -> refAttrs x <|> prefixDef refPfxRec x

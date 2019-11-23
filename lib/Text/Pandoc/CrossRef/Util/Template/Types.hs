@@ -24,8 +24,9 @@ module Text.Pandoc.CrossRef.Util.Template.Types where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
+import qualified Data.Text as T
 
-type VarFunc = String -> Maybe MetaValue
+type VarFunc = T.Text -> Maybe MetaValue
 newtype Template = Template { applyTemplate :: VarFunc -> Inlines }
 newtype RefTemplate = RefTemplate { applyRefTemplate :: VarFunc -> Bool -> Inlines }
 newtype BlockTemplate = BlockTemplate { applyBlockTemplate :: VarFunc -> Blocks }

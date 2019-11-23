@@ -18,13 +18,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE TemplateHaskellQuotes #-}
+{-# LANGUAGE TemplateHaskellQuotes, OverloadedStrings #-}
 module ManData where
 
 import Language.Haskell.TH.Syntax
 import qualified Data.Text as T
 import System.IO
 import qualified Text.Pandoc as P
+import qualified Text.Pandoc.Templates as PT
 import Control.DeepSeq
 import Data.String
 import Text.Pandoc.Highlighting (pygments)
@@ -58,9 +59,11 @@ embedManualText = embedManual $ P.writePlain P.def
 
 embedManualHtml :: Q Exp
 embedManualHtml = do
-  t <- runIO $ fmap (either (error . show) id) $ P.runIO $ P.getDefaultTemplate "html5"
+  tt <- fmap (either (error . show) id) . runIO . P.runIO
+          $   P.getDefaultTemplate "html5"
+          >>= fmap (either (error . show) id) . PT.compileTemplate ""
   embedManual $ P.writeHtml5String P.def{
-    P.writerTemplate = Just t
+    P.writerTemplate = Just tt
   , P.writerHighlightStyle = Just pygments
   }
 

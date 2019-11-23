@@ -18,7 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RecordWildCards, NamedFieldPuns, FlexibleInstances, FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards, NamedFieldPuns, FlexibleInstances,
+  FlexibleContexts, OverloadedStrings #-}
 
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
@@ -27,6 +28,7 @@ import Text.Pandoc.Builder
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import qualified Data.List.HT as HT
+import qualified Data.Text as T
 import Data.Maybe
 import Data.Function
 import qualified Data.Map as M
@@ -68,7 +70,7 @@ replaceRefs ils
           where
             cits' = mapM getCit refs
             getCit RefDataIncomplete{rdCitation, rdiLabel}
-              | takeWhile (/=':') rdiLabel `elem` M.keys (prefixes opts)
+              | T.takeWhile (/=':') rdiLabel `elem` M.keys (prefixes opts)
               = tell ["Undefined cross-reference: " <> rdiLabel] >> return rdCitation
               | otherwise = return rdCitation
             il' = do
@@ -77,7 +79,7 @@ replaceRefs ils
                <> intercalate' (text "; ") i
                <> str "]"
             citationToInlines c =
-              fromList (citationPrefix c) <> text ("@" ++ citationId c)
+              fromList (citationPrefix c) <> text ("@" <> citationId c)
                 <> fromList (citationSuffix c)
     citRefData <- groupEither <$> mapM getRefData cits
     toList . (<> fromList xs) . intrclt <$> mapM replaceRefs' citRefData
@@ -88,7 +90,7 @@ getRefPrefix capitalize num rr@RefRec{..} cit =
   applyRefTemplate reftempl vf capitalize
   where Prefix{prefixReferenceTemplate=reftempl} = refPfxRec
         vf "rs" = Just $ MetaInlines $ toList cit
-        vf "n" = Just $ MetaString $ show num
+        vf "n" = Just $ MetaString $ T.pack $ show num
         vf x = fix defaultVarFunc rr x
 
 replaceRefsOther :: Options -> NonEmpty RefDataComplete -> WS Inlines
@@ -114,7 +116,7 @@ writePrefix (RefDataComplete{..}:|rds)
   | otherwise = ((fromJust rdCitPrefix <> space) <>)
 
 data RefDataIncomplete = RefDataIncomplete
-                       { rdiLabel :: String
+                       { rdiLabel :: T.Text
                        , rdiSuffix :: Inlines
                        , rdCitation :: Citation
                        }
@@ -134,7 +136,7 @@ rdIdx RefDataComplete{rdRec} = refIndex rdRec
 rdScope :: RefDataComplete -> Maybe RefRec
 rdScope RefDataComplete{rdRec} = refScope rdRec
 
-rdPrefix :: RefDataComplete -> String
+rdPrefix :: RefDataComplete -> T.Text
 rdPrefix RefDataComplete{rdRec} = refPfx rdRec
 
 rdLevel :: RefDataComplete -> Int
@@ -197,7 +199,7 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub $ NE.toList s
   show'' (RefRange x y) = show' x <> rangeDelim o <> show' y
   show' :: RefDataComplete -> Inlines
   show' RefDataComplete{..}
-    | linkReferences o = link ('#':refLabel rdRec) "" txt
+    | linkReferences o = link ('#' `T.cons` refLabel rdRec) "" txt
     | otherwise = txt
     where txt = applyIndexTemplate rdcSuffix rdRec
 

@@ -22,11 +22,12 @@ module Text.Pandoc.CrossRef.Util.Settings.Types where
 
 import Text.Pandoc.Definition
 import qualified Data.Map as M
+import qualified Data.Text as T
 
 newtype Settings = Settings { unSettings :: Meta } deriving (Eq, Ord, Show)
 newtype MetaSetting = MetaSetting MetaValue deriving (Eq, Ord, Show)
 
-lookupSettings :: String -> Settings -> Maybe MetaValue
+lookupSettings :: T.Text -> Settings -> Maybe MetaValue
 lookupSettings k (Settings s) = lookupMeta k s
 
 instance Semigroup Settings where

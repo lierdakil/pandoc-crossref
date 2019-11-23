@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards, OverloadedStrings #-}
 
 module Text.Pandoc.CrossRef.Util.ModifyMeta
     (
@@ -31,6 +31,7 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Util
+import qualified Data.Text as T
 
 modifyMeta :: Meta -> CrossRef Meta
 modifyMeta meta = do
@@ -39,9 +40,9 @@ modifyMeta meta = do
   let
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = incList
-    headerInc (Just (MetaList x)) = MetaList $ x ++ [incList]
+    headerInc (Just (MetaList x)) = MetaList $ x <> [incList]
     headerInc (Just x) = MetaList [x, incList]
-    incList = MetaBlocks $ return $ RawBlock (Format "latex") $ unlines $ execWriter $ do
+    incList = MetaBlocks $ return $ RawBlock (Format "latex") $ T.unlines $ execWriter $ do
         tell [ "\\makeatletter" ]
         tell [ "\\@ifpackageloaded{caption}{\\captionsetup{labelformat=empty}}{\\usepackage[labelformat=empty]{caption}}" ]
         tell [ "\\newenvironment{pandoccrossrefsubcaption}{\\renewcommand{\\toprule}{}\\renewcommand{\\bottomrule}{}}{}" ]

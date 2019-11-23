@@ -18,7 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE ApplicativeDo, TemplateHaskell, CPP, OverloadedStrings #-}
+{-# LANGUAGE ApplicativeDo, TemplateHaskell, CPP, OverloadedStrings,
+  LambdaCase #-}
 import Text.Pandoc
 import Text.Pandoc.JSON
 
@@ -26,6 +27,7 @@ import Text.Pandoc.CrossRef
 import Options.Applicative
 import qualified Options.Applicative as O
 import Control.Monad
+import System.Environment as Env
 import Web.Browser
 import System.IO.Temp
 import System.IO hiding (putStrLn)
@@ -41,7 +43,7 @@ man, manHtml :: T.Text
 man = T.pack $(embedManualText)
 manHtml = T.pack $(embedManualHtml)
 
-data Flag = NumericVersion | Version | Man | HtmlMan
+data Flag = NumericVersion | Version | Man | HtmlMan | Pipe
 
 run :: Parser (IO ())
 run = do
@@ -49,8 +51,9 @@ run = do
   vers <- flag Nothing (Just Version) (long "version" <> short 'v' <> help "Print version")
   man' <- flag Nothing (Just Man) (long "man" <> help "Show manpage")
   hman <- flag Nothing (Just HtmlMan) (long "man-html" <> help "Show html manpage")
+  pipe <- flag Nothing (Just Pipe) (short 'p' <> long "pipe" <> help "Run in \"pipe mode\", i.e. read pandoc JSON from stdin and output it to stdout")
   fmt <- optional $ strArgument (metavar "FORMAT")
-  return $ go (numVers <|> vers <|> man' <|> hman) fmt
+  return $ go (numVers <|> vers <|> man' <|> hman <|> pipe) fmt
   where
     go :: Maybe Flag -> Maybe String -> IO ()
     go (Just Version) _ = T.putStrLn $
@@ -69,9 +72,27 @@ run = do
       void $ openBrowser $ "file:///" <> fp
       threadDelay 5000000
       return ()
-    go Nothing _ = toJSONFilter f
-    f fmt p@(Pandoc meta _) =
-      runCrossRefIO meta fmt $ defaultCrossRefAction p
+    go (Just Pipe) _ = toJSONFilter f
+    go Nothing Nothing = hPutStr stderr $ unlines
+      [ "Running pandoc-crossref without arguments is not supported. Try"
+      , "\tpandoc-crossref --help"
+      , "If you want to run in \"pipe mode\", run with"
+      , "\tpandoc-crossref --pipe [FORMAT]"
+      ]
+    go Nothing _ = do
+      Env.lookupEnv "PANDOC_VERSION" >>= \case
+        Just runv ->
+          when (VERSION_pandoc /= runv) $ hPutStrLn stderr $
+            "WARNING: pandoc-crossref was compiled with pandoc " <> VERSION_pandoc <>
+            " but is being run through " <> runv <> ". This is not supported. " <>
+            "Strange things may (and likely will) happen silently."
+        Nothing -> hPutStr stderr $ unlines
+          [ "WARNING: Running pandoc-crossref in \"pipe mode\" implicitly is deprecated. Please use"
+          , "\tpandoc-crossref --pipe [FORMAT]"
+          , "instead."
+          ]
+      toJSONFilter f
+    f fmt p@(Pandoc meta _) = runCrossRefIO meta fmt $ defaultCrossRefAction p
 
 main :: IO ()
 main = join $ execParser opts

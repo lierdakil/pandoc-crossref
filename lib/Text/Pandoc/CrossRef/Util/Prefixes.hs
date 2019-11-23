@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Prefixes (
     getPrefixes
   , module Types
@@ -31,11 +32,13 @@ import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.CustomLabels
 import qualified Data.Map as M
 import Data.Maybe
+import qualified Data.Text as T
 
-getPrefixes :: Maybe Format -> String -> Settings -> Prefixes
+getPrefixes :: Maybe Format -> T.Text -> Settings -> Prefixes
 getPrefixes fmt varN dtv
   | Just (MetaMap m) <- lookupSettings varN dtv =
     let
+      m2p :: T.Text -> MetaValue -> Prefix
       m2p k (MetaMap kv') = Prefix {
           prefixCaptionTemplate = makeTemplate $ getTemplInline "captionTemplate"
         , prefixReferenceTemplate = makeTemplate $ getTemplInline "referenceTemplate"
@@ -76,8 +79,8 @@ getPrefixes fmt varN dtv
                 if isJust $ lookupSettings n kv
                 then f n kv
                 else reportError n "Template"
-              reportError n what = error $ what <> " meta variable " <> n <> " not set for "
+              reportError n what = error . T.unpack $ what <> " meta variable " <> n <> " not set for "
                                 <> varN <> "." <> k <> ". This should not happen. Please report a bug"
-      m2p k _ = error $ "Invalid value for prefix " <> k
+      m2p k _ = error . T.unpack $ "Invalid value for prefix " <> k
     in M.mapWithKey m2p m
   | otherwise = error "Prefixes not defined"

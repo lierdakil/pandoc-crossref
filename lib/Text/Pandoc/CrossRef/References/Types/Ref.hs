@@ -28,6 +28,7 @@ import Data.Function
 import Data.Accessor.Template
 import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Prefixes.Types
+import qualified Data.Text as T
 
 data RefRec = RefRec { refIndex :: !Int -- global ordinal number for prefix
                      , refIxInl :: Inlines -- templated index as inilnes
@@ -35,11 +36,11 @@ data RefRec = RefRec { refIndex :: !Int -- global ordinal number for prefix
                      , refTitle :: !Inlines -- title text
                      , refScope :: !(Maybe RefRec) -- reference to parent scope label (as specified in scopes array)
                      , refLevel :: !Int -- number of upper scopes of the same prefix
-                     , refLabel :: !String -- label, i.e. pfx:label string
-                     , refPfx   :: !String -- reference prefix, the part in label before :
+                     , refLabel :: !T.Text -- label, i.e. pfx:label string
+                     , refPfx   :: !T.Text -- reference prefix, the part in label before :
                      , refPfxRec :: !Prefix -- reference prefix, the part in label before :
                      , refCaption :: Inlines -- caption after applying template; must be non-strict
-                     , refAttrs :: !(String -> Maybe MetaValue) -- attribute map
+                     , refAttrs :: !(T.Text -> Maybe MetaValue) -- attribute map
                      , refCaptionPosition :: !CaptionPosition
                      }
 
@@ -49,11 +50,11 @@ instance Eq RefRec where
 instance Ord RefRec where
   (<=) = (<=) `on` liftM2 (,) refPfx refIndex
 
-type RefMap = M.Map String RefRec
+type RefMap = M.Map T.Text RefRec
 
 -- state data type
 data References = References { referenceData_ :: !RefMap
-                             , pfxCounter_ :: !(M.Map String CounterRec)
+                             , pfxCounter_ :: !(M.Map T.Text CounterRec)
                              }
 
 data CounterRec = CounterRec {

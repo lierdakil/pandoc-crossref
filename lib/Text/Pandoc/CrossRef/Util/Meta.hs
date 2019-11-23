@@ -18,7 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, Rank2Types, UndecidableInstances, FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts, Rank2Types, UndecidableInstances
+           , FlexibleInstances, OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Meta (
     getMetaList
   , getMetaBool
@@ -44,38 +45,39 @@ import Text.Pandoc.Walk
 import Text.Pandoc.Shared hiding (capitalize, toString)
 import Data.Maybe
 import qualified Data.Map as M
+import qualified Data.Text as T
 
-getMetaList :: (Default a) => (MetaValue -> a) -> String -> Settings -> Int -> a
+getMetaList :: (Default a) => (MetaValue -> a) -> T.Text -> Settings -> Int -> a
 getMetaList f name (Settings meta) i = maybe def f $ lookupMeta name meta >>= getList i
 
-getMetaStringList :: String -> Settings -> [String]
+getMetaStringList :: T.Text -> Settings -> [T.Text]
 getMetaStringList name (Settings meta) = maybe [] (getList' name) $ lookupMeta name meta
   where
     getList' n (MetaList l) = map (toString n) l
     getList' n x = [toString n x]
 
-getMetaBool :: String -> Settings -> Bool
+getMetaBool :: T.Text -> Settings -> Bool
 getMetaBool = getScalar toBool
 
-getMetaBoolDefault :: String -> Settings -> Bool -> Bool
+getMetaBoolDefault :: T.Text -> Settings -> Bool -> Bool
 getMetaBoolDefault = getScalarDefault toBool
 
-getMetaInlines :: String -> Settings -> Inlines
+getMetaInlines :: T.Text -> Settings -> Inlines
 getMetaInlines = getScalar toInlines
 
-getMetaBlock :: String -> Settings -> Blocks
+getMetaBlock :: T.Text -> Settings -> Blocks
 getMetaBlock = getScalar toBlocks
 
-getMetaString :: String -> Settings -> String
+getMetaString :: T.Text -> Settings -> T.Text
 getMetaString = getScalar toString
 
-getMetaStringMaybe :: String -> Settings -> Maybe String
+getMetaStringMaybe :: T.Text -> Settings -> Maybe T.Text
 getMetaStringMaybe = getScalar (const toMaybeString)
 
-getScalar :: Def b => (String -> MetaValue -> b) -> String -> Settings -> b
+getScalar :: Def b => (T.Text -> MetaValue -> b) -> T.Text -> Settings -> b
 getScalar conv name (Settings meta) = maybe def' (conv name) $ lookupMeta name meta
 
-getScalarDefault :: (String -> MetaValue -> b) -> String -> Settings -> b -> b
+getScalarDefault :: (T.Text -> MetaValue -> b) -> T.Text -> Settings -> b -> b
 getScalarDefault conv name (Settings meta) dv = maybe dv (conv name) $ lookupMeta name meta
 
 class Def a where
@@ -84,8 +86,8 @@ class Def a where
 instance Def Bool where
   def' = False
 
-instance Def String where
-  def' = []
+instance Def T.Text where
+  def' = ""
 
 instance Def (Maybe a) where
   def' = Nothing
@@ -93,8 +95,8 @@ instance Def (Maybe a) where
 instance (Monoid (Many a)) => Def (Many a) where
   def' = mempty
 
-unexpectedError :: forall a. String -> String -> MetaValue -> a
-unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> n <> " but got " <> g x
+unexpectedError :: forall a. T.Text -> T.Text -> MetaValue -> a
+unexpectedError e n x = error . T.unpack $ "Expected " <> e <> " in metadata field " <> n <> " but got " <> g x
   where
     g (MetaBlocks _) = "blocks"
     g (MetaString _) = "string"
@@ -103,26 +105,26 @@ unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> n <
     g (MetaMap _) = "map"
     g (MetaList _) = "list"
 
-toInlines :: String -> MetaValue -> Inlines
+toInlines :: T.Text -> MetaValue -> Inlines
 toInlines _ (MetaBlocks s) = fromList $ blocksToInlines s
 toInlines _ (MetaInlines s) = fromList s
 toInlines _ (MetaString s) = text s
 toInlines n x = unexpectedError "inlines" n x
 
-toBool :: String -> MetaValue -> Bool
+toBool :: T.Text -> MetaValue -> Bool
 toBool _ (MetaBool b) = b
 toBool n x = unexpectedError "bool" n x
 
-toBlocks :: String -> MetaValue -> Blocks
+toBlocks :: T.Text -> MetaValue -> Blocks
 toBlocks _ (MetaBlocks bs) = fromList bs
 toBlocks _ (MetaInlines ils) = fromList [Plain ils]
 toBlocks _ (MetaString s) = plain $ text s
 toBlocks n x = unexpectedError "blocks" n x
 
-toString :: String -> MetaValue -> String
+toString :: T.Text -> MetaValue -> T.Text
 toString n x = fromMaybe (unexpectedError "string" n x) $ toMaybeString x
 
-toMaybeString :: MetaValue -> Maybe String
+toMaybeString :: MetaValue -> Maybe T.Text
 toMaybeString (MetaString s) = Just s
 toMaybeString (MetaBlocks b) = Just $ stringify b
 toMaybeString (MetaInlines i) = Just $ stringify i
@@ -136,11 +138,11 @@ getList i (MetaList l) = l !!? i
                    | otherwise = Nothing
 getList _ x = Just x
 
-getObj :: String -> MetaValue -> Maybe MetaValue
+getObj :: T.Text -> MetaValue -> Maybe MetaValue
 getObj i (MetaMap m) = M.lookup i m
 getObj _ _ = Nothing
 
-capitalize :: (String -> Maybe MetaValue) -> String -> Maybe MetaValue
+capitalize :: (T.Text -> Maybe MetaValue) -> T.Text -> Maybe MetaValue
 capitalize f varname = case f (capitalizeFirst varname) of
   Nothing -> case f varname of
     Nothing -> Nothing
