@@ -11,6 +11,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Explore environment
+      run: |
+        echo "$PWD"
+        echo "$GITHUB_WORKSPACE"
+        pwd
+        echo "$PATH"
+        ls "$GITHUB_WORKSPACE"
+        ls "$GITHUB_WORKSPACE"/*
+        ls "$PWD"
+        ls "/root"
     - name: Install dependencies
       run: |
         cabal v2-update
