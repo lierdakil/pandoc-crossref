@@ -4,24 +4,24 @@ You can define subfigures:
 +:------------------:+:------------------:+:------------------:+
 | <div>              | <div>              | <div>              |
 |                    |                    |                    |
-| ![a](fig1.png){#fi | ![b](fig2.png){#fi | ![c](fig3.png){wid |
-| g:subfig1          | g:subfig2          | th="100%"}         |
+| ![a](fig1          | ![b](fig2          | ![c](fig3.         |
+| .png){#fig:subfig1 | .png){#fig:subfig2 | png){width="100%"} |
 | width="100%"}      | width="100%"}      |                    |
 |                    |                    | </div>             |
 | </div>             | </div>             |                    |
 +--------------------+--------------------+--------------------+
 | <div>              | <div>              | <div>              |
 |                    |                    |                    |
-| ![d](fig4.png){#fi | ![e](fig5.png){wid | ![f](fig6.png){#fi |
-| g:subfig4          | th="100%"}         | g:subfig6          |
+| ![d](fig4          | ![e](fig5.         | ![f](fig6          |
+| .png){#fig:subfig4 | png){width="100%"} | .png){#fig:subfig6 |
 | width="100%"}      |                    | width="100%"}      |
 |                    | </div>             |                    |
 | </div>             |                    | </div>             |
 +--------------------+--------------------+--------------------+
 | <div>              | <div>              | <div>              |
 |                    |                    |                    |
-| ![g](fig7.png){#fi | ![h](fig8.png){wid | ![i](fig9.png){#fi |
-| g:subfig7          | th="100%"}         | g:subfig9          |
+| ![g](fig7          | ![h](fig8.         | ![i](fig9          |
+| .png){#fig:subfig7 | png){width="100%"} | .png){#fig:subfig9 |
 | width="100%"}      |                    | width="100%"}      |
 |                    | </div>             |                    |
 | </div>             |                    | </div>             |

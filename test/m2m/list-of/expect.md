@@ -64,5 +64,9 @@ List of Tables
 3\. Table 3
 :::
 
+```{=tex}
 \listoffigures
+```
+```{=tex}
 \listoftables
+```
