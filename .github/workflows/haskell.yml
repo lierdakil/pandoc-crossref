@@ -23,8 +23,8 @@ jobs:
       run: cabal v2-build
     - name: Run tests
       run: cabal v2-test
-    - name: Build artifact
-      run:  cabal v2-install --installdir=. --install-method=copy --overwrite-policy=always
+    - name: Find artifact
+      run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
     - uses: actions/upload-artifact@v1
       with:
         name: pandoc-crossref
