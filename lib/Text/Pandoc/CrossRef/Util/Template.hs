@@ -37,7 +37,6 @@ import Text.Pandoc.Generic
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Template.Types
 import Control.Applicative hiding (many, optional)
-import Text.Read hiding ((<++), (+++))
 import Data.Char (isAlphaNum, isUpper, toLower, isDigit)
 import Control.Monad ((<=<))
 import Data.Data (Data)
