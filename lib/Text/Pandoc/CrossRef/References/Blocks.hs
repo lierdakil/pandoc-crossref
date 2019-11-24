@@ -75,7 +75,7 @@ replaceBlock opts scope (Div (ident, "section":cls, attr) (Header lvl (hident, h
           | T.null hident = (newlabel, hident)
           | otherwise = (ident, newlabel)
         result title = Div (newident, "section":cls, attr) (Header lvl (newhident, hcls, hattr) title : body)
-    in if "unnumbered" `elem` cls
+    in if "unnumbered" `elem` hcls
     then replaceRecurse scope $ result text'
     else do
       let ititle = B.fromList text'
