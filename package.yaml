@@ -32,7 +32,6 @@ dependencies:
 - directory >=1 && <1.4
 - filepath >=1.1 && <1.5
 - text >=1.2.2 && <1.3
-- extra >= 1.6 && <1.7
 library:
   source-dirs: lib
   ghc-options: -Wall
