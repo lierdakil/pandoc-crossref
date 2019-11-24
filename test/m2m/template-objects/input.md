@@ -1,7 +1,7 @@
 ---
 prefixes:
   sec:
-    listItemTemplate: '$$i$$$$listItemNumberDelim$$$$sectionType[type]%: $$$$t$$'
+    listItemTemplate: '$$idx$$$$listItemNumberDelim$$$$sectionType[type]%: $$$$t$$'
     sectionType:
       cha: "Chapter"
       sec: "Section"

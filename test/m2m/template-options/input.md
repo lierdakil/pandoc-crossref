@@ -1,7 +1,7 @@
 ---
 prefixes:
   sec:
-    listItemTemplate: '$$i$$$$listItemNumberDelim$$$$shortCaption?shortCaption2?t$$'
+    listItemTemplate: '$$idx$$$$listItemNumberDelim$$$$shortCaption?shortCaption2?t$$'
 ...
 
 # Section 1 {#sec:1}
