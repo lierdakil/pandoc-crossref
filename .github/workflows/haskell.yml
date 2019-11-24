@@ -3,31 +3,107 @@ name: Haskell CI
 on: [push]
 
 jobs:
-  build:
-
+  linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:latest
-
+      image: lierdakil/pandoc-crossref-build:b5789c3d3b0e6286d5b7d08d30981680043d0bc4
+    strategy:
+      matrix:
+        pandocver: ["2.8"]
     steps:
     - uses: actions/checkout@v1
     - name: Copy build config from image
       run: |
         cp -r /root/.cabal "$HOME"
         cp /root/cabal.project.local ./
-    - name: Install dependencies
-      run: |
-        cabal v2-update
-        cabal v2-build --only-dependencies --enable-tests
     - name: Build
-      run: cabal v2-build
+      run: cabal v2-build --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
-      run: cabal v2-test
+      run: cabal v2-test --constraint pandoc==${{matrix.pandocver}}
     - name: Find artifact
       run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
     - name: Package artifact
       run:  xz pandoc-crossref
     - uses: actions/upload-artifact@v1
       with:
-        name: pandoc-crossref.xz
+        name: pandoc-crossref-${{ runner.os }}-${{matrix.pandocver}}.xz
         path: ./pandoc-crossref.xz
+
+  macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        pandocver: ["2.8"]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup GHC
+      run: |
+        brew bundle --file=osx/Brewfile
+    - uses: actions/cache@v1
+      id: cache
+      with:
+        path: .cabal-store
+        key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        export PATH="/usr/local/opt/ghc@8.6/bin:$PATH"
+        cabal --store-dir=".cabal-store" v2-update
+        cabal --store-dir=".cabal-store" v2-build --only-dependencies --enable-tests
+    - name: Build
+      run: |
+        export PATH="/usr/local/opt/ghc@8.6/bin:$PATH"
+        cabal --store-dir=".cabal-store" v2-build
+    - name: Run tests
+      run: |
+        export PATH="/usr/local/opt/ghc@8.6/bin:$PATH"
+        cabal --store-dir=".cabal-store" v2-test
+    - name: Find artifact
+      shell: bash
+      run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+    - name: Package artifact
+      shell: bash
+      run:  xz pandoc-crossref
+    - uses: actions/upload-artifact@v1
+      with:
+        name: pandoc-crossref-${{ runner.os }}-${{matrix.pandocver}}.xz
+        path: ./pandoc-crossref.xz
+
+  windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        pandocver: ["2.8"]
+        cabalver: ["3.0"]
+        ghcver: ["8.6.5"]
+    env:
+      GHC: "C:\\ProgramData\\chocolatey\\lib\\ghc\\tools\\ghc-${{matrix.ghcver}}\\bin\\ghc.exe"
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup GHC
+      run: |
+        choco install ghc --version ${{matrix.ghcver}} --ignore-dependencies
+        choco install cabal --version ${{matrix.cabalver}} --ignore-dependencies
+    - uses: actions/cache@v1
+      id: cache
+      with:
+        path: .cabal-store
+        key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        cabal --store-dir=".cabal-store" v2-update
+        cabal --store-dir=".cabal-store" v2-build -w "$Env:ghc" --only-dependencies --enable-tests
+    - name: Build
+      run: cabal --store-dir=".cabal-store" v2-build -w "$Env:ghc"
+    - name: Run tests
+      run: cabal --store-dir=".cabal-store" v2-test -w "$Env:ghc"
+    - name: Find artifact
+      shell: bash
+      run:  find dist-newstyle -type f -name pandoc-crossref.exe -exec cp {} ./ \;
+    - name: Package artifact
+      run:  7z a "pandoc-crossref.zip" pandoc-crossref.exe
+    - uses: actions/upload-artifact@v1
+      with:
+        name: pandoc-crossref-${{ runner.os }}-${{matrix.pandocver}}.zip
+        path: ./pandoc-crossref.zip
