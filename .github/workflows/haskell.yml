@@ -21,8 +21,10 @@ jobs:
     - name: Run tests
       run: cabal v2-test --constraint pandoc==${{matrix.pandocver}}
     - name: Find artifact
+      shell: bash
       run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
     - name: Package artifact
+      shell: bash
       run:  xz pandoc-crossref
     - uses: actions/upload-artifact@v1
       with:
@@ -112,3 +114,61 @@ jobs:
       with:
         name: pandoc-crossref-${{ runner.os }}-${{matrix.pandocver}}.zip
         path: ./pandoc-crossref.zip
+
+  release:
+    if: contains(github.ref, 'tags/v')
+    needs: [linux, windows, macos]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pandocver: ["2.8"]
+    steps:
+    - uses: actions/download-artifact@v1
+      with:
+        name: pandoc-crossref-Linux-${{matrix.pandocver}}.xz
+        path: ./pandoc-crossref-Linux-${{matrix.pandocver}}.xz
+    - uses: actions/download-artifact@v1
+      with:
+        name: pandoc-crossref-macOS-${{matrix.pandocver}}.xz
+        path: ./pandoc-crossref-macOS-${{matrix.pandocver}}.xz
+    - uses: actions/download-artifact@v1
+      with:
+        name: pandoc-crossref-Windows-${{matrix.pandocver}}.zip
+        path: ./pandoc-crossref-Windows-${{matrix.pandocver}}.zip
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        draft: false
+        prerelease: true
+    - name: Upload Release Asset Linux
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./pandoc-crossref-Linux-${{matrix.pandocver}}.xz
+        asset_name: pandoc-crossref-Linux-${{matrix.pandocver}}.xz
+        asset_content_type: application/x-xz
+    - name: Upload Release Asset macOS
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./pandoc-crossref-macOS-${{matrix.pandocver}}.xz
+        asset_name: pandoc-crossref-macOS-${{matrix.pandocver}}.xz
+        asset_content_type: application/x-xz
+    - name: Upload Release Asset Windows
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./pandoc-crossref-Windows-${{matrix.pandocver}}.zip
+        asset_name: pandoc-crossref-Windows-${{matrix.pandocver}}.zip
+        asset_content_type: application/zip
