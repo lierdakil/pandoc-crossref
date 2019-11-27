@@ -126,15 +126,12 @@ jobs:
     - uses: actions/download-artifact@v1
       with:
         name: pandoc-crossref-Linux-${{matrix.pandocver}}.xz
-        path: ./pandoc-crossref-Linux-${{matrix.pandocver}}.xz
     - uses: actions/download-artifact@v1
       with:
         name: pandoc-crossref-macOS-${{matrix.pandocver}}.xz
-        path: ./pandoc-crossref-macOS-${{matrix.pandocver}}.xz
     - uses: actions/download-artifact@v1
       with:
         name: pandoc-crossref-Windows-${{matrix.pandocver}}.zip
-        path: ./pandoc-crossref-Windows-${{matrix.pandocver}}.zip
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1.0.0
