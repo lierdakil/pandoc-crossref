@@ -6,10 +6,10 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:b5789c3d3b0e6286d5b7d08d30981680043d0bc4
+      image: lierdakil/pandoc-crossref-build:60c6e7bd6cb98968047fe297119f35f0477ba45d
     strategy:
       matrix:
-        pandocver: ["2.8"]
+        pandocver: ["2.8.0.1"]
     steps:
     - uses: actions/checkout@v1
     - name: Copy build config from image
@@ -35,7 +35,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        pandocver: ["2.8"]
+        pandocver: ["2.8.0.1"]
     steps:
     - uses: actions/checkout@v1
     - name: Setup GHC
@@ -78,7 +78,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        pandocver: ["2.8"]
+        pandocver: ["2.8.0.1"]
         cabalver: ["3.0"]
         ghcver: ["8.6.5"]
     env:
@@ -121,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.8"]
+        pandocver: ["2.8.0.1"]
     steps:
     - uses: actions/download-artifact@v1
       with:
