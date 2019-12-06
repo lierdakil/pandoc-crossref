@@ -6,10 +6,10 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:60c6e7bd6cb98968047fe297119f35f0477ba45d
+      image: lierdakil/pandoc-crossref-build:3f80546797a6829e03fd8c78b1bf83b43b549203
     strategy:
       matrix:
-        pandocver: ["2.8.0.1"]
+        pandocver: ["2.8.1"]
     steps:
     - uses: actions/checkout@v1
     - name: Copy build config from image
@@ -25,17 +25,20 @@ jobs:
       run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
     - name: Package artifact
       shell: bash
-      run:  xz pandoc-crossref
+      run: |
+        xz pandoc-crossref
+        mkdir pandoc-crossref-linux
+        mv pandoc-crossref.xz pandoc-crossref-linux
     - uses: actions/upload-artifact@v1
       with:
-        name: pandoc-crossref-${{ runner.os }}-${{matrix.pandocver}}.xz
-        path: ./pandoc-crossref.xz
+        name: linux-build
+        path: pandoc-crossref-linux
 
   macos:
     runs-on: macos-latest
     strategy:
       matrix:
-        pandocver: ["2.8.0.1"]
+        pandocver: ["2.8.1"]
     steps:
     - uses: actions/checkout@v1
     - name: Setup GHC
@@ -68,17 +71,20 @@ jobs:
       run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
     - name: Package artifact
       shell: bash
-      run:  xz pandoc-crossref
+      run: |
+        xz pandoc-crossref
+        mkdir pandoc-crossref-macos
+        mv pandoc-crossref.xz pandoc-crossref-macos
     - uses: actions/upload-artifact@v1
       with:
-        name: pandoc-crossref-${{ runner.os }}-${{matrix.pandocver}}.xz
-        path: ./pandoc-crossref.xz
+        name: macos-build
+        path: pandoc-crossref-macos
 
   windows:
     runs-on: windows-latest
     strategy:
       matrix:
-        pandocver: ["2.8.0.1"]
+        pandocver: ["2.8.1"]
         cabalver: ["3.0"]
         ghcver: ["8.6.5"]
     env:
@@ -109,11 +115,15 @@ jobs:
       shell: bash
       run:  find dist-newstyle -type f -name pandoc-crossref.exe -exec cp {} ./ \;
     - name: Package artifact
-      run:  7z a "pandoc-crossref.zip" pandoc-crossref.exe
+      shell: bash
+      run: |
+        7z a "pandoc-crossref.exe.xz" pandoc-crossref.exe
+        mkdir pandoc-crossref-windows
+        mv pandoc-crossref.exe.xz pandoc-crossref-windows
     - uses: actions/upload-artifact@v1
       with:
-        name: pandoc-crossref-${{ runner.os }}-${{matrix.pandocver}}.zip
-        path: ./pandoc-crossref.zip
+        name: windows-build
+        path: ./pandoc-crossref-windows
 
   release:
     if: contains(github.ref, 'tags/v')
@@ -121,20 +131,35 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.8.0.1"]
+        pandocver: ["2.8.1"]
     steps:
     - uses: actions/download-artifact@v1
       with:
-        name: pandoc-crossref-Linux-${{matrix.pandocver}}.xz
+        name: linux-build
     - uses: actions/download-artifact@v1
       with:
-        name: pandoc-crossref-macOS-${{matrix.pandocver}}.xz
+        name: macos-build
     - uses: actions/download-artifact@v1
       with:
-        name: pandoc-crossref-Windows-${{matrix.pandocver}}.zip
+        name: windows-build
+    - name: Get Version
+      id: get_version
+      run: |
+        xzcat linux-build/pandoc-crossref.xz > ./pandoc-crossref
+        chmod +x ./pandoc-crossref
+        VERSION="$(./pandoc-crossref --version)"
+        echo ::set-output name=version::"$VERSION"
+    - name: Repackage assets
+      run: |
+        unxz linux-build/pandoc-crossref.xz
+        unxz macos-build/pandoc-crossref.xz
+        unxz windows-build/pandoc-crossref.exe.xz
+        tar cJf linux-build.tar.xz -C linux-build pandoc-crossref
+        tar cJf macos-build.tar.xz -C macos-build pandoc-crossref
+        zip -j windows-build.zip windows-build/pandoc-crossref.exe
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1.0.0
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -142,30 +167,32 @@ jobs:
         release_name: ${{ github.ref }}
         draft: false
         prerelease: true
+        body: |
+          ${{ steps.get_version.outputs.version }}
     - name: Upload Release Asset Linux
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./pandoc-crossref-Linux-${{matrix.pandocver}}.xz
-        asset_name: pandoc-crossref-Linux-${{matrix.pandocver}}.xz
-        asset_content_type: application/x-xz
+        asset_path: ./linux-build.tar.xz
+        asset_name: pandoc-crossref-Linux-${{matrix.pandocver}}.tar.xz
+        asset_content_type: application/x-xz-compressed-tar
     - name: Upload Release Asset macOS
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./pandoc-crossref-macOS-${{matrix.pandocver}}.xz
-        asset_name: pandoc-crossref-macOS-${{matrix.pandocver}}.xz
-        asset_content_type: application/x-xz
+        asset_path: ./macos-build.tar.xz
+        asset_name: pandoc-crossref-macOS-${{matrix.pandocver}}.tar.xz
+        asset_content_type: application/x-xz-compressed-tar
     - name: Upload Release Asset Windows
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./pandoc-crossref-Windows-${{matrix.pandocver}}.zip
+        asset_path: ./windows-build.zip
         asset_name: pandoc-crossref-Windows-${{matrix.pandocver}}.zip
         asset_content_type: application/zip
