@@ -21,5 +21,5 @@ if [ -z "$DOCKER_IMAGE_VERSION" ]; then
   DOCKER_IMAGE_VERSION=staging
 fi
 
-docker pull lierdakil/pandoc-crossref-build:$DOCKER_IMAGE_VERSION
-docker run --rm -v "$PWD:/mnt" lierdakil/pandoc-crossref-build:$DOCKER_IMAGE_VERSION /bin/ash -c "$CMD"
+docker pull docker.pkg.github.com/lierdakil/pandoc-crossref-build/pandoc-crossref-build:$DOCKER_IMAGE_VERSION
+docker run --rm -v "$PWD:/mnt" docker.pkg.github.com/lierdakil/pandoc-crossref-build/pandoc-crossref-build:$DOCKER_IMAGE_VERSION /bin/ash -c "$CMD"
