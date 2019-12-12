@@ -25,7 +25,6 @@ import Language.Haskell.TH.Syntax
 import qualified Data.Text as T
 import System.IO
 import qualified Text.Pandoc as P
-import qualified Text.Pandoc.Templates as PT
 import Control.DeepSeq
 import Data.String
 import Text.Pandoc.Highlighting (pygments)
@@ -60,8 +59,7 @@ embedManualText = embedManual $ P.writePlain P.def
 embedManualHtml :: Q Exp
 embedManualHtml = do
   tt <- fmap (either (error . show) id) . runIO . P.runIO
-          $   P.getDefaultTemplate "html5"
-          >>= fmap (either (error . show) id) . PT.compileTemplate ""
+          $   P.compileDefaultTemplate "html5"
   embedManual $ P.writeHtml5String P.def{
     P.writerTemplate = Just tt
   , P.writerHighlightStyle = Just pygments
