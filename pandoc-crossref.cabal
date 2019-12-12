@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8b64baf60291a34afcbb3a1d8d890e2bf27578bd1808f86e9d3a352d827773ce
+-- hash: e597582e02f2e6e9aaef63cf79bb014f5f2d595ae7da852d08ecc34f14067f35
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -119,7 +119,7 @@ library
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
-    , pandoc >=2.8 && <2.9
+    , pandoc >=2.9 && <2.10
     , pandoc-types >=1.20 && <1.21
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
@@ -149,7 +149,7 @@ executable pandoc-crossref
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.16
-    , pandoc >=2.8 && <2.9
+    , pandoc >=2.9 && <2.10
     , pandoc-crossref
     , pandoc-types >=1.20 && <1.21
     , roman-numerals ==0.5.*
@@ -176,7 +176,7 @@ test-suite test-integrative
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.8 && <2.9
+    , pandoc >=2.9 && <2.10
     , pandoc-crossref
     , pandoc-types >=1.20 && <1.21
     , roman-numerals ==0.5.*
@@ -234,7 +234,7 @@ test-suite test-pandoc-crossref
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.8 && <2.9
+    , pandoc >=2.9 && <2.10
     , pandoc-types >=1.20 && <1.21
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
