@@ -87,7 +87,7 @@ safeHead x = Just $ head x
 unhierarchicalize :: [Block] -> [Block]
 unhierarchicalize
   (Div (dident, "section":dcls, dkvs) (Header level (hident,hcls,hkvs) ils : xs) : ys)
-  | T.null hident, null dkvs, null dcls = Header level (dident, hcls, hkvs) ils : unhierarchicalize xs <> unhierarchicalize ys
+  | T.null hident, dkvs == hkvs, dcls == hcls = Header level (dident, hcls, hkvs) ils : unhierarchicalize xs <> unhierarchicalize ys
 unhierarchicalize (x:xs) = x : unhierarchicalize xs
 unhierarchicalize [] = []
 
