@@ -35,7 +35,7 @@ import qualified Data.Text as T
 
 getSettings :: Maybe Format -> Meta -> IO Meta
 getSettings fmt meta = do
-  dirConfig <- readConfig (T.unpack $ getMetaString "crossrefYaml" (meta <> defaultMeta))
+  dirConfig <- readConfig (T.unpack $ getMetaString "crossrefYaml" (defaultMeta <> meta))
   home <- getHomeDirectory
   globalConfig <- readConfig (home </> ".pandoc-crossref" </> "config.yaml")
   formatConfig <- maybe (return nullMeta) (readFmtConfig home) fmt
