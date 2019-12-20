@@ -1,3 +1,11 @@
+##  0.3.6.1
+
+-   Fix `crossrefYaml` setting broken in v0.3.6.0
+
+##  0.3.6.0
+
+-   Updates for pandoc-2.9
+
 ##  0.3.5.0
 
 -   Updates for pandoc 2.8
