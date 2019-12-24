@@ -14,8 +14,8 @@ addons:
 env:
   global:
     - RUN_UPX: yes
-    - DOCKER_IMAGE_VERSION: 2e439295a861055d29b0e8f7bc344e609728830d
-    - PANDOC_VERSION: "2.9"
+    - DOCKER_IMAGE_VERSION: 74af52f4457914ee4e2c051d3257ce54453eda70
+    - PANDOC_VERSION: "2.9.1"
     - CABAL_OPTS="--constraint pandoc==$PANDOC_VERSION"
 
 services:
