@@ -1,3 +1,9 @@
+## 0.3.6.2
+
+-   Force WS state evaluation to resolve duplicate id error inconsistency
+
+    See [#246](https://github.com/lierdakil/pandoc-crossref/issues/246) for context
+
 ##  0.3.6.1
 
 -   Fix `crossrefYaml` setting broken in v0.3.6.0
