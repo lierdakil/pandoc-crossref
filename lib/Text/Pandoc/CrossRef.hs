@@ -113,8 +113,8 @@ crossRefBlocks blocks = do
       >>= replaceAll opts
       >>= bottomUpM (replaceRefs opts)
       >>= bottomUpM (listOf opts)
-    (result, state) = runState doWalk def
-  state `seq` return result
+    (result, st) = runState doWalk def
+  st `seq` return result
 
 {- | Modifies metadata for LaTeX output, adding header-includes instructions
 to setup custom and builtin environments.
