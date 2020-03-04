@@ -52,6 +52,8 @@ version matches the version pandoc-crossref was built against, otherwise
 weird stuff will likely happen.** Feel free to open issues if there's a new
 version of pandoc available, for which there are no pandoc-crossref builds.
 
+**NOTE:** Linux and MacOS binaries are packed with `upx`. If you don't like the overhead, and don't mind 40-megabyte binaries, you can unpack those manually with `upx -d pandoc-crossref`. Also please notice that upx-packed binaries can break in some exotic environments, like empty chroot with no access to `/proc`, etc.
+
 Also, for those feeling adventurous, the automatic builds for the latest commits are available. Latest Windows builds can be found on [AppVeyor build history page](https://ci.appveyor.com/project/lierdakil/pandoc-crossref/history) (select a build and go to Artifacts). Latest Linux and MacOS builds can be found on [BinTray]( https://bintray.com/lierdakil/pandoc-crossref/pandoc-crossref/nightly/view/files?sort=name&order=asc#files/).
 
 If you don't trust random binaries downloaded off the Internet (which is
@@ -129,7 +131,7 @@ This will install pandoc-crossef executable to `$HOME/.local/bin`. You might als
 ### Notice Fedora users
 
 `cabal-install` package is not enough to build pandoc-crossref (see
-[\#132](https://github.com/lierdakil/pandoc-crossref/issues/132)). 
+[\#132](https://github.com/lierdakil/pandoc-crossref/issues/132)).
 To get a sane Haskell build environment, you need to install the
 `haskell-platform` package (`dnf install haskell-platform`).
 
