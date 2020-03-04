@@ -17,6 +17,16 @@ definitions to output. However, Pandoc's command line option
 `--include-in-header`, add pandoc-crossref-specific definitions as well.
 See [LaTeX customization](#latex-customization) for more information.
 
+## Note on non-standard LaTeX templates
+
+If you're using non-standard pandoc LaTeX template (this includes the cases where document class is not `article` or `book` close enough to that), pandoc-crossref might not be able to configure that properly. You might to configure LaTeX in the template manually.
+
+## Note on LaTeX and `chapters` option
+
+Because pandoc-crossref offloads all numbering to LaTeX if it can, `chapters: true` has no direct effect on LaTeX output. You have to specify Pandoc's `--top-level-division=chapter` option, which should hopefully configure LaTeX appropriately.
+
+It's a good idea to specify `--top-level-division=chapter` for any output format actually, because pandoc-crossref can't signal pandoc you want to use chapters, and vice versa.
+
 ## pandoc-citeproc and pandoc-crossref
 
 Since pandoc-crossref uses the same citation syntax as pandoc-citeproc,
@@ -452,8 +462,7 @@ A list of variables follows.
     package. Only relevant for LaTeX output. `\usepackage{cleveref}`
     will be automatically added to `header-includes`.
 -   `chapters`: if True, number elements as `chapter.item`, and restart
-    `item` on each first-level heading (as `--chapters` for latex/pdf
-    output)
+    `item` on each first-level heading. You might also need to run pandoc with `--top-level-division=chapter` argument to signal it you want to use chapters; whether it's actually required or not depends on the output format, but it's always safe to include. Notice `chapters` and related options are ignored in LaTeX output. See [Note on LaTeX and `chapters` option](#note-on-latex-and-chapters-option)
 -   `chaptersDepth`, default `1`: header level to treat as "chapter". If
     `chaptersDepth>1`, then items will be prefixed with several numbers,
     corresponding to header numbers, e.g. `fig. 1.4.3`.
