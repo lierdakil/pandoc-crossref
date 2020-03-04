@@ -2,11 +2,10 @@ flags:
   pandoc-crossref:
     enable_flaky_tests: true
 ghc-options:
-  $targets: -optl-fuse-ld=bfd
-packages:
-- .
-allow-newer: true # data-accessor-template overrestricts template-haskell dependency
+  $targets: -optl-fuse-ld=bfd -j "+RTS -A64m -RTS"
+  pandoc: -j "+RTS -A64m -RTS"
+  pandoc-citeproc: -j "+RTS -A64m -RTS"
+packages: [.]
 extra-deps:
 - roman-numerals-0.5.1.5
-- data-accessor-template-0.2.1.16
-resolver: nightly-2020-02-04
+resolver: lts-15.2
