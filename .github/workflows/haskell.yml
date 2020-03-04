@@ -31,3 +31,20 @@ jobs:
       with:
         name: pandoc-crossref.xz
         path: ./pandoc-crossref.xz
+
+  build-stack:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        wget https://get.haskellstack.org/stable/linux-x86_64-static.tar.gz
+        tar zxf linux-x86_64-static.tar.gz
+        mv stack-*/stack ./
+        chmod +x ./stack
+    - uses: actions/cache@v1
+      with:
+        path: /github/home/.stack
+        key: ${{ runner.os }}-stack
+    - name: Build and test
+      run: ./stack build --test
