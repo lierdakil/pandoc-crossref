@@ -44,7 +44,7 @@ jobs:
         chmod +x ./stack
     - uses: actions/cache@v1
       with:
-        path: /github/home/.stack
+        path: /home/runner/.stack
         key: ${{ runner.os }}-stack
     - name: Build and test
       run: ./stack build --test
