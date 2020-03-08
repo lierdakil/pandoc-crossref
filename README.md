@@ -54,7 +54,7 @@ version of pandoc available, for which there are no pandoc-crossref builds.
 
 **NOTE:** Linux and MacOS binaries are packed with `upx`. If you don't like the overhead, and don't mind 40-megabyte binaries, you can unpack those manually with `upx -d pandoc-crossref`. Also please notice that upx-packed binaries can break in some exotic environments, like empty chroot with no access to `/proc`, etc.
 
-Also, for those feeling adventurous, the automatic builds for the latest commits are available. Latest Windows builds can be found on [AppVeyor build history page](https://ci.appveyor.com/project/lierdakil/pandoc-crossref/history) (select a build and go to Artifacts). Latest Linux and MacOS builds can be found on [BinTray]( https://bintray.com/lierdakil/pandoc-crossref/pandoc-crossref/nightly/view/files?sort=name&order=asc#files/).
+Also, for those feeling adventurous, the automatic builds for the latest commits are available. Latest Windows builds can be found on [AppVeyor build history page](https://ci.appveyor.com/project/lierdakil/pandoc-crossref/history) (select a build and go to Artifacts). Latest Linux and MacOS builds can be found on [BinTray](https://bintray.com/lierdakil/pandoc-crossref/).
 
 If you don't trust random binaries downloaded off the Internet (which is
 completely reasonable), you're welcome to build from source. You have two
@@ -82,18 +82,20 @@ time of writing, pandoc-crossref is provided on the following platforms
 
 Assuming you already installed [Haskell platform][] by whatever means necessary, you can install pandoc-crossref with `cabal`.
 
-If you have `cabal-install` version 2.4 or newer (i.e. `cabal --version` shows `2.4.x.x`), **and** you are not on Windows, I recommend using new-style install (new-style install is regrettably broken on Windows at the time of writing):
+If you have `cabal-install` version 3.0 or newer (i.e. `cabal --version` shows `3.0.x.x`), I recommend using new-style install:
 
 ``` bash
-cabal new-update
-cabal new-install pandoc pandoc-crossref pandoc-citeproc
+cabal v2-update
+cabal v2-install --install-method=copy pandoc pandoc-crossref pandoc-citeproc
 ```
 
-This will get `pandoc-crossref`, `pandoc` and `pandoc-citeproc` executables symlinked to `$HOME/.cabal/bin`, which you can then add to `PATH` or copy/move the symlinks where you want them.
+This will get `pandoc-crossref`, `pandoc` and `pandoc-citeproc` executables copied to `$HOME/.cabal/bin` (by default, if not, check your cabal config file `installdir` setting -- find out where your config file is by running `cabal help user-config`), which you can then add to `PATH` or copy/move the symlinks where you want them.
 
-On cabal-install version 2.2, it's possible to do the same, albeit you'll need to use `cabal update` instead of `cabal new-update`.
+On cabal-install version 2.4, it's possible to do the same, albeit you'll have to lose `--install-method copy`, it will symlink the executables instead of copying those, and it doesn't work on Windows.
 
-On older cabal-install versions that don't support new-style installs (or on Windows), I highly recommend you use a sandbox for installation, e.g.
+On cabal-install version 2.2, it's possible to do the same, albeit you'll need to use `cabal update` instead of `cabal v2-update`.
+
+On older cabal-install versions that don't support new-style installs, I highly recommend you use a sandbox for installation, e.g.
 
 ``` bash
 cabal update
