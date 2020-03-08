@@ -1,4 +1,4 @@
-# pandoc-crossref filter ![Build status](https://github.com/lierdakil/pandoc-crossref/workflows/Haskell%20CI/badge.svg)
+# pandoc-crossref filter ![Build status](https://github.com/lierdakil/pandoc-crossref/workflows/Haskell%20CI/badge.svg?branch=any-prefix)
 
 pandoc-crossref is a pandoc filter for numbering figures, equations,
 tables and cross-references to them.
