@@ -3,9 +3,8 @@ CMD=\
 "git clone --bare /mnt ./.git
 git config --unset core.bare
 git reset --hard HEAD
-cabal new-install pandoc $CABAL_OPTS
-cabal new-build --jobs exe:pandoc-crossref $CABAL_OPTS
-find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+cabal v2-install pandoc $CABAL_OPTS
+cabal v2-install exe:pandoc-crossref --installdir=. --install-method=copy $CABAL_OPTS
 if [ -n \"$RUN_UPX\" ]; then
   upx --best pandoc-crossref
 fi
@@ -18,7 +17,7 @@ cp ./pandoc-crossref /mnt/
 "
 
 if [ -z "$DOCKER_IMAGE_VERSION" ]; then
-  DOCKER_IMAGE_VERSION=staging
+  DOCKER_IMAGE_VERSION=latest
 fi
 
 docker pull lierdakil/pandoc-crossref-build:$DOCKER_IMAGE_VERSION

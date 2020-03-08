@@ -5,10 +5,9 @@ echo "GHC version is:"
 ghc --version
 export PANDOC="$HOME/.cabal/bin/pandoc"
 rm "$PANDOC" || true
-cabal new-update
-cabal new-install pandoc $CABAL_OPTS
-cabal new-build exe:pandoc-crossref $CABAL_OPTS
-find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+cabal v2-update
+cabal v2-install pandoc $CABAL_OPTS
+cabal v2-install exe:pandoc-crossref --installdir=. --install-method=copy $CABAL_OPTS
 if [ -n "$RUN_UPX" ]; then
   upx --best pandoc-crossref
 fi
