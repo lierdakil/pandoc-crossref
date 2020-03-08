@@ -101,7 +101,9 @@ import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
 
 Works in 'CrossRefM' monad. -}
 crossRefBlocks :: [Block] -> CrossRef [Block]
-crossRefBlocks blocks = CrossRef $ flip evalStateT def . unWS $ doWalk
+crossRefBlocks blocks = CrossRef $ do
+  (res, st) <- flip runStateT def $ unWS doWalk
+  st `seq` return res
   where doWalk =
           replaceAll blocks
           >>= bottomUpM replaceRefs

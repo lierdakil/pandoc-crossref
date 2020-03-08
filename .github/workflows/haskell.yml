@@ -6,12 +6,12 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:2e439295a861055d29b0e8f7bc344e609728830d
+      image: lierdakil/pandoc-crossref-build:054e0d2dd7816e7fba86e6a26fc6e2edc54e51c8
     strategy:
       matrix:
-        pandocver: ["2.9"]
+        pandocver: ["2.9.2"]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Copy build config from image
       run: |
         cp -r /root/.cabal "$HOME"
@@ -20,15 +20,19 @@ jobs:
       run: cabal v2-build --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
       run: cabal v2-test --constraint pandoc==${{matrix.pandocver}}
-    - name: Find artifact
+    - name: Copy binary
       shell: bash
-      run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+      run: find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+    - name: Make manpage
+      run: |
+        cabal v2-install --installdir="$HOME" pandoc --constraint pandoc==${{matrix.pandocver}}
+        "$HOME/pandoc" -s -t man docs/index.md -o pandoc-crossref.1
     - name: Package artifact
       shell: bash
       run: |
-        xz pandoc-crossref
+        upx --best pandoc-crossref
         mkdir pandoc-crossref-linux
-        mv pandoc-crossref.xz pandoc-crossref-linux
+        mv pandoc-crossref pandoc-crossref.1 pandoc-crossref-linux
     - uses: actions/upload-artifact@v1
       with:
         name: linux-build
@@ -38,9 +42,10 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        pandocver: ["2.9"]
+        pandocver: ["2.9.2"]
+        ghcver: ["8.8"]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup GHC
       run: |
         brew bundle --file=osx/Brewfile
@@ -51,30 +56,30 @@ jobs:
         key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
     - name: Cabal update
       run: |
-        export PATH="/usr/local/opt/ghc@8.6/bin:$PATH"
+        export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
         cabal --store-dir=".cabal-store" v2-update
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        export PATH="/usr/local/opt/ghc@8.6/bin:$PATH"
-        cabal --store-dir=".cabal-store" v2-build --only-dependencies --enable-tests
+        export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
+        cabal --store-dir=".cabal-store" v2-build --constraint pandoc==${{matrix.pandocver}} --only-dependencies --enable-tests
     - name: Build
       run: |
-        export PATH="/usr/local/opt/ghc@8.6/bin:$PATH"
-        cabal --store-dir=".cabal-store" v2-build
+        export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
+        cabal --store-dir=".cabal-store" v2-build --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
       run: |
-        export PATH="/usr/local/opt/ghc@8.6/bin:$PATH"
-        cabal --store-dir=".cabal-store" v2-test
-    - name: Find artifact
+        export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
+        cabal --store-dir=".cabal-store" v2-test --constraint pandoc==${{matrix.pandocver}}
+    - name: Copy binary
       shell: bash
-      run:  find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+      run: find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
     - name: Package artifact
       shell: bash
       run: |
-        xz pandoc-crossref
+        upx --best pandoc-crossref
         mkdir pandoc-crossref-macos
-        mv pandoc-crossref.xz pandoc-crossref-macos
+        mv pandoc-crossref pandoc-crossref-macos
     - uses: actions/upload-artifact@v1
       with:
         name: macos-build
@@ -84,13 +89,13 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        pandocver: ["2.9"]
+        pandocver: ["2.9.2"]
         cabalver: ["3.0"]
         ghcver: ["8.6.5"]
     env:
       GHC: "C:\\ProgramData\\chocolatey\\lib\\ghc\\tools\\ghc-${{matrix.ghcver}}\\bin\\ghc.exe"
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Setup GHC
       run: |
         choco install ghc --version ${{matrix.ghcver}} --ignore-dependencies
@@ -99,21 +104,19 @@ jobs:
       id: cache
       with:
         path: .cabal-store
-        key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
+        key: ${{ runner.os }}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
     - name: Cabal update
-      run: |
-        cabal --store-dir=".cabal-store" v2-update
+      run: cabal --store-dir=".cabal-store" v2-update
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
-      run: |
-        cabal --store-dir=".cabal-store" v2-build -w "$Env:ghc" --only-dependencies --enable-tests
+      run: cabal --store-dir=".cabal-store" v2-build -w "$Env:ghc" --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
     - name: Build
-      run: cabal --store-dir=".cabal-store" v2-build -w "$Env:ghc"
+      run: cabal --store-dir=".cabal-store" v2-build -w "$Env:ghc" --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
-      run: cabal --store-dir=".cabal-store" v2-test -w "$Env:ghc"
-    - name: Find artifact
+      run: cabal --store-dir=".cabal-store" v2-test -w "$Env:ghc" --constraint pandoc==${{matrix.pandocver}}
+    - name: Copy binary
       shell: bash
-      run:  find dist-newstyle -type f -name pandoc-crossref.exe -exec cp {} ./ \;
+      run: find dist-newstyle -type f -name pandoc-crossref.exe -exec cp {} ./ \;
     - name: Package artifact
       shell: bash
       run: |
@@ -126,12 +129,11 @@ jobs:
         path: ./pandoc-crossref-windows
 
   release:
-    if: contains(github.ref, 'tags/v')
     needs: [linux, windows, macos]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.9"]
+        pandocver: ["2.9.2"]
     steps:
     - uses: actions/download-artifact@v1
       with:
@@ -142,22 +144,23 @@ jobs:
     - uses: actions/download-artifact@v1
       with:
         name: windows-build
+    - name: Unpack assets
+      run: |
+        unxz windows-build/pandoc-crossref.exe.xz
     - name: Get Version
       id: get_version
       run: |
-        xzcat linux-build/pandoc-crossref.xz > ./pandoc-crossref
-        chmod +x ./pandoc-crossref
-        VERSION="$(./pandoc-crossref --version)"
+        chmod +x linux-build/pandoc-crossref
+        VERSION="$(linux-build/pandoc-crossref --version)"
         echo ::set-output name=version::"$VERSION"
-    - name: Repackage assets
+    - name: Repack assets
       run: |
-        unxz linux-build/pandoc-crossref.xz
-        unxz macos-build/pandoc-crossref.xz
-        unxz windows-build/pandoc-crossref.exe.xz
-        tar cJf linux-build.tar.xz -C linux-build pandoc-crossref
-        tar cJf macos-build.tar.xz -C macos-build pandoc-crossref
-        zip -j windows-build.zip windows-build/pandoc-crossref.exe
+        mkdir assets
+        tar cJf assets/pandoc-crossref-linux.tar.xz -C linux-build pandoc-crossref pandoc-crossref.1
+        tar cJf assets/pandoc-crossref-macos.tar.xz -C macos-build pandoc-crossref
+        zip -j assets/pandoc-crossref-windows.zip windows-build/pandoc-crossref.exe
     - name: Create Release
+      if: contains(github.ref, 'tags/v')
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -166,33 +169,66 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: ${{ github.ref }}
         draft: false
-        prerelease: true
+        prerelease: false
         body: |
           ${{ steps.get_version.outputs.version }}
     - name: Upload Release Asset Linux
+      if: contains(github.ref, 'tags/v')
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./linux-build.tar.xz
+        asset_path: ./assets/pandoc-crossref-linux.tar.xz
         asset_name: pandoc-crossref-Linux-${{matrix.pandocver}}.tar.xz
         asset_content_type: application/x-xz-compressed-tar
     - name: Upload Release Asset macOS
+      if: contains(github.ref, 'tags/v')
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./macos-build.tar.xz
+        asset_path: ./assets/pandoc-crossref-macos.tar.xz
         asset_name: pandoc-crossref-macOS-${{matrix.pandocver}}.tar.xz
         asset_content_type: application/x-xz-compressed-tar
     - name: Upload Release Asset Windows
+      if: contains(github.ref, 'tags/v')
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./windows-build.zip
+        asset_path: ./assets/pandoc-crossref-windows.zip
         asset_name: pandoc-crossref-Windows-${{matrix.pandocver}}.zip
         asset_content_type: application/zip
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+    - name: Upload to Bintray
+      uses: hpcsc/upload-bintray-docker-action@v1
+      with:
+        repository: pandoc-crossref
+        package: ${{steps.extract_branch.outputs.branch}}
+        version: ${{github.sha}}
+        sourcePath: ./assets/*
+        username: lierdakil
+        apiKey: ${{secrets.BINTRAY_API_KEY}}
+
+  build-stack:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        wget https://get.haskellstack.org/stable/linux-x86_64-static.tar.gz
+        tar zxf linux-x86_64-static.tar.gz
+        mv stack-*/stack ./
+        chmod +x ./stack
+    - uses: actions/cache@v1
+      with:
+        path: /home/runner/.stack
+        key: ${{ runner.os }}-stack
+    - name: Build and test
+      run: ./stack build --test

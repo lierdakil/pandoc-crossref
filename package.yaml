@@ -24,7 +24,6 @@ dependencies:
 - containers >=0.1 && <0.7
 - data-default >=0.4 && <0.8
 - data-accessor >=0.2.2.6 && <0.3.0.0
-- data-accessor-template >=0.2.1.12 && <0.3.0.0
 - template-haskell >=2.7.0.0 && <3.0.0.0
 - roman-numerals ==0.5.*
 - syb >=0.4 && <0.8

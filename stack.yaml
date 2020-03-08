@@ -2,21 +2,10 @@ flags:
   pandoc-crossref:
     enable_flaky_tests: true
 ghc-options:
-  $targets: -optl-fuse-ld=bfd
-packages:
-- .
-allow-newer: false
+  $targets: -optl-fuse-ld=bfd -j "+RTS -A64m -RTS"
+  pandoc: -j "+RTS -A64m -RTS"
+  pandoc-citeproc: -j "+RTS -A64m -RTS"
+packages: [.]
 extra-deps:
 - roman-numerals-0.5.1.5
-- pandoc-2.8
-- HsYAML-0.2.1.0
-- doclayout-0.2.0.1
-- doctemplates-0.7.1
-- haddock-library-1.8.0
-- skylighting-0.8.2.3
-- skylighting-core-0.8.2.3
-- texmath-0.12
-- pandoc-types-1.20
-- regex-pcre-builtin-0.95.1.1.8.43
-- regex-base-0.94.0.0
-resolver: lts-14.15
+resolver: lts-15.2
