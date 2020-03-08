@@ -156,9 +156,9 @@ jobs:
     - name: Repack assets
       run: |
         mkdir assets
-        tar cJf assets/pandoc-crossref-linux.tar.xz -C linux-build pandoc-crossref pandoc-crossref.1
-        tar cJf assets/pandoc-crossref-macos.tar.xz -C macos-build pandoc-crossref
-        zip -j assets/pandoc-crossref-windows.zip windows-build/pandoc-crossref.exe
+        tar cJf assets/pandoc-crossref-linux-${{github.sha}}.tar.xz -C linux-build pandoc-crossref pandoc-crossref.1
+        tar cJf assets/pandoc-crossref-macos-${{github.sha}}.tar.xz -C macos-build pandoc-crossref
+        zip -j assets/pandoc-crossref-windows-${{github.sha}}.zip windows-build/pandoc-crossref.exe
     - name: Create Release
       if: contains(github.ref, 'tags/v')
       id: create_release
@@ -179,7 +179,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./assets/pandoc-crossref-linux.tar.xz
+        asset_path: ./assets/pandoc-crossref-linux-${{github.sha}}.tar.xz
         asset_name: pandoc-crossref-Linux-${{matrix.pandocver}}.tar.xz
         asset_content_type: application/x-xz-compressed-tar
     - name: Upload Release Asset macOS
@@ -189,7 +189,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./assets/pandoc-crossref-macos.tar.xz
+        asset_path: ./assets/pandoc-crossref-macos-${{github.sha}}.tar.xz
         asset_name: pandoc-crossref-macOS-${{matrix.pandocver}}.tar.xz
         asset_content_type: application/x-xz-compressed-tar
     - name: Upload Release Asset Windows
@@ -199,7 +199,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./assets/pandoc-crossref-windows.zip
+        asset_path: ./assets/pandoc-crossref-windows-${{github.sha}}.zip
         asset_name: pandoc-crossref-Windows-${{matrix.pandocver}}.zip
         asset_content_type: application/zip
     - name: Extract branch name
