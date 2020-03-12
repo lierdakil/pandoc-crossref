@@ -207,14 +207,18 @@ jobs:
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
       id: extract_branch
     - name: Upload to Bintray
-      uses: hpcsc/upload-bintray-docker-action@v1
+      uses: lierdakil/action-bintray-upload@master
       with:
+        username: lierdakil
+        apiKey: ${{secrets.BINTRAY_API_KEY}}
+        subject: lierdakil
         repository: pandoc-crossref
         package: ${{steps.extract_branch.outputs.branch}}
         version: ${{github.sha}}
-        sourcePath: ./assets/*
-        username: lierdakil
-        apiKey: ${{secrets.BINTRAY_API_KEY}}
+        filesGlob: ./assets/*
+        createPkg: true
+        versionDescription: ${{ steps.get_version.outputs.version }}
+        licenses: 'GPL-2.0,GPL-3.0-or-later'
 
   build-stack:
     runs-on: ubuntu-latest
