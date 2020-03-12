@@ -158,7 +158,7 @@ jobs:
         mkdir assets
         tar cJf assets/pandoc-crossref-linux-${{github.sha}}.tar.xz -C linux-build pandoc-crossref pandoc-crossref.1
         tar cJf assets/pandoc-crossref-macos-${{github.sha}}.tar.xz -C macos-build pandoc-crossref
-        zip -j assets/pandoc-crossref-windows-${{github.sha}}.zip windows-build/pandoc-crossref.exe
+        7z a assets/pandoc-crossref-windows-${{github.sha}}.7z windows-build/pandoc-crossref.exe
     - name: Create Release
       if: contains(github.ref, 'tags/v')
       id: create_release
@@ -199,9 +199,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./assets/pandoc-crossref-windows-${{github.sha}}.zip
-        asset_name: pandoc-crossref-Windows-${{matrix.pandocver}}.zip
-        asset_content_type: application/zip
+        asset_path: ./assets/pandoc-crossref-windows-${{github.sha}}.7z
+        asset_name: pandoc-crossref-Windows-${{matrix.pandocver}}.7z
+        asset_content_type: application/x-7z-compressed
     - name: Extract branch name
       shell: bash
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
