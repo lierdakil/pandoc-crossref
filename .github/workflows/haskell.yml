@@ -9,7 +9,7 @@ jobs:
       image: lierdakil/pandoc-crossref-build:054e0d2dd7816e7fba86e6a26fc6e2edc54e51c8
     strategy:
       matrix:
-        pandocver: ["2.9.2"]
+        pandocver: ["2.9.2.1"]
     steps:
     - uses: actions/checkout@v2
     - name: Copy build config from image
@@ -42,7 +42,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        pandocver: ["2.9.2"]
+        pandocver: ["2.9.2.1"]
         ghcver: ["8.8"]
     steps:
     - uses: actions/checkout@v2
@@ -89,7 +89,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        pandocver: ["2.9.2"]
+        pandocver: ["2.9.2.1"]
         cabalver: ["3.0"]
         ghcver: ["8.6.5"]
     env:
@@ -133,7 +133,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.9.2"]
+        pandocver: ["2.9.2.1"]
     steps:
     - uses: actions/download-artifact@v1
       with:
