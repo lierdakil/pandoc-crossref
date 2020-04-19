@@ -16,6 +16,8 @@ jobs:
       run: |
         cp -r /root/.cabal "$HOME"
         cp /root/cabal.project.local ./
+    - name: Cabal update
+      run: cabal v2-update
     - name: Build
       run: cabal v2-build --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
