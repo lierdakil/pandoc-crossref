@@ -207,6 +207,7 @@ jobs:
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
       id: extract_branch
     - name: Upload to Bintray
+      if: !contains(github.ref, 'tags/v')
       uses: lierdakil/action-bintray-upload@master
       with:
         username: lierdakil
