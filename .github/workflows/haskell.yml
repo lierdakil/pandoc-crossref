@@ -93,7 +93,7 @@ jobs:
       matrix:
         pandocver: ["2.9.2.1"]
         cabalver: ["3.0.0.0"]
-        ghcver: ["8.8.3"]
+        ghcver: ["8.6.5"]
     env:
       GHC: "C:\\ProgramData\\chocolatey\\lib\\ghc\\tools\\ghc-${{matrix.ghcver}}\\bin\\ghc.exe"
     steps:
