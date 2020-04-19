@@ -6,7 +6,7 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:68a7211cc9067ae17a44746860fc685d204897fa
+      image: lierdakil/pandoc-crossref-build:5eee34d6c7e2f4db644f43d9ff17d94681724ec3
     strategy:
       matrix:
         pandocver: ["2.9.2.1"]
@@ -90,8 +90,8 @@ jobs:
     strategy:
       matrix:
         pandocver: ["2.9.2.1"]
-        cabalver: ["3.0"]
-        ghcver: ["8.6.5"]
+        cabalver: ["3.0.0.0"]
+        ghcver: ["8.8.3"]
     env:
       GHC: "C:\\ProgramData\\chocolatey\\lib\\ghc\\tools\\ghc-${{matrix.ghcver}}\\bin\\ghc.exe"
     steps:
