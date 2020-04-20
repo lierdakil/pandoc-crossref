@@ -42,9 +42,9 @@ import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
 import qualified Text.Pandoc.CrossRef.References.List as References.List
 import qualified Text.Pandoc.CrossRef.Util.Template as Util.Template
 import qualified Text.Pandoc.CrossRef.Util.CodeBlockCaptions as Util.CodeBlockCaptions
+import qualified Data.Text as T
 
 #ifdef FLAKY
-import qualified Data.Text as T
 import qualified Native
 import Paths_pandoc_crossref
 #endif
