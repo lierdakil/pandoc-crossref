@@ -1,4 +1,5 @@
-packages: pandoc-crossref.cabal
-optimization: 2
+packages: .
+package pandoc
+  ghc-options: +RTS -A64m -RTS
 package pandoc-crossref
-  flags: +enable_flaky_tests
+  ghc-options: +RTS -A64m -RTS

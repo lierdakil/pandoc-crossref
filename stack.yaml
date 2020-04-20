@@ -2,10 +2,13 @@ flags:
   pandoc-crossref:
     enable_flaky_tests: true
 ghc-options:
-  $targets: -optl-fuse-ld=bfd -j "+RTS -A64m -RTS"
   pandoc: -j "+RTS -A64m -RTS"
   pandoc-citeproc: -j "+RTS -A64m -RTS"
-packages: [.]
+  $targets: -j "+RTS -A64m -RTS"
+allow-newer: true
+packages:
+- .
 extra-deps:
 - roman-numerals-0.5.1.5
-resolver: lts-15.2
+- data-accessor-template-0.2.1.16
+resolver: lts-15.9
