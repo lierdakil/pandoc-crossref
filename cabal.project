@@ -1,0 +1,5 @@
+packages: .
+package pandoc
+  ghc-options: +RTS -A64m -RTS
+package pandoc-crossref
+  ghc-options: +RTS -A64m -RTS
