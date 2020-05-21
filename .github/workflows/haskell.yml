@@ -253,6 +253,9 @@ jobs:
 
   build-stack:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pandocver: ["2.9.2.1"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
@@ -267,3 +270,7 @@ jobs:
         key: ${{ runner.os }}-stack
     - name: Build and test
       run: ./stack build --test
+    - name: Verify version
+      shell: bash
+      run: |
+        stack exec -- pandoc-crossref --version | grep -q Pandoc v${{matrix.pandocver}}

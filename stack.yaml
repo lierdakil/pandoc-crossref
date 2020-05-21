@@ -5,10 +5,9 @@ ghc-options:
   pandoc: -j "+RTS -A64m -RTS"
   pandoc-citeproc: -j "+RTS -A64m -RTS"
   $targets: -j "+RTS -A64m -RTS"
-allow-newer: true
 packages:
 - .
 extra-deps:
 - roman-numerals-0.5.1.5
 - data-accessor-template-0.2.1.16
-resolver: lts-15.9
+resolver: nightly-2020-05-19
