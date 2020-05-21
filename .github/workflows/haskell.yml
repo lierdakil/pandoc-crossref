@@ -273,4 +273,4 @@ jobs:
     - name: Verify version
       shell: bash
       run: |
-        stack exec -- pandoc-crossref --version | grep -q Pandoc v${{matrix.pandocver}}
+        stack exec -- pandoc-crossref --version | grep -q 'Pandoc v${{matrix.pandocver}}'
