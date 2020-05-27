@@ -72,14 +72,14 @@ run = do
       void $ openBrowser $ "file:///" <> fp
       threadDelay 5000000
       return ()
-    go (Just Pipe) _ = toJSONFilter f
+    go (Just Pipe) fmt = toJSONFilter (f fmt)
     go Nothing Nothing = hPutStr stderr $ unlines
       [ "Running pandoc-crossref without arguments is not supported. Try"
       , "\tpandoc-crossref --help"
       , "If you want to run in \"pipe mode\", run with"
       , "\tpandoc-crossref --pipe [FORMAT]"
       ]
-    go Nothing _ = do
+    go Nothing fmt = do
       Env.lookupEnv "PANDOC_VERSION" >>= \case
         Just runv ->
           when (VERSION_pandoc /= runv) $ hPutStrLn stderr $
@@ -91,8 +91,8 @@ run = do
           , "\tpandoc-crossref --pipe [FORMAT]"
           , "instead."
           ]
-      toJSONFilter f
-    f fmt p@(Pandoc meta _) = runCrossRefIO meta fmt defaultCrossRefAction p
+      toJSONFilter (f fmt)
+    f fmt p@(Pandoc meta _) = runCrossRefIO meta (Format . T.pack <$> fmt) defaultCrossRefAction p
 
 main :: IO ()
 main = join $ execParser opts
