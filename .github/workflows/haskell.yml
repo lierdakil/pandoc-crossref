@@ -62,11 +62,11 @@ jobs:
     - name: Setup GHC
       run: |
         brew bundle --file=osx/Brewfile
-    - uses: actions/cache@v1
-      id: cache
-      with:
-        path: .cabal-store
-        key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
+    # - uses: actions/cache@v1
+    #   id: cache
+    #   with:
+    #     path: .cabal-store
+    #     key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
     - name: Cabal update
       run: |
         export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
@@ -111,18 +111,21 @@ jobs:
     strategy:
       matrix:
         pandocver: ["2.9.2.1"]
-        cabalver: ["3.0.0.0"]
+        cabalver: ["3.2.0.0"]
         ghcver: ["8.8.3"]
     outputs:
       version: ${{ steps.get_version.outputs.version }}
-    env:
-      GHC: "C:\\ProgramData\\chocolatey\\lib\\ghc\\tools\\ghc-${{matrix.ghcver}}\\bin\\ghc.exe"
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup GHC
+    - name: Get GHC version
       run: |
-        choco install ghc --version ${{matrix.ghcver}} --ignore-dependencies
-        choco install cabal --version ${{matrix.cabalver}} --ignore-dependencies
+        $BinGhcPath = Join-Path $env:ChocolateyInstall "lib\ghc.${{matrix.ghcver}}\tools\ghc-${{matrix.ghcver}}\bin\"
+        echo "$BinGhcPath"
+        echo "::add-path::$BinGhcPath"
+    - name: Check GHC version
+      shell: bash
+      run: |
+        [ "$(ghc --numeric-version)" == "${{matrix.ghcver}}" ]
+    - uses: actions/checkout@v2
     - uses: actions/cache@v1
       id: cache
       with:
@@ -132,11 +135,11 @@ jobs:
       run: cabal --store-dir=".cabal-store" v2-update
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
-      run: cabal --store-dir=".cabal-store" v2-build -j1 -w "$Env:ghc" --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
+      run: cabal --store-dir=".cabal-store" v2-build -j1 --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
     - name: Build
-      run: cabal --store-dir=".cabal-store" v2-build -j1 -w "$Env:ghc" --constraint pandoc==${{matrix.pandocver}}
+      run: cabal --store-dir=".cabal-store" v2-build -j1 --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
-      run: cabal --store-dir=".cabal-store" v2-test -j1 -w "$Env:ghc" --constraint pandoc==${{matrix.pandocver}}
+      run: cabal --store-dir=".cabal-store" v2-test -j1 --constraint pandoc==${{matrix.pandocver}}
     - name: Copy binary
       shell: bash
       run: find dist-newstyle -type f -name pandoc-crossref.exe -exec cp {} ./ \;
