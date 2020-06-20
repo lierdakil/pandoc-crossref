@@ -206,7 +206,7 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: ${{ github.ref }}
         draft: false
-        prerelease: false
+        prerelease: true
         body: |
           Linux: ${{ needs.linux.outputs.version }}
           macOS: ${{ needs.macos.outputs.version }}
