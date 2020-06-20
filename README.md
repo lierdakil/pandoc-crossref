@@ -146,6 +146,11 @@ attempting to build pandoc-crossref.
 Usage information is available at
 <https://lierdakil.github.com/pandoc-crossref/>
 
+## Projects
+The following projects use this filter:
+
+- [TechnicalMarkdown](https://github.com/gabyx/TechnicalMarkdown)
+
 # License
 
 This program is free software; you can redistribute it and/or modify it
