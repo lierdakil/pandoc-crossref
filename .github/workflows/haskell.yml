@@ -6,7 +6,7 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:adcf3bffb5464bb0e92d16f0d1ea3273de8e9553
+      image: lierdakil/pandoc-crossref-build:7a92c143b547c1b8a6a3d7110210c67ac7c74ddd
     strategy:
       matrix:
         pandocver: ["2.9.2.1"]
