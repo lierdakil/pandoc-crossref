@@ -10,4 +10,4 @@ packages:
 extra-deps:
 - roman-numerals-0.5.1.5
 - data-accessor-template-0.2.1.16
-resolver: nightly-2020-05-19
+resolver: lts-16.1
