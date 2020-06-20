@@ -70,7 +70,7 @@ jobs:
     #     key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
     - name: Cabal init/update
       run: |
-        cabal user-config init --augment="store-dir: $PWD/.cabal-store"
+        cabal user-config init --force --augment="store-dir: $PWD/.cabal-store"
         cabal v2-update
     - name: Install dependencies
       # if: steps.cache.outputs.cache-hit != 'true'
@@ -131,7 +131,7 @@ jobs:
     - name: Cabal init/update
       run: |
         $store = Join-Path $pwd ".cabal-store"
-        cabal user-config init --augment="store-dir: $store" --augment="jobs: 1"
+        cabal user-config init --force --augment="store-dir: $store" --augment="jobs: 1"
         cabal v2-update
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
