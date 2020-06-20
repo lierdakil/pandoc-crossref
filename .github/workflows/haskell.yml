@@ -6,7 +6,7 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:f9c302e160d915951a5d0ad983f1483cfef837fa
+      image: lierdakil/pandoc-crossref-build:adcf3bffb5464bb0e92d16f0d1ea3273de8e9553
     strategy:
       matrix:
         pandocver: ["2.9.2.1"]
@@ -62,28 +62,26 @@ jobs:
     - name: Setup GHC
       run: |
         brew bundle --file=osx/Brewfile
-    - uses: actions/cache@v1
-      id: cache
-      with:
-        path: .cabal-store
-        key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
-    - name: Cabal update
+        echo "::add-path::/usr/local/opt/ghc@${{matrix.ghcver}}/bin"
+    # - uses: actions/cache@v1
+    #   id: cache
+    #   with:
+    #     path: .cabal-store
+    #     key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
+    - name: Cabal init/update
       run: |
-        export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
-        cabal --store-dir=".cabal-store" v2-update
+        cabal user-config init --augment="store-dir: $PWD/.cabal-store"
+        cabal v2-update
     - name: Install dependencies
-      if: steps.cache.outputs.cache-hit != 'true'
+      # if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
-        cabal --store-dir=".cabal-store" v2-build --constraint pandoc==${{matrix.pandocver}} --only-dependencies --enable-tests
+        cabal v2-build --constraint pandoc==${{matrix.pandocver}} --only-dependencies --enable-tests
     - name: Build
       run: |
-        export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
-        cabal --store-dir=".cabal-store" v2-build --constraint pandoc==${{matrix.pandocver}}
+        cabal v2-build --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
       run: |
-        export PATH="/usr/local/opt/ghc@${{matrix.ghcver}}/bin:$PATH"
-        cabal --store-dir=".cabal-store" v2-test --constraint pandoc==${{matrix.pandocver}}
+        cabal v2-test --constraint pandoc==${{matrix.pandocver}}
     - name: Copy binary
       shell: bash
       run: find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
@@ -111,32 +109,46 @@ jobs:
     strategy:
       matrix:
         pandocver: ["2.9.2.1"]
-        cabalver: ["3.0.0.0"]
         ghcver: ["8.8.3"]
     outputs:
       version: ${{ steps.get_version.outputs.version }}
-    env:
-      GHC: "C:\\ProgramData\\chocolatey\\lib\\ghc\\tools\\ghc-${{matrix.ghcver}}\\bin\\ghc.exe"
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup GHC
+    - name: Get GHC version
       run: |
-        choco install ghc --version ${{matrix.ghcver}} --ignore-dependencies
-        choco install cabal --version ${{matrix.cabalver}} --ignore-dependencies
+        $BinGhcPath = Join-Path $env:ChocolateyInstall "lib\ghc.${{matrix.ghcver}}\tools\ghc-${{matrix.ghcver}}\bin\"
+        echo "$BinGhcPath"
+        echo "::add-path::$BinGhcPath"
+    - name: Check GHC version
+      shell: bash
+      run: |
+        [ "$(ghc --numeric-version)" == "${{matrix.ghcver}}" ]
+    - uses: actions/checkout@v2
     - uses: actions/cache@v1
       id: cache
       with:
         path: .cabal-store
         key: ${{ runner.os }}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
-    - name: Cabal update
-      run: cabal --store-dir=".cabal-store" v2-update
+    - name: Cabal init/update
+      run: |
+        $store = Join-Path $pwd ".cabal-store"
+        cabal user-config init --augment="store-dir: $store" --augment="jobs: 1"
+        cabal v2-update
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
-      run: cabal --store-dir=".cabal-store" v2-build -j1 -w "$Env:ghc" --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
+      run: |
+        [int]$retrycount = 10
+        do {
+          try {
+            cabal v2-build --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
+            break
+          } catch {
+            $retrycount = $retrycount - 1
+          }
+        } while($retrycount -gt 0)
     - name: Build
-      run: cabal --store-dir=".cabal-store" v2-build -j1 -w "$Env:ghc" --constraint pandoc==${{matrix.pandocver}}
+      run: cabal v2-build --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
-      run: cabal --store-dir=".cabal-store" v2-test -j1 -w "$Env:ghc" --constraint pandoc==${{matrix.pandocver}}
+      run: cabal v2-test --constraint pandoc==${{matrix.pandocver}}
     - name: Copy binary
       shell: bash
       run: find dist-newstyle -type f -name pandoc-crossref.exe -exec cp {} ./ \;
@@ -253,6 +265,9 @@ jobs:
 
   build-stack:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pandocver: ["2.9.2.1"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
@@ -267,3 +282,7 @@ jobs:
         key: ${{ runner.os }}-stack
     - name: Build and test
       run: ./stack build --test
+    - name: Verify version
+      shell: bash
+      run: |
+        stack exec -- pandoc-crossref --version | grep -q 'Pandoc v${{matrix.pandocver}}'

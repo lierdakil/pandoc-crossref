@@ -1,3 +1,9 @@
+## 0.3.6.3
+
+-   Fixed format option order in pipe mode
+-   Bump to GHC 8.8.3
+-   CI tweaks
+
 ## 0.3.6.2
 
 -   Force WS state evaluation to resolve duplicate id error inconsistency
