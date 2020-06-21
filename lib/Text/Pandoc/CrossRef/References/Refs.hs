@@ -102,7 +102,7 @@ allCitsPrefix :: [Citation] -> Maybe T.Text
 allCitsPrefix cits = find isCitationPrefix prefixes
   where
   isCitationPrefix p =
-    all (p `T.isPrefixOf`) $ map (uncapitalizeFirst . citationId) cits
+    all ((p `T.isPrefixOf`) . uncapitalizeFirst . citationId) cits
 
 replaceRefsLatex :: T.Text -> Options -> [Citation] -> WS [Inline]
 replaceRefsLatex prefix opts cits
@@ -122,8 +122,8 @@ replaceRefsLatex' prefix opts cits =
         cref'<>"{"<>listLabels prefix "" "," "" cits<>"}"
         else
           listLabels prefix "\\ref{" ", " "}" cits
-    suppressAuthor = all (==SuppressAuthor) $ map citationMode cits
-    noPrefix = all null $ map citationPrefix cits
+    suppressAuthor = all ((==SuppressAuthor) . citationMode) cits
+    noPrefix = all (null . citationPrefix) cits
     p | cref opts = id
       | suppressAuthor
       = id
@@ -160,9 +160,9 @@ replaceRefsOther' prefix opts cits = do
   indices <- mapM (getRefIndex prefix opts) cits
   let
     cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
-    writePrefix | all (==SuppressAuthor) $ map citationMode cits
+    writePrefix | all ((==SuppressAuthor) . citationMode) cits
                 = id
-                | all null $ map citationPrefix cits
+                | all (null . citationPrefix) cits
                 = cmap $ getRefPrefix opts prefix cap (length cits - 1)
                 | otherwise
                 = cmap $ toList . ((fromList (citationPrefix (head cits)) <> space) <>) . fromList
@@ -204,9 +204,9 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   g :: RefData -> RefData -> Bool
   g a b = all (null . rdSuffix) [a, b] && (
             all (isNothing . rdSubfig) [a, b] &&
-            fromMaybe False ((liftM2 follows `on` rdIdx) b a) ||
+            Just True == (liftM2 follows `on` rdIdx) b a ||
             rdIdx a == rdIdx b &&
-            fromMaybe False ((liftM2 follows `on` rdSubfig) b a)
+            Just True == (liftM2 follows `on` rdSubfig) b a
           )
   follows :: Index -> Index -> Bool
   follows a b

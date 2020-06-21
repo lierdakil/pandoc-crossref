@@ -30,7 +30,7 @@ import Text.Pandoc.Definition
 
 nameDeriveSetters ''Options
 
-fmap concat $ mapM (makeAcc . mkName)
+concat <$> mapM (makeAcc . mkName)
   [ "figureTitle"
   , "tableTitle"
   , "listingTitle"

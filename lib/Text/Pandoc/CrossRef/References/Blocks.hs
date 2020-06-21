@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, MultiWayIf, OverloadedStrings #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
@@ -275,7 +275,7 @@ replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
 replaceInline _ _ = noReplaceRecurse
 
 replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
-replaceSubfigs opts = (replaceNoRecurse . concat =<<) . mapM (replaceSubfig opts)
+replaceSubfigs opts = (replaceNoRecurse . concat) <=< mapM (replaceSubfig opts)
 
 replaceSubfig :: Options -> Inline -> WS [Inline]
 replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
