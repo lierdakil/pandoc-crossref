@@ -22,21 +22,55 @@
   ,Para [Str "Since",Space,Str "0.1.6.0",Space,Str "those",Space,Str "can",Space,Str "also",Space,Str "appear",Space,Str "in",Space,Str "the",Space,Str "middle",Space,Str "of",Space,Str "paragraph",SoftBreak,Span ("eq:quadr",[],[]) [Math DisplayMath "a x^2 + b x^2 + c = 0\\qquad(2)"],Space,Str "like",Space,Str "this."]
   ,Header 1 ("sec:chapter-3.-tables",[],[]) [Str "Chapter",Space,Str "3.",Space,Str "Tables"]
   ,Div ("tbl:table1",[],[])
-   [Table [Emph [Str "Table",Space,Str "1"],Str ":",Space,Str "Table",Space,Str "example"] [AlignLeft,AlignLeft] [0.0,0.0]
-    [[Plain [Str "First",Space,Str "Header"]]
-    ,[Plain [Str "Second",Space,Str "Header"]]]
-    [[[Plain [Str "Content",Space,Str "Cell"]]
-     ,[Plain [Str "Content",Space,Str "Cell"]]]
-    ,[[Plain [Str "Content",Space,Str "Cell"]]
-     ,[Plain [Str "Content",Space,Str "Cell"]]]]]
+   [Table ("",[],[]) (Caption Nothing
+    [Plain [Emph [Str "Table",Space,Str "1"],Str ":",Space,Str "Table",Space,Str "example"]])
+    [(AlignLeft,ColWidthDefault)
+    ,(AlignLeft,ColWidthDefault)]
+    (TableHead ("",[],[])
+    [Row ("",[],[])
+     [Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+      [Plain [Str "First",Space,Str "Header"]]
+     ,Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+      [Plain [Str "Second",Space,Str "Header"]]]])
+    [(TableBody ("",[],[]) (RowHeadColumns 0)
+     []
+     [Row ("",[],[])
+      [Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+       [Plain [Str "Content",Space,Str "Cell"]]
+      ,Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+       [Plain [Str "Content",Space,Str "Cell"]]]
+     ,Row ("",[],[])
+      [Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+       [Plain [Str "Content",Space,Str "Cell"]]
+      ,Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+       [Plain [Str "Content",Space,Str "Cell"]]]])]
+    (TableFoot ("",[],[])
+    [])]
   ,Para [Str "Table",Space,Str "without",Space,Str "caption:"]
-  ,Table [] [AlignLeft,AlignLeft] [0.0,0.0]
-   [[Plain [Str "First",Space,Str "Header"]]
-   ,[Plain [Str "Second",Space,Str "Header"]]]
-   [[[Plain [Str "Content",Space,Str "Cell"]]
-    ,[Plain [Str "Content",Space,Str "Cell"]]]
-   ,[[Plain [Str "Content",Space,Str "Cell"]]
-    ,[Plain [Str "Content",Space,Str "Cell"]]]]
+  ,Table ("",[],[]) (Caption Nothing
+   [])
+   [(AlignLeft,ColWidthDefault)
+   ,(AlignLeft,ColWidthDefault)]
+   (TableHead ("",[],[])
+   [Row ("",[],[])
+    [Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+     [Plain [Str "First",Space,Str "Header"]]
+    ,Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+     [Plain [Str "Second",Space,Str "Header"]]]])
+   [(TableBody ("",[],[]) (RowHeadColumns 0)
+    []
+    [Row ("",[],[])
+     [Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+      [Plain [Str "Content",Space,Str "Cell"]]
+     ,Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+      [Plain [Str "Content",Space,Str "Cell"]]]
+    ,Row ("",[],[])
+     [Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+      [Plain [Str "Content",Space,Str "Cell"]]
+     ,Cell ("",[],[]) AlignDefault (RowSpan 1) (ColSpan 1)
+      [Plain [Str "Content",Space,Str "Cell"]]]])]
+   (TableFoot ("",[],[])
+   [])
   ,Header 1 ("sec:chapter-4.-code-blocks",[],[]) [Str "Chapter",Space,Str "4.",Space,Str "Code",Space,Str "blocks"]
   ,Para [Str "There",Space,Str "are",Space,Str "a",Space,Str "couple",Space,Str "options",Space,Str "for",Space,Str "code",Space,Str "block",Space,Str "labels.",Space,Str "Those",Space,Str "work",Space,Str "only",Space,Str "if",Space,Str "code",Space,Str "block",Space,Str "id",Space,Str "starts",Space,Str "with",Space,Code ("",[],[]) "lst:",Str ",",Space,Str "e.g.\160",Code ("",[],[]) "{#lst:label}"]
   ,Header 2 ("sec:caption-attr",[],[]) [Code ("",[],[]) "caption",Space,Str "attribute"]

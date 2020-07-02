@@ -33,7 +33,6 @@ import Data.Maybe (fromMaybe)
 import Data.Generics
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a

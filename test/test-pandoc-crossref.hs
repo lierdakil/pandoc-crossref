@@ -387,9 +387,10 @@ equation' :: T.Text -> T.Text -> Inlines
 equation' eq ref = displayMath eq <> ref' "eq" ref
 
 table' :: T.Text -> T.Text -> Blocks
-table' title ref = table (text title <> ref' "tbl" ref) []
-   [para $ str "H1", para $ str "H2"]
-  [[para $ str "C1", para $ str "C2"]]
+table' title ref = table (simpleCaption . plain $ text title <> ref' "tbl" ref) []
+   (TableHead nullAttr [Row nullAttr $ map (Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) . toList) [para $ str "H1", para $ str "H2"]])
+  [TableBody nullAttr (RowHeadColumns 0) [] [Row nullAttr $ map (Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) . toList) [para $ str "C1", para $ str "C2"]]]
+  (TableFoot nullAttr [])
 
 codeBlock' :: T.Text -> T.Text -> Blocks
 codeBlock' title ref = codeBlockWith

@@ -25,11 +25,11 @@ module Text.Pandoc.CrossRef.References.Blocks
 
 import Text.Pandoc.Definition
 import qualified Text.Pandoc.Builder as B
-import Text.Pandoc.Shared (stringify)
+import Text.Pandoc.Shared (stringify, blocksToInlines)
+import Text.Pandoc.Walk (walk)
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import Data.Maybe
-import Data.Monoid
 import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
@@ -54,6 +54,17 @@ replaceAll opts =
                  , not $ isLatexFormat (outFormat opts)
                  = everywhere (mkT splitMath)
                  | otherwise = id
+
+simpleTable :: [Alignment] -> [ColWidth] -> [[[Block]]] -> Block
+simpleTable align width bod = Table nullAttr noCaption (zip align width)
+  noTableHead [mkBody bod] noTableFoot
+  where
+  mkBody xs = TableBody nullAttr (RowHeadColumns 0) [] (map mkRow xs)
+  mkRow xs = Row nullAttr (map mkCell xs)
+  mkCell xs = Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) xs
+  noCaption = Caption Nothing mempty
+  noTableHead = TableHead nullAttr []
+  noTableFoot = TableFoot nullAttr []
 
 replaceBlock :: Options -> Block -> WS (ReplacedResult Block)
 replaceBlock opts (Header n (label, cls, attrs) text')
@@ -139,7 +150,8 @@ replaceBlock opts (Div (label,cls,attrs) images)
               }
     toTable :: [Block] -> [Inline] -> [Block]
     toTable blks capt
-      | subfigGrid opts = [Table [] align widths [] $ map blkToRow blks, mkCaption opts "Image Caption" capt]
+      | subfigGrid opts = [ simpleTable align (map ColWidth widths) (map blkToRow blks)
+                          , mkCaption opts "Image Caption" capt]
       | otherwise = blks <> [mkCaption opts "Image Caption" capt]
       where
         align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
@@ -169,7 +181,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
         inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
         inlToCell _ = Nothing
         setW as = ("width", "100%"):filter ((/="width") . fst) as
-replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header cells])
+replaceBlock opts (Div divOps@(label,_,attrs) [Table tattr (Caption short (btitle:rest)) colspec header cells foot])
   | not $ null title
   , "tbl:" `T.isPrefixOf` label
   = do
@@ -179,7 +191,22 @@ replaceBlock opts (Div divOps@(label,_,attrs) [Table title align widths header c
               f | isLatexFormat f ->
                 RawInline (Format "latex") (mkLaTeXLabel label) : title
               _  -> applyTemplate idxStr title $ tableTemplate opts
-    replaceNoRecurse $ Div divOps [Table title' align widths header cells]
+        caption' = Caption short (walkReplaceInlines title' title btitle:rest)
+    replaceNoRecurse $ Div divOps [Table tattr caption' colspec header cells foot]
+  where title = blocksToInlines [btitle]
+replaceBlock opts (Table divOps@(label,_,attrs) (Caption short (btitle:rest)) colspec header cells foot)
+  | not $ null title
+  , "tbl:" `T.isPrefixOf` label
+  = do
+    idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) title tblRefs
+    let title' =
+          case outFormat opts of
+              f | isLatexFormat f ->
+                RawInline (Format "latex") (mkLaTeXLabel label) : title
+              _  -> applyTemplate idxStr title $ tableTemplate opts
+        caption' = Caption short (walkReplaceInlines title' title btitle:rest)
+    replaceNoRecurse $ Table divOps caption' colspec header cells foot
+  where title = blocksToInlines [btitle]
 replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   | not $ T.null label
   , "lst:" `T.isPrefixOf` label
@@ -241,7 +268,9 @@ replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
   , tableEqns opts
   = do
     (eq', idx) <- replaceEqn opts attrs eq
-    replaceNoRecurse $ Div attrs [Table [] [AlignCenter, AlignRight] [0.9, 0.09] [] [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" <> idx <> ")"]]]]]
+    replaceNoRecurse $ Div attrs [
+      simpleTable [AlignCenter, AlignRight] [ColWidth 0.9, ColWidth 0.09]
+       [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" <> idx <> ")"]]]]]
 replaceBlock _ _ = noReplaceRecurse
 
 replaceEqn :: Options -> Attr -> T.Text -> WS (T.Text, T.Text)
@@ -294,11 +323,21 @@ replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
 replaceSubfig _ x = return [x]
 
 divBlocks :: Block -> Block
-divBlocks (Table title align widths header cells)
+divBlocks (Table tattr (Caption short (btitle:rest)) colspec header cells foot)
   | not $ null title
   , Just label <- getRefLabel "tbl" [last title]
-  = Div (label,[],[]) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
+  = Div (label,[],[]) [
+    Table tattr (Caption short $ walkReplaceInlines (dropWhileEnd isSpace (init title)) title btitle:rest) colspec header cells foot]
+  where
+    title = blocksToInlines [btitle]
 divBlocks x = x
+
+walkReplaceInlines :: [Inline] -> [Inline] -> Block -> Block
+walkReplaceInlines newTitle title = walk replaceInlines
+  where
+  replaceInlines xs
+    | xs == title = newTitle
+    | otherwise = xs
 
 splitMath :: [Block] -> [Block]
 splitMath (Para ils:xs)

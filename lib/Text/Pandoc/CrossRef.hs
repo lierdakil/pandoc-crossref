@@ -83,7 +83,6 @@ module Text.Pandoc.CrossRef (
 import Control.Monad.State
 import qualified Control.Monad.Reader as R
 import Text.Pandoc
-import Data.Monoid ((<>))
 
 import Text.Pandoc.CrossRef.References
 import Text.Pandoc.CrossRef.Util.Settings

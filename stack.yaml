@@ -10,4 +10,8 @@ packages:
 extra-deps:
 - roman-numerals-0.5.1.5
 - data-accessor-template-0.2.1.16
+- pandoc-2.10
+- hslua-1.1.2
+- jira-wiki-markup-1.3.2
+- pandoc-types-1.21
 resolver: lts-16.3
