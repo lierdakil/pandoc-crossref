@@ -6,7 +6,7 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:71e65f8f7c0da1ccb4aee041d25c898df0d04d08
+      image: lierdakil/pandoc-crossref-build:0e0b898911d87ee9630aa5a55d030a319902c6e2
     strategy:
       matrix:
         pandocver: ["2.10"]
@@ -54,24 +54,19 @@ jobs:
     strategy:
       matrix:
         pandocver: ["2.10"]
-        ghcver: ["8.8"]
+        ghcver: ["8.10.1"]
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
     - uses: actions/checkout@v2
-    - name: Setup GHC
+    - uses: actions/setup-haskell@v1.1.1
+      with:
+        ghc-version: ${{matrix.ghcver}}
+        cabal-version: '3.2'
+    - name: Check GHC version
+      shell: bash
       run: |
-        brew bundle --file=osx/Brewfile
-        echo "::add-path::/usr/local/opt/ghc@${{matrix.ghcver}}/bin"
-    # - uses: actions/cache@v1
-    #   id: cache
-    #   with:
-    #     path: .cabal-store
-    #     key: ${{ runner.os }}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
-    - name: Cabal init/update
-      run: |
-        cabal user-config init --force --augment="store-dir: $PWD/.cabal-store"
-        cabal v2-update
+        [ "$(ghc --numeric-version)" == "${{matrix.ghcver}}" ]
     - name: Install dependencies
       # if: steps.cache.outputs.cache-hit != 'true'
       run: |
@@ -85,6 +80,8 @@ jobs:
     - name: Copy binary
       shell: bash
       run: find dist-newstyle -type f -perm +100 -name pandoc-crossref -exec cp {} ./ \;
+    - name: Install UPX
+      run: brew install upx
     - name: Package artifact
       shell: bash
       run: |
@@ -113,11 +110,10 @@ jobs:
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
-    - name: Get GHC version
-      run: |
-        $BinGhcPath = Join-Path $env:ChocolateyInstall "lib\ghc.${{matrix.ghcver}}\tools\ghc-${{matrix.ghcver}}\bin\"
-        echo "$BinGhcPath"
-        echo "::add-path::$BinGhcPath"
+    - uses: actions/setup-haskell@v1.1.1
+      with:
+        ghc-version: ${{matrix.ghcver}}
+        cabal-version: '3.2'
     - name: Check GHC version
       shell: bash
       run: |
