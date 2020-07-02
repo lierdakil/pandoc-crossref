@@ -25,11 +25,11 @@ module Text.Pandoc.CrossRef.References.Blocks
 
 import Text.Pandoc.Definition
 import qualified Text.Pandoc.Builder as B
-import Text.Pandoc.Shared (stringify, makeSections)
+import Text.Pandoc.Shared (stringify, makeSections, blocksToInlines)
+import Text.Pandoc.Walk (walk)
 import Control.Monad.State hiding (get, modify)
 import Data.List
 import Data.Maybe
-import Data.Monoid
 import qualified Data.Map as M
 import qualified Data.Text as T
 
@@ -85,13 +85,24 @@ replaceBlock opts scope (Div (ident, "section":cls, attr) (Header lvl (hident, h
   where label | T.null hident = ident
               | otherwise = hident
 -- tables
-replaceBlock opts scope (Div divOps@(label,_,attrs) [Table title align widths header cells])
+replaceBlock opts scope (Div divOps@(label,_,attrs) [Table tattr (Caption short (btitle:rest)) colspec header cells foot])
   | not $ null title
   , Just pfx <- getRefPrefix opts label
   = do
     let ititle = B.fromList title
     RefRec{..} <- replaceAttr opts scope (ExplicitLabel label) attrs ititle pfx
-    replaceNoRecurse $ Div divOps [Table (B.toList refCaption) align widths header cells]
+    let caption' = Caption short (walkReplaceInlines (B.toList refCaption) title btitle:rest)
+    replaceNoRecurse $ Div divOps [Table tattr caption' colspec header cells foot]
+  where title = blocksToInlines [btitle]
+replaceBlock opts scope (Table divOps@(label,_,attrs) (Caption short (btitle:rest)) colspec header cells foot)
+  | not $ null title
+  , Just pfx <- getRefPrefix opts label
+  = do
+    let ititle = B.fromList title
+    RefRec{..} <- replaceAttr opts scope (ExplicitLabel label) attrs ititle pfx
+    let caption' = Caption short (walkReplaceInlines (B.toList refCaption) title btitle:rest)
+    replaceNoRecurse $ Table divOps caption' colspec header cells foot
+  where title = blocksToInlines [btitle]
 -- code blocks
 replaceBlock opts scope (Div (label, [], divattrs) [CodeBlock ("",classes,cbattrs) code, Para (Str ":":Space:caption)])
   | Just pfx <- getRefPrefix opts label
@@ -151,7 +162,7 @@ replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
 replaceInline opts scope (Span (label,cls,attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
-      ref@RefRec{..} <- replaceAttr opts scope (ExplicitLabel label) attrs (B.fromList content) pfx
+      ref@RefRec{} <- replaceAttr opts scope (ExplicitLabel label) attrs (B.fromList content) pfx
       replaceRecurse (newScope ref scope) . Span (label, cls, attrs)
          . B.toList $ applyTitleTemplate ref
 replaceInline _opts (scope@RefRec{refPfxRec=Prefix{..}}:_) (Span ("",_,attrs) []) = do
@@ -181,15 +192,25 @@ applyTitleIndexTemplate rr@RefRec{..} =
   vf "ri" = Just $ MetaInlines $ B.toList refIxInlRaw
   vf x = fix defaultVarFunc rr x
 
+walkReplaceInlines :: [Inline] -> [Inline] -> Block -> Block
+walkReplaceInlines newTitle title = walk replaceInlines
+  where
+  replaceInlines xs
+    | xs == title = newTitle
+    | otherwise = xs
+
 divBlocks :: Options -> Block -> Block
-divBlocks opts (Table [Span (label, cls, attr) title] align widths header cells)
-  | not $ null title
+divBlocks opts (Table tattr@("", _, _) (Caption short (btitle:rest)) colspec header cells foot)
+  | [Span (label, cls, attr) title] <- titleWSpan
+  , not $ null title
   , isJust $ getRefPrefix opts label
-  = Div (label, cls, attr) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
-divBlocks opts (Table title align widths header cells)
+  = Div (label, cls, attr) [Table tattr (Caption short $ walkReplaceInlines title titleWSpan btitle : rest) colspec header cells foot]
+  where titleWSpan = blocksToInlines [btitle]
+divBlocks opts (Table tattr@("", _, _) (Caption short (btitle:rest)) colspec header cells foot)
   | not $ null title
   , Just label <- getRefLabel opts [last title]
-  = Div (label,[],[]) [Table (dropWhileEnd isSpace $ init title) align widths header cells]
+  = Div (label,[],[]) [Table tattr (Caption short $ walkReplaceInlines (dropWhileEnd isSpace (init title)) title btitle : rest) colspec header cells foot]
+  where title = blocksToInlines [btitle]
 divBlocks opts (CodeBlock (label, classes, attrs) code)
   | Just caption <- lookup "caption" attrs
   , isJust $ getRefPrefix opts label

@@ -1,10 +1,8 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.1.
+-- This file has been generated from package.yaml by hpack version 0.34.2.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: e597582e02f2e6e9aaef63cf79bb014f5f2d595ae7da852d08ecc34f14067f35
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -119,8 +117,8 @@ library
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
-    , pandoc >=2.9 && <2.10
-    , pandoc-types >=1.20 && <1.21
+    , pandoc >=2.10 && <2.11
+    , pandoc-types >=1.21 && <1.22
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -149,9 +147,9 @@ executable pandoc-crossref
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
     , optparse-applicative >=0.13 && <0.16
-    , pandoc >=2.9 && <2.10
+    , pandoc >=2.10 && <2.11
     , pandoc-crossref
-    , pandoc-types >=1.20 && <1.21
+    , pandoc-types >=1.21 && <1.22
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -176,9 +174,9 @@ test-suite test-integrative
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.9 && <2.10
+    , pandoc >=2.10 && <2.11
     , pandoc-crossref
-    , pandoc-types >=1.20 && <1.21
+    , pandoc-types >=1.21 && <1.22
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -234,8 +232,8 @@ test-suite test-pandoc-crossref
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.9 && <2.10
-    , pandoc-types >=1.20 && <1.21
+    , pandoc >=2.10 && <2.11
+    , pandoc-types >=1.21 && <1.22
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0

@@ -67,7 +67,7 @@ makeSubfigures opts (Div (label,cls,attrs) contents)
 makeSubfigures _ x = x
 
 toTable :: [Block] -> [Block]
-toTable blks = [Table [] align widths [] $ map blkToRow blks]
+toTable blks = [simpleTable align widths $ map blkToRow blks]
   where
     align | Para ils:_ <- blks = replicate (length $ mapMaybe getWidth ils) AlignCenter
           | otherwise = error "Misformatted subfigures block"

@@ -89,7 +89,6 @@ import Control.Monad.Reader as R
 import Text.Pandoc as P
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
-import Data.Monoid ((<>))
 import System.IO
 
 import Text.Pandoc.CrossRef.References

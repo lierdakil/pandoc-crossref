@@ -1,3 +1,8 @@
+## 0.3.6.4
+
+-   Last version to support pandoc 2.9
+-   Create hypertargets on equations in LaTeX output
+
 ## 0.3.6.3
 
 -   Fixed format option order in pipe mode

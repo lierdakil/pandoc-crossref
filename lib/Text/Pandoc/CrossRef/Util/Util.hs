@@ -27,7 +27,6 @@ import Text.Pandoc.Class
 import Data.Char (toUpper, toLower, isUpper)
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
-import Data.Monoid ((<>))
 import qualified Data.Text as T
 
 import qualified Data.Accessor.Basic as Accessor
@@ -104,3 +103,14 @@ get f = State.gets (Accessor.get f)
 
 modify :: (State.MonadState r s) => Accessor.T r a -> (a -> a) -> s ()
 modify f g = State.modify (Accessor.modify f g)
+
+simpleTable :: [Alignment] -> [Double] -> [[[Block]]] -> Block
+simpleTable align width bod = Table nullAttr noCaption (zip align $ map ColWidth width)
+  noTableHead [mkBody bod] noTableFoot
+  where
+  mkBody xs = TableBody nullAttr (RowHeadColumns 0) [] (map mkRow xs)
+  mkRow xs = Row nullAttr (map mkCell xs)
+  mkCell xs = Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) xs
+  noCaption = Caption Nothing mempty
+  noTableHead = TableHead nullAttr []
+  noTableFoot = TableFoot nullAttr []
