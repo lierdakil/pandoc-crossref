@@ -307,7 +307,7 @@ main = hspec $ do
         it "Eqn labels" $
           equation "x^2" "some_equation1"
             <> para (citeGen "eq:some_equation" [1])
-            `test` "\\begin{equation}x^2\\label{eq:some_equation1}\\end{equation}\n\neq.~\\ref{eq:some_equation1}"
+            `test` "\\protect\\hypertarget{eq:some_equation1}{}{\\begin{equation}x^2\\label{eq:some_equation1}\\end{equation}}\n\neq.~\\ref{eq:some_equation1}"
 
 #ifdef FLAKY
         it "Tbl labels" $

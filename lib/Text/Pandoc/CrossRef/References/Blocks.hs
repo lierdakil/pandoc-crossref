@@ -257,13 +257,11 @@ replaceEqn opts (label, _, attrs) eq = do
 replaceInline :: Options -> Inline -> WS (ReplacedResult Inline)
 replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
   | "eq:" `T.isPrefixOf` label || T.null label && autoEqnLabels opts
-  = case outFormat opts of
+  = replaceNoRecurse . Span attrs . (:[]) =<< case outFormat opts of
       f | isLatexFormat f ->
-        let eqn = "\\begin{equation}"<>eq<>mkLaTeXLabel label<>"\\end{equation}"
-        in replaceNoRecurse $ RawInline (Format "latex") eqn
-      _ -> do
-        (eq', _) <- replaceEqn opts attrs eq
-        replaceNoRecurse $ Span attrs [Math DisplayMath eq']
+        pure . RawInline (Format "latex")
+        $ "\\begin{equation}"<>eq<>mkLaTeXLabel label<>"\\end{equation}"
+      _ -> Math DisplayMath . fst <$> replaceEqn opts attrs eq
 replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
   | "fig:" `T.isPrefixOf` label && "fig:" `T.isPrefixOf` tit
   = do
