@@ -75,6 +75,7 @@ time of writing, pandoc-crossref is provided on the following platforms
 -   NixOS or Nix package manager (via `nixpkgs.haskellPackages`
     attribute)
 -   MacOS (via [Homebrew](https://brew.sh))
+-   FreeBSD official binary package textproc/hs-pandoc-crossref(https://www.freshports.org/textproc/hs-pandoc-crossref/)
 -   Any Linux distribution (via [Linuxbrew](https://docs.brew.sh/Linuxbrew))
 -   Gentoo Linux (via gentoo-haskell overlay)
 
