@@ -106,7 +106,7 @@ jobs:
     strategy:
       matrix:
         pandocver: ["2.10"]
-        ghcver: ["8.10.1"]
+        ghcver: ["8.8.3"]
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
@@ -121,7 +121,6 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/cache@v1
       id: cache
-      if: false
       with:
         path: .cabal-store
         key: ${{ runner.os }}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
@@ -131,7 +130,6 @@ jobs:
         cabal user-config init --force --augment="store-dir: $store"
         cabal v2-update
     - name: Install dependencies
-      if: steps.cache.outputs.cache-hit != 'true'
       run: cabal v2-build --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
     - name: Build
       run: cabal v2-build --constraint pandoc==${{matrix.pandocver}}
