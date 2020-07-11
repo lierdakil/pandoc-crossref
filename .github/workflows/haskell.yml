@@ -127,10 +127,19 @@ jobs:
     - name: Cabal init/update
       run: |
         $store = Join-Path $pwd ".cabal-store"
-        cabal user-config init --force --augment="store-dir: $store"
+        cabal user-config init --force --augment="store-dir: $store" --augment="jobs: 1"
         cabal v2-update
     - name: Install dependencies
-      run: cabal v2-build --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
+      run: |
+        [int]$retrycount = 10
+        do {
+          try {
+            cabal v2-build --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
+            break
+          } catch {
+            $retrycount = $retrycount - 1
+          }
+        } while($retrycount -gt 0)
     - name: Build
       run: cabal v2-build --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
