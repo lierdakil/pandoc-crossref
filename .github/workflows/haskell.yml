@@ -121,26 +121,18 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/cache@v1
       id: cache
+      if: false
       with:
         path: .cabal-store
         key: ${{ runner.os }}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{ hashFiles('pandoc-crossref.cabal') }}
     - name: Cabal init/update
       run: |
         $store = Join-Path $pwd ".cabal-store"
-        cabal user-config init --force --augment="store-dir: $store" --augment="jobs: 1"
+        cabal user-config init --force --augment="store-dir: $store"
         cabal v2-update
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
-      run: |
-        [int]$retrycount = 10
-        do {
-          try {
-            cabal v2-build --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
-            break
-          } catch {
-            $retrycount = $retrycount - 1
-          }
-        } while($retrycount -gt 0)
+      run: cabal v2-build --only-dependencies --enable-tests --constraint pandoc==${{matrix.pandocver}}
     - name: Build
       run: cabal v2-build --constraint pandoc==${{matrix.pandocver}}
     - name: Run tests
