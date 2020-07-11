@@ -1,3 +1,7 @@
+## 0.3.7.0
+
+-  Support for pandoc-2.10
+
 ## 0.3.6.4
 
 -   Last version to support pandoc 2.9
