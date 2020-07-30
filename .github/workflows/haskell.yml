@@ -106,7 +106,7 @@ jobs:
     strategy:
       matrix:
         pandocver: ["2.10.1"]
-        ghcver: ["8.8.3"]
+        ghcver: ["8.8.4"]
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
