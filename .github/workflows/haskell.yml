@@ -6,10 +6,10 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container:
-      image: lierdakil/pandoc-crossref-build:0e0b898911d87ee9630aa5a55d030a319902c6e2
+      image: lierdakil/pandoc-crossref-build:004a98f6499f04efbfca5f91a9c594cde6952e36
     strategy:
       matrix:
-        pandocver: ["2.10"]
+        pandocver: ["2.10.1"]
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
@@ -53,7 +53,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        pandocver: ["2.10"]
+        pandocver: ["2.10.1"]
         ghcver: ["8.10.1"]
     outputs:
       version: ${{ steps.get_version.outputs.version }}
@@ -105,7 +105,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        pandocver: ["2.10"]
+        pandocver: ["2.10.1"]
         ghcver: ["8.8.3"]
     outputs:
       version: ${{ steps.get_version.outputs.version }}
@@ -169,7 +169,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.10"]
+        pandocver: ["2.10.1"]
     steps:
     - uses: actions/download-artifact@v1
       with:
@@ -262,7 +262,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.10"]
+        pandocver: ["2.10.1"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
