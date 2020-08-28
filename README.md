@@ -78,6 +78,7 @@ time of writing, pandoc-crossref is provided on the following platforms
 -   FreeBSD official binary package [textproc/hs-pandoc-crossref](https://www.freshports.org/textproc/hs-pandoc-crossref/)
 -   Any Linux distribution (via [Linuxbrew](https://docs.brew.sh/Linuxbrew))
 -   Gentoo Linux (via gentoo-haskell overlay)
+-   Windows (via [scoop](https://scoop.sh/))
 
 ### Building from Hackage with `cabal-install` and Haskell platform
 
