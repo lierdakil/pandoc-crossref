@@ -111,7 +111,9 @@ jobs:
       matrix:
         pandocver: ["2.10.1"]
     steps:
-    - run: apk add --update --no-cache p7zip upx bash tar xz
+    - run: |
+        echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories
+        apk add --update --no-cache p7zip hub upx bash tar xz
     - uses: actions/checkout@v2
     - uses: actions/download-artifact@v2
     - name: Repack assets
@@ -144,6 +146,7 @@ jobs:
         cat description.md
       id: description
     - name: Create release
+      shell: bash
       if: contains(github.ref, 'tags/v')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
