@@ -270,7 +270,16 @@ replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
     (eq', idx) <- replaceEqn opts attrs eq
     replaceNoRecurse $ Div attrs [
       simpleTable [AlignCenter, AlignRight] [ColWidth 0.9, ColWidth 0.09]
-       [[[Plain [Math DisplayMath eq']], [Plain [Math DisplayMath $ "(" <> idx <> ")"]]]]]
+       [[[Plain [Math DisplayMath eq']], [eqnNumber idx]]]]
+  where
+  eqnNumber idx
+    | outFormat opts == Just (Format "docx")
+    = Div nullAttr [
+        RawBlock (Format "openxml") "<w:tcPr><w:vAlign w:val=\"center\"/></w:tcPr>"
+      , mathIdx
+      ]
+    | otherwise = mathIdx
+    where mathIdx = Plain [Math DisplayMath $ "(" <> idx <> ")"]
 replaceBlock _ _ = noReplaceRecurse
 
 replaceEqn :: Options -> Attr -> T.Text -> WS (T.Text, T.Text)
