@@ -292,22 +292,23 @@ replaceEqn opts (label, _, attrs) eq = do
       idxTxt = stringify idxStr
   return (eq', idxTxt)
 
-replaceInline :: Options -> Inline -> WS (ReplacedResult Inline)
-replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq])
+replaceInline :: Options -> [Inline] -> WS (ReplacedResult [Inline])
+replaceInline opts (Span attrs@(label,_,_) [Math DisplayMath eq]:xs)
   | "eq:" `T.isPrefixOf` label || T.null label && autoEqnLabels opts
-  = replaceNoRecurse . Span attrs . (:[]) =<< case outFormat opts of
+  = replaceNoRecurse . (<>xs) =<< case outFormat opts of
       f | isLatexFormat f ->
-        pure . RawInline (Format "latex")
-        $ "\\begin{equation}"<>eq<>mkLaTeXLabel label<>"\\end{equation}"
-      _ -> Math DisplayMath . fst <$> replaceEqn opts attrs eq
-replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
+        pure [RawInline (Format "latex") "\\begin{equation}"
+        , Span attrs [RawInline (Format "latex") eq]
+        , RawInline (Format "latex") $ mkLaTeXLabel label <> "\\end{equation}"]
+      _ -> pure . Span attrs . (:[]) . Math DisplayMath . fst <$> replaceEqn opts attrs eq
+replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit):xs)
   | "fig:" `T.isPrefixOf` label && "fig:" `T.isPrefixOf` tit
   = do
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) alt imgRefs
     let alt' = case outFormat opts of
           f | isLatexFormat f -> alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
-    replaceNoRecurse $ Image attr alt' img
+    replaceNoRecurse $ Image attr alt' img:xs
 replaceInline _ _ = noReplaceRecurse
 
 replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
