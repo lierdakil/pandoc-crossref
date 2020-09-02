@@ -142,34 +142,35 @@ jobs:
           echo "${os}: ${desc}" >> description.md
           echo ::set-output name=${os}::${desc}
         done
+        ver="${GITHUB_REF##*/v}"
+        echo "### Changelog" >> description.md
+        sed -rn '/^## *'"${ver}"'/,/^##/ p' CHANGELOG.md | head -n-1 | tail -n+2 >> description.md
         echo "description.md"
         cat description.md
       id: description
-    - name: Create release
+    - name: Rename assets for release
+      if: startsWith(github.ref, 'refs/tags/v')
       shell: bash
-      if: contains(github.ref, 'tags/v')
+      run: |
+        for i in assets/*; do
+          mv "$i" "${i/-${{github.sha}}/}"
+        done
+    - name: Create release
+      if: startsWith(github.ref, 'refs/tags/v')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        set -x
-        assets=()
-        for asset in assets/*; do
-          assets+=("-a" "$asset")
-        done
-        tag_name="${GITHUB_REF##*/}"
-        echo -en "$tag_name\n\n" > release.md
-        cat description.md >> release.md
-        echo "release.md"
-        cat release.md
-        hub release create "${assets[@]}" -F "release.md" "$tag_name"
-        rm release.md
-        rm description.md
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: description.md
+        files: |
+          assets/*
+        fail_on_unmatched_files: true
     - name: Extract branch name
       shell: bash
       run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
       id: extract_branch
     - name: Upload to Bintray
-      if: "!contains(github.ref, 'tags/v')"
+      if: "!startsWith(github.ref, 'refs/tags/v')"
       uses: lierdakil/action-bintray-upload@master
       with:
         username: lierdakil
