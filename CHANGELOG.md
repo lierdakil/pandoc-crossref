@@ -1,3 +1,11 @@
+## 0.3.8.0
+
+-   [LaTeX] Move hypertarget inside equation environment
+
+    Fixes spacing issues in LaTeX/pdf output
+
+-   [DOCX] Center equation number vertically with tableEqns
+
 ## 0.3.7.0
 
 -  Support for pandoc-2.10
