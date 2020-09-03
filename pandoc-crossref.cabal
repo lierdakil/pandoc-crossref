@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 59e47ed4453e60fba6e6b4586f3bfd980106f6cc7d80a94903de45f3d7c9e18b
+-- hash: 60aff0647917782b159c09b84eb53496da9ed0f414fe0eb7d77857567ba27dfb
 
 name:           pandoc-crossref
-version:        0.3.8.0
+version:        0.3.8.1
 synopsis:       Pandoc filter for cross-references
 description:    pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 category:       Text
