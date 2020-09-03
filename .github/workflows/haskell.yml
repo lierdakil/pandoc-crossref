@@ -133,6 +133,7 @@ jobs:
         name: release-assets
         path: assets
     - name: Generate description
+      if: startsWith(github.ref, 'refs/tags/v')
       shell: bash
       run: |
         echo -n "" > description.md
@@ -166,6 +167,7 @@ jobs:
           assets/*
         fail_on_unmatched_files: true
     - name: Extract branch name
+      if: "!startsWith(github.ref, 'refs/tags/v')"
       shell: bash
       run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
       id: extract_branch
