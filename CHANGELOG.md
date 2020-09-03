@@ -1,3 +1,7 @@
+## 0.3.8.1
+
+-   Fix parsing multiple inlines in block
+
 ## 0.3.8.0
 
 -   [LaTeX] Move hypertarget inside equation environment
