@@ -1,3 +1,19 @@
+## 0.3.8.1
+
+-   Fix parsing multiple inlines in block
+
+## 0.3.8.0
+
+-   [LaTeX] Move hypertarget inside equation environment
+
+    Fixes spacing issues in LaTeX/pdf output
+
+-   [DOCX] Center equation number vertically with tableEqns
+
+## 0.3.7.0
+
+-  Support for pandoc-2.10
+
 ## 0.3.6.4
 
 -   Last version to support pandoc 2.9

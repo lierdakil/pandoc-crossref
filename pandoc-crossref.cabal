@@ -1,8 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: 97a8c365878e90cc416024d26e1d043d74721b0d4af2bfc5298831494d18a948
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -39,8 +41,9 @@ data-files:
     test/m2m/list-of/expect.md
     test/m2m/list-of/input.md
     test/m2m/listing-captions-ids/expect.md
-    test/m2m/listing-captions-ids/expect.tex
     test/m2m/listing-captions-ids/input.md
+    test/m2m/multiple-eqn-same-para/expect.md
+    test/m2m/multiple-eqn-same-para/input.md
     test/m2m/numbering-parts/expect.md
     test/m2m/numbering-parts/input.md
     test/m2m/ref-attrs/expect.md

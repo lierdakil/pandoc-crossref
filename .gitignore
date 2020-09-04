@@ -5,6 +5,7 @@ static-build
 .pandoc-*
 pandoc
 cabal.project.local
+cabal.project.local~
 dist
 dist-newstyle
 cabal.sandbox.config
