@@ -132,7 +132,7 @@ jobs:
       with:
         name: release-assets
         path: assets
-    - name: Generate description
+    - name: Generate description.md
       if: startsWith(github.ref, 'refs/tags/v')
       shell: bash
       run: |
@@ -141,14 +141,12 @@ jobs:
           os="${i%-build}"
           desc="$(cat $i/version.txt)"
           echo "${os}: ${desc}" >> description.md
-          echo ::set-output name=${os}::${desc}
         done
         ver="${GITHUB_REF##*/v}"
         echo "### Changelog" >> description.md
         sed -rn '/^## *'"${ver}"'/,/^##/ p' CHANGELOG.md | head -n-1 | tail -n+2 >> description.md
         echo "description.md"
         cat description.md
-      id: description
     - name: Rename assets for release
       if: startsWith(github.ref, 'refs/tags/v')
       shell: bash
@@ -171,6 +169,16 @@ jobs:
       shell: bash
       run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
       id: extract_branch
+    - name: Generate description outputs
+      if: "!startsWith(github.ref, 'refs/tags/v')"
+      shell: bash
+      run: |
+        for i in *-build; do
+          os="${i%-build}"
+          desc="$(cat $i/version.txt)"
+          echo ::set-output name=${os}::${desc}
+        done
+      id: description
     - name: Upload to Bintray
       if: "!startsWith(github.ref, 'refs/tags/v')"
       uses: lierdakil/action-bintray-upload@master
