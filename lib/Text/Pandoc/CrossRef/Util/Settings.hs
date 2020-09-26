@@ -163,7 +163,7 @@ basicMeta = Settings $
         "title" .= text "Section",
         "captionTemplate" .= var "t",
         "scope" .= ["sec" :: T.Text],
-        "referenceIndexTemplate" .= var "s.i%." <> var "i" <> var "suf"
+        "referenceIndexTemplate" .= var "s.refi%." <> var "i" <> var "suf"
       ]
     ]
 
