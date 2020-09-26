@@ -207,6 +207,7 @@ applyIndexTemplate :: Inlines -> RefRec -> Inlines
 applyIndexTemplate suf rr =
   let varsSc rr' "ref" = Just $ inlines False rr'
       varsSc rr' "Ref" = Just $ inlines True rr'
+      varsSc rr' "refi" = Just . MetaInlines . toList $ applyIndexTemplate mempty rr'
       varsSc rr' x = defaultVarFunc varsSc rr' x
       vars _ "suf" = Just $ MetaInlines $ toList suf
       vars rr' x = defaultVarFunc varsSc rr' x
