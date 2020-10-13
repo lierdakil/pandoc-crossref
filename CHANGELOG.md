@@ -1,3 +1,9 @@
+## 0.3.8.2
+
+-   [Fix] Escape LaTeX caption attribute when taken from Markdown
+
+    Apparently, pandoc (up to 2.11) doesn't escape `caption` code block attribute for LaTeX when used with `--listings`. This may be intentional, but when caption is defined in pandoc-crossref using div or table-style caption syntax, this can lead to inconsistencies. Hence, caption defined in Markdown (as opposed to as string in the attribute) is now escaped when outputting to LaTeX with `--listings` enabled.
+
 ## 0.3.8.1
 
 -   Fix parsing multiple inlines in block
