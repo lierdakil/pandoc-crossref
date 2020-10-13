@@ -247,7 +247,7 @@ replaceBlock opts
       f
         --if used with listings package, return code block with caption
         | isLatexFormat f, listings opts ->
-          replaceNoRecurse $ CodeBlock (label,classes,("caption",stringify caption):attrs) code
+          replaceNoRecurse $ CodeBlock (label,classes,("caption",escapeLaTeX $ stringify caption):attrs) code
         --if not using listings, however, wrap it in a codelisting environment
         | isLatexFormat f ->
           replaceNoRecurse $ Div nullAttr [

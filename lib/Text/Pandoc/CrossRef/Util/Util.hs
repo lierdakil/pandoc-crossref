@@ -116,6 +116,12 @@ mkLaTeXLabel' l =
             runPure (writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []])
   in T.takeWhile (/='}') . T.drop 1 . T.dropWhile (/='{') $ ll
 
+escapeLaTeX :: T.Text -> T.Text
+escapeLaTeX l =
+  let ll = either (error . show) id $
+            runPure (writeLaTeX def $ Pandoc nullMeta [Plain [Str l]])
+  in ll
+
 getRefLabel :: T.Text -> [Inline] -> Maybe T.Text
 getRefLabel _ [] = Nothing
 getRefLabel tag ils
