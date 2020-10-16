@@ -1,3 +1,9 @@
+## 0.3.8.3
+
+-   [Fix] Pandoc 2.11.0.1 fixes the issue fixed in the previous release upstream.
+
+    Unfortunately, "double fix" is no fix at all. This release checks for pandoc version and disables the fix on our side as needed.
+
 ## 0.3.8.2
 
 -   [Fix] Escape LaTeX caption attribute when taken from Markdown
