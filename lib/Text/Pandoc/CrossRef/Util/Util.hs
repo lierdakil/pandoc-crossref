@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RankNTypes, OverloadedStrings #-}
+{-# LANGUAGE RankNTypes, OverloadedStrings, CPP #-}
 module Text.Pandoc.CrossRef.Util.Util
   ( module Text.Pandoc.CrossRef.Util.Util
   , module Data.Generics
@@ -33,6 +33,9 @@ import Data.Maybe (fromMaybe)
 import Data.Generics
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
+import Data.Version
+import Data.List (find)
+import Text.ParserCombinators.ReadP (readP_to_S)
 import qualified Data.Text as T
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
@@ -120,7 +123,10 @@ escapeLaTeX :: T.Text -> T.Text
 escapeLaTeX l =
   let ll = either (error . show) id $
             runPure (writeLaTeX def $ Pandoc nullMeta [Plain [Str l]])
-  in ll
+      pv = fmap fst . find (null . snd) . readP_to_S parseVersion $ VERSION_pandoc
+      mv = makeVersion [2,11,0,1]
+      cond = maybe False (mv >=) pv
+  in if cond then ll else l
 
 getRefLabel :: T.Text -> [Inline] -> Maybe T.Text
 getRefLabel _ [] = Nothing
