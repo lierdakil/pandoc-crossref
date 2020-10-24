@@ -10,10 +10,10 @@ packages:
 extra-deps:
 - roman-numerals-0.5.1.5
 - data-accessor-template-0.2.1.16
-- pandoc-2.11.0.2
+- pandoc-2.11.0.4
 - pandoc-types-1.22
 # pandoc dependencies
-- citeproc-0.1.0.2
+- citeproc-0.1.0.3
 - commonmark-0.1.0.2
 - commonmark-extensions-0.2.0.1
 - commonmark-pandoc-0.2.0.1
