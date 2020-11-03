@@ -7,6 +7,9 @@ title: 'pandoc-crossref(1)'
 pandoc-crossref is a pandoc filter for numbering figures, equations,
 tables and cross-references to them.
 
+* TOC
+{:toc}
+
 # Caveats
 
 ## LaTeX output and `--include-in-header`
