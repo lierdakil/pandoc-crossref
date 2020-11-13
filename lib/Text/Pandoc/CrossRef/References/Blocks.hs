@@ -78,11 +78,11 @@ replaceBlock opts (Header n (label, cls, attrs) text')
     unless ("unnumbered" `elem` cls) $ do
       modify curChap $ \cc ->
         let ln = length cc
-            cl = lookup "label" attrs
-            inc l = init l <> [(fst (last l) + 1, cl)]
+            cl i = lookup "label" attrs <> customLabel opts "sec" i
+            inc l = let i = fst (last l) + 1 in init l <> [(i, cl i)]
             cc' | ln > n = inc $ take n cc
                 | ln == n = inc cc
-                | otherwise = cc <> take (n-ln-1) (zip [1,1..] $ repeat Nothing) <> [(1,cl)]
+                | otherwise = cc <> take (n-ln-1) (zip [1,1..] $ repeat Nothing) <> [(1,cl 1)]
         in cc'
       when ("sec:" `T.isPrefixOf` label') $ do
         index  <- get curChap
