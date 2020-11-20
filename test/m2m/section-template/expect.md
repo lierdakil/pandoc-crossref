@@ -1,8 +1,6 @@
-Chapter 1. First Level Section {#first-level-section}
-==============================
+# Chapter 1. First Level Section {#first-level-section}
 
-Section 1.1. Second Level Section {#second-level-section}
----------------------------------
+## Section 1.1. Second Level Section {#second-level-section}
 
 ### Paragraph 1.1.1. Thrid Level Section {#thrid-level-section}
 

@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        pandocver: ["2.11.0.4"]
+        pandocver: ["2.11.2"]
         include:
         - os: ubuntu-latest
           container: 'lierdakil/alpine-haskell:8.10.2-pwsh'
@@ -198,7 +198,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.11.0.4"]
+        pandocver: ["2.11.2"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies

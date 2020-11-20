@@ -1,13 +1,10 @@
-a First Level Section {#first-level-section}
-=====================
+# a First Level Section {#first-level-section}
 
-a.a Second Level Section {#second-level-section}
-------------------------
+## a.a Second Level Section {#second-level-section}
 
 ![Figure a: my figure](myfig.png){#fig:myfig}
 
-a.b Other Second Level Section {#other-second-level-section}
-------------------------------
+## a.b Other Second Level Section {#other-second-level-section}
 
 ::: {#tbl:mytable}
   a   b   c
