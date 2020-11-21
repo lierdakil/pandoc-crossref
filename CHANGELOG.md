@@ -1,3 +1,9 @@
+## 0.3.8.4
+
+-   [Fix] secLabels
+-   [ManData] Generate table of contents in embedded html; filter out kramdown toc marker
+-   [Docs] Add toc to gh-pages
+
 ## 0.3.8.3
 
 -   [Fix] Pandoc 2.11.0.1 fixes the issue fixed in the previous release upstream.
