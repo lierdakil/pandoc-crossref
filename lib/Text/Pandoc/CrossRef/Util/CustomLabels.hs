@@ -42,6 +42,8 @@ mkLabel i n lt
   = Nothing
   | toString n lt == "roman"
   = Just $ toRoman i
+  | toString n lt == "lowercase roman"
+  = Just $ T.toLower $ toRoman i
   | Just (startWith, _) <- T.uncons =<< T.stripPrefix "alpha " (toString n lt)
   = Just . T.singleton $ [startWith..] !! (i-1)
   | otherwise = error $ "Unknown numeration type: " ++ show lt

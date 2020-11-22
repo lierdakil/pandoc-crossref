@@ -740,6 +740,7 @@ controlled by several metadata options, consult
 
 -   `arabic` -- arabic numbers (1, 2, 3 ...)
 -   `roman` -- roman numbers (I, II, III, IV, ...)
+-   `lowercase roman` -- lowercase roman numbers (i, ii, iii, iv, ...)
 -   `alpha x`, where `x` is first letter to start from. This will work
     for any letter, but will use UTF-8 codepage to determine what's
     next, so using something strange is not advised. For example, you
