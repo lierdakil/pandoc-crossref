@@ -59,6 +59,7 @@ data Options = Options { cref :: Bool
                        , tableTemplate  :: Template
                        , listingTemplate :: Template
                        , customLabel :: Text -> Int -> Maybe Text
+                       , customHeadingLabel :: Int -> Int -> Maybe Text
                        , ccsDelim :: [Inline]
                        , ccsLabelSep :: [Inline]
                        , tableEqns :: Bool

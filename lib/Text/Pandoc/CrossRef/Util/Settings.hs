@@ -91,7 +91,7 @@ defaultMeta =
   <> secPrefixTemplate (var "p" <> str "\160" <> var "i")
   <> refIndexTemplate (var "i" <> var "suf")
   <> subfigureRefIndexTemplate (var "i" <> var "suf" <> space <> str "(" <> var "s" <> str ")")
-  <> secHeaderTemplate (var "i" <> var "secHeaderDelim" <> var "t")
+  <> secHeaderTemplate (var "i" <> var "secHeaderDelim[n]" <> var "t")
   <> secHeaderDelim space
   <> lofTitle (header 1 $ text "List of Figures")
   <> lotTitle (header 1 $ text "List of Tables")

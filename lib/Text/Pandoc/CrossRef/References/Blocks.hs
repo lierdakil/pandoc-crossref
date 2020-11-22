@@ -78,7 +78,7 @@ replaceBlock opts (Header n (label, cls, attrs) text')
     unless ("unnumbered" `elem` cls) $ do
       modify curChap $ \cc ->
         let ln = length cc
-            cl i = lookup "label" attrs <> customLabel opts "sec" i
+            cl i = lookup "label" attrs <> customHeadingLabel opts n i <> customLabel opts "sec" i
             inc l = let i = fst (last l) + 1 in init l <> [(i, cl i)]
             cc' | ln > n = inc $ take n cc
                 | ln == n = inc cc

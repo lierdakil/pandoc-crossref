@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
-module Text.Pandoc.CrossRef.Util.CustomLabels (customLabel) where
+module Text.Pandoc.CrossRef.Util.CustomLabels (customLabel, customHeadingLabel) where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Meta
@@ -31,6 +31,12 @@ customLabel meta ref i
   | refLabel <- T.takeWhile (/=':') ref
   , Just cl <- lookupMeta (refLabel <> "Labels") meta
   = mkLabel i (refLabel <> "Labels") cl
+  | otherwise = Nothing
+
+customHeadingLabel :: Meta -> Int -> Int -> Maybe T.Text
+customHeadingLabel meta lvl i
+  | Just cl <- getMetaList Just "secLevelLabels" meta (lvl-1)
+  = mkLabel i "secLevelLabels" cl
   | otherwise = Nothing
 
 mkLabel :: Int -> T.Text -> MetaValue -> Maybe T.Text
