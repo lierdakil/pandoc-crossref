@@ -55,7 +55,7 @@ executables:
     - -threaded
     dependencies:
     - pandoc-crossref
-    - optparse-applicative >= 0.13 && < 0.16
+    - optparse-applicative >= 0.13 && < 0.17
     - open-browser >= 0.2 && < 0.3
     - temporary >= 1.2 && < 1.4
     - deepseq >= 1.4 && < 1.5
