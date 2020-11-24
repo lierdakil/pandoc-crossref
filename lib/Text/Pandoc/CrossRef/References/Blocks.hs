@@ -78,7 +78,7 @@ replaceBlock opts (Header n (label, cls, attrs) text')
     unless ("unnumbered" `elem` cls) $ do
       modify curChap $ \cc ->
         let ln = length cc
-            cl i = lookup "label" attrs <> customHeadingLabel opts n i <> customLabel opts "sec" i
+            cl i = lookup "label" attrs <|> customHeadingLabel opts n i <|> customLabel opts "sec" i
             inc l = let i = fst (last l) + 1 in init l <> [(i, cl i)]
             cc' | ln > n = inc $ take n cc
                 | ln == n = inc cc
@@ -382,7 +382,7 @@ replaceAttr o label refLabel title prop
     chap  <- take (chaptersDepth o) `fmap` get curChap
     prop' <- get prop
     let i = 1+ (M.size . M.filter (\x -> (chap == init (refIndex x)) && isNothing (refSubfigure x)) $ prop')
-        index = chap <> [(i, refLabel <> customLabel o ref i)]
+        index = chap <> [(i, refLabel <|> customLabel o ref i)]
         ref = either id (T.takeWhile (/=':')) label
         label' = either (<> T.pack (':' : show index)) id label
     when (M.member label' prop') $
