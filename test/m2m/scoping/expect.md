@@ -1,8 +1,6 @@
-Chapter 1. Section 1 {#sec:1}
-====================
+# Chapter 1. Section 1 {#sec:1}
 
-Section 1.1. Section 1.1 {#sec:11}
-------------------------
+## Section 1.1. Section 1.1 {#sec:11}
 
 ::: {#dfn:group}
 A *group* is a pair $(R,*)$ satisfying:
@@ -12,11 +10,9 @@ A *group* is a pair $(R,*)$ satisfying:
 Definition 1:
 :::
 
-Chapter 2. Section 2 {#sec:2}
-====================
+# Chapter 2. Section 2 {#sec:2}
 
-Section 2.1. Section 2.1 {#sec:21}
-------------------------
+## Section 2.1. Section 2.1 {#sec:21}
 
 ### Paragraph 2.1.1. Section 2.1.1 {#sec:211}
 
@@ -32,8 +28,7 @@ A *ring* is a triple $(R,+,*)$ satisfying:
 Definition 1:
 :::
 
-Chapter 3. Section 3 {#section-3}
-====================
+# Chapter 3. Section 3 {#section-3}
 
 -   chp. 1
 -   sec. 1.1 (chp. 1)

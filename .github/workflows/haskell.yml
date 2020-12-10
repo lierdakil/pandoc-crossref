@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        pandocver: ["2.10.1"]
+        pandocver: ["2.11.2"]
         include:
         - os: ubuntu-latest
           container: 'lierdakil/alpine-haskell:8.10.2-pwsh'
@@ -107,9 +107,6 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     container: alpine:3.12
-    strategy:
-      matrix:
-        pandocver: ["2.10.1"]
     steps:
     - run: |
         echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories
@@ -202,7 +199,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.10.1"]
+        pandocver: ["2.11.2"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies

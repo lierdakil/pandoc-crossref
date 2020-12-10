@@ -37,4 +37,6 @@ mkLabel n lt i
   = toRoman i
   | Just (startWith,_) <- T.uncons =<< T.stripPrefix "alpha " (toString n lt)
   = T.singleton . toEnum $ fromEnum startWith + i - 1
+  | toString n lt == "lowercase roman"
+  = T.toLower $ toRoman i
   | otherwise = error $ "Unknown numeration type: " ++ show lt

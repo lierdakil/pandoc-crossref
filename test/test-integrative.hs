@@ -29,6 +29,9 @@ import Control.Monad
 import Text.Pandoc.Highlighting
 import qualified Data.Text as T
 
+listingsDirs :: [String]
+listingsDirs = ["listings-code-block-caption-278"]
+
 m2m :: String -> Spec
 m2m dir
   | dir == "." = return ()
@@ -38,7 +41,9 @@ m2m dir
     input <- runIO $ readFile ("test" </> "m2m" </> dir </> "input.md")
     expect_md <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect.md")
     let ro = def { readerExtensions = pandocExtensions }
-        wo = def { writerExtensions = pandocExtensions, writerHighlightStyle=Just pygments }
+        wo = def { writerExtensions = pandocExtensions
+                 , writerHighlightStyle=Just pygments
+                 , writerListings = dir `elem` listingsDirs }
     p@(Pandoc meta _) <- runIO $ either (error . show) id <$> P.runIO (readMarkdown ro $ T.pack input)
     let actual_md = either (fail . show) T.unpack $ runPure $ writeMarkdown wo . evalCrossRefRes . runCrossRef (Settings meta) (Just $ Format "markdown") $ defaultCrossRefAction p
     it "Markdown" $ do

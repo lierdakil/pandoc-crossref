@@ -10,11 +10,16 @@ packages:
 extra-deps:
 - roman-numerals-0.5.1.5
 - data-accessor-template-0.2.1.16
-- pandoc-2.10.1
+- pandoc-2.11.2
+- pandoc-types-1.22
+# pandoc dependencies
+- citeproc-0.2
+- commonmark-0.1.1.2
+- commonmark-extensions-0.2.0.4
+- commonmark-pandoc-0.2.0.1
 - hslua-1.1.2
 - jira-wiki-markup-1.3.2
-- pandoc-types-1.21
-- commonmark-0.1.0.1
-- commonmark-extensions-0.2.0.1
-- commonmark-pandoc-0.2.0.0
-resolver: lts-16.7
+- skylighting-0.10.0.2
+- skylighting-core-0.10.0.2
+- rfc5051-0.2
+resolver: lts-16.18

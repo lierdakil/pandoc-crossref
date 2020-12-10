@@ -31,8 +31,7 @@
   : Table 3: Table 3
 :::
 
-List of Figures
-===============
+# List of Figures
 
 ::: {.list}
 1\. Image 1
@@ -42,8 +41,7 @@ List of Figures
 3\. Image 3
 :::
 
-List of Equations
-=================
+# List of Equations
 
 ::: {.list}
 1\. $$eqn1$$
@@ -53,8 +51,7 @@ List of Equations
 3\. $$eqn3$$
 :::
 
-List of Tables
-==============
+# List of Tables
 
 ::: {.list}
 1\. Table 1

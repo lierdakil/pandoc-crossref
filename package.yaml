@@ -18,8 +18,8 @@ data-files:
 - test/m2m/*/*
 dependencies:
 - base >=4.11 && <5
-- pandoc >=2.10 && < 2.11
-- pandoc-types >=1.21 && < 1.22
+- pandoc >=2.10 && < 2.12
+- pandoc-types >=1.21 && < 1.23
 - mtl >=1.1 && <2.3
 - containers >=0.1 && <0.7
 - data-default >=0.4 && <0.8
@@ -54,7 +54,7 @@ executables:
     - -threaded
     dependencies:
     - pandoc-crossref
-    - optparse-applicative >= 0.13 && < 0.16
+    - optparse-applicative >= 0.13 && < 0.17
     - open-browser >= 0.2 && < 0.3
     - temporary >= 1.2 && < 1.4
     - deepseq >= 1.4 && < 1.5

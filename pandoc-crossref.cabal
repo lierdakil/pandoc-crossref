@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 97a8c365878e90cc416024d26e1d043d74721b0d4af2bfc5298831494d18a948
+-- hash: cbdb9fd92d623a1367bfc4065390b1ce19af9a8b805cc3c8b3978ce31f5ce9d6
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -34,6 +34,8 @@ data-files:
     test/m2m/equations-auto/input.md
     test/m2m/equations/expect.md
     test/m2m/equations/input.md
+    test/m2m/label-precedence/expect.md
+    test/m2m/label-precedence/input.md
     test/m2m/links-names/expect.md
     test/m2m/links-names/input.md
     test/m2m/links/expect.md
@@ -42,6 +44,8 @@ data-files:
     test/m2m/list-of/input.md
     test/m2m/listing-captions-ids/expect.md
     test/m2m/listing-captions-ids/input.md
+    test/m2m/listings-code-block-caption-278/expect.md
+    test/m2m/listings-code-block-caption-278/input.md
     test/m2m/multiple-eqn-same-para/expect.md
     test/m2m/multiple-eqn-same-para/input.md
     test/m2m/numbering-parts/expect.md
@@ -52,6 +56,10 @@ data-files:
     test/m2m/regresssion-219/input.md
     test/m2m/scoping/expect.md
     test/m2m/scoping/input.md
+    test/m2m/secLabels/expect.md
+    test/m2m/secLabels/input.md
+    test/m2m/secLevelLabels/expect.md
+    test/m2m/secLevelLabels/input.md
     test/m2m/section-template/expect.md
     test/m2m/section-template/input.md
     test/m2m/subfigures-ccsDelim/expect.md
@@ -120,8 +128,8 @@ library
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , mtl >=1.1 && <2.3
-    , pandoc >=2.10 && <2.11
-    , pandoc-types >=1.21 && <1.22
+    , pandoc >=2.10 && <2.12
+    , pandoc-types >=1.21 && <1.23
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -149,10 +157,10 @@ executable pandoc-crossref
     , gitrev >=1.3.1 && <1.4
     , mtl >=1.1 && <2.3
     , open-browser >=0.2 && <0.3
-    , optparse-applicative >=0.13 && <0.16
-    , pandoc >=2.10 && <2.11
+    , optparse-applicative >=0.13 && <0.17
+    , pandoc >=2.10 && <2.12
     , pandoc-crossref
-    , pandoc-types >=1.21 && <1.22
+    , pandoc-types >=1.21 && <1.23
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -177,9 +185,9 @@ test-suite test-integrative
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.10 && <2.11
+    , pandoc >=2.10 && <2.12
     , pandoc-crossref
-    , pandoc-types >=1.21 && <1.22
+    , pandoc-types >=1.21 && <1.23
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -235,8 +243,8 @@ test-suite test-pandoc-crossref
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
     , mtl >=1.1 && <2.3
-    , pandoc >=2.10 && <2.11
-    , pandoc-types >=1.21 && <1.22
+    , pandoc >=2.10 && <2.12
+    , pandoc-types >=1.21 && <1.23
     , roman-numerals ==0.5.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0

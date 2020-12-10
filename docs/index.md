@@ -7,6 +7,9 @@ title: 'pandoc-crossref(1)'
 pandoc-crossref is a pandoc filter for numbering figures, equations,
 tables and cross-references to them.
 
+* TOC
+{:toc}
+
 # Caveats
 
 ## LaTeX output and `--include-in-header`
@@ -500,7 +503,8 @@ A list of variables follows.
 -   `titleDelim`, default `:`: What to put between object number and
     caption text.
 -   `secHeaderDelim`, default ` ` (i.e. space): What to put between section
-    number and title when `numberSections` is `true`.
+    number and title when `numberSections` is `true`. Can be a list,
+    in that case it's indexed by heading level, 0-based.
 
 #### Subfigure-specific
 
@@ -592,6 +596,7 @@ See [Custom Numbering Schemes](#custom-numbering-schemes)
 -   `tblLabels`, default `arabic`: the numbering scheme for tables.
 -   `lstLabels`, default `arabic`: the numbering scheme for listings.
 -   `secLabels`, default `arabic`: the numbering scheme for sections.
+-   `secLevelLabels`, default unset: the numbering scheme for sections, YAML array, indexed by heading level; will override `secLabels` if set.
 
 ### Item title templates
 
@@ -605,7 +610,7 @@ See [Templates](#templates)
 -   `listingTemplate`, default
     `$$listingTitle$$ $$i$$$$titleDelim$$ $$t$$`: template for listing
     captions
--   `secHeaderTemplate`, default `$$i$$$$secHeaderDelim$$$$t$$`: template for
+-   `secHeaderTemplate`, default `$$i$$$$secHeaderDelim[n]$$$$t$$`: template for
     section header
     text when `numberSections` is `true`
 
@@ -737,6 +742,7 @@ controlled by several metadata options, consult
 
 -   `arabic` -- arabic numbers (1, 2, 3 ...)
 -   `roman` -- roman numbers (I, II, III, IV, ...)
+-   `lowercase roman` -- lowercase roman numbers (i, ii, iii, iv, ...)
 -   `alpha x`, where `x` is first letter to start from. This will work
     for any letter, but will use UTF-8 codepage to determine what's
     next, so using something strange is not advised. For example, you
