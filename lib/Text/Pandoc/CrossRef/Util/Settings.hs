@@ -92,6 +92,7 @@ numberSectionsMeta :: Settings
 numberSectionsMeta = Settings $
   prefixes' [
     "sec" .: [
+      "captionIndexTemplate" .= var "s.i%." <> var "ri",
       "captionTemplate" .= var "title" <> space <> var "i"
           <> str "." <> space <> var "t"
     ]
