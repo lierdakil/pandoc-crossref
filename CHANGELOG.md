@@ -1,3 +1,20 @@
+## 0.3.9.0
+
+### New features
+
+-   Add header multilevel templates and secLevelLabels
+-   Add lowercase roman custom numbering
+
+### Fixes
+
+-   Label precedence fix: label attr > secLevelLabels > xLabels
+
+### Misc
+
+-   Update LaTeX tests for pandoc 2.11.3.1
+-   Update docs
+-   Relax bound on optparse-applicative
+
 ## 0.3.8.4
 
 -   [Fix] secLabels
