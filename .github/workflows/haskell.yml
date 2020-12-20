@@ -141,7 +141,7 @@ jobs:
         done
         ver="${GITHUB_REF##*/v}"
         echo "### Changelog" >> description.md
-        sed -rn '/^## *'"${ver}"'/,/^##/ p' CHANGELOG.md | head -n-1 | tail -n+2 >> description.md
+        sed -rn '/^## *'"${ver//./\\.}"'/,/^##[^#]/ p' CHANGELOG.md | head -n-1 | tail -n+2 >> description.md
         echo "description.md"
         cat description.md
     - name: Rename assets for release
