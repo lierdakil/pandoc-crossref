@@ -10,8 +10,8 @@ jobs:
         pandocver: ["2.11.3.1"]
         include:
         - os: ubuntu-latest
-          container: 'lierdakil/alpine-haskell:8.10.2-pwsh'
-          ghcver: '8.10.2'
+          container: 'lierdakil/alpine-haskell:8.10.3-pwsh'
+          ghcver: '8.10.3'
         - os: macos-latest
           ghcver: '8.10.2'
         - os: windows-latest
