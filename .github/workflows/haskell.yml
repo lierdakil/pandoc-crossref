@@ -110,7 +110,7 @@ jobs:
         chmod +x Linux-build/pandoc-crossref
         upx Linux-build/pandoc-crossref
         chmod +x macOS-build/pandoc-crossref
-        upx macOS-build/pandoc-crossref
+        echo not doing upx macOS-build/pandoc-crossref
         tar cJf assets/pandoc-crossref-Linux-${{github.sha}}.tar.xz -C Linux-build pandoc-crossref pandoc-crossref.1
         tar cJf assets/pandoc-crossref-macOS-${{github.sha}}.tar.xz -C macOS-build pandoc-crossref
         cd Windows-build
