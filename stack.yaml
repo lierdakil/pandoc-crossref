@@ -10,10 +10,10 @@ packages:
 extra-deps:
 - roman-numerals-0.5.1.5
 - data-accessor-template-0.2.1.16
-- pandoc-2.11.3.1
+- pandoc-2.11.3.2
 - pandoc-types-1.22
 # pandoc dependencies
-- citeproc-0.3.0.1
+- citeproc-0.3.0.3
 - commonmark-0.1.1.2
 - commonmark-extensions-0.2.0.4
 - commonmark-pandoc-0.2.0.1
@@ -23,4 +23,5 @@ extra-deps:
 - skylighting-core-0.10.2
 - rfc5051-0.2
 - doctemplates-0.9
+- texmath-0.12.1
 resolver: lts-16.26
