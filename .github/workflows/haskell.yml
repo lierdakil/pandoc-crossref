@@ -13,9 +13,9 @@ jobs:
           container: 'lierdakil/alpine-haskell:8.10.3-pwsh'
           ghcver: '8.10.3'
         - os: macos-latest
-          ghcver: '8.10.2'
+          ghcver: '8.10.3'
         - os: windows-latest
-          ghcver: '8.10.2'
+          ghcver: '8.10.3'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
@@ -25,15 +25,6 @@ jobs:
       with:
         ghc-version: ${{matrix.ghcver}}
         cabal-version: '3.2'
-    - if: runner.os == 'Windows'
-      name: patch ghc8.10.2 configuration error
-      # see https://www.stackage.org/blog/2020/08/ghc-8-10-2-windows-workaround
-      shell: bash
-      run: |
-        which ghc
-        ghcdir="$(dirname "$(dirname "$(which ghc)")" | sed -r 's!^/(\w)/!\1:/!')"
-        echo "$ghcdir"
-        sed -i 's!C:/GitLabRunner/builds/2WeHDSFP/0/ghc/ghc/inplace/!'"$ghcdir"'/!' "$ghcdir/lib/settings"
     - name: Cabal init
       shell: pwsh
       run: |
