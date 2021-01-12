@@ -139,12 +139,12 @@ replaceBlock opts (Div (label,cls,attrs) images)
     case outFormat opts of
           f | isLatexFormat f ->
             replaceNoRecurse $ Div nullAttr $
-              [ RawBlock (Format "latex") "\\begin{figure}\n\\centering" ]
+              [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]
               <> cont <>
               [ Para [RawInline (Format "latex") "\\caption"
                        , Span nullAttr caption]
               , RawBlock (Format "latex") $ mkLaTeXLabel label
-              , RawBlock (Format "latex") "\\end{figure}"]
+              , RawBlock (Format "latex") "\\end{pandoccrossrefsubfigures}"]
           _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
   where
     opts' = opts

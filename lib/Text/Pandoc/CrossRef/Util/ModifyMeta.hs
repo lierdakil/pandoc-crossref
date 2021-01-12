@@ -49,6 +49,7 @@ modifyMeta opts meta
         tell subfig
         tell floatnames
         tell listnames
+        tell subfigures
         unless (listings opts) $
           tell codelisting
         tell lolcommand
@@ -74,6 +75,24 @@ modifyMeta opts meta
           , "\\renewcommand*\\listfigurename{" <> metaString' "lofTitle" <> "}"
           , "\\renewcommand*\\listtablename{" <> metaString' "lotTitle" <> "}"
           , "}"
+          ]
+        subfigures = [
+            "\\newcounter{pandoccrossref@subfigures@footnote@counter}"
+          , "\\newenvironment{pandoccrossrefsubfigures}{%"
+          , "\\setcounter{pandoccrossref@subfigures@footnote@counter}{0}"
+          , "\\begin{figure}\\centering%"
+          , "\\gdef\\global@pandoccrossref@subfigures@footnotes{}%"
+          , "\\DeclareRobustCommand{\\footnote}[1]{\\footnotemark%"
+          , "\\stepcounter{pandoccrossref@subfigures@footnote@counter}%"
+          , "\\ifx\\global@pandoccrossref@subfigures@footnotes\\empty%"
+          , "\\gdef\\global@pandoccrossref@subfigures@footnotes{{##1}}%"
+          , "\\else%"
+          , "\\g@addto@macro\\global@pandoccrossref@subfigures@footnotes{, {##1}}%"
+          , "\\fi}}%"
+          , "{\\end{figure}%"
+          , "\\addtocounter{footnote}{-\\value{pandoccrossref@subfigures@footnote@counter}}"
+          , "\\@for\\f:=\\global@pandoccrossref@subfigures@footnotes\\do{\\stepcounter{footnote}\\footnotetext{\\f}}%"
+          , "\\gdef\\global@pandoccrossref@subfigures@footnotes{}}"
           ]
         codelisting = [
             usepackage [] "float"
