@@ -141,7 +141,9 @@ replaceBlock opts (Div (label,cls,attrs) images)
             replaceNoRecurse $ Div nullAttr $
               [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]
               <> cont <>
-              [ Para [RawInline (Format "latex") "\\caption"
+              [ Para [RawInline (Format "latex") "\\caption["
+                       , Span nullAttr (removeFootnotes caption)
+                       , RawInline (Format "latex") "]"
                        , Span nullAttr caption]
               , RawBlock (Format "latex") $ mkLaTeXLabel label
               , RawBlock (Format "latex") "\\end{pandoccrossrefsubfigures}"]
@@ -151,6 +153,9 @@ replaceBlock opts (Div (label,cls,attrs) images)
               { figureTemplate = subfigureChildTemplate opts
               , customLabel = \r i -> customLabel opts ("sub"<>r) i
               }
+    removeFootnotes = walk removeFootnote
+    removeFootnote Note{} = Str ""
+    removeFootnote x = x
     toTable :: [Block] -> [Inline] -> [Block]
     toTable blks capt
       | subfigGrid opts = [ simpleTable align (map ColWidth widths) (map blkToRow blks)
