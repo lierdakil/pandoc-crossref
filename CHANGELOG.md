@@ -1,3 +1,17 @@
+## 0.3.9.1
+
+-   [CI] Bump pandoc version
+-   [Stack] Bump versions in stack.yaml
+-   [LaTeX][Tests] Update tests for subfigures
+-   [LaTeX][Tests] Update tests for pandoc 2.11.4
+-   [LaTeX] Remove footnotes from "short" subfigure caption (used for lof)
+-   [LaTeX] An attempt at fixing footnotes inside subfigure env
+
+Note that this is a fix-release, but it includes some rather drastic changes to
+the way subfigures are handled in LaTeX output. Couldn't fix the issue
+otherwise. See <https://github.com/lierdakil/pandoc-crossref/issues/292> for
+context and some additional pointers.
+
 ## 0.3.9.0
 
 ### New features
