@@ -244,7 +244,7 @@ main = hspec $ do
 
     describe "Util.CodeBlockCaptions" $
       it "Transforms table-style codeBlock captions to codeblock divs" $ do
-        let t x = testCBCaptions x (codeBlockDiv "Code Block" "cb")
+        let t x = testCBCaptions x (codeBlockDiv' "Code Block" "cb")
         t (codeBlockForTable "cb" <> paraText ": Code Block")
         t (codeBlockForTable "cb" <> paraText "Listing: Code Block")
         t (paraText ": Code Block" <> codeBlockForTable "cb")
@@ -405,6 +405,12 @@ paraText s = para $ text s
 
 codeBlockDiv :: T.Text -> T.Text -> Blocks
 codeBlockDiv title ref = divWith ("lst:"<>ref, ["listing","haskell"],[]) $
+  para (text title) <>
+  codeBlockWith
+    ("",["haskell"],[]) "main :: IO ()"
+
+codeBlockDiv' :: T.Text -> T.Text -> Blocks
+codeBlockDiv' title ref = divWith ("lst:"<>ref, ["listing"],[]) $
   para (text title) <>
   codeBlockWith
     ("",["haskell"],[]) "main :: IO ()"

@@ -253,8 +253,8 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
           , CodeBlock ("", classes, setLabel opts idxStr attrs \\ [("caption", caption)]) code
           ]
 replaceBlock opts
-  (Div (label,"listing":_, [])
-    [Para caption, CodeBlock ("",classes,attrs) code])
+  (Div (label,"listing":divClasses, divAttrs)
+    [Para caption, CodeBlock ("",cbClasses,cbAttrs) code])
   | not $ T.null label
   , "lst:" `T.isPrefixOf` label
   = case outFormat opts of
@@ -280,6 +280,8 @@ replaceBlock opts
             mkCaption opts "Caption" caption'
           , CodeBlock ("", classes, setLabel opts idxStr attrs) code
           ]
+  where attrs = divAttrs <> cbAttrs
+        classes = nub $ divClasses <> cbClasses
 replaceBlock opts (Para [Span sattrs@(label, cls, attrs) [Math DisplayMath eq]])
   | not $ isLatexFormat (outFormat opts)
   , tableEqns opts

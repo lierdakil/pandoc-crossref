@@ -45,13 +45,13 @@ orderAgnostic opts (Para ils:CodeBlock (label,classes,attrs) code:xs)
   , Just caption <- getCodeBlockCaption ils
   , not $ T.null label
   , "lst" `T.isPrefixOf` label
-  = return $ Div (label,"listing":classes, [])
+  = return $ Div (label,["listing"], [])
       [Para caption, CodeBlock ("",classes,attrs) code] : xs
 orderAgnostic opts (Para ils:CodeBlock (_,classes,attrs) code:xs)
   | codeBlockCaptions opts
   , Just (caption, labinl) <- splitLast <$> getCodeBlockCaption ils
   , Just label <- getRefLabel "lst" labinl
-  = return $ Div (label,"listing":classes, [])
+  = return $ Div (label,["listing"], [])
       [Para $ init caption, CodeBlock ("",classes,attrs) code] : xs
   where
     splitLast xs' = splitAt (length xs' - 1) xs'
