@@ -97,7 +97,7 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
                , "unnumbered" `notElem` cls
                = applyTemplate' (M.fromDistinctAscList [
-                    ("i", [Str (T.intercalate "." $ map show' cc)])
+                    ("i", intercalate (chapDelim opts) $ map (pure . Str . show') cc)
                   , ("n", [Str $ T.pack $ show $ n - 1])
                   , ("t", text')
                   ]) $ secHeaderTemplate opts
