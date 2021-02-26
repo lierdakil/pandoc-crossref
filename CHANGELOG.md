@@ -1,3 +1,7 @@
+## 0.3.9.2
+
+-   [Fix] Chapter delimiter in section numbers should be chapDelim (was '.')
+
 ## 0.3.9.1
 
 -   [CI] Bump pandoc version
