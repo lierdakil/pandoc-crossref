@@ -250,7 +250,7 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
         let caption' = applyTemplate idxStr cap $ listingTemplate opts
         replaceNoRecurse $ Div (label, "listing":classes, []) [
             mkCaption opts "Caption" caption'
-          , CodeBlock ("", classes, setLabel opts idxStr attrs \\ [("caption", caption)]) code
+          , CodeBlock ("", classes, filter ((/="caption") . fst) $ setLabel opts idxStr attrs) code
           ]
 replaceBlock opts
   (Div (label,"listing":divClasses, divAttrs)
