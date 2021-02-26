@@ -67,7 +67,11 @@ isFirstUpper xs
   | otherwise = False
 
 chapPrefix :: [Inline] -> Index -> [Inline]
-chapPrefix delim index = toList $ intercalate' (fromList delim) (map (str . uncurry (fromMaybe . T.pack . show)) index)
+chapPrefix delim = toList
+  . intercalate' (fromList delim)
+  . map str
+  . filter (not . T.null)
+  . map (uncurry (fromMaybe . T.pack . show))
 
 data ReplacedResult a = Replaced Bool a | NotReplaced Bool
 type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))
