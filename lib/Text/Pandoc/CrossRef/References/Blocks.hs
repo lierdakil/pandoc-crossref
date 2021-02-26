@@ -97,13 +97,11 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
                , "unnumbered" `notElem` cls
                = applyTemplate' (M.fromDistinctAscList [
-                    ("i", intercalate (chapDelim opts) $ map (pure . Str . show') cc)
+                    ("i", chapPrefix (chapDelim opts) cc)
                   , ("n", [Str $ T.pack $ show $ n - 1])
                   , ("t", text')
                   ]) $ secHeaderTemplate opts
                | otherwise = text'
-        show' (_, Just s) = s
-        show' (i, Nothing) = T.pack $ show i
     replaceNoRecurse $ Header n (label', cls, attrs) textCC
 -- subfigures
 replaceBlock opts (Div (label,cls,attrs) images)
