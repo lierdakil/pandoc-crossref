@@ -69,6 +69,13 @@ simpleTable align width bod = Table nullAttr noCaption (zip align width)
   noTableHead = TableHead nullAttr []
   noTableFoot = TableFoot nullAttr []
 
+setLabel :: Options -> [Inline] -> [(T.Text, T.Text)] -> [(T.Text, T.Text)]
+setLabel opts idx
+  | setLabelAttribute opts
+  = (("label", stringify idx) :)
+  . filter ((/= "label") . fst)
+  | otherwise = id
+
 replaceBlock :: Options -> Block -> WS (ReplacedResult Block)
 replaceBlock opts (Header n (label, cls, attrs) text')
   = do
@@ -97,12 +104,16 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
                , "unnumbered" `notElem` cls
                = applyTemplate' (M.fromDistinctAscList [
-                    ("i", chapPrefix (chapDelim opts) cc)
+                    ("i", idxStr)
                   , ("n", [Str $ T.pack $ show $ n - 1])
                   , ("t", text')
                   ]) $ secHeaderTemplate opts
                | otherwise = text'
-    replaceNoRecurse $ Header n (label', cls, attrs) textCC
+        idxStr = chapPrefix (chapDelim opts) cc
+        attrs' | "unnumbered" `notElem` cls
+               = setLabel opts idxStr attrs
+               | otherwise = attrs
+    replaceNoRecurse $ Header n (label', cls, attrs') textCC
 -- subfigures
 replaceBlock opts (Div (label,cls,attrs) images)
   | "fig:" `T.isPrefixOf` label
@@ -145,7 +156,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
                        , Span nullAttr caption]
               , RawBlock (Format "latex") $ mkLaTeXLabel label
               , RawBlock (Format "latex") "\\end{pandoccrossrefsubfigures}"]
-          _  -> replaceNoRecurse $ Div (label, "subfigures":cls, attrs) $ toTable cont capt
+          _  -> replaceNoRecurse $ Div (label, "subfigures":cls, setLabel opts idxStr attrs) $ toTable cont capt
   where
     opts' = opts
               { figureTemplate = subfigureChildTemplate opts
@@ -187,7 +198,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
         inlToCell (Image (id', cs, as) txt tgt)  = Just [Para [Image (id', cs, setW as) txt tgt]]
         inlToCell _ = Nothing
         setW as = ("width", "100%"):filter ((/="width") . fst) as
-replaceBlock opts (Div divOps@(label,_,attrs) [Table tattr (Caption short (btitle:rest)) colspec header cells foot])
+replaceBlock opts (Div (label,clss,attrs) [Table tattr (Caption short (btitle:rest)) colspec header cells foot])
   | not $ null title
   , "tbl:" `T.isPrefixOf` label
   = do
@@ -198,9 +209,9 @@ replaceBlock opts (Div divOps@(label,_,attrs) [Table tattr (Caption short (btitl
                 RawInline (Format "latex") (mkLaTeXLabel label) : title
               _  -> applyTemplate idxStr title $ tableTemplate opts
         caption' = Caption short (walkReplaceInlines title' title btitle:rest)
-    replaceNoRecurse $ Div divOps [Table tattr caption' colspec header cells foot]
+    replaceNoRecurse $ Div (label, clss, setLabel opts idxStr attrs) [Table tattr caption' colspec header cells foot]
   where title = blocksToInlines [btitle]
-replaceBlock opts (Table divOps@(label,_,attrs) (Caption short (btitle:rest)) colspec header cells foot)
+replaceBlock opts (Table (label,clss,attrs) (Caption short (btitle:rest)) colspec header cells foot)
   | not $ null title
   , "tbl:" `T.isPrefixOf` label
   = do
@@ -211,7 +222,7 @@ replaceBlock opts (Table divOps@(label,_,attrs) (Caption short (btitle:rest)) co
                 RawInline (Format "latex") (mkLaTeXLabel label) : title
               _  -> applyTemplate idxStr title $ tableTemplate opts
         caption' = Caption short (walkReplaceInlines title' title btitle:rest)
-    replaceNoRecurse $ Table divOps caption' colspec header cells foot
+    replaceNoRecurse $ Table (label, clss, setLabel opts idxStr attrs) caption' colspec header cells foot
   where title = blocksToInlines [btitle]
 replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
   | not $ T.null label
@@ -239,7 +250,7 @@ replaceBlock opts cb@(CodeBlock (label, classes, attrs) code)
         let caption' = applyTemplate idxStr cap $ listingTemplate opts
         replaceNoRecurse $ Div (label, "listing":classes, []) [
             mkCaption opts "Caption" caption'
-          , CodeBlock ("", classes, attrs \\ [("caption", caption)]) code
+          , CodeBlock ("", classes, setLabel opts idxStr attrs \\ [("caption", caption)]) code
           ]
 replaceBlock opts
   (Div (label,"listing":_, [])
@@ -267,16 +278,16 @@ replaceBlock opts
         let caption' = applyTemplate idxStr caption $ listingTemplate opts
         replaceNoRecurse $ Div (label, "listing":classes, []) [
             mkCaption opts "Caption" caption'
-          , CodeBlock ("", classes, attrs) code
+          , CodeBlock ("", classes, setLabel opts idxStr attrs) code
           ]
-replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
+replaceBlock opts (Para [Span sattrs@(label, cls, attrs) [Math DisplayMath eq]])
   | not $ isLatexFormat (outFormat opts)
   , tableEqns opts
   = do
-    (eq', idx) <- replaceEqn opts attrs eq
-    replaceNoRecurse $ Div attrs [
+    (eq', idxStr) <- replaceEqn opts sattrs eq
+    replaceNoRecurse $ Div (label,cls,setLabel opts idxStr attrs) [
       simpleTable [AlignCenter, AlignRight] [ColWidth 0.9, ColWidth 0.09]
-       [[[Plain [Math DisplayMath eq']], [eqnNumber idx]]]]
+       [[[Plain [Math DisplayMath eq']], [eqnNumber $ stringify idxStr]]]]
   where
   eqnNumber idx
     | outFormat opts == Just (Format "docx")
@@ -288,7 +299,7 @@ replaceBlock opts (Para [Span attrs [Math DisplayMath eq]])
     where mathIdx = Plain [Math DisplayMath $ "(" <> idx <> ")"]
 replaceBlock _ _ = noReplaceRecurse
 
-replaceEqn :: Options -> Attr -> T.Text -> WS (T.Text, T.Text)
+replaceEqn :: Options -> Attr -> T.Text -> WS (T.Text, [Inline])
 replaceEqn opts (label, _, attrs) eq = do
   let label' | T.null label = Left "eq"
              | otherwise = Right label
@@ -296,28 +307,30 @@ replaceEqn opts (label, _, attrs) eq = do
   let eq' | tableEqns opts = eq
           | otherwise = eq<>"\\qquad("<>idxTxt<>")"
       idxTxt = stringify idxStr
-  return (eq', idxTxt)
+  return (eq', idxStr)
 
 replaceInlineMany :: Options -> [Inline] -> WS (ReplacedResult [Inline])
-replaceInlineMany opts (Span attrs@(label,_,_) [Math DisplayMath eq]:xs)
+replaceInlineMany opts (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs)
   | "eq:" `T.isPrefixOf` label || T.null label && autoEqnLabels opts
   = replaceRecurse . (<>xs) =<< case outFormat opts of
       f | isLatexFormat f ->
         pure [RawInline (Format "latex") "\\begin{equation}"
-        , Span attrs [RawInline (Format "latex") eq]
+        , Span spanAttr [RawInline (Format "latex") eq]
         , RawInline (Format "latex") $ mkLaTeXLabel label <> "\\end{equation}"]
-      _ -> pure . Span attrs . (:[]) . Math DisplayMath . fst <$> replaceEqn opts attrs eq
+      _ -> do
+        (eq', idxStr) <- replaceEqn opts spanAttr eq
+        pure [Span (label,clss,setLabel opts idxStr attrs) [Math DisplayMath eq']]
 replaceInlineMany _ _ = noReplaceRecurse
 
 replaceInline :: Options -> Inline -> WS (ReplacedResult Inline)
-replaceInline opts (Image attr@(label,_,attrs) alt img@(_, tit))
+replaceInline opts (Image (label,cls,attrs) alt img@(_, tit))
   | "fig:" `T.isPrefixOf` label && "fig:" `T.isPrefixOf` tit
   = do
     idxStr <- replaceAttr opts (Right label) (lookup "label" attrs) alt imgRefs
     let alt' = case outFormat opts of
           f | isLatexFormat f -> alt
           _  -> applyTemplate idxStr alt $ figureTemplate opts
-    replaceNoRecurse $ Image attr alt' img
+    replaceNoRecurse $ Image (label,cls,setLabel opts idxStr attrs) alt' img
 replaceInline _ _ = noReplaceRecurse
 
 replaceSubfigs :: Options -> [Inline] -> WS (ReplacedResult [Inline])
@@ -338,7 +351,7 @@ replaceSubfig opts x@(Image (label,cls,attrs) alt (src, tit))
               tit' | "nocaption" `elem` cls = fromMaybe tit $ T.stripPrefix "fig:" tit
                    | "fig:" `T.isPrefixOf` tit = tit
                    | otherwise = "fig:" <> tit
-          in return [Image (label, cls, attrs) alt' (src, tit')]
+          in return [Image (label, cls, setLabel opts idxStr attrs) alt' (src, tit')]
 replaceSubfig _ x = return [x]
 
 divBlocks :: Block -> Block

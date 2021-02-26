@@ -67,4 +67,5 @@ data Options = Options { cref :: Bool
                        , subfigGrid :: Bool
                        , linkReferences :: Bool
                        , nameInLink :: Bool
+                       , setLabelAttribute :: Bool
                        }
