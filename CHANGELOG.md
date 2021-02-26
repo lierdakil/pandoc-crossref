@@ -1,5 +1,6 @@
 ## 0.3.9.2
 
+-   [Fix] Omit empty section\/item labels
 -   [Fix] Chapter delimiter in section numbers should be chapDelim (was '.')
 
 ## 0.3.9.1
