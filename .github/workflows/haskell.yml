@@ -8,14 +8,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         pandocver: ["2.11.4"]
+        ghcver: ['8.10.4']
         include:
         - os: ubuntu-latest
-          container: 'lierdakil/alpine-haskell:8.10.3-pwsh'
-          ghcver: '8.10.3'
-        - os: macos-latest
-          ghcver: '8.10.3'
-        - os: windows-latest
-          ghcver: '8.10.3'
+          container: 'lierdakil/alpine-haskell:8.10.4-pwsh'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
