@@ -1,7 +1,21 @@
-## 0.3.9.2
+## 0.3.10.0
 
--   [Fix] Omit empty section\/item labels
--   [Fix] Chapter delimiter in section numbers should be chapDelim (was '.')
+-   \[Fix\] Avoid expensive set difference, use filter
+-   \[Tweak\] For div-wrapped listings merge attributes and classes
+
+    Previously, classes and attributes on the wrapping div were ignored. Now, those are merged with classes and attributes on the listing.
+
+-   \[Feat\] Add option to set label attributes to actual numbering used
+
+    New option `setLabelAttribute` which sets `label` attribute on sections, figures, etc to actual number used for referencing. This can be useful for post-processing.
+
+-   \[Fix\] Omit empty section\/item labels
+
+    Objects (sections, figures) can have empty labels (i.e. no number). Previously, if those labels were referenced (particularly with chapters enabled) this would create references like `fig 1..2`. Now these labels are omitted. It can lead to duplicate numbers in references though.
+
+-   \[Fix\] Chapter delimiter in section numbers should be chapDelim (was '.')
+
+    `chapDelim` now observed in section numbers (when `numberSections` is enabled)
 
 ## 0.3.9.1
 
