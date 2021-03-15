@@ -89,3 +89,16 @@ tests:
     dependencies:
     - pandoc-crossref
     - hspec >=2.4.4 && <3
+benchmarks:
+  simple:
+    main: bench-simple.hs
+    other-modules:
+      Native
+    source-dirs: test
+    ghc-options:
+    - -Wall
+    - -fno-warn-unused-do-bind
+    - -threaded
+    dependencies:
+    - pandoc-crossref
+    - criterion >=1.5.9.0 && <1.6

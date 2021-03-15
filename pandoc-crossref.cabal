@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5a129dfce5b068071f7222d4862b7159b9293232e08ec191d8446632b0fe6314
+-- hash: 532004d3106f69be31f36f193e262bed7183520364f0385db440bbf0467a5570
 
 name:           pandoc-crossref
 version:        0.3.10.0
@@ -245,4 +245,33 @@ test-suite test-pandoc-crossref
     , utility-ht >=0.0.11 && <0.1.0
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
+  default-language: Haskell2010
+
+benchmark simple
+  type: exitcode-stdio-1.0
+  main-is: bench-simple.hs
+  other-modules:
+      Native
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -fno-warn-unused-do-bind -threaded
+  build-depends:
+      base >=4.11 && <5
+    , containers >=0.1 && <0.7
+    , criterion >=1.5.9.0 && <1.6
+    , data-accessor >=0.2.2.6 && <0.3.0.0
+    , data-accessor-template >=0.2.1.12 && <0.3.0.0
+    , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
+    , data-default >=0.4 && <0.8
+    , directory >=1 && <1.4
+    , filepath >=1.1 && <1.5
+    , mtl >=1.1 && <2.3
+    , pandoc >=2.10 && <2.13
+    , pandoc-crossref
+    , pandoc-types >=1.21 && <1.23
+    , roman-numerals ==0.5.*
+    , syb >=0.4 && <0.8
+    , template-haskell >=2.7.0.0 && <3.0.0.0
+    , text >=1.2.2 && <1.3
+    , utility-ht >=0.0.11 && <0.1.0
   default-language: Haskell2010
