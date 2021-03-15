@@ -20,24 +20,31 @@ dependencies:
 - base >=4.11 && <5
 - pandoc >=2.10 && < 2.13
 - pandoc-types >=1.21 && < 1.23
-- mtl >=1.1 && <2.3
-- containers >=0.1 && <0.7
-- data-default >=0.4 && <0.8
-- data-accessor >=0.2.2.6 && <0.3.0.0
-- data-accessor-template >=0.2.1.12 && <0.3.0.0
-- data-accessor-transformers >=0.2.1.6 && <0.3.0.0
-- template-haskell >=2.7.0.0 && <3.0.0.0
-- roman-numerals ==0.5.*
-- syb >=0.4 && <0.8
-- utility-ht >=0.0.11 && <0.1.0
-- directory >=1 && <1.4
-- filepath >=1.1 && <1.5
 - text >=1.2.2 && <1.3
 library:
   source-dirs: lib
   ghc-options: -Wall
   exposed-modules:
   - Text.Pandoc.CrossRef
+  dependencies:
+    - pandoc-crossref-internal
+    - mtl >=1.1 && <2.3
+internal-libraries:
+  pandoc-crossref-internal:
+    source-dirs: lib-internal
+    dependencies:
+    - mtl >=1.1 && <2.3
+    - containers >=0.1 && <0.7
+    - data-default >=0.4 && <0.8
+    - data-accessor >=0.2.2.6 && <0.3.0.0
+    - data-accessor-template >=0.2.1.12 && <0.3.0.0
+    - data-accessor-transformers >=0.2.1.6 && <0.3.0.0
+    - roman-numerals ==0.5.*
+    - syb >=0.4 && <0.8
+    - utility-ht >=0.0.11 && <0.1.0
+    - directory >=1 && <1.4
+    - filepath >=1.1 && <1.5
+    - template-haskell >=2.7.0.0 && <3.0.0.0
 flags:
   enable_flaky_tests:
     description: Some tests rely on specific behaviour of pandoc, which
@@ -60,6 +67,7 @@ executables:
     - temporary >= 1.2 && < 1.4
     - deepseq >= 1.4 && < 1.5
     - gitrev >= 1.3.1 && < 1.4
+    - template-haskell >=2.7.0.0 && <3.0.0.0
 tests:
   test-pandoc-crossref:
     when:
@@ -68,13 +76,18 @@ tests:
     main: test-pandoc-crossref.hs
     source-dirs:
     - test
-    - lib
     ghc-options:
     - -Wall
     - -fno-warn-unused-do-bind
     - -threaded
     dependencies:
-      - hspec >=2.4.4 && <3
+    - pandoc-crossref
+    - pandoc-crossref-internal
+    - hspec >=2.4.4 && <3
+    - mtl >=1.1 && <2.3
+    - containers >=0.1 && <0.7
+    - data-default >=0.4 && <0.8
+    - data-accessor >=0.2.2.6 && <0.3.0.0
   test-integrative:
     when:
       - condition: flag(enable_flaky_tests)
@@ -89,6 +102,8 @@ tests:
     dependencies:
     - pandoc-crossref
     - hspec >=2.4.4 && <3
+    - directory >=1 && <1.4
+    - filepath >=1.1 && <1.5
 benchmarks:
   simple:
     main: bench-simple.hs

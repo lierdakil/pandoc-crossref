@@ -1,0 +1,25 @@
+cradle:
+  cabal:
+    - path: "./lib"
+      component: "lib:pandoc-crossref"
+
+    - path: "./src/pandoc-crossref.hs"
+      component: "pandoc-crossref:exe:pandoc-crossref"
+
+    - path: "./src/ManData.hs"
+      component: "pandoc-crossref:exe:pandoc-crossref"
+
+    - path: "./src/Paths_pandoc_crossref.hs"
+      component: "pandoc-crossref:exe:pandoc-crossref"
+
+    - path: "./test"
+      component: "pandoc-crossref:test:test-integrative"
+
+    - path: "./test"
+      component: "pandoc-crossref:test:test-pandoc-crossref"
+
+    - path: "./lib"
+      component: "pandoc-crossref:test:test-pandoc-crossref"
+
+    - path: "./test/bench-simple.hs"
+      component: "pandoc-crossref:bench:simple"
