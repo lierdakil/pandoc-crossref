@@ -10,18 +10,19 @@ packages:
 extra-deps:
 - roman-numerals-0.5.1.5
 - data-accessor-template-0.2.1.16
-- pandoc-2.12
+- pandoc-2.13
 - hslua-module-path-0.1.0.1
 - pandoc-types-1.22
-- citeproc-0.3.0.7
 - commonmark-0.1.1.3
 - commonmark-extensions-0.2.0.4
 - commonmark-pandoc-0.2.0.1
 - hslua-1.3.0.1
-- jira-wiki-markup-1.3.3
-- skylighting-0.10.4
-- skylighting-core-0.10.4
 - rfc5051-0.2
 - doctemplates-0.9
-- texmath-0.12.1
+- citeproc-0.3.0.9
+- doclayout-0.3.0.2
+- jira-wiki-markup-1.3.4
+- skylighting-0.10.5
+- skylighting-core-0.10.5
+- texmath-0.12.2
 resolver: lts-17.5
