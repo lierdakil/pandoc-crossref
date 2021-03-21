@@ -48,9 +48,10 @@ data PRVar = PRVar { prvName :: T.Text
                    , prvIdx :: [IdxT]
                    } deriving Show
 data IdxT = IdxVar [PRVar] | IdxStr T.Text | IdxNum T.Text deriving Show
+data Sfx = SfxVar [PRVar] | SfxLit T.Text deriving Show
 data ParseRes = ParseRes { prVar :: [PRVar]
-                         , prPfx :: T.Text
-                         , prSfx :: T.Text
+                         , prPfx :: [Sfx]
+                         , prSfx :: [Sfx]
                          } deriving Show
 
 isVariableSym :: Char -> Bool
@@ -59,17 +60,19 @@ isVariableSym '_' = True
 isVariableSym c = isAlphaNum c
 
 parse :: ReadP ParseRes
-parse = uncurry <$> (ParseRes <$> var) <*> option ("", "") ps <* eof
+parse = uncurry <$> (ParseRes <$> var) <*> option ([], []) ps <* eof
   where
     var = sepBy1 (PRVar <$> varName <*> many varIdx) (char '?')
     varName = T.pack <$> munch1 isVariableSym
     varIdx = between (char '[') (char ']') (IdxVar <$> var <|> IdxStr <$> litStr <|> IdxNum <$> litNum)
     litStr = T.pack <$> between (char '"') (char '"') (many (satisfy (/='"')))
     litNum = T.pack <$> many (satisfy isDigit)
-    prefix = T.pack <$> (char '#' *> many (satisfy (/='%')))
-    suffix = T.pack <$> (char '%' *> many (satisfy (/='#')))
-    ps = (flip (,) <$> suffix <*> option "" prefix)
-          +++ ((,) <$> prefix <*> option "" suffix)
+    prefix = char '#' *> many (sfx '%')
+    suffix = char '%' *> many (sfx '#')
+    sfx stop = between (char '`') (char '`') (SfxVar <$> var)
+      +++ (SfxLit . T.pack <$> munch1 (`notElem` ['`', stop]))
+    ps = (flip (,) <$> suffix <*> option [] prefix)
+          +++ ((,) <$> prefix <*> option [] suffix)
 
 instance MakeTemplate Template where
   type ElemT Template = Inlines
@@ -100,8 +103,11 @@ scan = bottomUp . go
   where
   go vf (Math DisplayMath var:xs)
     | ParseRes{..} <- fst . head $ readP_to_S parse $ T.unpack var
-    = let replaceVar = maybe mempty (modifier . toInlines ("variable " <> var))
-          modifier = (<> text prSfx) . (text prPfx <>)
+    = let replaceVar = replaceVar' ((<> handleSfx prSfx) . (handleSfx prPfx <>))
+          replaceVar' m = maybe mempty (m . toInlines ("variable" <> var))
+          handleSfx = mconcat . map oneSfx
+          oneSfx (SfxVar vars) = replaceVar' id (tryVars vars)
+          oneSfx (SfxLit txt) = text txt
           tryVar PRVar{..} =
             case prvIdx of
               [] -> vf prvName
