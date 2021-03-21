@@ -2,13 +2,6 @@
 defaultOption:
 - numberSections
 adjustSectionIdentifiers: true
-prefixes:
-  sec:
-    captionTemplate: $$i$$ $$t$$
-    captionIndexTemplate: $$ri$$
-    referenceIndexTemplate: $$i$$$$suf$$
-    sub:
-      captionIndexTemplate: $$s.i$$$$ri#.$$
 ...
 
 # Section

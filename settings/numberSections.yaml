@@ -1,4 +1,8 @@
+chapDelim: .
 prefixes:
   sec:
-    captionIndexTemplate: $$s.i%.$$$$ri$$
-    captionTemplate: $$title$$ $$i$$. $$t$$
+    captionTemplate: $$i$$ $$t$$
+    captionIndexTemplate: $$ri$$
+    referenceIndexTemplate: $$i$$$$suf$$
+    sub:
+      captionIndexTemplate: $$s.i$$$$ri#`chapDelim`$$

@@ -2,10 +2,7 @@
 defaultOption:
 - numberSections
 adjustSectionIdentifiers: true
-prefixes:
-  sec:
-    captionTemplate: $$i$$ $$t$$
-    captionIndexTemplate: $$s.i%delim$$$$ri$$
+chapDelim: delim
 ...
 
 # Section
