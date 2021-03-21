@@ -3,9 +3,10 @@ codeBlockCaptions: True
 adjustSectionIdentifiers: True
 autoFigLabels: fig
 defaultOption:
-  - numberSections
-  - chapters
-  - subfigures
+- numberSections
+- titleSections
+- chapters
+- subfigures
 title: pandoc-crossref demo document
 ---
 

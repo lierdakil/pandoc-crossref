@@ -63,5 +63,6 @@ defaultMeta userSettings
     name2set "chapters" = $(embedFile "chapters")
     name2set "subfigures" = $(embedFile "subfigures")
     name2set "numberSections" = $(embedFile "numberSections")
+    name2set "titleSections" = $(embedFile "titleSections")
     name2set x = error . T.unpack $ "Unknown defaultOption value: " <> x
     basicMeta = $(embedFile "default")

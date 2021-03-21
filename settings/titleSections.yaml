@@ -1,0 +1,3 @@
+prefixes:
+  sec:
+    captionTemplate: $$title$$ $$i$$. $$t$$
