@@ -12,6 +12,7 @@ github: lierdakil/pandoc-crossref
 extra-source-files:
 - test/*.inc
 - CHANGELOG.md
+- settings/*
 data-files:
 - docs/demo/demo.md
 - docs/index.md
@@ -31,6 +32,7 @@ library:
     - mtl >=1.1 && <2.3
 internal-libraries:
   pandoc-crossref-internal:
+    ghc-options: -Wall
     source-dirs: lib-internal
     dependencies:
     - mtl >=1.1 && <2.3
@@ -45,6 +47,7 @@ internal-libraries:
     - directory >=1 && <1.4
     - filepath >=1.1 && <1.5
     - template-haskell >=2.7.0.0 && <3.0.0.0
+    - bytestring
 flags:
   enable_flaky_tests:
     description: Some tests rely on specific behaviour of pandoc, which

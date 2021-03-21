@@ -42,7 +42,7 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Data.Default
 import Text.Pandoc.Walk
-import Text.Pandoc.Shared hiding (capitalize, toString)
+import Text.Pandoc.Shared hiding (capitalize)
 import Data.Maybe
 import qualified Data.Map as M
 import qualified Data.Text as T

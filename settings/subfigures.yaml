@@ -1,0 +1,10 @@
+prefixes:
+  fig:
+    subcaptions: True
+    sub:
+      numbering: alpha a
+      referenceIndexTemplate: $$s.i$$($$i$$)
+      listItemTemplate: $$s.i$$($$i$$)$$listItemNumberDelim$$$$t$$
+      captionTemplate: $$i$$
+      scope: fig
+      captionIndexTemplate: $$ri$$

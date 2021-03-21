@@ -1,0 +1,4 @@
+prefixes:
+  sec:
+    captionIndexTemplate: $$s.i%.$$$$ri$$
+    captionTemplate: $$title$$ $$i$$. $$t$$

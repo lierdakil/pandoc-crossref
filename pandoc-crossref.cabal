@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a754d86ea092e3ea9812807abc8b57a9f3ce11dfa8658c5dd19c17d475e8e832
+-- hash: cba9cf0aff9fcad7237aceef08988c567a09042d3b738bb7950772c27cecb550
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -21,6 +21,10 @@ build-type:     Simple
 extra-source-files:
     test/demo.inc
     CHANGELOG.md
+    settings/chapters.yaml
+    settings/default.yaml
+    settings/numberSections.yaml
+    settings/subfigures.yaml
 data-files:
     docs/demo/demo.md
     docs/index.md
@@ -129,9 +133,12 @@ library pandoc-crossref-internal
       Text.Pandoc.CrossRef.Util.Prefixes.Types
       Text.Pandoc.CrossRef.Util.Replace
       Text.Pandoc.CrossRef.Util.Settings
+      Text.Pandoc.CrossRef.Util.Settings.Embed
       Text.Pandoc.CrossRef.Util.Settings.Gen
+      Text.Pandoc.CrossRef.Util.Settings.LiftPandoc
       Text.Pandoc.CrossRef.Util.Settings.Template
       Text.Pandoc.CrossRef.Util.Settings.Types
+      Text.Pandoc.CrossRef.Util.Settings.Util
       Text.Pandoc.CrossRef.Util.Template
       Text.Pandoc.CrossRef.Util.Template.Types
       Text.Pandoc.CrossRef.Util.Util
@@ -140,8 +147,10 @@ library pandoc-crossref-internal
       Paths_pandoc_crossref
   hs-source-dirs:
       lib-internal
+  ghc-options: -Wall
   build-depends:
       base >=4.11 && <5
+    , bytestring
     , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0

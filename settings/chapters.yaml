@@ -1,0 +1,8 @@
+captionIndexTemplate: $$s.i%.$$$$ri$$
+scope: sec
+prefixes:
+  sec:
+    title: Chapter
+    sub:
+      title: Section
+      referenceIndexTemplate: $$i$$$$suf$$
