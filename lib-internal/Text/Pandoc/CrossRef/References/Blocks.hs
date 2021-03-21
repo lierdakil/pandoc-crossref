@@ -60,6 +60,16 @@ replaceAll bs =
         . everywhere (mkT $ mkCodeBlockCaptions opts)
   in run bs
 
+setLabel :: Options -> RefRec -> [(T.Text, T.Text)] -> [(T.Text, T.Text)]
+setLabel opts RefRec{..}
+  | setLabelAttribute opts
+  = (("label", stringify refIxInlRaw) :)
+  . filter ((/= "label") . fst)
+  | otherwise = id
+
+setLabel' :: Options -> RefRec -> Attr -> Attr
+setLabel' opts idx (i, c, a) = (i, c, setLabel opts idx a)
+
 replaceBlock :: Options -> Scope -> Block -> WS (ReplacedResult Block)
 -- sections
 replaceBlock opts scope (Div (ident, "section":cls, attr) (Header lvl (hident, hcls, hattr) text' : body))
@@ -74,14 +84,14 @@ replaceBlock opts scope (Div (ident, "section":cls, attr) (Header lvl (hident, h
         (newident, newhident)
           | T.null hident = (newlabel, hident)
           | otherwise = (ident, newlabel)
-        result title = Div (newident, "section":cls, attr) (Header lvl (newhident, hcls, hattr) title : body)
+        result title attrf = Div (newident, "section":cls, attrf attr) (Header lvl (newhident, hcls, attrf hattr) title : body)
     in if "unnumbered" `elem` hcls
-    then replaceRecurse scope $ result text'
+    then replaceRecurse scope $ result text' id
     else do
       let ititle = B.fromList text'
       rec' <- replaceAttr opts scope label' hattr ititle pfx
       let title' = B.toList $ refCaption rec'
-      replaceRecurse (newScope rec' scope) $ result title'
+      replaceRecurse (newScope rec' scope) $ result title' (setLabel opts rec')
   where label | T.null hident = ident
               | otherwise = hident
 -- tables
@@ -90,27 +100,28 @@ replaceBlock opts scope (Div divOps@(label,_,attrs) [Table tattr (Caption short 
   , Just pfx <- getRefPrefix opts label
   = do
     let ititle = B.fromList title
-    RefRec{..} <- replaceAttr opts scope (ExplicitLabel label) attrs ititle pfx
+    rr@RefRec{..} <- replaceAttr opts scope (ExplicitLabel label) attrs ititle pfx
     let caption' = Caption short (walkReplaceInlines (B.toList refCaption) title btitle:rest)
-    replaceNoRecurse $ Div divOps [Table tattr caption' colspec header cells foot]
+    replaceNoRecurse $ Div (setLabel' opts rr divOps) [Table tattr caption' colspec header cells foot]
   where title = blocksToInlines [btitle]
 replaceBlock opts scope (Table divOps@(label,_,attrs) (Caption short (btitle:rest)) colspec header cells foot)
   | not $ null title
   , Just pfx <- getRefPrefix opts label
   = do
     let ititle = B.fromList title
-    RefRec{..} <- replaceAttr opts scope (ExplicitLabel label) attrs ititle pfx
+    rr@RefRec{..} <- replaceAttr opts scope (ExplicitLabel label) attrs ititle pfx
     let caption' = Caption short (walkReplaceInlines (B.toList refCaption) title btitle:rest)
-    replaceNoRecurse $ Table divOps caption' colspec header cells foot
+    replaceNoRecurse $ Table (setLabel' opts rr divOps) caption' colspec header cells foot
   where title = blocksToInlines [btitle]
 -- code blocks
-replaceBlock opts scope (Div (label, [], divattrs) [CodeBlock ("",classes,cbattrs) code, Para (Str ":":Space:caption)])
+replaceBlock opts scope (Div (label, divclasses, divattrs) [CodeBlock ("",classes,cbattrs) code, Para (Str ":":Space:caption)])
   | Just pfx <- getRefPrefix opts label
   = do
     ref <- replaceAttr opts scope (ExplicitLabel label) divattrs (B.fromList caption) pfx
+    let divattrs' = setLabel opts ref divattrs
     replaceNoRecurse $
-      Div (label, "listing":classes, [])
-        $ placeCaption opts ref [CodeBlock ("", classes, cbattrs) code]
+      Div (label, divclasses, divattrs')
+        $ placeCaption opts ref [CodeBlock ("", divclasses <> classes, divattrs <> cbattrs) code]
 -- Generic div
 replaceBlock opts scope (Div ats@(label, _, attrs) content)
   | Just pfx <- getRefPrefix opts label
@@ -122,7 +133,7 @@ replaceBlock opts scope (Div ats@(label, _, attrs) content)
           | otherwise = (mempty, content)
     ref <- replaceAttr opts scope (ExplicitLabel label) attrs caption pfx
     replaceRecurse (newScope ref scope) $
-      Div ats $ placeCaption opts ref content'
+      Div (setLabel' opts ref ats) $ placeCaption opts ref content'
 replaceBlock _ scope _ = noReplaceRecurse scope
 
 placeCaption :: Options -> RefRec -> [Block] -> [Block]
@@ -149,21 +160,21 @@ replaceInline opts scope (Span ats@(label,_,attrs) [Math DisplayMath eq])
   | Just pfx <- getRefPrefix opts label <|> autoEqnLabels opts
   , Just lbl <- autoLabel pfx label
   = do
-      RefRec{..} <- replaceAttr opts scope lbl attrs (B.displayMath eq) pfx
-      replaceNoRecurse $ Span ats [Math DisplayMath $ stringify refCaption]
+      rr@RefRec{..} <- replaceAttr opts scope lbl attrs (B.displayMath eq) pfx
+      replaceNoRecurse $ Span (setLabel' opts rr ats) [Math DisplayMath $ stringify refCaption]
 replaceInline opts scope (Image attr@(label,_,attrs) alt img@(_, tit))
   | Just pfx <- getRefPrefix opts label <|> autoFigLabels opts
   , Just lbl <- autoLabel pfx label
   , "fig:" `T.isPrefixOf` tit
   = do
-    RefRec{..} <- replaceAttr opts scope lbl attrs (B.fromList alt) pfx
-    replaceNoRecurse $ Image attr (B.toList refCaption) img
+    rr@RefRec{..} <- replaceAttr opts scope lbl attrs (B.fromList alt) pfx
+    replaceNoRecurse $ Image (setLabel' opts rr attr) (B.toList refCaption) img
 -- generic span
 replaceInline opts scope (Span (label,cls,attrs) content)
   | Just pfx <- getRefPrefix opts label
   = do
       ref@RefRec{} <- replaceAttr opts scope (ExplicitLabel label) attrs (B.fromList content) pfx
-      replaceRecurse (newScope ref scope) . Span (label, cls, attrs)
+      replaceRecurse (newScope ref scope) . Span (label, cls, setLabel opts ref attrs)
          . B.toList $ applyTitleTemplate ref
 replaceInline _opts (scope@RefRec{refPfxRec=Prefix{..}}:_) (Span ("",_,attrs) []) = do
   rd <- get referenceData
@@ -189,7 +200,6 @@ applyTitleIndexTemplate rr@RefRec{..} =
   applyTemplate (prefixCaptionIndexTemplate refPfxRec) vf
   where
   vf "i" = Nothing
-  vf "ri" = Just $ MetaInlines $ B.toList refIxInlRaw
   vf x = fix defaultVarFunc rr x
 
 walkReplaceInlines :: [Inline] -> [Inline] -> Block -> Block

@@ -34,7 +34,8 @@ defaultVarFunc :: (RefRec -> T.Text -> Maybe MetaValue)
                -> RefRec -> T.Text -> Maybe MetaValue
 defaultVarFunc self RefRec{..} x = case x of
    "idx" -> Just $ MetaString $ T.pack $ show refIndex
-   "ri" -> Just $ MetaInlines $ B.toList refIxInlRaw
+   "ri" | null refIxInlRaw -> Nothing
+        | otherwise -> Just $ MetaInlines $ B.toList refIxInlRaw
    "i" -> Just $ MetaInlines $ B.toList refIxInl
    "t" -> Just $ MetaInlines $ B.toList refTitle
    "lvl" -> Just $ MetaString $ T.pack $ show refLevel

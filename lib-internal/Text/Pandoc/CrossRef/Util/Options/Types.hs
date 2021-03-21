@@ -37,4 +37,5 @@ data Options = Options { codeBlockCaptions  :: Bool
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , prefixes :: Prefixes
+                       , setLabelAttribute :: Bool
                        }

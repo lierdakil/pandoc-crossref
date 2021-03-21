@@ -355,6 +355,9 @@ main = putStrLn "Hello World!"
 ```
 &lt;/div&gt;
 </pre>
+
+Any additional attributes and classes on the wrapping div will be merged with classes/attributes on the listing itself. In case of duplicate attributes, the behaviour is unspecified, but likely either both values will end up in the output, or div attributes will take precedence. This is important to keep in mind if you need to do some additional post-processing.
+
 ## References
 
 ``` markdown
@@ -491,6 +494,8 @@ A list of variables follows.
 -   `tableEqns`, default `false`: Typeset equations and equation numbers
     in tables instead of embedding numbers into equations themselves.
     Depending on output format, this might work better or worse.
+-   `setLabelAttribute`, default `false`: set `label` attribute on objects to
+    actual number used for referencing. This can be useful for post-processing.
 
 ### Item title format
 

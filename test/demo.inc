@@ -90,20 +90,20 @@
   ,Para [Str "There",Space,Str "are",Space,Str "a",Space,Str "couple",Space,Str "options",Space,Str "for",Space,Str "code",Space,Str "block",Space,Str "labels.",Space,Str "Those",Space,Str "work",Space,Str "only",Space,Str "if",Space,Str "code",Space,Str "block",Space,Str "id",Space,Str "starts",Space,Str "with",Space,Code ("",[],[]) "lst:",Str ",",Space,Str "e.g.\160",Code ("",[],[]) "{#lst:label}"]
   ,Header 2 ("sec:caption-attr",[],[]) [Str "Section",Space,Str "4.1.",Space,Code ("",[],[]) "caption",Space,Str "attribute"]
   ,Para [Code ("",[],[]) "caption",Space,Str "attribute",Space,Str "will",Space,Str "be",Space,Str "treated",Space,Str "as",Space,Str "code",Space,Str "block",Space,Str "caption.",Space,Str "If",Space,Str "code",Space,Str "block",Space,Str "has",Space,Str "both",Space,Str "id",Space,Str "and",Space,Code ("",[],[]) "caption",Space,Str "attributes,",Space,Str "it",Space,Str "will",Space,Str "be",Space,Str "treated",Space,Str "as",Space,Str "numbered",Space,Str "code",Space,Str "block."]
-  ,Div ("lst:captionAttr",["listing","haskell"],[])
+  ,Div ("lst:captionAttr",[],[])
    [Para [Str "Listing\160\&4.1.1:",Space,Str "Listing",Space,Str "caption"]
    ,CodeBlock ("",["haskell"],[]) "main :: IO ()\nmain = putStrLn \"Hello World!\""]
   ,RawBlock (Format "tex") "\\pagebreak"
   ,Header 2 ("sec:table-capts",[],[]) [Str "Section",Space,Str "4.2.",Space,Str "Table-style",Space,Str "captions"]
   ,Para [Str "Enabled",Space,Str "with",Space,Code ("",[],[]) "codeBlockCaptions",Space,Str "metadata",Space,Str "option.",Space,Str "If",Space,Str "code",Space,Str "block",Space,Str "is",Space,Str "immediately",SoftBreak,Str "adjacent",Space,Str "to",Space,Str "paragraph,",Space,Str "starting",Space,Str "with",Space,Code ("",[],[]) "Listing:",Space,Str "or",Space,Code ("",[],[]) ":",Str ",",Space,Str "said",Space,Str "paragraph",Space,Str "will",Space,Str "be",SoftBreak,Str "treated",Space,Str "as",Space,Str "code",Space,Str "block",Space,Str "caption."]
-  ,Div ("lst:tableCaption",["listing","haskell"],[])
+  ,Div ("lst:tableCaption",[],[])
    [Para [Str "Listing\160\&4.2.1:",Space,Str "Listing",Space,Str "caption"]
    ,CodeBlock ("",["haskell"],[]) "main :: IO ()\nmain = putStrLn \"Hello World!\""]
   ,Header 2 ("sec:wrapping-div",[],[]) [Str "Section",Space,Str "4.3.",Space,Str "Wrapping",Space,Str "div"]
   ,Para [Str "Wrapping",Space,Str "code",Space,Str "block",Space,Str "without",Space,Str "label",Space,Str "in",Space,Str "a",Space,Str "div",Space,Str "with",Space,Str "id",Space,Code ("",[],[]) "lst:...",Space,Str "and",Space,Str "class,",Space,Str "starting",Space,Str "with",Space,Code ("",[],[]) "listing",Str ",",Space,Str "and",Space,Str "adding",Space,Str "paragraph",Space,Str "after",Space,Str "code",Space,Str "block,",Space,Str "but",Space,Str "inside",Space,Str "div,",Space,Str "starting",Space,Str "with",Space,Code ("",[],[]) ":",Space,Str "will",Space,Str "treat",Space,Str "said",Space,Str "paragraph",Space,Str "as",Space,Str "code",Space,Str "block",Space,Str "caption."]
   ,Div ("lst:wrappingDiv",["listing"],[])
    [Para [Str "Listing\160\&4.3.1:",Space,Str "Listing",Space,Str "caption"]
-   ,CodeBlock ("",["haskell"],[]) "main :: IO ()\nmain = putStrLn \"Hello World!\""]
+   ,CodeBlock ("",["listing","haskell"],[]) "main :: IO ()\nmain = putStrLn \"Hello World!\""]
   ,Header 1 ("sec:unnumbered-chapter.",["unnumbered"],[]) [Str "Unnumbered",Space,Str "chapter."]
   ,Para [Str "This",Space,Str "chapter",Space,Str "doesn\8217t",Space,Str "change",Space,Str "chapter",Space,Str "prefix",Space,Str "of",Space,Str "referenced",Space,Str "elements,",Space,Str "instead",Space,Str "keeping",Space,Str "number",Space,Str "of",Space,Str "previous",Space,Str "chapter,",Space,Str "e.g.",SoftBreak,Span ("eq:eqn2",[],[]) [Math DisplayMath " S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x \\qquad(1)"]]
   ,Header 1 ("sec:reference-lists",[],[]) [Str "Chapter",Space,Str "5.",Space,Str "Reference",Space,Str "lists"]

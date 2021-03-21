@@ -444,9 +444,10 @@ codeBlockDiv title ref = divWith ("lst:"<>ref, [], []) $
   <> para (text $ ": " <> title)
 
 codeBlockDiv' :: T.Text -> T.Text -> Blocks
-codeBlockDiv' title ref = divWith ("lst:"<>ref, ["listing", "haskell"], []) $
-  para (text title)
-  <> codeBlockWith ("",["haskell"],[]) "main :: IO ()"
+codeBlockDiv' title ref = divWith ("lst:"<>ref, [],[]) $
+  para (text title) <>
+  codeBlockWith
+    ("",["haskell"],[]) "main :: IO ()"
 
 ref' :: T.Text -> T.Text -> Inlines
 ref' p n | T.null n  = mempty

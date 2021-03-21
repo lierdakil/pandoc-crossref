@@ -1,3 +1,53 @@
+## 0.3.10.0
+
+-   \[Fix\] Avoid expensive set difference, use filter
+-   \[Tweak\] For div-wrapped listings merge attributes and classes
+
+    Previously, classes and attributes on the wrapping div were ignored. Now, those are merged with classes and attributes on the listing.
+
+-   \[Feat\] Add option to set label attributes to actual numbering used
+
+    New option `setLabelAttribute` which sets `label` attribute on sections, figures, etc to actual number used for referencing. This can be useful for post-processing.
+
+-   \[Fix\] Omit empty section\/item labels
+
+    Objects (sections, figures) can have empty labels (i.e. no number). Previously, if those labels were referenced (particularly with chapters enabled) this would create references like `fig 1..2`. Now these labels are omitted. It can lead to duplicate numbers in references though.
+
+-   \[Fix\] Chapter delimiter in section numbers should be chapDelim (was '.')
+
+    `chapDelim` now observed in section numbers (when `numberSections` is enabled)
+
+## 0.3.9.1
+
+-   [CI] Bump pandoc version
+-   [Stack] Bump versions in stack.yaml
+-   [LaTeX][Tests] Update tests for subfigures
+-   [LaTeX][Tests] Update tests for pandoc 2.11.4
+-   [LaTeX] Remove footnotes from "short" subfigure caption (used for lof)
+-   [LaTeX] An attempt at fixing footnotes inside subfigure env
+
+Note that this is a fix-release, but it includes some rather drastic changes to
+the way subfigures are handled in LaTeX output. Couldn't fix the issue
+otherwise. See <https://github.com/lierdakil/pandoc-crossref/issues/292> for
+context and some additional pointers.
+
+## 0.3.9.0
+
+### New features
+
+-   Add header multilevel templates and secLevelLabels
+-   Add lowercase roman custom numbering
+
+### Fixes
+
+-   Label precedence fix: label attr > secLevelLabels > xLabels
+
+### Misc
+
+-   Update LaTeX tests for pandoc 2.11.3.1
+-   Update docs
+-   Relax bound on optparse-applicative
+
 ## 0.3.8.4
 
 -   [Fix] secLabels
