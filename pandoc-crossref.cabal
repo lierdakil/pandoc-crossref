@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cba9cf0aff9fcad7237aceef08988c567a09042d3b738bb7950772c27cecb550
+-- hash: 031e4b85f89a0c982d26b289cc24dc3f6810e028780b70f70b9e08556bb67223
 
 name:           pandoc-crossref
 version:        0.4.0.0
@@ -25,6 +25,7 @@ extra-source-files:
     settings/default.yaml
     settings/numberSections.yaml
     settings/subfigures.yaml
+    settings/titleSections.yaml
 data-files:
     docs/demo/demo.md
     docs/index.md
