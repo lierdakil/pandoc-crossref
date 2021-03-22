@@ -39,11 +39,11 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: .cabal-store
-        key: r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+        key: r3-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
         restore-keys: |
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}
+          r3-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+          r3-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}
+          r3-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}
     - shell: bash
       run: |
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-*
