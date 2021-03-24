@@ -48,6 +48,7 @@ jobs:
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-*
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-*
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-*
+        ls .cabal-store/ghc-${{matrix.ghcver}}/
     - name: Install dependencies
       run: cabal v2-build --only-dependencies
     - name: Build
