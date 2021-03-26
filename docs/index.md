@@ -30,10 +30,14 @@ Because pandoc-crossref offloads all numbering to LaTeX if it can, `chapters: tr
 
 It's a good idea to specify `--top-level-division=chapter` for any output format actually, because pandoc-crossref can't signal pandoc you want to use chapters, and vice versa.
 
-## pandoc-citeproc and pandoc-crossref
+## citeproc and pandoc-crossref
 
-Since pandoc-crossref uses the same citation syntax as pandoc-citeproc,
+Since pandoc-crossref uses the same citation syntax as citeproc,
 you *have* to run former *before* latter. For example:
+
+    pandoc -F pandoc-crossref --citeproc file.md -o file.html
+
+or
 
     pandoc -F pandoc-crossref -F pandoc-citeproc file.md -o file.html
 
