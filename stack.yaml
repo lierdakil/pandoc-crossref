@@ -3,7 +3,6 @@ flags:
     enable_flaky_tests: true
 ghc-options:
   pandoc: -j "+RTS -A64m -RTS"
-  pandoc-citeproc: -j "+RTS -A64m -RTS"
   $targets: -j "+RTS -A64m -RTS"
 packages:
 - .

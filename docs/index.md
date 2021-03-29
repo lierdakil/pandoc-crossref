@@ -37,10 +37,6 @@ you *have* to run former *before* latter. For example:
 
     pandoc -F pandoc-crossref --citeproc file.md -o file.html
 
-or
-
-    pandoc -F pandoc-crossref -F pandoc-citeproc file.md -o file.html
-
 ## Note on leading/trailing spaces in metadata options
 
 Leading and trailing spaces in YAML metadata will most likely be
