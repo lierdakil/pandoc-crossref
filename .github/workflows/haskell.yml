@@ -33,7 +33,7 @@ jobs:
     - name: Copy build config
       shell: bash
       run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
-    - name: Cabal confugure
+    - name: Cabal configure
       run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --enable-tests
     - uses: actions/cache@v2
       with:
