@@ -307,7 +307,7 @@ replaceEqn opts (label, _, attrs) eq = do
              | otherwise = Right label
   idxStr <- replaceAttr opts label' (lookup "label" attrs) [] eqnRefs
   let eq' | tableEqns opts = eq
-          | otherwise = eq<>"\\qquad("<>idxTxt<>")"
+          | otherwise = eq<>"\\tag{"<>idxTxt<>"}"
       idxTxt = stringify idxStr
   return (eq', idxStr)
 
