@@ -715,8 +715,24 @@ certain contexts:
 `xPrefixTemplate`, where `x` is `fig`, `eqn`, etc, are a special case.
 Those don't have `t` variable, since there is no caption in source
 markdown, but instead have `p` variable, that binds to relevant
-`xPrefix`. This is done this way, since actual prefix vaule can depend
-on `i`.
+`xPrefix`. This is done this way, since actual prefix value can depend
+on `i`. In `xPrefixTemplate`, `i` references formatted object numbers, i.e. if given a list of references like `[@fig:1; @fig:2; @fig:3]`, here `i` will contain something like `1-3`.
+
+`refIndexTemplate` is the template for the individual reference index. It can be either a plain template, or can be a YAML object with keys corresponding to different prefixes, and a special key `default` used as a fallback, e.g.
+
+```yaml
+refIndexTemplate:
+  sec: $$i$$$$suf$$ ($$t$$)
+  default: $$i$$$$suf$$
+```
+
+`refIndexTemplate` has the following internal variables defined:
+
+- `i` -- formatted object index (possibly with chapter number)
+- `suf` -- literal suffix used in the reference, e.g. given `[@fig:1 some suffix]`, `suf` will contain literally ` some suffix` (complete with the leading space)
+- `t` -- object title, if any, or empty if the object has no title
+
+`subfigureRefIndexTemplate` is roughly the same as `refIndexTemplate` but is used specifically for subfigures. It additionally has `s` variable defined, which is described above.
 
 Additionally, a special syntax is provided for indexed access to array metadata variables: `arrayVariable[indexVariable]`, where `arrayVariable` is an array-like metadata variable, and `indexVariable` is an integer-typed template variable.
 If `indexVariable` is larger than length of `arrayVariable`, then the last

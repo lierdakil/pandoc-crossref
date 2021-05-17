@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Template
   ( Template
   , makeTemplate
+  , makeIndexedTemplate
   , applyTemplate
   , applyTemplate'
   ) where
@@ -57,6 +58,15 @@ makeTemplate dtv xs' = Template $ \vf -> scan (\var -> vf var <|> lookupMeta var
   go _ (x:xs) = toList $ singleton x <> fromList xs
   go _ [] = []
   replaceVar var val def' = maybe def' (toInlines ("variable " <> var)) val
+
+makeIndexedTemplate :: T.Text -> Meta -> T.Text -> Template
+makeIndexedTemplate name meta subname =
+  makeTemplate meta $ case lookupMeta name meta of
+    Just (MetaMap m) -> case lookupMeta subname (Meta m) of
+      Just x -> toInlines name x
+      Nothing -> getMetaInlines "default" (Meta m)
+    Just x -> toInlines name x
+    Nothing -> []
 
 applyTemplate' :: M.Map T.Text [Inline] -> Template -> [Inline]
 applyTemplate' vars (Template g) = g internalVars
