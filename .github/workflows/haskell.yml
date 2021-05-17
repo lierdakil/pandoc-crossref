@@ -45,10 +45,10 @@ jobs:
           r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}
     - shell: bash
       run: |
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-*
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-*
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-*
-        ls .cabal-store/ghc-${{matrix.ghcver}}/
+        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
+        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-* || true
+        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-* || true
+        ls .cabal-store/ghc-${{matrix.ghcver}}/ || true
     - name: Install dependencies
       run: cabal v2-build --only-dependencies
     - name: Build
