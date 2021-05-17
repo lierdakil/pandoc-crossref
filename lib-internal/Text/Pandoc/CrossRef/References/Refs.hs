@@ -175,6 +175,8 @@ data RefData = RefData { rdLabel :: T.Text
                        , rdIdx :: Maybe Index
                        , rdSubfig :: Maybe Index
                        , rdSuffix :: [Inline]
+                       , rdTitle :: Maybe [Inline]
+                       , rdPfx :: T.Text
                        } deriving (Eq)
 
 instance Ord RefData where
@@ -186,11 +188,14 @@ getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
     ref <- M.lookup lab <$> get prop
     let sub = refSubfigure <$> ref
         idx = refIndex <$> ref
+        tit = refTitle <$> ref
     return RefData
       { rdLabel = lab
       , rdIdx = idx
       , rdSubfig = join sub
       , rdSuffix = suf
+      , rdTitle = tit
+      , rdPfx = prefix
       }
   where
   prop = lookupUnsafe prefix accMap
@@ -232,7 +237,7 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   show'' (RefSingle x) = show' x
   show'' (RefRange x y) = show' x <> fromList (rangeDelim o) <> show' y
   show' :: RefData -> Inlines
-  show' RefData{rdLabel=l, rdIdx=Just i, rdSubfig = sub, rdSuffix = suf}
+  show' RefData{rdLabel=l, rdIdx=Just i, rdSubfig = sub, rdSuffix = suf, rdTitle=tit, rdPfx=pfx}
     | linkReferences o = link ('#' `T.cons` l) "" (fromList txt)
     | otherwise = fromList txt
     where
@@ -242,14 +247,16 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
                       [ ("i", chapPrefix (chapDelim o) i)
                       , ("s", chapPrefix (chapDelim o) sub')
                       , ("suf", suf)
+                      , ("t", fromMaybe mempty tit)
                       ]
           in applyTemplate' vars $ subfigureRefIndexTemplate o
         | otherwise
         = let vars = M.fromDistinctAscList
                       [ ("i", chapPrefix (chapDelim o) i)
                       , ("suf", suf)
+                      , ("t", fromMaybe mempty tit)
                       ]
-          in applyTemplate' vars $ refIndexTemplate o
+          in applyTemplate' vars $ refIndexTemplate o (T.dropEnd 1 pfx)
   show' RefData{rdLabel=l, rdIdx=Nothing, rdSuffix = suf} =
     trace (T.unpack $ "Undefined cross-reference: " <> l)
           (strong (text $ "¿" <> l <> "?") <> fromList suf)

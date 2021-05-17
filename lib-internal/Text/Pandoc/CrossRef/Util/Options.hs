@@ -40,7 +40,7 @@ data Options = Options { cref :: Bool
                        , tblPrefixTemplate :: Template
                        , lstPrefixTemplate :: Template
                        , secPrefixTemplate :: Template
-                       , refIndexTemplate :: Template
+                       , refIndexTemplate :: Text -> Template
                        , subfigureRefIndexTemplate :: Template
                        , secHeaderTemplate :: Template
                        , chapDelim   :: [Inline]

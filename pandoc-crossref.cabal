@@ -85,6 +85,9 @@ data-files:
     test/m2m/subfigures/expect.md
     test/m2m/subfigures/expect.tex
     test/m2m/subfigures/input.md
+    test/m2m/titlesInRefs/expect.md
+    test/m2m/titlesInRefs/expect.tex
+    test/m2m/titlesInRefs/input.md
 
 source-repository head
   type: git

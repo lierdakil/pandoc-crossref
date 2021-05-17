@@ -79,6 +79,7 @@ makeCon' t accName = do
     boolT <- [t|$(conT t) -> Bool|]
     intT <- [t|$(conT t) -> Int|]
     tmplT <- [t|$(conT t) -> Template|]
+    idxTmplT <- [t|$(conT t) -> Text -> Template|]
     clT <- [t|$(conT t) -> Text -> Int -> Maybe Text|]
     chlT <- [t|$(conT t) -> Int -> Int -> Maybe Text|]
     let varName | Name (OccName n) _ <- accName = liftString n
@@ -91,6 +92,7 @@ makeCon' t accName = do
       | t' == inlT -> [|getMetaInlines $(varName) $(dtv)|]
       | t' == blkT -> [|getMetaBlock $(varName) $(dtv)|]
       | t' == tmplT -> [|makeTemplate $(dtv) $ getMetaInlines $(varName) $(dtv)|]
+      | t' == idxTmplT -> [|makeIndexedTemplate $(varName) $(dtv)|]
       | t' == clT -> [|customLabel $(dtv)|]
       | t' == chlT -> [|customHeadingLabel $(dtv)|]
       | t' == fmtT -> return $ VarE $ mkName "fmt"
