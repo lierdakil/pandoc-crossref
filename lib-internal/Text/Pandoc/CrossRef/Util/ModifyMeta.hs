@@ -18,7 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards, OverloadedStrings #-}
+
 module Text.Pandoc.CrossRef.Util.ModifyMeta
     (
     modifyMeta
@@ -27,108 +28,30 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
 import Text.Pandoc
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Options
-import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Util
 import qualified Data.Text as T
-import Control.Monad.Writer
 
-modifyMeta :: Options -> Meta -> Meta
-modifyMeta opts meta
-  | isLatexFormat (outFormat opts)
-  = setMeta "header-includes"
-      (headerInc $ lookupMeta "header-includes" meta)
-      meta
-  | otherwise = meta
-  where
+modifyMeta :: Meta -> CrossRef Meta
+modifyMeta meta = do
+  Options{..} <- asks creOptions
+  Settings (Meta settingskv) <- asks creSettings
+  let
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = incList
     headerInc (Just (MetaList x)) = MetaList $ x <> [incList]
     headerInc (Just x) = MetaList [x, incList]
     incList = MetaBlocks $ return $ RawBlock (Format "latex") $ T.unlines $ execWriter $ do
         tell [ "\\makeatletter" ]
-        tell subfig
-        tell floatnames
-        tell listnames
-        tell subfigures
-        unless (listings opts) $
-          tell codelisting
-        tell lolcommand
-        when (cref opts) $ do
-          tell cleveref
-          unless (listings opts) $
-            tell cleverefCodelisting
+        tell [ "\\@ifpackageloaded{caption}{\\captionsetup{labelformat=empty}}{\\usepackage[labelformat=empty]{caption}}" ]
+        tell [ "\\newenvironment{pandoccrossrefsubcaption}{\\renewcommand{\\toprule}{}\\renewcommand{\\bottomrule}{}}{}" ]
         tell [ "\\makeatother" ]
-      where
-        subfig = [
-            usepackage [] "subfig"
-          , usepackage [] "caption"
-          , "\\captionsetup[subfloat]{margin=0.5em}"
-          ]
-        floatnames = [
-            "\\AtBeginDocument{%"
-          , "\\renewcommand*\\figurename{" <> metaString "figureTitle" <> "}"
-          , "\\renewcommand*\\tablename{" <> metaString "tableTitle" <> "}"
-          , "}"
-          ]
-        listnames = [
-            "\\AtBeginDocument{%"
-          , "\\renewcommand*\\listfigurename{" <> metaString' "lofTitle" <> "}"
-          , "\\renewcommand*\\listtablename{" <> metaString' "lotTitle" <> "}"
-          , "}"
-          ]
-        subfigures = [
-            "\\newcounter{pandoccrossref@subfigures@footnote@counter}"
-          , "\\newenvironment{pandoccrossrefsubfigures}{%"
-          , "\\setcounter{pandoccrossref@subfigures@footnote@counter}{0}"
-          , "\\begin{figure}\\centering%"
-          , "\\gdef\\global@pandoccrossref@subfigures@footnotes{}%"
-          , "\\DeclareRobustCommand{\\footnote}[1]{\\footnotemark%"
-          , "\\stepcounter{pandoccrossref@subfigures@footnote@counter}%"
-          , "\\ifx\\global@pandoccrossref@subfigures@footnotes\\empty%"
-          , "\\gdef\\global@pandoccrossref@subfigures@footnotes{{##1}}%"
-          , "\\else%"
-          , "\\g@addto@macro\\global@pandoccrossref@subfigures@footnotes{, {##1}}%"
-          , "\\fi}}%"
-          , "{\\end{figure}%"
-          , "\\addtocounter{footnote}{-\\value{pandoccrossref@subfigures@footnote@counter}}"
-          , "\\@for\\f:=\\global@pandoccrossref@subfigures@footnotes\\do{\\stepcounter{footnote}\\footnotetext{\\f}}%"
-          , "\\gdef\\global@pandoccrossref@subfigures@footnotes{}}"
-          ]
-        codelisting = [
-            usepackage [] "float"
-          , "\\floatstyle{ruled}"
-          , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
-          , "\\floatname{codelisting}{" <> metaString "listingTitle" <> "}"
-          ]
-        lolcommand
-          | listings opts = [
-              "\\newcommand*\\listoflistings\\lstlistoflistings"
-            , "\\AtBeginDocument{%"
-            , "\\renewcommand*{\\lstlistlistingname}{" <> metaString' "lolTitle" <> "}"
-            , "}"
-            ]
-          | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{" <> metaString' "lolTitle" <> "}}"]
-        cleveref = [ usepackage cleverefOpts "cleveref" ]
-          <> crefname "figure" figPrefix
-          <> crefname "table" tblPrefix
-          <> crefname "equation" eqnPrefix
-          <> crefname "listing" lstPrefix
-          <> crefname "section" secPrefix
-        cleverefCodelisting = [
-            "\\crefname{codelisting}{\\cref@listing@name}{\\cref@listing@name@plural}"
-          , "\\Crefname{codelisting}{\\Cref@listing@name}{\\Cref@listing@name@plural}"
-          ]
-        cleverefOpts | nameInLink opts = [ "nameinlink" ]
-                     | otherwise = []
-        crefname n f = [
-            "\\crefname{" <> n <> "}" <> prefix f False
-          , "\\Crefname{" <> n <> "}" <> prefix f True
-          ]
-        usepackage [] p = "\\@ifpackageloaded{" <> p <> "}{}{\\usepackage{" <> p <> "}}"
-        usepackage xs p = "\\@ifpackageloaded{" <> p <> "}{}{\\usepackage" <> o <> "{" <> p <> "}}"
-          where o = "[" <> T.intercalate "," xs <> "]"
-        toLatex = either (error . show) id . runPure . writeLaTeX def . Pandoc nullMeta . return . Plain
-        metaString s = toLatex $ getMetaInlines s meta
-        metaString' s = toLatex [Str $ getMetaString s meta]
-        prefix f uc = "{" <> toLatex (f opts uc 0) <> "}"  <>
-                      "{" <> toLatex (f opts uc 1) <> "}"
+    tweakedMeta
+      | Just _ <- lookupMeta "crossref" meta = setMeta "crossref" (MetaMap settingskv) meta
+      | otherwise = Meta settingskv
+  return $ if isLatexFormat outFormat
+  then setMeta "header-includes"
+      (headerInc $ lookupMeta "header-includes" meta)
+      tweakedMeta
+  else tweakedMeta

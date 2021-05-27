@@ -1,10 +1,14 @@
 ---
-numberSections: true
-sectionsDepth: -1
-secLabels: roman
-secLevelLabels:
-  - alpha A
-figLabels: alpha α
+defaultOption:
+  - numberSections
+prefixes:
+  sec:
+    numbering: roman
+    captionIndexTemplate: $$s.i%.$$$$ri$$
+    sub:
+      numbering: alpha A
+  fig:
+    numbering: alpha α
 ---
 
 # First Section {label="*"}

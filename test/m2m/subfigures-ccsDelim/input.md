@@ -1,6 +1,16 @@
 ---
-ccsDelim: ";&#32;"
-...
+autoFigLabels: fig
+prefixes:
+  fig:
+    subcaptions: true
+    subcaptionsGrid: false
+    collectedCaptionDelim: ";&#32;"
+    sub:
+      numbering: alpha a
+      referenceIndexTemplate: $$s.i$$ ($$i$$)
+      captionTemplate: $$i$$
+      scope: "fig"
+---
 
 You can define subfigures:
 
@@ -17,7 +27,7 @@ You can define subfigures:
   ![8](fig8.png)
   ![9](fig9.png){#fig:subfig9}
 
-  Caption
+  : Caption. []{}
 </div>
 
 <div id="fig:subfigures2">
@@ -39,7 +49,7 @@ You can define subfigures:
 
   ![9](fig9.png){#fig:subfig29}
 
-  Caption
+  \: Caption. []{}
 </div>
 
 Figures themselves can be referenced @fig:subfigures2, as well as individual subfigures: [@fig:subfig1; @fig:subfig2; @fig:subfig29]

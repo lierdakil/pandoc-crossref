@@ -5,6 +5,7 @@ on: [push]
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         pandocver: ["2.13"]
@@ -38,11 +39,11 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: .cabal-store
-        key: r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+        key: r3-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
         restore-keys: |
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}
+          r3-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+          r3-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}
+          r3-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}
     - shell: bash
       run: |
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-*
@@ -145,6 +146,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       uses: softprops/action-gh-release@v1
       with:
+        prerelease: true
         body_path: description.md
         files: |
           assets/*

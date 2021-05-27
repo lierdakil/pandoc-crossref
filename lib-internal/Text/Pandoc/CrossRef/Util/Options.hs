@@ -18,54 +18,58 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.Util.Options (Options(..)) where
-import Text.Pandoc.Definition
-import Text.Pandoc.CrossRef.Util.Template
-import Data.Text (Text)
+{-# LANGUAGE OverloadedStrings #-}
+module Text.Pandoc.CrossRef.Util.Options (
+    module Text.Pandoc.CrossRef.Util.Options
+  , module Text.Pandoc.CrossRef.Util.Options.Types
+) where
 
-data Options = Options { cref :: Bool
-                       , chaptersDepth   :: Int
-                       , listings :: Bool
-                       , codeBlockCaptions  :: Bool
-                       , autoSectionLabels  :: Bool
-                       , numberSections  :: Bool
-                       , sectionsDepth  :: Int
-                       , figPrefix   :: Bool -> Int -> [Inline]
-                       , eqnPrefix   :: Bool -> Int -> [Inline]
-                       , tblPrefix   :: Bool -> Int -> [Inline]
-                       , lstPrefix   :: Bool -> Int -> [Inline]
-                       , secPrefix   :: Bool -> Int -> [Inline]
-                       , figPrefixTemplate :: Template
-                       , eqnPrefixTemplate :: Template
-                       , tblPrefixTemplate :: Template
-                       , lstPrefixTemplate :: Template
-                       , secPrefixTemplate :: Template
-                       , refIndexTemplate :: Template
-                       , subfigureRefIndexTemplate :: Template
-                       , secHeaderTemplate :: Template
-                       , chapDelim   :: [Inline]
-                       , rangeDelim  :: [Inline]
-                       , pairDelim  :: [Inline]
-                       , lastDelim  :: [Inline]
-                       , refDelim  :: [Inline]
-                       , lofTitle    :: [Block]
-                       , lotTitle    :: [Block]
-                       , lolTitle    :: [Block]
-                       , outFormat   :: Maybe Format
-                       , figureTemplate :: Template
-                       , subfigureTemplate :: Template
-                       , subfigureChildTemplate :: Template
-                       , ccsTemplate :: Template
-                       , tableTemplate  :: Template
-                       , listingTemplate :: Template
-                       , customLabel :: Text -> Int -> Maybe Text
-                       , customHeadingLabel :: Int -> Int -> Maybe Text
-                       , ccsDelim :: [Inline]
-                       , ccsLabelSep :: [Inline]
-                       , tableEqns :: Bool
-                       , autoEqnLabels :: Bool
-                       , subfigGrid :: Bool
-                       , linkReferences :: Bool
-                       , nameInLink :: Bool
-                       , setLabelAttribute :: Bool
-                       }
+import Text.Pandoc.Definition
+import Text.Pandoc.CrossRef.Util.Options.Types
+import Text.Pandoc.CrossRef.References.Types.Monad
+import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.Prefixes
+import qualified Data.Map as M
+import Text.Pandoc.Builder
+import qualified Data.Text as T
+
+prefixList :: Options -> [T.Text]
+prefixList = M.keys . prefixes
+
+pfxCaptionTemplate :: Options -> T.Text -> PureErr Template
+pfxCaptionTemplate opts pfx = prefixCaptionTemplate <$> getPfx opts pfx
+
+pfxListItemTemplate :: Options -> T.Text -> PureErr Template
+pfxListItemTemplate opts pfx = prefixListItemTemplate <$> getPfx opts pfx
+
+pfxCaptionIndexTemplate :: Options -> T.Text -> PureErr Template
+pfxCaptionIndexTemplate opts pfx = prefixCaptionIndexTemplate <$> getPfx opts pfx
+
+getPfx :: Options -> T.Text -> PureErr Prefix
+getPfx o pn = maybe defaultPfx return $ M.lookup pn $ prefixes o
+  where
+    defaultPfx = Left $ WSENoSuchPrefix pn
+
+getRefPrefix :: Options -> T.Text -> Maybe T.Text
+getRefPrefix opts label
+  | (pfx, rest) <- T.span (/=':') label
+  , not $ T.null rest
+  = if pfx `elem` prefixList opts
+    then Just pfx
+    else Nothing
+  | otherwise = Nothing
+
+getRefLabel :: Options -> [Inline] -> Maybe T.Text
+getRefLabel _ [] = Nothing
+getRefLabel opts ils
+  | Str attr <- last ils
+  , all (==Space) (init ils)
+  , Just lbl <- T.stripPrefix "{#" attr >>= T.stripSuffix "}"
+  , Just _ <- getRefPrefix opts lbl
+  = Just lbl
+getRefLabel _ _ = Nothing
+
+getTitleForListOf :: Options -> T.Text -> PureErr Blocks
+getTitleForListOf opts pfxn = do
+  pfx <- getPfx opts pfxn
+  return $ applyBlockTemplate (prefixListOfTitle pfx) (prefixDef pfx)

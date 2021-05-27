@@ -1,7 +1,7 @@
 ---
-numberSections: true
-sectionsDepth: -1
-autoSectionLabels: true
+defaultOption:
+- numberSections
+adjustSectionIdentifiers: true
 ...
 
 # Section

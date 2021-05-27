@@ -2,13 +2,13 @@
 
 text
 
-![Figure α: A figure](image.png){#fig:fig1}
+![Figure α: A figure](image.png){#fig:fig1}
 
 ## \*.A Subsection {#subsection}
 
 other text
 
-![Figure +: A figure with custom label](image.png){#fig:fig2 label="+"}
+![Figure +: A figure with custom label](image.png){#fig:fig2 label="+"}
 
 ### \*.A.A Subsubsection {#subsubsection}
 

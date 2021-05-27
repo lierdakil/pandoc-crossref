@@ -34,7 +34,7 @@ Or in groups eqns. 1ref2last4
 
 Groups will be compacted eqns. 1range4
 
-Unknown references will print labels eqns. **¿eq:none?**ref1ref3last4
+Unknown references will print labels eq. 1, [@eq:none], eqns. 3pair4
 
 Reference prefix will override default prefix Equation 1, eqns. 3pair4
 

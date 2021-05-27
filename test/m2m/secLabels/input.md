@@ -1,9 +1,14 @@
 ---
-numberSections: true
-sectionsDepth: -1
-secLabels: alpha a
-figLabels: alpha a
-tblLabels: roman
+defaultOption:
+  - numberSections
+prefixes:
+  sec:
+    numbering: alpha a
+    captionIndexTemplate: $$s.i%.$$$$ri$$
+  fig:
+    numbering: alpha a
+  tbl:
+    numbering: roman
 ---
 
 # First Level Section

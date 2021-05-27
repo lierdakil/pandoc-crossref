@@ -18,44 +18,67 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, Rank2Types #-}
+{-# LANGUAGE FlexibleContexts, Rank2Types, UndecidableInstances
+           , FlexibleInstances, OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Meta (
     getMetaList
   , getMetaBool
+  , getMetaBoolDefault
   , getMetaInlines
   , getMetaBlock
   , getMetaString
+  , getMetaStringMaybe
+  , getMetaStringList
   , getList
+  , getObj
   , toString
   , toInlines
-  , tryCapitalizeM
+  , capitalize
   ) where
 
 import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Data.Default
 import Text.Pandoc.Walk
-import Text.Pandoc.Shared hiding (capitalize, toString)
+import Text.Pandoc.Shared hiding (capitalize)
+import Data.Maybe
+import qualified Data.Map as M
 import qualified Data.Text as T
 
-getMetaList :: (Default a) => (MetaValue -> a) -> T.Text -> Meta -> Int -> a
-getMetaList f name meta i = maybe def f $ lookupMeta name meta >>= getList i
+getMetaList :: (Default a) => (MetaValue -> a) -> T.Text -> Settings -> Int -> a
+getMetaList f name (Settings meta) i = maybe def f $ lookupMeta name meta >>= getList i
 
-getMetaBool :: T.Text -> Meta -> Bool
+getMetaStringList :: T.Text -> Settings -> [T.Text]
+getMetaStringList name (Settings meta) = maybe [] (getList' name) $ lookupMeta name meta
+  where
+    getList' n (MetaList l) = map (toString n) l
+    getList' n x = [toString n x]
+
+getMetaBool :: T.Text -> Settings -> Bool
 getMetaBool = getScalar toBool
 
-getMetaInlines :: T.Text -> Meta -> [Inline]
+getMetaBoolDefault :: T.Text -> Settings -> Bool -> Bool
+getMetaBoolDefault = getScalarDefault toBool
+
+getMetaInlines :: T.Text -> Settings -> Inlines
 getMetaInlines = getScalar toInlines
 
-getMetaBlock :: T.Text -> Meta -> [Block]
+getMetaBlock :: T.Text -> Settings -> Blocks
 getMetaBlock = getScalar toBlocks
 
-getMetaString :: T.Text -> Meta -> T.Text
+getMetaString :: T.Text -> Settings -> T.Text
 getMetaString = getScalar toString
 
-getScalar :: Def b => (T.Text -> MetaValue -> b) -> T.Text -> Meta -> b
-getScalar conv name meta = maybe def' (conv name) $ lookupMeta name meta
+getMetaStringMaybe :: T.Text -> Settings -> Maybe T.Text
+getMetaStringMaybe = getScalar (const toMaybeString)
+
+getScalar :: Def b => (T.Text -> MetaValue -> b) -> T.Text -> Settings -> b
+getScalar conv name (Settings meta) = maybe def' (conv name) $ lookupMeta name meta
+
+getScalarDefault :: (T.Text -> MetaValue -> b) -> T.Text -> Settings -> b -> b
+getScalarDefault conv name (Settings meta) dv = maybe dv (conv name) $ lookupMeta name meta
 
 class Def a where
   def' :: a
@@ -63,14 +86,17 @@ class Def a where
 instance Def Bool where
   def' = False
 
-instance Def [a] where
-  def' = []
-
 instance Def T.Text where
-  def' = T.empty
+  def' = ""
 
-unexpectedError :: forall a. String -> T.Text -> MetaValue -> a
-unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> T.unpack n <> " but got " <> g x
+instance Def (Maybe a) where
+  def' = Nothing
+
+instance (Monoid (Many a)) => Def (Many a) where
+  def' = mempty
+
+unexpectedError :: forall a. T.Text -> T.Text -> MetaValue -> a
+unexpectedError e n x = error . T.unpack $ "Expected " <> e <> " in metadata field " <> n <> " but got " <> g x
   where
     g (MetaBlocks _) = "blocks"
     g (MetaString _) = "string"
@@ -79,27 +105,30 @@ unexpectedError e n x = error $ "Expected " <> e <> " in metadata field " <> T.u
     g (MetaMap _) = "map"
     g (MetaList _) = "list"
 
-toInlines :: T.Text -> MetaValue -> [Inline]
-toInlines _ (MetaBlocks s) = blocksToInlines s
-toInlines _ (MetaInlines s) = s
-toInlines _ (MetaString s) = toList $ text s
+toInlines :: T.Text -> MetaValue -> Inlines
+toInlines _ (MetaBlocks s) = fromList $ blocksToInlines s
+toInlines _ (MetaInlines s) = fromList s
+toInlines _ (MetaString s) = text s
 toInlines n x = unexpectedError "inlines" n x
 
 toBool :: T.Text -> MetaValue -> Bool
 toBool _ (MetaBool b) = b
 toBool n x = unexpectedError "bool" n x
 
-toBlocks :: T.Text -> MetaValue -> [Block]
-toBlocks _ (MetaBlocks bs) = bs
-toBlocks _ (MetaInlines ils) = [Plain ils]
-toBlocks _ (MetaString s) = toList $ plain $ text s
+toBlocks :: T.Text -> MetaValue -> Blocks
+toBlocks _ (MetaBlocks bs) = fromList bs
+toBlocks _ (MetaInlines ils) = fromList [Plain ils]
+toBlocks _ (MetaString s) = plain $ text s
 toBlocks n x = unexpectedError "blocks" n x
 
 toString :: T.Text -> MetaValue -> T.Text
-toString _ (MetaString s) = s
-toString _ (MetaBlocks b) = stringify b
-toString _ (MetaInlines i) = stringify i
-toString n x = unexpectedError "string" n x
+toString n x = fromMaybe (unexpectedError "string" n x) $ toMaybeString x
+
+toMaybeString :: MetaValue -> Maybe T.Text
+toMaybeString (MetaString s) = Just s
+toMaybeString (MetaBlocks b) = Just $ stringify b
+toMaybeString (MetaInlines i) = Just $ stringify i
+toMaybeString _ = Nothing
 
 getList :: Int -> MetaValue -> Maybe MetaValue
 getList i (MetaList l) = l !!? i
@@ -109,15 +138,22 @@ getList i (MetaList l) = l !!? i
                    | otherwise = Nothing
 getList _ x = Just x
 
-tryCapitalizeM :: (Functor m, Monad m, Walkable Inline a, Default a, Eq a) =>
-        (T.Text -> m a) -> T.Text -> Bool -> m a
-tryCapitalizeM f varname capitalize
-  | capitalize = do
-    res <- f (capitalizeFirst varname)
-    case res of
-      xs | xs == def -> f varname >>= walkM capStrFst
-         | otherwise -> return xs
-  | otherwise  = f varname
+getObj :: T.Text -> MetaValue -> Maybe MetaValue
+getObj i (MetaMap m) = M.lookup i m
+getObj _ _ = Nothing
+
+capitalize :: (T.Text -> Maybe MetaValue) -> T.Text -> Maybe MetaValue
+capitalize f varname = case f (capitalizeFirst varname) of
+  Nothing -> case f varname of
+    Nothing -> Nothing
+    Just x -> Just $ cap x
+  Just xs -> Just xs
   where
-    capStrFst (Str s) = return $ Str $ capitalizeFirst s
-    capStrFst x = return x
+  cap (MetaString s)  = MetaString $ capitalizeFirst s
+  cap (MetaInlines i) = MetaInlines $ walk capStrFst i
+  cap (MetaBlocks b)  = MetaBlocks $ walk capStrFst b
+  cap (MetaMap m)     = MetaMap $ M.map cap m
+  cap (MetaList l)    = MetaList $ map cap l
+  cap x               = x
+  capStrFst (Str s) = Str $ capitalizeFirst s
+  capStrFst x = x

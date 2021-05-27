@@ -19,96 +19,50 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE OverloadedStrings #-}
-module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
+{-# LANGUAGE OverloadedStrings, TemplateHaskell, BangPatterns #-}
+module Text.Pandoc.CrossRef.Util.Settings (readSettings, defaultMeta, Settings(..)) where
 
 import Text.Pandoc
-import Text.Pandoc.Builder
 import Control.Exception (handle,IOException)
 
-import Text.Pandoc.CrossRef.Util.Settings.Gen
+import Text.Pandoc.CrossRef.Util.Settings.Embed
+import Text.Pandoc.CrossRef.Util.Settings.Util
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Meta
 import System.Directory
 import System.FilePath
-import System.IO
 import qualified Data.Text as T
+import qualified Data.Map as M
 
-getSettings :: Maybe Format -> Meta -> IO Meta
-getSettings fmt meta = do
-  dirConfig <- readConfig (T.unpack $ getMetaString "crossrefYaml" (defaultMeta <> meta))
+readSettings :: Maybe Format -> Meta -> IO Settings
+readSettings fmt inMeta = do
+  let meta =
+        case inMeta of
+          Meta m | Just (MetaMap cm) <- M.lookup "crossref" m
+                -> Settings (Meta cm)
+          _ -> Settings inMeta
+  dirConfig <- readConfig' . T.unpack $ getMetaString "crossrefYaml" (meta <> defaultMeta meta)
   home <- getHomeDirectory
-  globalConfig <- readConfig (home </> ".pandoc-crossref" </> "config.yaml")
-  formatConfig <- maybe (return nullMeta) (readFmtConfig home) fmt
-  return $ defaultMeta <> globalConfig <> formatConfig <> dirConfig <> meta
+  globalConfig <- readConfig' (home </> ".pandoc-crossref" </> "config.yaml")
+  formatConfig <- maybe (return mempty) (readFmtConfig home) fmt
+  return $ globalConfig <> formatConfig <> dirConfig <> meta
   where
-    readConfig path =
-      handle handler $ do
-        h <- openFile path ReadMode
-        hSetEncoding h utf8
-        yaml <- hGetContents h
-        Pandoc meta' _ <- readMd $ T.pack $ unlines ["---", yaml, "---"]
-        return meta'
-    readMd = handleError . runPure . readMarkdown def{readerExtensions=pandocExtensions}
-    readFmtConfig home fmt' = readConfig (home </> ".pandoc-crossref" </> "config-" ++ fmtStr fmt' ++ ".yaml")
-    handler :: IOException -> IO Meta
-    handler _ = return nullMeta
-    fmtStr (Format fmtstr) = T.unpack fmtstr
+    readConfig' = handle handler . readConfig
+    readFmtConfig home fmt' = readConfig' (home </> ".pandoc-crossref" </> "config-" ++ T.unpack (fmtStr fmt') ++ ".yaml")
+    handler :: IOException -> IO Settings
+    handler _ = return mempty
+    fmtStr (Format fmtstr) = fmtstr
 
-
-defaultMeta :: Meta
-defaultMeta =
-     cref False
-  <> chapters False
-  <> chaptersDepth (MetaString "1")
-  <> listings False
-  <> codeBlockCaptions False
-  <> autoSectionLabels False
-  <> numberSections False
-  <> sectionsDepth (MetaString "0")
-  <> figLabels (MetaString "arabic")
-  <> eqLabels (MetaString "arabic")
-  <> tblLabels (MetaString "arabic")
-  <> lstLabels (MetaString "arabic")
-  <> secLabels (MetaString "arabic")
-  <> figureTitle (str "Figure")
-  <> tableTitle (str "Table")
-  <> listingTitle (str "Listing")
-  <> titleDelim (str ":")
-  <> chapDelim (str ".")
-  <> rangeDelim (str "-")
-  <> pairDelim (str "," <> space)
-  <> lastDelim (str "," <> space)
-  <> refDelim (str "," <> space)
-  <> figPrefix [str "fig.", str "figs."]
-  <> eqnPrefix [str "eq." , str "eqns."]
-  <> tblPrefix [str "tbl.", str "tbls."]
-  <> lstPrefix [str "lst.", str "lsts."]
-  <> secPrefix [str "sec.", str "secs."]
-  <> figPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> eqnPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> tblPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> lstPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> secPrefixTemplate (var "p" <> str "\160" <> var "i")
-  <> refIndexTemplate (var "i" <> var "suf")
-  <> subfigureRefIndexTemplate (var "i" <> var "suf" <> space <> str "(" <> var "s" <> str ")")
-  <> secHeaderTemplate (var "i" <> var "secHeaderDelim[n]" <> var "t")
-  <> secHeaderDelim space
-  <> lofTitle (header 1 $ text "List of Figures")
-  <> lotTitle (header 1 $ text "List of Tables")
-  <> lolTitle (header 1 $ text "List of Listings")
-  <> figureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
-  <> tableTemplate (var "tableTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
-  <> listingTemplate (var "listingTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
-  <> crossrefYaml (MetaString "pandoc-crossref.yaml")
-  <> subfigureChildTemplate (var "i")
-  <> subfigureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t" <> str "." <> space <> var "ccs")
-  <> subfigLabels (MetaString "alpha a")
-  <> ccsDelim (str "," <> space)
-  <> ccsLabelSep (space <> str "—" <> space)
-  <> ccsTemplate (var "i" <> var "ccsLabelSep" <> var "t")
-  <> tableEqns False
-  <> autoEqnLabels False
-  <> subfigGrid False
-  <> linkReferences False
-  <> nameInLink False
-  where var = displayMath
+defaultMeta :: Settings -> Settings
+defaultMeta userSettings
+  | null option = basicMeta
+  | option == ["none"] = mempty
+  | otherwise = mconcat . reverse $ basicMeta : map name2set option
+  where
+    option = getMetaStringList "defaultOption" userSettings
+    name2set "chapters" = $(embedFile "chapters")
+    name2set "subfigures" = $(embedFile "subfigures")
+    name2set "numberSections" = $(embedFile "numberSections")
+    name2set "titleSections" = $(embedFile "titleSections")
+    name2set x = error . T.unpack $ "Unknown defaultOption value: " <> x
+    basicMeta = $(embedFile "default")

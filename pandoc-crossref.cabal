@@ -4,10 +4,10 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ab0ef9726844411ecb162895e5b7a5f58bb220f7af9f678463fa8ec333c55787
+-- hash: 031e4b85f89a0c982d26b289cc24dc3f6810e028780b70f70b9e08556bb67223
 
 name:           pandoc-crossref
-version:        0.3.10.0
+version:        0.4.0.0
 synopsis:       Pandoc filter for cross-references
 description:    pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 category:       Text
@@ -19,72 +19,74 @@ license:        GPL-2
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
-    test/demo-chapters.inc
     test/demo.inc
     CHANGELOG.md
+    settings/chapters.yaml
+    settings/default.yaml
+    settings/numberSections.yaml
+    settings/subfigures.yaml
+    settings/titleSections.yaml
 data-files:
     docs/demo/demo.md
     docs/index.md
+    test/m2m/capitalization/expect.md
+    test/m2m/capitalization/input.md
     test/m2m/chapDelim/expect.md
-    test/m2m/chapDelim/expect.tex
     test/m2m/chapDelim/input.md
+    test/m2m/custom-prefixes/expect.md
+    test/m2m/custom-prefixes/input.md
     test/m2m/delim/expect.md
-    test/m2m/delim/expect.tex
     test/m2m/delim/input.md
     test/m2m/emptyChapterLabels/expect.md
-    test/m2m/emptyChapterLabels/expect.tex
     test/m2m/emptyChapterLabels/input.md
     test/m2m/equations-auto/expect.md
-    test/m2m/equations-auto/expect.tex
     test/m2m/equations-auto/input.md
-    test/m2m/equations-tables-auto/expect.md
-    test/m2m/equations-tables-auto/expect.tex
-    test/m2m/equations-tables-auto/input.md
-    test/m2m/equations-tables/expect.md
-    test/m2m/equations-tables/expect.tex
-    test/m2m/equations-tables/input.md
     test/m2m/equations/expect.md
-    test/m2m/equations/expect.tex
     test/m2m/equations/input.md
     test/m2m/label-precedence/expect.md
-    test/m2m/label-precedence/expect.tex
     test/m2m/label-precedence/input.md
     test/m2m/links-names/expect.md
-    test/m2m/links-names/expect.tex
     test/m2m/links-names/input.md
     test/m2m/links/expect.md
-    test/m2m/links/expect.tex
     test/m2m/links/input.md
+    test/m2m/list-of/expect.md
+    test/m2m/list-of/input.md
     test/m2m/listing-captions-ids/expect.md
-    test/m2m/listing-captions-ids/expect.tex
     test/m2m/listing-captions-ids/input.md
     test/m2m/listings-code-block-caption-278/expect.md
-    test/m2m/listings-code-block-caption-278/expect.tex
     test/m2m/listings-code-block-caption-278/input.md
     test/m2m/multiple-eqn-same-para/expect.md
-    test/m2m/multiple-eqn-same-para/expect.tex
     test/m2m/multiple-eqn-same-para/input.md
+    test/m2m/numbering-parts/expect.md
+    test/m2m/numbering-parts/input.md
+    test/m2m/ref-attrs/expect.md
+    test/m2m/ref-attrs/input.md
+    test/m2m/regresssion-219/expect.md
+    test/m2m/regresssion-219/input.md
+    test/m2m/scoping/expect.md
+    test/m2m/scoping/input.md
     test/m2m/secLabels/expect.md
-    test/m2m/secLabels/expect.tex
     test/m2m/secLabels/input.md
     test/m2m/secLevelLabels/expect.md
-    test/m2m/secLevelLabels/expect.tex
     test/m2m/secLevelLabels/input.md
     test/m2m/section-template/expect.md
-    test/m2m/section-template/expect.tex
     test/m2m/section-template/input.md
     test/m2m/setLabelAttribute/expect.md
-    test/m2m/setLabelAttribute/expect.tex
     test/m2m/setLabelAttribute/input.md
     test/m2m/subfigures-ccsDelim/expect.md
-    test/m2m/subfigures-ccsDelim/expect.tex
     test/m2m/subfigures-ccsDelim/input.md
     test/m2m/subfigures-grid/expect.md
-    test/m2m/subfigures-grid/expect.tex
     test/m2m/subfigures-grid/input.md
+    test/m2m/subfigures-template-collect/expect.md
+    test/m2m/subfigures-template-collect/input.md
     test/m2m/subfigures/expect.md
-    test/m2m/subfigures/expect.tex
     test/m2m/subfigures/input.md
+    test/m2m/template-objects/expect.md
+    test/m2m/template-objects/input.md
+    test/m2m/template-options/expect.md
+    test/m2m/template-options/input.md
+    test/m2m/undefined-prefix/expect.md
+    test/m2m/undefined-prefix/input.md
 
 source-repository head
   type: git
@@ -118,23 +120,38 @@ library pandoc-crossref-internal
       Text.Pandoc.CrossRef.References.Blocks
       Text.Pandoc.CrossRef.References.List
       Text.Pandoc.CrossRef.References.Refs
+      Text.Pandoc.CrossRef.References.Subfigures
       Text.Pandoc.CrossRef.References.Types
+      Text.Pandoc.CrossRef.References.Types.Monad
+      Text.Pandoc.CrossRef.References.Types.Ref
       Text.Pandoc.CrossRef.Util.CodeBlockCaptions
       Text.Pandoc.CrossRef.Util.CustomLabels
       Text.Pandoc.CrossRef.Util.Meta
       Text.Pandoc.CrossRef.Util.ModifyMeta
       Text.Pandoc.CrossRef.Util.Options
+      Text.Pandoc.CrossRef.Util.Options.Types
+      Text.Pandoc.CrossRef.Util.Prefixes
+      Text.Pandoc.CrossRef.Util.Prefixes.Types
+      Text.Pandoc.CrossRef.Util.Replace
       Text.Pandoc.CrossRef.Util.Settings
+      Text.Pandoc.CrossRef.Util.Settings.Embed
       Text.Pandoc.CrossRef.Util.Settings.Gen
+      Text.Pandoc.CrossRef.Util.Settings.LiftPandoc
       Text.Pandoc.CrossRef.Util.Settings.Template
+      Text.Pandoc.CrossRef.Util.Settings.Types
+      Text.Pandoc.CrossRef.Util.Settings.Util
       Text.Pandoc.CrossRef.Util.Template
+      Text.Pandoc.CrossRef.Util.Template.Types
       Text.Pandoc.CrossRef.Util.Util
+      Text.Pandoc.CrossRef.Util.VarFunction
   other-modules:
       Paths_pandoc_crossref
   hs-source-dirs:
       lib-internal
+  ghc-options: -Wall
   build-depends:
       base >=4.11 && <5
+    , bytestring
     , containers >=0.1 && <0.7
     , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-accessor-template >=0.2.1.12 && <0.3.0.0

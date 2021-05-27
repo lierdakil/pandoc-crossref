@@ -1,7 +1,8 @@
 ---
+defaultOption:
+- chapters
 setLabelAttribute: true
 codeBlockCaptions: true
-chapters: true
 ...
 
 # Section

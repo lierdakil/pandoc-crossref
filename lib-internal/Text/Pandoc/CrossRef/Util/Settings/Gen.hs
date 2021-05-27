@@ -23,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Settings.Gen where
 
 import Text.Pandoc.CrossRef.Util.Settings.Template
-import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.Util.Settings.Types
 import Text.Pandoc.CrossRef.Util.Options as O (Options(..))
 import Language.Haskell.TH (mkName)
 import Text.Pandoc.Definition
@@ -31,24 +31,20 @@ import Text.Pandoc.Definition
 nameDeriveSetters ''Options
 
 concat <$> mapM (makeAcc . mkName)
-  [ "figureTitle"
-  , "tableTitle"
-  , "listingTitle"
+  [ "crossrefYaml"
   , "titleDelim"
-  , "crossrefYaml"
-  , "subfigLabels"
-  , "chapters"
-  , "figLabels"
-  , "eqLabels"
-  , "tblLabels"
-  , "lstLabels"
-  , "secLabels"
-  , "secHeaderDelim"
+  , "listItemNumberDelim"
+  , "captionTemplate"
+  , "referenceTemplate"
+  , "referenceIndexTemplate"
+  , "captionIndexTemplate"
+  , "listItemTemplate"
+  , "numbering"
+  , "listOfTitle"
+  , "collectedCaptionDelim"
+  , "collectedCaptionItemDelim"
+  , "collectedCaptionTemplate"
   ]
 
-getOptions :: Meta -> Maybe Format -> Options
-getOptions dtv fmt =
-  let opts = $(makeCon ''Options 'Options)
-  in if getMetaBool "chapters" dtv
-     then opts
-     else opts{O.chaptersDepth = 0}
+getOptions :: Settings -> Maybe Format -> Options
+getOptions dtv fmt = $(makeCon ''Options 'Options)

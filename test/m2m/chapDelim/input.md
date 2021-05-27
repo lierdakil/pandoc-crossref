@@ -1,8 +1,8 @@
 ---
-chapDelim: "delim"
-numberSections: true
-sectionsDepth: -1
-autoSectionLabels: true
+defaultOption:
+- numberSections
+adjustSectionIdentifiers: true
+chapDelim: delim
 ...
 
 # Section

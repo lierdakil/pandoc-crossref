@@ -1,12 +1,14 @@
 ---
-secHeaderTemplate: $$secHeaderPrefix[n]$$$$i$$. $$t$$
-secHeaderPrefix:
-  - "Chapter&#32;"
-  - "Section&#32;"
-  - "Paragraph&#32;"
-  - ""
-sectionsDepth: -1
-numberSections: true
+prefixes:
+  sec:
+    captionTemplate: $$titleName[lvl]$$$$i$$. $$t$$
+    captionIndexTemplate: '$$s.i%.$$$$ri$$'
+    scope: sec
+    titleName:
+      - "Chapter&#32;"
+      - "Section&#32;"
+      - "Paragraph&#32;"
+      - ""
 ---
 
 # First Level Section

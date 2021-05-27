@@ -25,13 +25,11 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Meta
 import qualified Data.Map as M
+import qualified Data.Text as T
 import Language.Haskell.TH hiding (Inline)
 import Language.Haskell.TH.Syntax hiding (Inline)
 import Data.List
-import Text.Pandoc.CrossRef.Util.Template
-import Text.Pandoc.CrossRef.Util.CustomLabels
-import Data.Text (Text)
-import qualified Data.Text as T
+import Text.Pandoc.CrossRef.Util.Prefixes
 
 namedFields :: Con -> [VarStrictType]
 namedFields (RecC _ fs) = fs
@@ -72,27 +70,26 @@ makeCon t cname = fromRecDef t cname makeCon' RecConE
 makeCon' :: Name -> Name -> Q [(Name, Exp)]
 makeCon' t accName = do
     VarI _ t' _ <- reify accName
-    funT <- [t|$(conT t) -> Bool -> Int -> [Inline]|]
-    inlT <- [t|$(conT t) -> [Inline]|]
-    blkT <- [t|$(conT t) -> [Block]|]
+    inlT <- [t|$(conT t) -> Inlines|]
+    blkT <- [t|$(conT t) -> Blocks|]
     fmtT <- [t|$(conT t) -> Maybe Format|]
     boolT <- [t|$(conT t) -> Bool|]
     intT <- [t|$(conT t) -> Int|]
-    tmplT <- [t|$(conT t) -> Template|]
-    clT <- [t|$(conT t) -> Text -> Int -> Maybe Text|]
-    chlT <- [t|$(conT t) -> Int -> Int -> Maybe Text|]
+    pfxT <- [t|$(conT t) -> Prefixes|]
+    strT <- [t|$(conT t) -> String|]
+    mstT <- [t|$(conT t) -> Maybe T.Text|]
     let varName | Name (OccName n) _ <- accName = liftString n
-    let dtv = return $ VarE $ mkName "dtv"
+        dtv = return $ VarE $ mkName "dtv"
+        fmt = return $ VarE $ mkName "fmt"
     body <-
       if
       | t' == boolT -> [|getMetaBool $(varName) $(dtv)|]
-      | t' == intT -> [|read $ T.unpack $ getMetaString $(varName) $(dtv)|]
-      | t' == funT -> [|tryCapitalizeM (flip (getMetaList (toInlines $(varName))) $(dtv)) $(varName)|]
+      | t' == intT -> [|read . T.unpack $ getMetaString $(varName) $(dtv)|]
       | t' == inlT -> [|getMetaInlines $(varName) $(dtv)|]
       | t' == blkT -> [|getMetaBlock $(varName) $(dtv)|]
-      | t' == tmplT -> [|makeTemplate $(dtv) $ getMetaInlines $(varName) $(dtv)|]
-      | t' == clT -> [|customLabel $(dtv)|]
-      | t' == chlT -> [|customHeadingLabel $(dtv)|]
-      | t' == fmtT -> return $ VarE $ mkName "fmt"
+      | t' == fmtT -> fmt
+      | t' == pfxT -> [|getPrefixes $(fmt) $(varName) $(dtv)|]
+      | t' == strT -> [|getMetaString $(varName) $(dtv)|]
+      | t' == mstT -> [|getMetaStringMaybe $(varName) $(dtv)|]
       | otherwise -> fail $ show t'
     return [(accName, body)]

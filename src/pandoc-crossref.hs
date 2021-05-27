@@ -92,7 +92,7 @@ run = do
           , "instead."
           ]
       toJSONFilter (f fmt)
-    f fmt p@(Pandoc meta _) = runCrossRefIO meta (Format . T.pack <$> fmt) defaultCrossRefAction p
+    f fmt p@(Pandoc meta _) = runCrossRefIO meta (Format . T.pack <$> fmt) $ defaultCrossRefAction p
 
 main :: IO ()
 main = join $ execParser opts

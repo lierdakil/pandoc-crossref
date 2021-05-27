@@ -1,14 +1,12 @@
 ---
 codeBlockCaptions: True
-figureTitle: |
-  Figure #
-lofTitle: |
-  ## List of Figures
-lotTitle: |
-  ## List of Tables
-tableTemplate: |
-  *$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$
-autoSectionLabels: True
+adjustSectionIdentifiers: True
+autoFigLabels: fig
+defaultOption:
+- numberSections
+- titleSections
+- chapters
+- subfigures
 title: pandoc-crossref demo document
 ---
 
@@ -30,7 +28,7 @@ You can also have custom chapter reference labels, like @sec:custlabs
 
 Subfigures are supported, see [@fig:subfigures; @fig:subfigureB]
 
-# Chapter 1. Figures {#sec:sec1}
+# Figures {#sec:sec1}
 
 ![First figure](img1.jpg){#fig:figure1}
 
@@ -45,10 +43,10 @@ Subfigures are supported, see [@fig:subfigures; @fig:subfigureB]
 
 ![Subfigure b](img1.jpg){#fig:subfigureB}
 
-Subfigures caption
+\: Subfigures caption. []{}
 </div>
 
-# Chapter 2. Equations {#sec:sec2}
+# Equations {#sec:sec2}
 
 Display equations are labelled and numbered
 
@@ -57,7 +55,7 @@ $$ P_i(x) = \sum_i a_i x^i $$ {#eq:eqn1}
 Since 0.1.6.0 those can also appear in the middle of paragraph
 $$a x^2 + b x^2 + c = 0$${#eq:quadr} like this.
 
-# Chapter 3. Tables
+# Tables
 
 | First Header | Second Header |
 |:-------------|:--------------|
@@ -73,7 +71,7 @@ Table without caption:
 | Content Cell | Content Cell  |
 | Content Cell | Content Cell  |
 
-# Chapter 4. Code blocks
+# Code blocks
 
 There are a couple options for code block labels. Those work only if code block id starts with `lst:`, e.g. `{#lst:label}`
 
@@ -103,14 +101,14 @@ main = putStrLn "Hello World!"
 
 ## Wrapping div
 
-Wrapping code block without label in a div with id `lst:...` and class, starting with `listing`, and adding paragraph before code block, but inside div, will treat said paragraph as code block caption.
+Wrapping code block without label in a div with id `lst:...` and class, starting with `listing`, and adding paragraph after code block, but inside div, starting with `:` will treat said paragraph as code block caption.
 
 <div id="lst:wrappingDiv" class="listing">
-Listing caption
 ```{.haskell}
 main :: IO ()
 main = putStrLn "Hello World!"
 ```
+: Listing caption
 </div>
 
 # Unnumbered chapter. {-}
@@ -118,16 +116,16 @@ main = putStrLn "Hello World!"
 This chapter doesn't change chapter prefix of referenced elements, instead keeping number of previous chapter, e.g.
 $$ S(x) = \int_{x_1}^{x_2} a x+b \  \mathrm{d}x $$ {#eq:eqn2}
 
-# Chapter 5. Reference lists
+# Reference lists
 
 It's also possible to show lists of figures and tables, like this:
 
-\listoffigures
+\listof{fig}
 
-\listoftables
+\listof{tbl}
 
-\listoflistings
+\listof{lst}
 
-# Appendix A. Custom labels {label=AppA}
+# Custom labels {label=A title=Appendix}
 
-## This section will have custom label {#sec:custlabs label=CustLab}
+## This section will have custom label {#sec:custlabs label=I}

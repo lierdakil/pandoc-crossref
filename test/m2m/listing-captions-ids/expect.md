@@ -1,7 +1,7 @@
 After code block
 
-::: {#lst:code1 .listing .haskell}
-Listing 1: Listing caption 1
+::: {#lst:code1}
+Listing 1: Listing caption 1
 
 ``` {.haskell}
 main :: IO ()
@@ -9,8 +9,8 @@ main = putStrLn "Hello World!"
 ```
 :::
 
-::: {#lst:code2 .listing .haskell}
-Listing 2: Listing caption 2
+::: {#lst:code2}
+Listing 2: Listing caption 2
 
 ``` {.haskell}
 main :: IO ()
@@ -18,8 +18,8 @@ main = putStrLn "Hello World!"
 ```
 :::
 
-::: {#lst:code3 .listing .haskell}
-Listing 3: Listing caption 3
+::: {#lst:code3}
+Listing 3: Listing caption 3
 
 ``` {.haskell}
 main :: IO ()
@@ -27,8 +27,8 @@ main = putStrLn "Hello World!"
 ```
 :::
 
-::: {#lst:code4 .listing .haskell}
-Listing 4: Listing caption 4
+::: {#lst:code4}
+Listing 4: Listing caption 4
 
 ``` {.haskell}
 main :: IO ()
@@ -52,8 +52,8 @@ main = putStrLn "Hello World!"
 
 Before code block
 
-::: {#lst:code11 .listing .haskell}
-Listing 5: Listing caption 11
+::: {#lst:code11}
+Listing 5: Listing caption 11
 
 ``` {.haskell}
 main :: IO ()
@@ -61,8 +61,8 @@ main = putStrLn "Hello World!"
 ```
 :::
 
-::: {#lst:code12 .listing .haskell}
-Listing 6: Listing caption 12
+::: {#lst:code12}
+Listing 6: Listing caption 12
 
 ``` {.haskell}
 main :: IO ()
@@ -70,8 +70,8 @@ main = putStrLn "Hello World!"
 ```
 :::
 
-::: {#lst:code13 .listing .haskell}
-Listing 7: Listing caption 13
+::: {#lst:code13}
+Listing 7: Listing caption 13
 
 ``` {.haskell}
 main :: IO ()
@@ -79,8 +79,8 @@ main = putStrLn "Hello World!"
 ```
 :::
 
-::: {#lst:code14 .listing .haskell}
-Listing 8: Listing caption 14
+::: {#lst:code14}
+Listing 8: Listing caption 14
 
 ``` {.haskell}
 main :: IO ()

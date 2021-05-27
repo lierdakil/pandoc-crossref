@@ -45,17 +45,10 @@ m2m dir
                  , writerHighlightStyle=Just pygments
                  , writerListings = dir `elem` listingsDirs }
     p@(Pandoc meta _) <- runIO $ either (error . show) id <$> P.runIO (readMarkdown ro $ T.pack input)
-    let actual_md = either (fail . show) T.unpack $ runPure $ writeMarkdown wo $ runCrossRef meta (Just $ Format "markdown") defaultCrossRefAction p
+    let actual_md = either (fail . show) T.unpack $ runPure $ writeMarkdown wo . evalCrossRefRes . runCrossRef (Settings meta) (Just $ Format "markdown") $ defaultCrossRefAction p
     it "Markdown" $ do
       zipWithM_ shouldBe (lines' actual_md) (lines' expect_md)
       length' (lines' actual_md) `shouldBe` length' (lines' expect_md)
-#ifdef FLAKY
-    expect_tex <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect.tex")
-    let actual_tex = either (fail . show) T.unpack $ runPure $ writeLaTeX wo $ runCrossRef meta (Just $ Format "latex") defaultCrossRefAction p
-    it "LaTeX" $ do
-      zipWithM_ shouldBe (lines' actual_tex) (lines' expect_tex)
-      length' (lines' actual_tex) `shouldBe` length' (lines' expect_tex)
-#endif
   where
     lines' = zip [(1 :: Int)..] . lines
     length' = length . filter (not . null . snd)
@@ -78,3 +71,6 @@ flaky = [ "equations-tables"
         , "subfigures-grid"
         ]
 #endif
+
+evalCrossRefRes :: Show a => (Either a c, b) -> c
+evalCrossRefRes = either (error . show) id . fst

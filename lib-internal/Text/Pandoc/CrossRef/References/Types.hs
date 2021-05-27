@@ -18,39 +18,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE TemplateHaskell #-}
-module Text.Pandoc.CrossRef.References.Types where
+module Text.Pandoc.CrossRef.References.Types (
+    module X
+) where
 
-import qualified Data.Map as M
-import Text.Pandoc.Definition
-import Control.Monad.State
-import Data.Default
-import Data.Accessor.Template
-import Data.Text (Text)
-
-type Index = [(Int, Maybe Text)]
-
-data RefRec = RefRec { refIndex :: Index
-                     , refTitle :: [Inline]
-                     , refSubfigure :: Maybe Index
-                     } deriving (Show, Eq)
-
-type RefMap = M.Map Text RefRec
-
--- state data type
-data References = References { imgRefs_ :: RefMap
-                             , eqnRefs_ :: RefMap
-                             , tblRefs_ :: RefMap
-                             , lstRefs_ :: RefMap
-                             , secRefs_ :: RefMap
-                             , curChap_ :: Index
-                             } deriving (Show, Eq)
-
---state monad
-type WS a = State References a
-
-instance Default References where
-  def = References n n n n n []
-    where n = M.empty
-
-deriveAccessors ''References
+import Text.Pandoc.CrossRef.References.Types.Ref as X
+import Text.Pandoc.CrossRef.References.Types.Monad as X

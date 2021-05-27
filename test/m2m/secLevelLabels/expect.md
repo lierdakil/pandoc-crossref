@@ -1,11 +1,11 @@
-# A. First Section {#first-section}
+# First Section
 
 text
 
-## A.1) Subsection {#subsection}
+## Subsection
 
 other text
 
-### A.1.i Subsubsection {#subsubsection}
+### Subsubsection
 
 text text text

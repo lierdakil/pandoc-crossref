@@ -18,25 +18,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RankNTypes, OverloadedStrings, CPP #-}
-module Text.Pandoc.CrossRef.Util.Util
-  ( module Text.Pandoc.CrossRef.Util.Util
-  , module Data.Generics
-  ) where
+{-# LANGUAGE FlexibleContexts, OverloadedStrings #-}
+module Text.Pandoc.CrossRef.Util.Util where
 
-import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Types.Ref
 import Text.Pandoc.Definition
-import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Class
 import Data.Char (toUpper, toLower, isUpper)
-import Data.Maybe (fromMaybe)
-import Data.Generics
 import Text.Pandoc.Writers.LaTeX
 import Data.Default
-import Data.Version
-import Data.List (find)
-import Text.ParserCombinators.ReadP (readP_to_S)
 import qualified Data.Text as T
+
+import qualified Data.Accessor.Basic as Accessor
+import qualified Control.Monad.State as State
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
 intercalate' s xs
@@ -66,52 +60,6 @@ isFirstUpper xs
   | Just (x, _) <- T.uncons xs  = isUpper x
   | otherwise = False
 
-chapPrefix :: [Inline] -> Index -> [Inline]
-chapPrefix delim = toList
-  . intercalate' (fromList delim)
-  . map str
-  . filter (not . T.null)
-  . map (uncurry (fromMaybe . T.pack . show))
-
-data ReplacedResult a = Replaced Bool a | NotReplaced Bool
-type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))
-newtype RR m a = RR {unRR :: a -> m (ReplacedResult a)}
-
-runReplace :: (Monad m) => GenRR m -> GenericM m
-runReplace f x = do
-  res <- f x
-  case res of
-    Replaced True x' -> gmapM (runReplace f) x'
-    Replaced False x' -> return x'
-    NotReplaced True -> gmapM (runReplace f) x
-    NotReplaced False -> return x
-
-mkRR :: (Monad m, Typeable a, Typeable b)
-     => (b -> m (ReplacedResult b))
-     -> (a -> m (ReplacedResult a))
-mkRR = extRR (const noReplaceRecurse)
-
-extRR :: ( Monad m, Typeable a, Typeable b)
-     => (a -> m (ReplacedResult a))
-     -> (b -> m (ReplacedResult b))
-     -> (a -> m (ReplacedResult a))
-extRR def' ext = unRR (RR def' `ext0` RR ext)
-
-replaceRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceRecurse = return . Replaced True
-
-replaceNoRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceNoRecurse = return . Replaced False
-
-noReplace :: Monad m => Bool -> m (ReplacedResult a)
-noReplace recurse = return $ NotReplaced recurse
-
-noReplaceRecurse :: Monad m => m (ReplacedResult a)
-noReplaceRecurse = noReplace True
-
-noReplaceNoRecurse :: Monad m => m (ReplacedResult a)
-noReplaceNoRecurse = noReplace False
-
 mkLaTeXLabel :: T.Text -> T.Text
 mkLaTeXLabel l
  | T.null l = ""
@@ -123,25 +71,6 @@ mkLaTeXLabel' l =
             runPure (writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []])
   in T.takeWhile (/='}') . T.drop 1 . T.dropWhile (/='{') $ ll
 
-escapeLaTeX :: T.Text -> T.Text
-escapeLaTeX l =
-  let ll = either (error . show) id $
-            runPure (writeLaTeX def $ Pandoc nullMeta [Plain [Str l]])
-      pv = fmap fst . find (null . snd) . readP_to_S parseVersion $ VERSION_pandoc
-      mv = makeVersion [2,11,0,1]
-      cond = maybe False (mv >=) pv
-  in if cond then ll else l
-
-getRefLabel :: T.Text -> [Inline] -> Maybe T.Text
-getRefLabel _ [] = Nothing
-getRefLabel tag ils
-  | Str attr <- last ils
-  , all (==Space) (init ils)
-  , "}" `T.isSuffixOf` attr
-  , ("{#"<>tag<>":") `T.isPrefixOf` attr
-  = T.init `fmap` T.stripPrefix "{#" attr
-getRefLabel _ _ = Nothing
-
 isSpace :: Inline -> Bool
 isSpace = (||) <$> (==Space) <*> (==SoftBreak)
 
@@ -149,3 +78,39 @@ isLaTeXRawBlockFmt :: Format -> Bool
 isLaTeXRawBlockFmt (Format "latex") = True
 isLaTeXRawBlockFmt (Format "tex") = True
 isLaTeXRawBlockFmt _ = False
+
+safeHead :: [a] -> Maybe a
+safeHead [] = Nothing
+safeHead x = Just $ head x
+
+unhierarchicalize :: [Block] -> [Block]
+unhierarchicalize
+  (Div (dident, "section":dcls, dkvs) (Header level (hident,hcls,hkvs) ils : xs) : ys)
+  | T.null hident, dkvs == hkvs, dcls == hcls = Header level (dident, hcls, hkvs) ils : unhierarchicalize xs <> unhierarchicalize ys
+unhierarchicalize (x:xs) = x : unhierarchicalize xs
+unhierarchicalize [] = []
+
+newScope :: RefRec -> Scope -> Scope
+newScope = (:)
+
+-- * accessors in the form of actions in the state monad
+
+set :: (State.MonadState r s) => Accessor.T r a -> a -> s ()
+set f x = State.modify (Accessor.set f x)
+
+get :: (State.MonadState r s) => Accessor.T r a -> s a
+get f = State.gets (Accessor.get f)
+
+modify :: (State.MonadState r s) => Accessor.T r a -> (a -> a) -> s ()
+modify f g = State.modify (Accessor.modify f g)
+
+simpleTable :: [Alignment] -> [Double] -> [[[Block]]] -> Block
+simpleTable align width bod = Table nullAttr noCaption (zip align $ map ColWidth width)
+  noTableHead [mkBody bod] noTableFoot
+  where
+  mkBody xs = TableBody nullAttr (RowHeadColumns 0) [] (map mkRow xs)
+  mkRow xs = Row nullAttr (map mkCell xs)
+  mkCell xs = Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) xs
+  noCaption = Caption Nothing mempty
+  noTableHead = TableHead nullAttr []
+  noTableFoot = TableFoot nullAttr []

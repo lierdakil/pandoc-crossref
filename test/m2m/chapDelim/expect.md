@@ -6,4 +6,4 @@
 
 # 2 Section {#sec:section-1}
 
-### 2delim1delim1 Subsubsection {#sec:subsubsection-1}
+### 2delim1 Subsubsection {#sec:subsubsection-1}

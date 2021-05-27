@@ -19,37 +19,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
-module Text.Pandoc.CrossRef.Util.CustomLabels (customLabel, customHeadingLabel) where
+module Text.Pandoc.CrossRef.Util.CustomLabels where
 
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Numeral.Roman
 import qualified Data.Text as T
 
-customLabel :: Meta -> T.Text -> Int -> Maybe T.Text
-customLabel meta ref i
-  | refLabel <- T.takeWhile (/=':') ref
-  , Just cl <- lookupMeta (refLabel <> "Labels") meta
-  = mkLabel i (refLabel <> "Labels") cl
-  | otherwise = Nothing
-
-customHeadingLabel :: Meta -> Int -> Int -> Maybe T.Text
-customHeadingLabel meta lvl i
-  | Just cl <- getMetaList Just "secLevelLabels" meta (lvl-1)
-  = mkLabel i "secLevelLabels" cl
-  | otherwise = Nothing
-
-mkLabel :: Int -> T.Text -> MetaValue -> Maybe T.Text
-mkLabel i n lt
+mkLabel :: T.Text -> MetaValue -> Int -> T.Text
+mkLabel n lt i
   | MetaList _ <- lt
   , Just val <- toString n <$> getList (i-1) lt
-  = Just val
+  = val
   | toString n lt == "arabic"
-  = Nothing
+  = T.pack $ show i
   | toString n lt == "roman"
-  = Just $ toRoman i
+  = toRoman i
+  | Just (startWith,_) <- T.uncons =<< T.stripPrefix "alpha " (toString n lt)
+  = T.singleton . toEnum $ fromEnum startWith + i - 1
   | toString n lt == "lowercase roman"
-  = Just $ T.toLower $ toRoman i
-  | Just (startWith, _) <- T.uncons =<< T.stripPrefix "alpha " (toString n lt)
-  = Just . T.singleton $ [startWith..] !! (i-1)
+  = T.toLower $ toRoman i
   | otherwise = error $ "Unknown numeration type: " ++ show lt

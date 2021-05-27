@@ -76,73 +76,65 @@ module Text.Pandoc.CrossRef (
   , runCrossRefIO
   , module SG
   , defaultMeta
-  , CrossRefM
+  , CrossRef
   , CrossRefEnv(..)
+  , WSException(..)
+  , Settings(..)
   ) where
 
 import Control.Monad.State
-import qualified Control.Monad.Reader as R
-import Text.Pandoc
+import Control.Monad.Except
+import Control.Monad.Writer as W
+import Control.Monad.Reader as R
+import Text.Pandoc as P
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
+import System.IO
 
 import Text.Pandoc.CrossRef.References
 import Text.Pandoc.CrossRef.Util.Settings
-import Text.Pandoc.CrossRef.Util.Options as O
-import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.ModifyMeta
 import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
-
--- | Enviromnent for 'CrossRefM'
-data CrossRefEnv = CrossRefEnv {
-                      creSettings :: Meta -- ^Metadata settings
-                    , creOptions :: Options -- ^Internal pandoc-crossref options
-                   }
-
--- | Essentially a reader monad for basic pandoc-crossref environment
-type CrossRefM a = R.Reader CrossRefEnv a
 
 {- | Walk over blocks, while inserting cross-references, list-of, etc.
 
 Works in 'CrossRefM' monad. -}
-crossRefBlocks :: [Block] -> CrossRefM [Block]
-crossRefBlocks blocks = do
-  opts <- R.asks creOptions
-  let
-    doWalk =
-      bottomUpM (mkCodeBlockCaptions opts) blocks
-      >>= replaceAll opts
-      >>= bottomUpM (replaceRefs opts)
-      >>= bottomUpM (listOf opts)
-    (result, st) = runState doWalk def
-  st `seq` return result
+crossRefBlocks :: [Block] -> CrossRef [Block]
+crossRefBlocks blocks = CrossRef $ do
+  (res, st) <- flip runStateT def $ unWS doWalk
+  st `seq` return res
+  where doWalk =
+          replaceAll blocks
+          >>= bottomUpM replaceRefs
+          >>= bottomUpM listOf
 
 {- | Modifies metadata for LaTeX output, adding header-includes instructions
-to setup custom and builtin environments.
+to setup custom and builtin environments, and adds current pandoc-crossref
+settings to metadata.
 
-Note, that if output format is not "latex", this function does nothing.
+Note, that if output format is not "latex", this function not modify
+header-includes.
 
 Works in 'CrossRefM' monad. -}
-crossRefMeta :: CrossRefM Meta
-crossRefMeta = do
-  opts <- R.asks creOptions
-  dtv <- R.asks creSettings
-  return $ modifyMeta opts dtv
+crossRefMeta :: Meta -> CrossRef Meta
+crossRefMeta = modifyMeta
 
 {- | Combines 'crossRefMeta' and 'crossRefBlocks'
 
 Works in 'CrossRefM' monad. -}
-defaultCrossRefAction :: Pandoc -> CrossRefM Pandoc
-defaultCrossRefAction (Pandoc _ bs) = do
-  meta' <- crossRefMeta
+defaultCrossRefAction :: Pandoc -> CrossRef Pandoc
+defaultCrossRefAction (Pandoc meta bs) = do
+  meta' <- crossRefMeta meta
   bs' <- crossRefBlocks bs
   return $ Pandoc meta' bs'
 
 {- | Run an action in 'CrossRefM' monad with argument, and return pure result.
 
 This is primary function to work with 'CrossRefM' -}
-runCrossRef :: forall a b. Meta -> Maybe Format -> (a -> CrossRefM b) -> a -> b
-runCrossRef meta fmt action arg = R.runReader (action arg) env
+runCrossRef :: forall b. Settings -> Maybe Format -> CrossRef b -> (Either WSException b, [T.Text])
+runCrossRef metaset fmt = flip runReader env . runWriterT . runExceptT . unCrossRef
   where
-    settings = defaultMeta <> meta
+    settings = metaset <> defaultMeta metaset
     env = CrossRefEnv {
             creSettings = settings
           , creOptions = getOptions settings fmt
@@ -152,12 +144,9 @@ runCrossRef meta fmt action arg = R.runReader (action arg) env
 
 This function will attempt to read pandoc-crossref settings from settings
 file specified by crossrefYaml metadata field. -}
-runCrossRefIO :: forall a b. Meta -> Maybe Format -> (a -> CrossRefM b) -> a -> IO b
-runCrossRefIO meta fmt action arg = do
-  settings <- getSettings fmt meta
-  let
-    env = CrossRefEnv {
-            creSettings = settings
-          , creOptions = getOptions settings fmt
-         }
-  return $ R.runReader (action arg) env
+runCrossRefIO :: forall b. Meta -> Maybe Format -> CrossRef b -> IO b
+runCrossRefIO meta fmt action = do
+  metaset <- readSettings fmt meta
+  let (res, lg) = runCrossRef metaset fmt action
+  mapM_ (T.hPutStrLn stderr) lg
+  return $ either (error . T.unpack . pretty) id res

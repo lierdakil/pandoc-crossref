@@ -1,0 +1,45 @@
+codeBlockCaptions: False
+adjustSectionIdentifiers: False
+autoSectionLabels: sec
+titleDelim: ":[]{.s}"
+listItemNumberDelim: ".[]{.s}"
+rangeDelim: "-"
+pairDelim: ",[]{.s}"
+lastDelim: ",[]{.s}"
+refDelim: ",[]{.s}"
+crossrefYaml: "pandoc-crossref.yaml"
+linkReferences: False
+nameInLink: False
+collectedCaptionDelim: ",[]{.s}"
+collectedCaptionItemDelim: "[]{.s}--[]{.s}"
+# these are merely the defaults, can (and will) be overridden in prefix configs
+captionTemplate: "$$title%\u00a0$$$$i$$$$titleDelim$$$$t$$"
+captionIndexTemplate: $$ri$$
+referenceTemplate: "$$Ref[n]%\u00a0$$$$rs$$"
+listItemTemplate: $$i$$$$listItemNumberDelim$$$$t$$
+collectedCaptionTemplate: $$i$$$$collectedCaptionItemDelim$$$$t$$
+referenceIndexTemplate: $$i$$$$suf$$
+listOfTitle: |
+  # List of $$title$$s
+numbering: arabic
+prefixes:
+ eq:
+   ref: ["eq.", "eqns."]
+   captionTemplate: "$$t$$\\\\qquad($$i$$)"
+   title: Equation
+ fig:
+   ref: ["fig.", "figs."]
+   title: Figure
+ lst:
+   ref: ["lst.", "lsts."]
+   title: Listing
+   captionPosition: above
+ tbl:
+   ref: ["tbl.", "tbls."]
+   title: Table
+ sec:
+   ref: ["sec.", "secs."]
+   title: Section
+   captionTemplate: $$t$$
+   scope: sec
+   referenceIndexTemplate: $$s.refi%.$$$$i$$$$suf$$
