@@ -1,5 +1,6 @@
 ## 0.3.11.0
 
+-   Add equationNumberTeX option
 -   Add title variable to refIndexTemplate; make refIndexTemplate per-prefix
 -   Update to pandoc 2.14
 -   Docs updates for --citeproc
