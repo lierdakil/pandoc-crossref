@@ -1,3 +1,9 @@
+## 0.3.11.0
+
+-   Add title variable to refIndexTemplate; make refIndexTemplate per-prefix
+-   Update to pandoc 2.14
+-   Docs updates for --citeproc
+
 ## 0.3.10.0
 
 -   \[Fix\] Avoid expensive set difference, use filter
