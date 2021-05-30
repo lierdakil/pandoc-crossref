@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f7378ec0b847e239e8c7b6d484f9c597eb239b584438a9efccdcfad266c3b672
+-- hash: e117c4fe3ce92561126a6cfd9a8f561d8f78d4bbc5411e58e04e0cdb1b568a3f
 
 name:           pandoc-crossref
 version:        0.3.11.0
@@ -104,8 +104,6 @@ flag enable_flaky_tests
 library
   exposed-modules:
       Text.Pandoc.CrossRef
-  other-modules:
-      Paths_pandoc_crossref
   hs-source-dirs:
       lib
   ghc-options: -Wall
@@ -135,8 +133,6 @@ library pandoc-crossref-internal
       Text.Pandoc.CrossRef.Util.Settings.Template
       Text.Pandoc.CrossRef.Util.Template
       Text.Pandoc.CrossRef.Util.Util
-  other-modules:
-      Paths_pandoc_crossref
   hs-source-dirs:
       lib-internal
   build-depends:
@@ -162,7 +158,6 @@ executable pandoc-crossref
   main-is: pandoc-crossref.hs
   other-modules:
       ManData
-      Paths_pandoc_crossref
   hs-source-dirs:
       src
   ghc-options: -Wall -threaded
@@ -204,6 +199,8 @@ test-suite test-pandoc-crossref
   main-is: test-pandoc-crossref.hs
   other-modules:
       Native
+      Paths_pandoc_crossref
+  autogen-modules:
       Paths_pandoc_crossref
   hs-source-dirs:
       test

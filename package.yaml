@@ -26,11 +26,13 @@ library:
   ghc-options: -Wall
   exposed-modules:
   - Text.Pandoc.CrossRef
+  other-modules: []
   dependencies:
     - pandoc-crossref-internal
     - mtl >=1.1 && <2.3
 internal-libraries:
   pandoc-crossref-internal:
+    other-modules: []
     source-dirs: lib-internal
     dependencies:
     - mtl >=1.1 && <2.3
@@ -56,6 +58,8 @@ flags:
 executables:
   pandoc-crossref:
     main: pandoc-crossref.hs
+    other-modules:
+      - ManData
     source-dirs: src
     ghc-options:
     - -Wall
@@ -74,6 +78,10 @@ tests:
       - condition: flag(enable_flaky_tests)
         cpp-options: -DFLAKY
     main: test-pandoc-crossref.hs
+    other-modules:
+      - Native
+    generated-other-modules:
+      - Paths_pandoc_crossref
     source-dirs:
     - test
     ghc-options:
