@@ -146,7 +146,7 @@ attempting to build pandoc-crossref.
 ## Usage
 
 Usage information is available at
-<https://lierdakil.github.com/pandoc-crossref/>
+<https://lierdakil.github.io/pandoc-crossref/>
 
 ## Projects
 The following projects use this filter:
