@@ -68,4 +68,5 @@ data Options = Options { cref :: Bool
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , setLabelAttribute :: Bool
+                       , equationNumberTeX :: Text
                        }

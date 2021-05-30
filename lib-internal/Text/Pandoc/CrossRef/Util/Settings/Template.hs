@@ -77,6 +77,7 @@ makeCon' t accName = do
     blkT <- [t|$(conT t) -> [Block]|]
     fmtT <- [t|$(conT t) -> Maybe Format|]
     boolT <- [t|$(conT t) -> Bool|]
+    strT <- [t|$(conT t) -> Text|]
     intT <- [t|$(conT t) -> Int|]
     tmplT <- [t|$(conT t) -> Template|]
     idxTmplT <- [t|$(conT t) -> Text -> Template|]
@@ -95,6 +96,7 @@ makeCon' t accName = do
       | t' == idxTmplT -> [|makeIndexedTemplate $(varName) $(dtv)|]
       | t' == clT -> [|customLabel $(dtv)|]
       | t' == chlT -> [|customHeadingLabel $(dtv)|]
+      | t' == strT -> [|getMetaString $(varName) $(dtv)|]
       | t' == fmtT -> return $ VarE $ mkName "fmt"
       | otherwise -> fail $ show t'
     return [(accName, body)]

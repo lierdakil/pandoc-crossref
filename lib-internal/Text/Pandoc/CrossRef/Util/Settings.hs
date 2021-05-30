@@ -111,4 +111,5 @@ defaultMeta =
   <> subfigGrid False
   <> linkReferences False
   <> nameInLink False
+  <> equationNumberTeX ("qquad" :: T.Text)
   where var = displayMath

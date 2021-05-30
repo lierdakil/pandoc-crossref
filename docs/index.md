@@ -213,6 +213,14 @@ a   b   c
 : Caption {#tbl:label}
 ```
 
+Alternatively, for formats that support it, you can use arbitrary LaTeX command accepting a single argument (that is, label text) for typesetting. A common example is `\tag`. Use `equationNumberTeX` metadata variable for that (set to special value `qquad` by default). For instance, to use `\tag`, you would have the following in your metadata:
+
+```yaml
+equationNumberTeX: \\tag
+```
+
+This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
+
 To label a table, append `{#tbl:label}` at the end of table caption
 (with `label` being something unique to reference this table by).
 Caption and label *must* be separated by at least one space.
@@ -500,6 +508,9 @@ A list of variables follows.
     Depending on output format, this might work better or worse.
 -   `setLabelAttribute`, default `false`: set `label` attribute on objects to
     actual number used for referencing. This can be useful for post-processing.
+-   `equationNumberTeX`, default `qquad`: use a LaTeX command for typesetting
+    equation numbers. Bear in mind, `qquad` is a special value; generally, you'll want to write out a full command, backslash and all. Also remember that metadata is parsed as Markdown, so you may need to escape backslashes.
+    This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
 
 ### Item title format
 
