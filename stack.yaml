@@ -10,7 +10,7 @@ packages:
 extra-deps:
 - roman-numerals-0.5.1.5
 - data-accessor-template-0.2.1.16
-- pandoc-2.14
+- pandoc-2.14.0.1
 - citeproc-0.4@sha256:e198157aec60dbce1e6c1e29592ec6ded69ee5a79ea6645164356bd89458953e,5602
 - commonmark-0.2@sha256:ee873331ff496060dd9becdfaf7f1f4e0fd0688463f5d1f61481a60ed661af45,3426
 - commonmark-extensions-0.2.1.2@sha256:50a979f3d18f160ffc412fff363ef4777efa70a88f10cc928a4c75d216d495eb,3486

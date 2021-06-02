@@ -186,7 +186,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.14"]
+        pandocver: ["2.14.0.1"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
