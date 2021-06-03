@@ -54,7 +54,7 @@ version of pandoc available, for which there are no pandoc-crossref builds.
 
 **NOTE:** Linux and MacOS binaries are packed with `upx`. If you don't like the overhead, and don't mind 40-megabyte binaries, you can unpack those manually with `upx -d pandoc-crossref`. Also please notice that upx-packed binaries can break in some exotic environments, like empty chroot with no access to `/proc`, etc.
 
-Also, for those feeling adventurous, the automatic builds for the latest commits are available. Latest builds can be found on [BinTray](https://bintray.com/lierdakil/pandoc-crossref/).
+Also, for those feeling adventurous, the automatic builds for the latest commits are available. Latest builds can be found on the [nightlies tag](https://github.com/lierdakil/pandoc-crossref/releases/tag/nightlies) (despite the name, those aren't actually built nightly, but on each push instead)
 
 If you don't trust random binaries downloaded off the Internet (which is
 completely reasonable), you're welcome to build from source. You have two

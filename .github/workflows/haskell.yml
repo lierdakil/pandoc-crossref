@@ -164,23 +164,47 @@ jobs:
           echo ::set-output name=${os}::${desc}
         done
       id: description
-    - name: Upload to Bintray
+    - name: Upload "nightly" for Linux
       if: "!startsWith(github.ref, 'refs/tags/v')"
-      uses: lierdakil/action-bintray-upload@master
+      uses: WebFreak001/deploy-nightly@v1.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        username: lierdakil
-        apiKey: ${{secrets.BINTRAY_API_KEY}}
-        subject: lierdakil
-        repository: pandoc-crossref
-        package: ${{steps.extract_branch.outputs.branch}}
-        version: ${{github.sha}}
-        filesGlob: ./assets/*
-        createPkg: true
-        versionDescription: |
-          Linux: ${{steps.description.outputs.Linux}}
-          macOS: ${{steps.description.outputs.macOS}}
-          Windows: ${{steps.description.outputs.Windows}}
-        licenses: 'GPL-2.0,GPL-3.0-or-later'
+        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+        release_id: 44009421
+        asset_path: ./assets/pandoc-crossref-Linux-${{github.sha}}.tar.xz
+        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-$$.tar.xz
+        asset_content_type: application/x-gtar
+        max_releases: 21
+    - name: Upload "nightly" for macOS
+      if: "!startsWith(github.ref, 'refs/tags/v')"
+      uses: WebFreak001/deploy-nightly@v1.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+        release_id: 44009421
+        asset_path: ./assets/pandoc-crossref-macOS-${{github.sha}}.tar.xz
+        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-macOS-$$.tar.xz
+        asset_content_type: application/x-gtar
+        max_releases: 21
+    - name: Upload "nightly" for Windows
+      if: "!startsWith(github.ref, 'refs/tags/v')"
+      uses: WebFreak001/deploy-nightly@v1.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+        release_id: 44009421
+        asset_path: ./assets/pandoc-crossref-Windows-${{github.sha}}.7z
+        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Windows-$$.7z
+        asset_content_type: application/x-7z-compressed
+        max_releases: 21
+      # TODO: where to put this?
+      #   versionDescription: |
+      #     Linux: ${{steps.description.outputs.Linux}}
+      #     macOS: ${{steps.description.outputs.macOS}}
+      #     Windows: ${{steps.description.outputs.Windows}}
 
   build-stack:
     runs-on: ubuntu-latest
