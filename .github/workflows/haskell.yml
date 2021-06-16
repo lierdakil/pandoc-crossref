@@ -12,6 +12,12 @@ jobs:
         include:
         - os: ubuntu-latest
           container: 'lierdakil/alpine-haskell:8.10.5-pwsh'
+        - os: macos-latest
+          pandocver: '2.14.0.2'
+          ghcver: '8.10.4'
+        exclude:
+        - os: macos-latest
+          ghcver: '8.10.5'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
