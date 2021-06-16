@@ -32,8 +32,6 @@ import Data.Function
 import qualified Data.Map as M
 import Control.Arrow as A
 
-import Data.Accessor
-import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
@@ -41,6 +39,8 @@ import Text.Pandoc.CrossRef.Util.Options
 import Control.Applicative
 import Debug.Trace
 import Prelude
+import Lens.Micro
+import Lens.Micro.Mtl
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
 replaceRefs opts (Cite cits _:xs)
@@ -67,7 +67,7 @@ replaceRefs opts (Cite cits _:xs)
 replaceRefs _ x = return x
 
 -- accessors to state variables
-accMap :: M.Map T.Text (Accessor References RefMap)
+accMap :: M.Map T.Text ((RefMap -> Const RefMap RefMap) -> References -> Const RefMap References)
 accMap = M.fromList [("fig:",imgRefs)
                     ,("eq:" ,eqnRefs)
                     ,("tbl:",tblRefs)
@@ -185,7 +185,7 @@ instance Ord RefData where
 getRefIndex :: T.Text -> Options -> Citation -> WS RefData
 getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
   = do
-    ref <- M.lookup lab <$> get prop
+    ref <- M.lookup lab <$> use prop
     let sub = refSubfigure <$> ref
         idx = refIndex <$> ref
         tit = refTitle <$> ref

@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 725231c69be963b399d45a2912e6fb53e293b25539062892beed5c556afee6de
+-- hash: c2cc9a78bbf32729a32f2588a795b7f84398affc01c26dacb20c82482cec8be4
 
 name:           pandoc-crossref
 version:        0.3.11.0
@@ -138,12 +138,12 @@ library pandoc-crossref-internal
   build-depends:
       base >=4.11 && <5
     , containers >=0.1 && <0.7
-    , data-accessor >=0.2.2.6 && <0.3.0.0
-    , data-accessor-template >=0.2.1.12 && <0.3.0.0
-    , data-accessor-transformers >=0.2.1.6 && <0.3.0.0
     , data-default >=0.4 && <0.8
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
+    , microlens >=0.4.12.0 && <0.5.0.0
+    , microlens-mtl >=0.2.0.1 && <0.3.0.0
+    , microlens-th >=0.4.3.10 && <0.5.0.0
     , mtl >=1.1 && <2.3
     , pandoc >=2.10 && <2.15
     , pandoc-types >=1.21 && <1.23
@@ -208,9 +208,9 @@ test-suite test-pandoc-crossref
   build-depends:
       base >=4.11 && <5
     , containers >=0.1 && <0.7
-    , data-accessor >=0.2.2.6 && <0.3.0.0
     , data-default >=0.4 && <0.8
     , hspec >=2.4.4 && <3
+    , microlens >=0.4.12.0 && <0.5.0.0
     , mtl >=1.1 && <2.3
     , pandoc >=2.10 && <2.15
     , pandoc-crossref

@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, RankNTypes #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder
@@ -33,7 +33,7 @@ import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
-import Data.Accessor hiding ((=:))
+import Lens.Micro
 import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
 import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
 import qualified Text.Pandoc.CrossRef.References.List as References.List
@@ -183,7 +183,7 @@ main = hspec $ do
       it "Labels sections divs" $
         testAll (section "Section Header" 1 "section")
         (section "Section Header" 1 "section",
-          secRefs ^= M.fromList (refRec' "sec:section" 1 "Section Header")
+          secRefs .~ M.fromList (refRec' "sec:section" 1 "Section Header")
           $ curChap =: [(1,Nothing)])
 
     describe "References.Refs.replaceRefs" $ do
@@ -348,11 +348,11 @@ refRec'' ref i = refRec' ref i ""
 refRec''' :: T.Text -> (Int, Int) -> [(T.Text, RefRec)]
 refRec''' ref (c,i) = [(ref, RefRec{refIndex=[(c,Nothing), (i,Nothing)],refTitle=toList $ text "",refSubfigure=Nothing})]
 
-testRefs' :: T.Text -> [Int] -> [Int] -> Accessor References (M.Map T.Text RefRec) -> T.Text -> Expectation
-testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen p l1 l2) def) (para $ text res)
+testRefs' :: T.Text -> [Int] -> [Int] -> Lens' References (M.Map T.Text RefRec) -> T.Text -> Expectation
+testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (set prop (refGen p l1 l2) def) (para $ text res)
 
-testRefs'' :: T.Text -> [Int] -> [(Int, Int)] -> Accessor References (M.Map T.Text RefRec) -> T.Text -> Expectation
-testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (setVal prop (refGen' p l1 l2) def) (para $ text res)
+testRefs'' :: T.Text -> [Int] -> [(Int, Int)] -> Lens' References (M.Map T.Text RefRec) -> T.Text -> Expectation
+testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (set prop (refGen' p l1 l2) def) (para $ text res)
 
 testAll :: (Eq a, Data a, Show a) => Many a -> (Many a, References) -> Expectation
 testAll = testState f def
@@ -435,5 +435,5 @@ cit :: T.Text -> [Citation]
 cit r = [defCit{citationId=r}]
 
 infixr 0 =:
-(=:) :: Df.Default r => Accessor r a -> a -> r
-a =: b = a ^= b $ def
+(=:) :: Df.Default r => Lens' r a -> a -> r
+a =: b = a .~ b $ def

@@ -34,8 +34,6 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
 
-import Data.Accessor
-import Data.Accessor.Monad.Trans.State
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
@@ -43,6 +41,8 @@ import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
 import Prelude
 import Data.Default
+import Lens.Micro
+import Lens.Micro.Mtl
 
 replaceAll :: (Data a) => Options -> a -> WS a
 replaceAll opts =
@@ -83,7 +83,7 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                  then "sec:"<>label
                  else label
     unless ("unnumbered" `elem` cls) $ do
-      modify curChap $ \cc ->
+      modifying curChap $ \cc ->
         let ln = length cc
             cl i = lookup "label" attrs <|> customHeadingLabel opts n i <|> customLabel opts "sec" i
             inc l = let i = fst (last l) + 1 in init l <> [(i, cl i)]
@@ -92,13 +92,13 @@ replaceBlock opts (Header n (label, cls, attrs) text')
                 | otherwise = cc <> take (n-ln-1) (zip [1,1..] $ repeat Nothing) <> [(1,cl 1)]
         in cc'
       when ("sec:" `T.isPrefixOf` label') $ do
-        index  <- get curChap
-        modify secRefs $ M.insert label' RefRec {
+        index  <- use curChap
+        modifying secRefs $ M.insert label' RefRec {
           refIndex=index
         , refTitle= text'
         , refSubfigure = Nothing
         }
-    cc <- get curChap
+    cc <- use curChap
     let textCC | numberSections opts
                , sectionsDepth opts < 0
                || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
@@ -127,7 +127,7 @@ replaceBlock opts (Div (label,cls,attrs) images)
           $ sortOn (refIndex . snd)
           $ filter (not . null . refTitle . snd)
           $ M.toList
-          $ imgRefs_ st
+          $ st^.imgRefs
         collectCaps v =
               applyTemplate
                 (chapPrefix (chapDelim opts) (refIndex v))
@@ -139,12 +139,12 @@ replaceBlock opts (Div (label,cls,attrs) images)
                   , ("t", caption)
                   ]
         capt = applyTemplate' vars $ subfigureTemplate opts
-    lastRef <- fromJust . M.lookup label <$> get imgRefs
-    modify imgRefs $ \old ->
+    lastRef <- fromJust . M.lookup label <$> use imgRefs
+    modifying imgRefs $ \old ->
         M.union
           old
           (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
-          $ imgRefs_ st)
+          $ st^.imgRefs)
     case outFormat opts of
           f | isLatexFormat f ->
             replaceNoRecurse $ Div nullAttr $
@@ -395,18 +395,18 @@ spanInlines opts (math@(Math DisplayMath _eq):ils)
   = Span nullAttr [math]:ils
 spanInlines _ x = x
 
-replaceAttr :: Options -> Either T.Text T.Text -> Maybe T.Text -> [Inline] -> Accessor References RefMap -> WS [Inline]
+replaceAttr :: Options -> Either T.Text T.Text -> Maybe T.Text -> [Inline] -> Lens References References RefMap RefMap -> WS [Inline]
 replaceAttr o label refLabel title prop
   = do
-    chap  <- take (chaptersDepth o) `fmap` get curChap
-    prop' <- get prop
+    chap  <- take (chaptersDepth o) `fmap` use curChap
+    prop' <- use prop
     let i = 1+ (M.size . M.filter (\x -> (chap == init (refIndex x)) && isNothing (refSubfigure x)) $ prop')
         index = chap <> [(i, refLabel <|> customLabel o ref i)]
         ref = either id (T.takeWhile (/=':')) label
         label' = either (<> T.pack (':' : show index)) id label
     when (M.member label' prop') $
       error . T.unpack $ "Duplicate label: " <> label'
-    modify prop $ M.insert label' RefRec {
+    modifying prop $ M.insert label' RefRec {
       refIndex= index
     , refTitle= title
     , refSubfigure = Nothing

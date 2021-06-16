@@ -22,7 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.List (listOf) where
 
 import Text.Pandoc.Definition
-import Data.Accessor.Monad.Trans.State
 import Control.Arrow
 import Data.List
 import qualified Data.Map as M
@@ -31,18 +30,19 @@ import qualified Data.Text as T
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Options
+import Lens.Micro.Mtl
 
 listOf :: Options -> [Block] -> WS [Block]
 listOf Options{outFormat=f} x | isLatexFormat f = return x
 listOf opts (RawBlock fmt "\\listoffigures":xs)
   | isLaTeXRawBlockFmt fmt
-  = get imgRefs >>= makeList opts lofTitle xs
+  = use imgRefs >>= makeList opts lofTitle xs
 listOf opts (RawBlock fmt "\\listoftables":xs)
   | isLaTeXRawBlockFmt fmt
-  = get tblRefs >>= makeList opts lotTitle xs
+  = use tblRefs >>= makeList opts lotTitle xs
 listOf opts (RawBlock fmt "\\listoflistings":xs)
   | isLaTeXRawBlockFmt fmt
-  = get lstRefs >>= makeList opts lolTitle xs
+  = use lstRefs >>= makeList opts lolTitle xs
 listOf _ x = return x
 
 makeList :: Options -> (Options -> [Block]) -> [Block] -> M.Map T.Text RefRec -> WS [Block]

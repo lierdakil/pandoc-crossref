@@ -25,8 +25,8 @@ import qualified Data.Map as M
 import Text.Pandoc.Definition
 import Control.Monad.State
 import Data.Default
-import Data.Accessor.Template
 import Data.Text (Text)
+import Lens.Micro.TH
 
 type Index = [(Int, Maybe Text)]
 
@@ -38,12 +38,12 @@ data RefRec = RefRec { refIndex :: Index
 type RefMap = M.Map Text RefRec
 
 -- state data type
-data References = References { imgRefs_ :: RefMap
-                             , eqnRefs_ :: RefMap
-                             , tblRefs_ :: RefMap
-                             , lstRefs_ :: RefMap
-                             , secRefs_ :: RefMap
-                             , curChap_ :: Index
+data References = References { _imgRefs :: RefMap
+                             , _eqnRefs :: RefMap
+                             , _tblRefs :: RefMap
+                             , _lstRefs :: RefMap
+                             , _secRefs :: RefMap
+                             , _curChap :: Index
                              } deriving (Show, Eq)
 
 --state monad
@@ -53,4 +53,4 @@ instance Default References where
   def = References n n n n n []
     where n = M.empty
 
-deriveAccessors ''References
+makeLenses ''References
