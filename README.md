@@ -52,7 +52,7 @@ version matches the version pandoc-crossref was built against, otherwise
 weird stuff will likely happen.** Feel free to open issues if there's a new
 version of pandoc available, for which there are no pandoc-crossref builds.
 
-**NOTE:** Linux and MacOS binaries are packed with `upx`. If you don't like the overhead, and don't mind 40-megabyte binaries, you can unpack those manually with `upx -d pandoc-crossref`. Also please notice that upx-packed binaries can break in some exotic environments, like empty chroot with no access to `/proc`, etc.
+**NOTE:** Linux and Windows binaries are packed with `upx` (not macOS though, since upx apparently has questionable interactions with Apple's x86 emulation on A1 processors). If you don't like the overhead, and don't mind 40-megabyte binaries, you can unpack those manually with `upx -d pandoc-crossref`. Also please notice that upx-packed binaries can break in some exotic environments, like empty chroot with no access to `/proc`, etc.
 
 Also, for those feeling adventurous, the automatic builds for the latest commits are available. Latest builds can be found on the [nightlies tag](https://github.com/lierdakil/pandoc-crossref/releases/tag/nightlies) (despite the name, those aren't actually built nightly, but on each push instead)
 
