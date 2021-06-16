@@ -9,17 +9,4 @@ packages:
 - .
 extra-deps:
 - roman-numerals-0.5.1.5
-- data-accessor-template-0.2.1.16
-- pandoc-2.14.0.1
-- citeproc-0.4@sha256:e198157aec60dbce1e6c1e29592ec6ded69ee5a79ea6645164356bd89458953e,5602
-- commonmark-0.2@sha256:ee873331ff496060dd9becdfaf7f1f4e0fd0688463f5d1f61481a60ed661af45,3426
-- commonmark-extensions-0.2.1.2@sha256:50a979f3d18f160ffc412fff363ef4777efa70a88f10cc928a4c75d216d495eb,3486
-- commonmark-pandoc-0.2.1@sha256:7c5db787c15c7a80aa66f5874023386e9b07c134ce24ef9f3aaebe9f52b6f817,1151
-- haddock-library-1.10.0@sha256:2a6c239da9225951a5d837e1ce373faeeae60d1345c78dd0a0b0f29df30c4fe9,4098
-- jira-wiki-markup-1.4.0@sha256:2fdb7b50bd270d7d388b31df1c746c2864326b68bdd44045323c4f81fd6d5283,3851
-- skylighting-0.10.5.1@sha256:9fe5b16411f48601a22a3718833bc245eedd73b3e1d3d5172353cd874ce7fcf0,10107
-- skylighting-core-0.10.5.1@sha256:5384de63aab5158557f32060a6e1e4470d463eaa451bf33cffc1e6cbf31908fe,8048
-- texmath-0.12.3@sha256:7560c097a483e69af99d38aab590924f4b2ab066da35fc5b68c01accd8b65190,6570
-- unicode-collation-0.1.3@sha256:4e92a82fff19e26e1ee46d7c945b3a4939a32c0c7e6beadbff9a91f1e16b5295,5122
-- hslua-module-path-0.1.0.1@sha256:1fe319f18315618491260c912e85b6f73e406499c8fe2fa505e59036a4ff78fd,2502
-resolver: lts-17.13
+resolver: lts-18.0
