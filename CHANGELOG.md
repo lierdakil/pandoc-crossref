@@ -1,3 +1,7 @@
+## 0.3.12.0
+
+-   Switch from data-accessor to microlens
+
 ## 0.3.11.0
 
 -   Add equationNumberTeX option
