@@ -3,10 +3,13 @@ flags:
     enable_flaky_tests: true
 ghc-options:
   pandoc: -j "+RTS -A64m -RTS"
-  pandoc-citeproc: -j "+RTS -A64m -RTS"
   $targets: -j "+RTS -A64m -RTS"
 packages:
 - .
 extra-deps:
 - roman-numerals-0.5.1.5
+- pandoc-2.14.0.3
+- commonmark-0.2.1
+- skylighting-0.10.5.2
+- skylighting-core-0.10.5.2
 resolver: lts-18.0
