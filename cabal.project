@@ -3,5 +3,3 @@ package citeproc
   ghc-options: -j +RTS -A64m -RTS
 package pandoc
   ghc-options: -j +RTS -A64m -RTS
-package pandoc-crossref
-  ghc-options: -j +RTS -A64m -RTS

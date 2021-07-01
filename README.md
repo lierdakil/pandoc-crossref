@@ -88,10 +88,10 @@ If you have `cabal-install` version 3.0 or newer (i.e. `cabal --version` shows `
 
 ``` bash
 cabal v2-update
-cabal v2-install --install-method=copy pandoc pandoc-crossref pandoc-citeproc
+cabal v2-install --install-method=copy pandoc pandoc-crossref
 ```
 
-This will get `pandoc-crossref`, `pandoc` and `pandoc-citeproc` executables copied to `$HOME/.cabal/bin` (by default, if not, check your cabal config file `installdir` setting -- find out where your config file is by running `cabal help user-config`), which you can then add to `PATH` or copy/move the symlinks where you want them.
+This will get `pandoc-crossref` and `pandoc` executables copied to `$HOME/.cabal/bin` (by default, if not, check your cabal config file `installdir` setting -- find out where your config file is by running `cabal help user-config`), which you can then add to `PATH` or copy/move the symlinks where you want them.
 
 On cabal-install version 2.4, it's possible to do the same, albeit you'll have to lose `--install-method copy`, it will symlink the executables instead of copying those, and it doesn't work on Windows.
 
@@ -104,10 +104,10 @@ cabal update
 mkdir pandoc-crossref
 cd pandoc-crossref
 cabal sandbox init
-cabal install pandoc pandoc-crossref pandoc-citeproc
+cabal install pandoc pandoc-crossref
 ```
 
-This will get `pandoc`, `pandoc-citeproc`, and `pandoc-crossref` installed into `.cabal-sandbox/bin`.
+This will get `pandoc` and `pandoc-crossref` installed into `.cabal-sandbox/bin`.
 
 Refer to cabal documentation if you need to build a particular version (TL;DR: add `--constraint pandoc-crossref==<version>` to the installation command)
 
@@ -130,7 +130,7 @@ stack install
 
 If you don't have `git`, just download the sources for your preferred commit/branch/tag via the GitHub interface, and run `stack install` in the directory that contains `stack.yaml` file.
 
-This will install pandoc-crossef executable to `$HOME/.local/bin`. You might also want to separately run `stack install pandoc pandoc-citeproc` in the same directory (i.e. the root of the repository, the one containing `stack.yaml` file)
+This will install pandoc-crossef executable to `$HOME/.local/bin`. You might also want to separately run `stack install pandoc` in the same directory (i.e. the root of the repository, the one containing `stack.yaml` file)
 
 ### Notice Fedora users
 
