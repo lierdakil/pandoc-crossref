@@ -202,6 +202,14 @@ Equations numbers will be typeset inside math with `\qquad` before them.
 If you want to use tables instead, use `tableEqns` option. Depending on
 output format, tables might work better or worse than `\qquad`.
 
+Alternatively, for formats that support it, you can use arbitrary LaTeX command accepting a single argument (that is, label text) for typesetting. A common example is `\tag`. Use `equationNumberTeX` metadata variable for that (set to special value `qquad` by default). For instance, to use `\tag`, you would have the following in your metadata:
+
+```yaml
+equationNumberTeX: \\tag
+```
+
+This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
+
 ## Table labels
 
 ``` markdown
@@ -212,14 +220,6 @@ a   b   c
 
 : Caption {#tbl:label}
 ```
-
-Alternatively, for formats that support it, you can use arbitrary LaTeX command accepting a single argument (that is, label text) for typesetting. A common example is `\tag`. Use `equationNumberTeX` metadata variable for that (set to special value `qquad` by default). For instance, to use `\tag`, you would have the following in your metadata:
-
-```yaml
-equationNumberTeX: \\tag
-```
-
-This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
 
 To label a table, append `{#tbl:label}` at the end of table caption
 (with `label` being something unique to reference this table by).
