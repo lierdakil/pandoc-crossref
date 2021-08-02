@@ -24,14 +24,19 @@ module Text.Pandoc.CrossRef.Util.CustomLabels (customLabel, customHeadingLabel) 
 import Text.Pandoc.Definition
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Numeral.Roman
+import Control.Applicative ((<|>))
 import qualified Data.Text as T
 
 customLabel :: Meta -> T.Text -> Int -> Maybe T.Text
 customLabel meta ref i
   | refLabel <- T.takeWhile (/=':') ref
-  , Just cl <- lookupMeta (refLabel <> "Labels") meta
+  , Just cl <- lookupCustomLabel refLabel meta
   = mkLabel i (refLabel <> "Labels") cl
   | otherwise = Nothing
+
+lookupCustomLabel lbl
+  | lbl == "eq" || lbl == "eqn" = (<|>) <$> lookupMeta ("eqn" <> "Labels") <*> lookupMeta ("eq" <> "Labels")
+  | otherwise = lookupMeta (lbl <> "Labels")
 
 customHeadingLabel :: Meta -> Int -> Int -> Maybe T.Text
 customHeadingLabel meta lvl i

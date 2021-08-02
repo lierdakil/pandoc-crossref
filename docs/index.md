@@ -185,10 +185,10 @@ still enable it.
 ## Equation labels
 
 ``` markdown
-$$ math $$ {#eq:label}
+$$ math $$ {#eqn:label}
 ```
 
-To label a display equation, append `{#eq:label}` (with `label` being
+To label a display equation, append `{#eqn:label}` (with `label` being
 something unique to reference this equation by) immediately after math
 block.
 
@@ -209,6 +209,8 @@ equationNumberTeX: \\tag
 ```
 
 This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
+
+A convenience synonym prefix `eq:` is also available, i.e. you can prefix equation labels with `eq:` instead of `eqn:`. Bear in mind however, that `eq:label` and `eqn:label` are two distinct entities, even if the part after the prefix is the same. Overall, it's better to avoid mixing `eq:` and `eqn:`, otherwise confusion is almost inevitable.
 
 ## Table labels
 
@@ -612,7 +614,8 @@ See [Custom Numbering Schemes](#custom-numbering-schemes)
 -   `figLabels`, default `arabic`: the numbering scheme for figures.
 -   `subfigLabels`, default `alpha a`: the numbering scheme for
     subfigures.
--   `eqLabels`, default `arabic`: the numbering scheme for equations.
+-   `eqnLabels`, default `arabic`: the numbering scheme for equations.
+-   `eqLabels`: compatibility synonym for `eqnLabels`. If both are specified, `eqnLabels` takes precedence.
 -   `tblLabels`, default `arabic`: the numbering scheme for tables.
 -   `lstLabels`, default `arabic`: the numbering scheme for listings.
 -   `secLabels`, default `arabic`: the numbering scheme for sections.

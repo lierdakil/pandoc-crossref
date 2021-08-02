@@ -314,7 +314,9 @@ replaceEqn opts (label, _, attrs) eq = do
 
 replaceInlineMany :: Options -> [Inline] -> WS (ReplacedResult [Inline])
 replaceInlineMany opts (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs)
-  | "eq:" `T.isPrefixOf` label || T.null label && autoEqnLabels opts
+  | "eq:" `T.isPrefixOf` label
+  || "eqn:" `T.isPrefixOf` label
+  || T.null label && autoEqnLabels opts
   = replaceRecurse . (<>xs) =<< case outFormat opts of
       f | isLatexFormat f ->
         pure [RawInline (Format "latex") "\\begin{equation}"
@@ -389,7 +391,7 @@ splitMath xs = xs
 spanInlines :: Options -> [Inline] -> [Inline]
 spanInlines opts (math@(Math DisplayMath _eq):ils)
   | c:ils' <- dropWhile isSpace ils
-  , Just label <- getRefLabel "eq" [c]
+  , Just label <- getRefLabel "eq" [c] <|> getRefLabel "eqn" [c]
   = Span (label,[],[]) [math]:ils'
   | autoEqnLabels opts
   = Span nullAttr [math]:ils

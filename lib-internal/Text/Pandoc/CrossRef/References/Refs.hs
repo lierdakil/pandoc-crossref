@@ -99,10 +99,12 @@ lookupUnsafe :: Ord k => k -> M.Map k v -> v
 lookupUnsafe = (fromJust .) . M.lookup
 
 allCitsPrefix :: [Citation] -> Maybe T.Text
-allCitsPrefix cits = find isCitationPrefix prefixes
-  where
-  isCitationPrefix p =
-    all ((p `T.isPrefixOf`) . uncapitalizeFirst . citationId) cits
+allCitsPrefix [] = Nothing
+allCitsPrefix cits =
+  let xs = map (getLabelPrefix . uncapitalizeFirst . citationId) cits
+      first = head xs
+      rest = tail xs
+  in if all (== first) rest then first else Nothing
 
 replaceRefsLatex :: T.Text -> Options -> [Citation] -> WS [Inline]
 replaceRefsLatex prefix opts cits
@@ -119,9 +121,9 @@ replaceRefsLatex' prefix opts cits =
     texcit =
       RawInline (Format "tex") $
       if cref opts then
-        cref'<>"{"<>listLabels prefix "" "," "" cits<>"}"
+        cref'<>"{"<>listLabels "" "," "" cits<>"}"
         else
-          listLabels prefix "\\ref{" ", " "}" cits
+          listLabels "\\ref{" ", " "}" cits
     suppressAuthor = all ((==SuppressAuthor) . citationMode) cits
     noPrefix = all (null . citationPrefix) cits
     p | cref opts = id
@@ -135,9 +137,9 @@ replaceRefsLatex' prefix opts cits =
           | cap = "\\Cref"
           | otherwise = "\\cref"
 
-listLabels :: T.Text -> T.Text -> T.Text -> T.Text -> [Citation] -> T.Text
-listLabels prefix p sep s =
-  T.intercalate sep . map ((p <>) . (<> s) . mkLaTeXLabel' . (prefix<>) . getLabelWithoutPrefix . citationId)
+listLabels :: T.Text -> T.Text -> T.Text -> [Citation] -> T.Text
+listLabels p sep s =
+  T.intercalate sep . map ((p <>) . (<> s) . mkLaTeXLabel' . uncapitalizeFirst . citationId)
 
 getLabelWithoutPrefix :: T.Text -> T.Text
 getLabelWithoutPrefix = T.drop 1 . T.dropWhile (/=':')
@@ -146,7 +148,10 @@ getLabelPrefix :: T.Text -> Maybe T.Text
 getLabelPrefix lab
   | uncapitalizeFirst p `elem` prefixes = Just p
   | otherwise = Nothing
-  where p = flip T.snoc ':' . T.takeWhile (/=':') $ lab
+  where p = flip T.snoc ':' $ case T.takeWhile (/=':') lab of
+                x | x == "eqn" -> "eq"
+                  | x == "Eqn" -> "Eq"
+                  | otherwise -> x
 
 replaceRefsOther :: T.Text -> Options -> [Citation] -> WS [Inline]
 replaceRefsOther prefix opts cits = toList . intercalate' (text ", ") . map fromList <$>
@@ -199,7 +204,7 @@ getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
       }
   where
   prop = lookupUnsafe prefix accMap
-  lab = prefix <> getLabelWithoutPrefix cid
+  lab = uncapitalizeFirst cid
 
 data RefItem = RefRange RefData RefData | RefSingle RefData
 
@@ -217,7 +222,7 @@ makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
   follows a b
     | Just (ai, al) <- HT.viewR a
     , Just (bi, bl) <- HT.viewR b
-    = ai == bi && A.first (+1) bl == al
+    = ai == bi && fst bl + 1 == fst al
   follows _ _ = False
   f :: [RefData] -> [RefItem]
   f []  = []                          -- drop empty lists
