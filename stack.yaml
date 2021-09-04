@@ -8,11 +8,12 @@ packages:
 - .
 extra-deps:
 - roman-numerals-0.5.1.5
-- pandoc-2.14.1
-- citeproc-0.4.1
+- pandoc-2.14.2
+- citeproc-0.5
 - commonmark-pandoc-0.2.1.1
 - doctemplates-0.10
 - skylighting-0.11
 - skylighting-core-0.11
 - commonmark-0.2.1
+- texmath-0.12.3.1
 resolver: lts-18.0
