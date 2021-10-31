@@ -7,17 +7,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        pandocver: ["2.14.2"]
-        ghcver: ['8.10.5']
+        pandocver: ["2.15"]
+        ghcver: ['8.10.7']
         include:
         - os: ubuntu-latest
-          container: 'lierdakil/alpine-haskell:8.10.5-pwsh'
-        - os: macos-latest
-          pandocver: '2.14.2'
-          ghcver: '8.10.4'
-        exclude:
-        - os: macos-latest
-          ghcver: '8.10.5'
+          container: 'lierdakil/alpine-haskell:8.10.7-pwsh'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
@@ -216,7 +210,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.14.2"]
+        pandocver: ["2.15"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
