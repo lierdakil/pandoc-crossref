@@ -12,6 +12,7 @@ jobs:
         include:
         - os: ubuntu-latest
           container: 'lierdakil/alpine-haskell:8.10.7-pwsh'
+          extra-options: '--constraint "cryptonite -integer-gmp"'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
@@ -34,7 +35,7 @@ jobs:
       shell: bash
       run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
     - name: Cabal confugure
-      run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --enable-tests
+      run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --enable-tests ${{matrix.extra-options}}
     - uses: actions/cache@v2
       with:
         path: .cabal-store
