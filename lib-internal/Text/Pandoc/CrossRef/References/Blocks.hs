@@ -64,7 +64,7 @@ simpleTable align width bod = Table nullAttr noCaption (zip align width)
   where
   mkBody xs = TableBody nullAttr (RowHeadColumns 0) [] (map mkRow xs)
   mkRow xs = Row nullAttr (map mkCell xs)
-  mkCell xs = Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) xs
+  mkCell xs = Cell nullAttr AlignDefault (RowSpan 1) (ColSpan 1) xs
   noCaption = Caption Nothing mempty
   noTableHead = TableHead nullAttr []
   noTableFoot = TableFoot nullAttr []
