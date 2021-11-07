@@ -1,3 +1,7 @@
+## 0.3.12.1
+
+-   Fix docx tableEqns
+
 ## 0.3.12.0
 
 -   Switch from data-accessor to microlens
