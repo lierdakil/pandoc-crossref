@@ -8,7 +8,7 @@ packages:
 - .
 extra-deps:
 - roman-numerals-0.5.1.5
-- pandoc-2.16.1
+- pandoc-2.16.2
 - citeproc-0.6@sha256:5d28caef8d7534ff0759691e17f9b1d075255df772cd6902c4c2ebbf0d863971,5641
 - doctemplates-0.10.0.1@sha256:bb36fe3bd5dbeaa91d76391c1203feb4b51a1fe7bef1be8d688c80d42967da80,3085
 - hslua-2.0.1@sha256:d8f3f8f3be9239940daecdeb7334567732fe922ba6194e08d4c1dff4a2795969,4176
@@ -24,4 +24,5 @@ extra-deps:
 - hslua-objectorientation-2.0.1@sha256:28362bb7e476e5fae3382ef545146f81b9a64fa4e2c5ec627dfa5618d671d003,3335
 - hslua-packaging-2.0.0@sha256:0b62de0ffe7a6e051730c29433f06a0570137564cb605df2b3921b87dc76bad2,3476
 - lua-2.0.1@sha256:81c31670932cdbee9e6b8b1d1216fb5e734ab78b3c29d603e6d46a249ebd19cb,8045
+- lpeg-1.0.1@sha256:a1a0087da8191fe71ab6bbd83c6f8277df84de4fc1921e7cfc8854d78a0456a5,3517
 resolver: lts-18.14
