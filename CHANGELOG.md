@@ -1,3 +1,21 @@
+## 0.3.12.2
+
+-   Make section numbering more consistent with pandoc
+
+    If the first heading in your document is level 2 or more, pandoc will assign
+    index `0` to the implicit sections. Pandoc-crossref, on the other hand,
+    assinged index `1` to these sections previously. This could lead to an
+    off-by-one discrepancy between section and reference indices when using
+    pandoc's `--number-sections`.
+
+    This behaviour is now aligned with pandoc, i.e. missing top-level sections
+    will get index of `0`.
+
+    The old behaviour is kept when using pandoc-crossref's `numberSections`,
+    for backwards compatibility and also because having references start with
+    `0` is rather impractical to begin with.
+
+
 ## 0.3.12.1
 
 -   Fix docx tableEqns
