@@ -89,7 +89,9 @@ replaceBlock opts (Header n (label, cls, attrs) text')
             inc l = let i = fst (last l) + 1 in init l <> [(i, cl i)]
             cc' | ln > n = inc $ take n cc
                 | ln == n = inc cc
-                | otherwise = cc <> take (n-ln-1) (zip [1,1..] $ repeat Nothing) <> [(1,cl 1)]
+                | otherwise = cc <> take (n-ln-1) implicitChapters <> [(1,cl 1)]
+            implicitChapters | numberSections opts = repeat (1, Nothing)
+                             | otherwise = repeat (0, Nothing)
         in cc'
       when ("sec:" `T.isPrefixOf` label') $ do
         index  <- use curChap

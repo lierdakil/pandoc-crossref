@@ -255,6 +255,12 @@ done via `numberSections` and `sectionsDepth` metadata options.
 `numberSections` controls if pandoc-crossref handles numbering sections,
 while `sectionsDepth` controls what sections are numbered.
 
+Additionally, with `numberSections`, if the first heading in your document is
+level 2 or more, pandoc-crossref will assume you meant to have implicit
+headings with previous levels, and will assign those phantom implicit headings
+the index `1`. Without `numberSections`, the behaviour is consistent with
+pandoc, that is, missing headings will be assigned the index `0`.
+
 Set `sectionsDepth` to `0` to make section numbering consistent with
 `chaptersDepth`.
 
@@ -486,7 +492,9 @@ A list of variables follows.
     corresponding to header numbers, e.g. `fig. 1.4.3`.
 -   `numberSections`, default `false`: if True, pandoc-crossref will
     prepend section number to section titles (as counted by
-    pandoc-crossref itself).
+    pandoc-crossref itself). This also makes pandoc-crossref assign missing
+    top-level headings the index of `1` instead of `0` to avoid ugly `sec.
+    0.0.1` references.
 -   `sectionsDepth`, default `0`:
     -   sectionsDepth \< 0 -- number all sections
     -   sectionsDepth == 0 -- be consistent with `chaptersDepths`
