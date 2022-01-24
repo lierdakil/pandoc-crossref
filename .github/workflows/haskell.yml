@@ -34,6 +34,9 @@ jobs:
     - name: Copy build config
       shell: bash
       run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
+    - name: install ncurses-static
+      if: runner.os == 'Linux'
+      run: apk add --update --no-cache ncurses-static
     - name: Cabal confugure
       run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --enable-tests ${{matrix.extra-options}}
     - uses: actions/cache@v2
