@@ -38,7 +38,7 @@ jobs:
       if: runner.os == 'Linux'
       run: apk add --update --no-cache ncurses-static
     - name: Cabal confugure
-      run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --enable-tests ${{matrix.extra-options}}
+      run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --constraint zip-archive<0.4.2 --enable-tests ${{matrix.extra-options}}
     - uses: actions/cache@v2
       with:
         path: .cabal-store
