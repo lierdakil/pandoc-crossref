@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
@@ -289,29 +289,23 @@ replaceBlock opts (Para [Span sattrs@(label, cls, attrs) [Math DisplayMath eq]])
   , tableEqns opts
   = do
     (eq', idxStr) <- replaceEqn opts sattrs eq
-    replaceNoRecurse $ Div (label,cls,setLabel opts idxStr attrs) [
-      simpleTable [AlignCenter, AlignRight] [ColWidth 0.9, ColWidth 0.09]
-       [[[Plain [Math DisplayMath eq']], [eqnNumber $ stringify idxStr]]]]
-  where
-  eqnNumber idx
-    | outFormat opts == Just (Format "docx")
-    = Div nullAttr [
-        RawBlock (Format "openxml") "<w:tcPr><w:vAlign w:val=\"center\"/></w:tcPr>"
-      , mathIdx
-      ]
-    | otherwise = mathIdx
-    where mathIdx = Plain [Math DisplayMath $ "(" <> idx <> ")"]
+    let mathfmt = if eqnBlockInlineMath opts then InlineMath else DisplayMath
+    replaceNoRecurse $ Div (label,cls,setLabel opts idxStr attrs) $
+      applyTemplate [Math mathfmt $ stringify idxStr] [Math mathfmt eq']
+        $ eqnBlockTemplate opts
 replaceBlock _ _ = noReplaceRecurse
 
 replaceEqn :: Options -> Attr -> T.Text -> WS (T.Text, [Inline])
 replaceEqn opts (label, _, attrs) eq = do
   let label' | T.null label = Left "eq"
              | otherwise = Right label
-  idxStr <- replaceAttr opts label' (lookup "label" attrs) [] eqnRefs
+  idxStrRaw <- replaceAttr opts label' (lookup "label" attrs) [] eqnRefs
+  let idxStr = applyTemplate' (M.fromDistinctAscList [("i", idxStrRaw)]) $ eqnIndexTemplate opts
   let eq' | tableEqns opts = eq
-          | equationNumberTeX opts == "qquad" = eq<>"\\qquad("<>idxTxt<>")"
-          | otherwise = eq<>equationNumberTeX opts<>"{"<>idxTxt<>"}"
+          | equationNumberTeX opts == "qquad" = eq<>"\\qquad "<>idxTxt
+          | otherwise = eq<>equationNumberTeX opts<>"{"<>idxTxt'<>"}"
       idxTxt = stringify idxStr
+      idxTxt' = stringify idxStrRaw
   return (eq', idxStr)
 
 replaceInlineMany :: Options -> [Inline] -> WS (ReplacedResult [Inline])

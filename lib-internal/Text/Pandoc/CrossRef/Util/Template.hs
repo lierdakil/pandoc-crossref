@@ -18,15 +18,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, MultiParamTypeClasses #-}
 module Text.Pandoc.CrossRef.Util.Template
   ( Template
+  , BlockTemplate
   , makeTemplate
   , makeIndexedTemplate
   , applyTemplate
   , applyTemplate'
   ) where
 
+import Data.Data
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder
 import Text.Pandoc.Generic
@@ -38,9 +40,22 @@ import qualified Data.Text as T
 
 type VarFunc = T.Text -> Maybe MetaValue
 newtype Template = Template (VarFunc -> [Inline])
+newtype BlockTemplate = BlockTemplate (VarFunc -> [Block])
 
-makeTemplate :: Meta -> [Inline] -> Template
-makeTemplate dtv xs' = Template $ \vf -> scan (\var -> vf var <|> lookupMeta var dtv) xs'
+class Data a => MkTemplate a b where
+  mkTemplate :: (VarFunc -> [a]) -> b
+  applyTemplate' :: M.Map T.Text [Inline] -> b -> [a]
+
+instance MkTemplate Inline Template where
+  mkTemplate = Template
+  applyTemplate' vars (Template g) = g (internalVars vars)
+
+instance MkTemplate Block BlockTemplate where
+  mkTemplate = BlockTemplate
+  applyTemplate' vars (BlockTemplate g) = g (internalVars vars)
+
+makeTemplate :: MkTemplate a b => Meta -> [a] -> b
+makeTemplate dtv xs' = mkTemplate $ \vf -> scan (\var -> vf var <|> lookupMeta var dtv) xs'
   where
   scan = bottomUp . go
   go vf (x@(Math DisplayMath var):xs)
@@ -68,12 +83,9 @@ makeIndexedTemplate name meta subname =
     Just x -> toInlines name x
     Nothing -> []
 
-applyTemplate' :: M.Map T.Text [Inline] -> Template -> [Inline]
-applyTemplate' vars (Template g) = g internalVars
-  where
-  internalVars x | Just v <- M.lookup x vars = Just $ MetaInlines v
-  internalVars _   = Nothing
+internalVars :: M.Map T.Text [Inline] -> T.Text -> Maybe MetaValue
+internalVars vars x = MetaInlines <$> M.lookup x vars
 
-applyTemplate :: [Inline] -> [Inline] -> Template -> [Inline]
+applyTemplate :: MkTemplate a b =>[Inline] -> [Inline] -> b -> [a]
 applyTemplate i t =
   applyTemplate' (M.fromDistinctAscList [("i", i), ("t", t)])

@@ -89,6 +89,18 @@ defaultMeta =
   <> tblPrefixTemplate (var "p" <> str "\160" <> var "i")
   <> lstPrefixTemplate (var "p" <> str "\160" <> var "i")
   <> secPrefixTemplate (var "p" <> str "\160" <> var "i")
+  <> eqnBlockTemplate (
+      table
+        emptyCaption
+        [(AlignCenter, ColWidth 0.9), (AlignRight, ColWidth 0.1)]
+        (TableHead nullAttr [])
+        [TableBody nullAttr (RowHeadColumns 0) [] [
+          Row nullAttr [simpleCell $ plain $ var "t", simpleCell $ plain $ var "i"]
+          ]]
+        (TableFoot nullAttr [])
+      )
+  <> eqnIndexTemplate (str "(" <> var "i" <> ")")
+  <> eqnBlockInlineMath False
   <> refIndexTemplate (var "i" <> var "suf")
   <> subfigureRefIndexTemplate (var "i" <> var "suf" <> space <> str "(" <> var "s" <> str ")")
   <> secHeaderTemplate (var "i" <> var "secHeaderDelim[n]" <> var "t")

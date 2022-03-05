@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, RankNTypes #-}
+{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, RankNTypes, ScopedTypeVariables #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder
@@ -252,7 +252,7 @@ main = hspec $ do
 
     describe "Util.Template" $
       it "Applies templates" $
-        let template=Util.Template.makeTemplate defaultMeta (toList $ displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
+        let (template :: Util.Template.Template)=Util.Template.makeTemplate defaultMeta (toList $ displayMath "figureTitle" <> displayMath "i" <> displayMath "t")
         in Util.Template.applyTemplate [Str "1"] [Str "title"] template `shouldBe`
            toList (str "Figure" <> str "1" <> str "title")
 

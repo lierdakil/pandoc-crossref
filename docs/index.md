@@ -654,6 +654,42 @@ See [Subfigures](#subfigures)
 -   `ccsTemplate`, default `$$i$$$$ccsLabelSep$$$$t$$`: template for
     collected subfigure captions.
 
+#### Equation templates
+
+-   `eqnIndexTemplate`, default `($$i$$)`: used to adjust how equation index
+    is rendered. This is required due to it being rendered inside a math block.
+    Note that for the same reason formatting is mostly ignored.
+
+    Also note that for backwards compatibility reasons, this option is ignored
+    when `equationNumberTeX` isn't `qquad` and `tableEqns` is false. In this
+    case, since you're using LaTeX anyway, you can do arbitrary
+    transformations with `newcommand`.
+-   `eqnBlockTemplate`, default
+
+    ```markdown
+    --------------------------------------------------------------- -------
+                                 $$t$$                                $$i$$
+
+    --------------------------------------------------------------- -------
+    ```
+
+    When used with `tableEqns`, a block to use to format equations. A table
+    by default, but could be literally any block. `$$t$$` stands in for the
+    equation itself, and `$$i$$` stands in for the equation number.
+
+-   `eqnBlockInlineMath`, default `False`: if you need to use
+    inline math while rendering equation block template. Useful, e.g., if you're
+    using raw ooxml and tabstops to align equations in docx. For example,
+
+    ```yaml
+    tableEqns: true
+    eqnBlockTemplate: |
+       `<w:pPr><w:tabs><w:tab w:val="center" w:leader="none" w:pos="4680" /><w:tab w:val="right" w:leader="none" w:pos="9360" /></w:tabs></w:pPr><w:r><w:tab /></w:r>`{=openxml} $$t$$ `<w:r><w:tab /></w:r>`{=openxml} $$i$$
+    eqnBlockInlineMath: true
+    ```
+
+    (tweak `w:pos` for the two tabstops to taste, the unit is 1/20th of an inch, sample values are appropriate for portrait A4 with 1-inch margins)
+
 ### Reference templates
 
 See [Templates](#templates)
