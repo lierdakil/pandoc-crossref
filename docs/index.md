@@ -667,15 +667,20 @@ See [Subfigures](#subfigures)
 -   `eqnBlockTemplate`, default
 
     ```markdown
-    --------------------------------------------------------------- -------
-                                 $$t$$                                $$i$$
-
-    --------------------------------------------------------------- -------
+    +:--------------------------------------------------------------:+-----:+
+    | $$t$$                                                          | ```{=openxml}
+    |                                                                | <w:tcPr><w:vAlign w:val="center"/></w:tcPr>
+    |                                                                | ```
+    |                                                                | $$i$$
+    +----------------------------------------------------------------+-----+
     ```
 
     When used with `tableEqns`, a block to use to format equations. A table
     by default, but could be literally any block. `$$t$$` stands in for the
     equation itself, and `$$i$$` stands in for the equation number.
+
+    Note that the default contains a raw block to fix vertical alignment
+    in docx output. If you're not targeting docx, it will be ignored by pandoc.
 
 -   `eqnBlockInlineMath`, default `False`: if you need to use
     inline math while rendering equation block template. Useful, e.g., if you're

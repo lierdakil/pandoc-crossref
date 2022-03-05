@@ -95,7 +95,10 @@ defaultMeta =
         [(AlignCenter, ColWidth 0.9), (AlignRight, ColWidth 0.1)]
         (TableHead nullAttr [])
         [TableBody nullAttr (RowHeadColumns 0) [] [
-          Row nullAttr [simpleCell $ plain $ var "t", simpleCell $ plain $ var "i"]
+          Row nullAttr
+            [ simpleCell $ plain (var "t")
+            , simpleCell $ wordVerticalAlign <> plain (var "i")
+            ]
           ]]
         (TableFoot nullAttr [])
       )
@@ -124,4 +127,6 @@ defaultMeta =
   <> linkReferences False
   <> nameInLink False
   <> equationNumberTeX ("qquad" :: T.Text)
-  where var = displayMath
+  where
+    var = displayMath
+    wordVerticalAlign = rawBlock "openxml" "<w:tcPr><w:vAlign w:val=\"center\"/></w:tcPr>"
