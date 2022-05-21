@@ -667,7 +667,7 @@ See [Subfigures](#subfigures)
 -   `eqnInlineTemplate`, default `$$e$$$$equationNumberTeX$${$$i$$}`
 
     A template to typeset math when `tableEqns` is `false`. Similar to `eqnIndexTemplate`, formatting is mostly ignored, due to it being typeset
-    inside a display math environment. However, most LaTeX should work. The following template variables are known:
+    inside a display math environment. However, most LaTeX should work (but backslashes need to be doubled). The following template variables are known:
 
     - `ri`, "raw" index, before applying `eqnIndexTemplate`
     - `i`, index after applying `eqnIndexTemplate`
