@@ -176,12 +176,21 @@ contributions):
 -   Felix Yan
 -   Wlad
 -   Wandmalfarbe
+-   Silas Benson
+-   shutingrz
+-   Shaun Jackman
 -   scoavoux
 -   Salim B
 -   Matthew Salganik
+-   Jan-T. Brinkmann
+-   hseg
 -   Han Joosten
 -   Hadrien Mary
+-   Gleb Popov
+-   Gabriel Nützi
+-   David Arnold
 -   Chris Black
 -   Bart Mesuere
+-   Albert
 
 <!-- END CONTRIBUTORS LIST -->
