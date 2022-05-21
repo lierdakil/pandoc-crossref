@@ -80,15 +80,15 @@ module Text.Pandoc.CrossRef (
   , CrossRefEnv(..)
   ) where
 
-import Control.Monad.State
 import qualified Control.Monad.Reader as R
+import Control.Monad.State
 import Text.Pandoc
 
 import Text.Pandoc.CrossRef.References
-import Text.Pandoc.CrossRef.Util.Settings
-import Text.Pandoc.CrossRef.Util.Options as O
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.ModifyMeta
+import Text.Pandoc.CrossRef.Util.Options as O
+import Text.Pandoc.CrossRef.Util.Settings
 import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
 
 -- | Enviromnent for 'CrossRefM'

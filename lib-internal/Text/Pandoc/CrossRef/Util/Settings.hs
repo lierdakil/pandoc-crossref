@@ -22,16 +22,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
 
+import Control.Exception (IOException, handle)
 import Text.Pandoc
 import Text.Pandoc.Builder
-import Control.Exception (handle,IOException)
 
-import Text.Pandoc.CrossRef.Util.Settings.Gen
-import Text.Pandoc.CrossRef.Util.Meta
+import qualified Data.Text as T
 import System.Directory
 import System.FilePath
 import System.IO
-import qualified Data.Text as T
+import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.Util.Settings.Gen
 
 getSettings :: Maybe Format -> Meta -> IO Meta
 getSettings fmt meta = do

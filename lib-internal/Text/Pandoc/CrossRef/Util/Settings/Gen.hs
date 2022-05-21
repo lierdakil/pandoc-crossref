@@ -22,10 +22,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -- {-# OPTIONS_GHC -ddump-splices #-}
 module Text.Pandoc.CrossRef.Util.Settings.Gen where
 
-import Text.Pandoc.CrossRef.Util.Settings.Template
+import Language.Haskell.TH (mkName)
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Options as O (Options(..))
-import Language.Haskell.TH (mkName)
+import Text.Pandoc.CrossRef.Util.Settings.Template
 import Text.Pandoc.Definition
 
 nameDeriveSetters ''Options

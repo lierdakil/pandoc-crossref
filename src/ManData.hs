@@ -21,13 +21,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE TemplateHaskellQuotes, OverloadedStrings #-}
 module ManData where
 
-import Language.Haskell.TH.Syntax
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
-import System.IO
-import qualified Text.Pandoc as P
 import Control.DeepSeq
 import Data.String
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
+import Language.Haskell.TH.Syntax
+import System.IO
+import qualified Text.Pandoc as P
 import Text.Pandoc.Highlighting (pygments)
 
 dataFile :: FilePath

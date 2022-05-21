@@ -21,16 +21,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.References.List (listOf) where
 
-import Text.Pandoc.Definition
 import Control.Arrow
 import Data.List
 import qualified Data.Map as M
 import qualified Data.Text as T
+import Text.Pandoc.Definition
 
-import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.Util.Util
-import Text.Pandoc.CrossRef.Util.Options
 import Lens.Micro.Mtl
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Util
 
 listOf :: Options -> [Block] -> WS [Block]
 listOf Options{outFormat=f} x | isLatexFormat f = return x

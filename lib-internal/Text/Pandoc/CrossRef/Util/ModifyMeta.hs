@@ -24,13 +24,13 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
     modifyMeta
     ) where
 
+import Control.Monad.Writer
+import qualified Data.Text as T
 import Text.Pandoc
 import Text.Pandoc.Builder hiding ((<>))
-import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
-import qualified Data.Text as T
-import Control.Monad.Writer
 
 modifyMeta :: Options -> Meta -> Meta
 modifyMeta opts meta

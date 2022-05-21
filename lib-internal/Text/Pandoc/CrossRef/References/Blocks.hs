@@ -23,26 +23,25 @@ module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
 
-import Text.Pandoc.Definition
-import qualified Text.Pandoc.Builder as B
-import Text.Pandoc.Shared (stringify, blocksToInlines)
-import Text.Pandoc.Walk (walk)
 import Control.Monad.State hiding (get, modify)
 import Data.List
-import Data.Maybe
 import qualified Data.Map as M
+import Data.Maybe
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
+import qualified Text.Pandoc.Builder as B
+import Text.Pandoc.Definition
+import Text.Pandoc.Shared (blocksToInlines, stringify)
+import Text.Pandoc.Walk (walk)
 
-import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.Util.Util
-import Text.Pandoc.CrossRef.Util.Options
-import Text.Pandoc.CrossRef.Util.Template
 import Control.Applicative
-import Prelude
 import Data.Default
 import Lens.Micro
 import Lens.Micro.Mtl
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.Util
 
 replaceAll :: (Data a) => Options -> a -> WS a
 replaceAll opts =

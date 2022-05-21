@@ -21,26 +21,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
-import Text.Pandoc.Definition
-import Text.Pandoc.Builder
+import Control.Arrow as A
 import Control.Monad.State hiding (get, modify)
+import Data.Function
 import Data.List
 import qualified Data.List.HT as HT
-import qualified Data.Text as T
-import Data.Maybe
-import Data.Function
 import qualified Data.Map as M
-import Control.Arrow as A
+import Data.Maybe
+import qualified Data.Text as T
+import Text.Pandoc.Builder
+import Text.Pandoc.Definition
 
-import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.Util.Template
-import Text.Pandoc.CrossRef.Util.Util
-import Text.Pandoc.CrossRef.Util.Options
 import Control.Applicative
 import Debug.Trace
-import Prelude
-import Lens.Micro
 import Lens.Micro.Mtl
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.Util
 
 replaceRefs :: Options -> [Inline] -> WS [Inline]
 replaceRefs opts (Cite cits _:xs)

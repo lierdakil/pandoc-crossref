@@ -1,0 +1,68 @@
+# SPDX-FileCopyrightText: 2020 Serokell <https://serokell.io>
+#
+# SPDX-License-Identifier: Unlicense
+
+# stylish-haskell config used by developers to format morley code
+
+steps:
+  - simple_align:
+      cases: false
+      top_level_patterns: false
+      records: false
+      multi_way_if: false
+  - imports:
+      align: none
+      list_align: after_alias
+      pad_module_names: false
+      long_list_align: new_line
+      empty_list_align: inherit
+      list_padding: 2
+      separate_lists: false
+      space_surround: false
+      post_qualify: false
+  - trailing_whitespace: {}
+columns: 100
+newline: native
+language_extensions:
+  - BangPatterns
+  - BlockArguments
+  - ConstraintKinds
+  - DataKinds
+  - DefaultSignatures
+  - DeriveAnyClass
+  - DeriveDataTypeable
+  - DeriveGeneric
+  - DerivingStrategies
+  - DerivingVia
+  - EmptyCase
+  - ExistentialQuantification
+  - ExplicitNamespaces
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - ImportQualifiedPost
+  - LambdaCase
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - NoImplicitPrelude
+  - NumericUnderscores
+  - OverloadedLabels
+  - OverloadedStrings
+  - PatternSynonyms
+  - QuasiQuotes
+  - QuantifiedConstraints
+  - RebindableSyntax
+  - RecordWildCards
+  - RecursiveDo
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TemplateHaskell
+  - TemplateHaskellQuotes
+  - TupleSections
+  - TypeApplications
+  - TypeFamilies
+  - TypeOperators
+  - ViewPatterns

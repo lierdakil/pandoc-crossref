@@ -21,12 +21,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE TemplateHaskell #-}
 module Text.Pandoc.CrossRef.References.Types where
 
-import qualified Data.Map as M
-import Text.Pandoc.Definition
 import Control.Monad.State
 import Data.Default
+import qualified Data.Map as M
 import Data.Text (Text)
 import Lens.Micro.TH
+import Text.Pandoc.Definition
 
 type Index = [(Int, Maybe Text)]
 

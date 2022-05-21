@@ -31,13 +31,13 @@ module Text.Pandoc.CrossRef.Util.Meta (
   , tryCapitalizeM
   ) where
 
+import Data.Default
+import qualified Data.Text as T
+import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.Definition
-import Text.Pandoc.Builder
-import Data.Default
+import Text.Pandoc.Shared hiding (capitalize)
 import Text.Pandoc.Walk
-import Text.Pandoc.Shared hiding (capitalize, toString)
-import qualified Data.Text as T
 
 getMetaList :: (Default a) => (MetaValue -> a) -> T.Text -> Meta -> Int -> a
 getMetaList f name meta i = maybe def f $ lookupMeta name meta >>= getList i

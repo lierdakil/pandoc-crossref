@@ -28,15 +28,15 @@ module Text.Pandoc.CrossRef.Util.Template
   , applyTemplate'
   ) where
 
-import Data.Data
-import Text.Pandoc.Definition
-import Text.Pandoc.Builder
-import Text.Pandoc.Generic
-import qualified Data.Map as M hiding (toList, fromList, singleton)
-import Text.Pandoc.CrossRef.Util.Meta
 import Control.Applicative
-import Text.Read
+import Data.Data
+import qualified Data.Map as M hiding (fromList, singleton, toList)
 import qualified Data.Text as T
+import Text.Pandoc.Builder
+import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.Definition
+import Text.Pandoc.Generic
+import Text.Read
 
 type VarFunc = T.Text -> Maybe MetaValue
 newtype Template = Template (VarFunc -> [Inline])

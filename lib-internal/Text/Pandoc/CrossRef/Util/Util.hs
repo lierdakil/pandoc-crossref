@@ -24,19 +24,19 @@ module Text.Pandoc.CrossRef.Util.Util
   , module Data.Generics
   ) where
 
-import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.Definition
+import Data.Char (isUpper, toLower, toUpper)
+import Data.Default
+import Data.Generics
+import Data.List (find)
+import Data.Maybe (fromMaybe)
+import qualified Data.Text as T
+import Data.Version
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Class
-import Data.Char (toUpper, toLower, isUpper)
-import Data.Maybe (fromMaybe)
-import Data.Generics
+import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.Definition
 import Text.Pandoc.Writers.LaTeX
-import Data.Default
-import Data.Version
-import Data.List (find)
 import Text.ParserCombinators.ReadP (readP_to_S)
-import qualified Data.Text as T
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
 intercalate' s xs

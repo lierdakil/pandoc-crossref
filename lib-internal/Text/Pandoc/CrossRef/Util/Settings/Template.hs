@@ -21,17 +21,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE TemplateHaskell, RankNTypes, ViewPatterns, MultiWayIf #-}
 module Text.Pandoc.CrossRef.Util.Settings.Template where
 
-import Text.Pandoc.Definition
-import Text.Pandoc.Builder
-import Text.Pandoc.CrossRef.Util.Meta
-import qualified Data.Map as M
-import Language.Haskell.TH hiding (Inline)
-import Language.Haskell.TH.Syntax hiding (Inline)
 import Data.List
-import Text.Pandoc.CrossRef.Util.Template
-import Text.Pandoc.CrossRef.Util.CustomLabels
+import qualified Data.Map as M
 import Data.Text (Text)
 import qualified Data.Text as T
+import Language.Haskell.TH hiding (Inline)
+import Language.Haskell.TH.Syntax hiding (Inline)
+import Text.Pandoc.Builder
+import Text.Pandoc.CrossRef.Util.CustomLabels
+import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.Definition
 
 namedFields :: Con -> [VarStrictType]
 namedFields (RecC _ fs) = fs

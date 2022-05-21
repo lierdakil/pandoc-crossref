@@ -24,13 +24,13 @@ module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
     mkCodeBlockCaptions
     ) where
 
-import Text.Pandoc.Definition
 import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
+import qualified Data.Text as T
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
-import qualified Data.Text as T
+import Text.Pandoc.Definition
 
 mkCodeBlockCaptions :: Options -> [Block] -> WS [Block]
 mkCodeBlockCaptions opts x@(cb@(CodeBlock _ _):p@(Para _):xs)

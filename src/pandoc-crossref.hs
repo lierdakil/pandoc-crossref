@@ -23,19 +23,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import Text.Pandoc
 import Text.Pandoc.JSON
 
-import Text.Pandoc.CrossRef
-import Options.Applicative
-import qualified Options.Applicative as O
-import Control.Monad
-import System.Environment as Env
-import Web.Browser
-import System.IO.Temp
-import System.IO hiding (putStrLn)
-import ManData
 import Control.Concurrent
-import Development.GitRev
+import Control.Monad
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
+import Development.GitRev
+import ManData
+import Options.Applicative
+import qualified Options.Applicative as O
+import System.Environment as Env
+import System.IO hiding (putStrLn)
+import System.IO.Temp
+import Text.Pandoc.CrossRef
+import Web.Browser
 
 import Prelude hiding (putStrLn)
 

@@ -21,10 +21,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.CustomLabels (customLabel, customHeadingLabel) where
 
-import Text.Pandoc.Definition
-import Text.Pandoc.CrossRef.Util.Meta
-import Text.Numeral.Roman
 import qualified Data.Text as T
+import Text.Numeral.Roman
+import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.Definition
 
 customLabel :: Meta -> T.Text -> Int -> Maybe T.Text
 customLabel meta ref i
