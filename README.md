@@ -194,3 +194,7 @@ contributions):
 -   Albert
 
 <!-- END CONTRIBUTORS LIST -->
+
+This repository includes code from <https://github.com/roelvandijk/roman-numerals>, covered by a different license. See
+[licenses/LICENSE.roman-numerals](https://github.com/lierdakil/pandoc-crossref/blob/master/licenses/LICENSE.roman-numerals)
+for details.

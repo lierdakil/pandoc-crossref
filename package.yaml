@@ -12,6 +12,7 @@ github: lierdakil/pandoc-crossref
 extra-source-files:
 - test/*.inc
 - CHANGELOG.md
+- licenses/LICENSE.roman-numerals
 data-files:
 - docs/demo/demo.md
 - docs/index.md
