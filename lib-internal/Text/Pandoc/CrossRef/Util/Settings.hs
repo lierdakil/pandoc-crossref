@@ -103,6 +103,7 @@ defaultMeta =
         (TableFoot nullAttr [])
       )
   <> eqnIndexTemplate (str "(" <> var "i" <> ")")
+  <> eqnInlineTemplate (var "e" <> var "equationNumberTeX" <> "{" <> var "i" <> "}")
   <> eqnBlockInlineMath False
   <> refIndexTemplate (var "i" <> var "suf")
   <> subfigureRefIndexTemplate (var "i" <> var "suf" <> space <> str "(" <> var "s" <> str ")")
@@ -126,7 +127,7 @@ defaultMeta =
   <> subfigGrid False
   <> linkReferences False
   <> nameInLink False
-  <> equationNumberTeX ("qquad" :: T.Text)
+  <> equationNumberTeX ("\\qquad" :: T.Text)
   where
     var = displayMath
     wordVerticalAlign = rawBlock "openxml" "<w:tcPr><w:vAlign w:val=\"center\"/></w:tcPr>"

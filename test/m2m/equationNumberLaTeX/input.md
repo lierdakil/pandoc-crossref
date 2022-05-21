@@ -1,5 +1,6 @@
 ---
 equationNumberTeX: \\tag
+eqnIndexTemplate: $$i$$
 ---
 
 This is a test file with some referenced equations, line $$ this $$

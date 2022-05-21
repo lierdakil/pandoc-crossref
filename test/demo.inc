@@ -407,7 +407,8 @@
   , Para
       [ Span
           ( "eq:eqn1" , [] , [] )
-          [ Math DisplayMath " P_i(x) = \\sum_i a_i x^i \\qquad (1)" ]
+          [ Math DisplayMath " P_i(x) = \\sum_i a_i x^i \\qquad{(1)}"
+          ]
       ]
   , Para
       [ Str "Since"
@@ -434,7 +435,7 @@
       , SoftBreak
       , Span
           ( "eq:quadr" , [] , [] )
-          [ Math DisplayMath "a x^2 + b x^2 + c = 0\\qquad (2)" ]
+          [ Math DisplayMath "a x^2 + b x^2 + c = 0\\qquad{(2)}" ]
       , Space
       , Str "like"
       , Space
@@ -919,7 +920,7 @@
           ( "eq:eqn2" , [] , [] )
           [ Math
               DisplayMath
-              " S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x \\qquad (3)"
+              " S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x \\qquad{(3)}"
           ]
       ]
   , Header

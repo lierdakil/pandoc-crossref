@@ -198,13 +198,20 @@ Equations numbers will be typeset inside math with `\qquad` before them.
 If you want to use tables instead, use `tableEqns` option. Depending on
 output format, tables might work better or worse than `\qquad`.
 
-Alternatively, for formats that support it, you can use arbitrary LaTeX command accepting a single argument (that is, label text) for typesetting. A common example is `\tag`. Use `equationNumberTeX` metadata variable for that (set to special value `qquad` by default). For instance, to use `\tag`, you would have the following in your metadata:
+Alternatively, for formats that support it, you can use arbitrary LaTeX command accepting a single argument (that is, label text) for typesetting. A common example is `\tag`. Use `equationNumberTeX` metadata variable for that (set to  `\qquad` by default).
+
+Beware that `eqnIndexTemplate` gets applied first, so you'll likely want to set it to plain index as well.
+
+For instance, to use `\tag`, you would have the following in your metadata:
 
 ```yaml
 equationNumberTeX: \\tag
+eqnIndexTemplate: $$i$$
 ```
 
-This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
+These options don't affect LaTeX output (which offloads numbering to the LaTeX engine).
+
+For advanced usage, see `eqnInlineTemplate`, `eqnBlockTemplate`.
 
 ## Table labels
 
@@ -508,12 +515,13 @@ A list of variables follows.
     equations (i.e. ones defined using `$$...$$`/`\[...\]`). Note that
     you won't be able to reference equations without explicit labels.
 -   `tableEqns`, default `false`: Typeset equations and equation numbers
-    in tables instead of embedding numbers into equations themselves.
+    as blocks instead of embedding numbers into equations themselves.
     Depending on output format, this might work better or worse.
+    See also the section on [equation templates](#equation-templates).
 -   `setLabelAttribute`, default `false`: set `label` attribute on objects to
     actual number used for referencing. This can be useful for post-processing.
--   `equationNumberTeX`, default `qquad`: use a LaTeX command for typesetting
-    equation numbers. Bear in mind, `qquad` is a special value; generally, you'll want to write out a full command, backslash and all. Also remember that metadata is parsed as Markdown, so you may need to escape backslashes.
+-   `equationNumberTeX`, default `\\qquad`: use a LaTeX command for typesetting
+    equation numbers. Remember that metadata is parsed as Markdown, so you may need to escape backslashes.
     This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
 
 ### Item title format
@@ -656,10 +664,17 @@ See [Subfigures](#subfigures)
     is rendered. This is required due to it being rendered inside a math block.
     Note that for the same reason formatting is mostly ignored.
 
-    Also note that for backwards compatibility reasons, this option is ignored
-    when `equationNumberTeX` isn't `qquad` and `tableEqns` is false. In this
-    case, since you're using LaTeX anyway, you can do arbitrary
-    transformations with `newcommand`.
+-   `eqnInlineTemplate`, default `$$e$$$$equationNumberTeX$${$$i$$}`
+
+    A template to typeset math when `tableEqns` is `false`. Similar to `eqnIndexTemplate`, formatting is mostly ignored, due to it being typeset
+    inside a display math environment. However, most LaTeX should work. The following template variables are known:
+
+    - `ri`, "raw" index, before applying `eqnIndexTemplate`
+    - `i`, index after applying `eqnIndexTemplate`
+    - `e`, the equation itself
+
+    `eqnInlineTemplate` is ignored if `tableEqns` is `true`.
+
 -   `eqnBlockTemplate`, default
 
     ```markdown
@@ -677,6 +692,8 @@ See [Subfigures](#subfigures)
 
     Note that the default contains a raw block to fix vertical alignment
     in docx output. If you're not targeting docx, it will be ignored by pandoc.
+
+    `eqnBlockTemplate` is ignored if `tableEqns` is `false` (the default).
 
 -   `eqnBlockInlineMath`, default `False`: if you need to use
     inline math while rendering equation block template. Useful, e.g., if you're

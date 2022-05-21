@@ -300,11 +300,14 @@ replaceEqn opts (label, _, attrs) eq = do
              | otherwise = Right label
   idxStrRaw <- replaceAttr opts label' (lookup "label" attrs) [] eqnRefs
   let idxStr = applyTemplate' (M.fromDistinctAscList [("i", idxStrRaw)]) $ eqnIndexTemplate opts
-  let eq' | tableEqns opts = eq
-          | equationNumberTeX opts == "qquad" = eq<>"\\qquad "<>idxTxt
-          | otherwise = eq<>equationNumberTeX opts<>"{"<>idxTxt'<>"}"
-      idxTxt = stringify idxStr
-      idxTxt' = stringify idxStrRaw
+      eqTxt = applyTemplate' eqTxtVars $ eqnInlineTemplate opts :: [Inline]
+      eqTxtVars = M.fromDistinctAscList
+        [ ("e", [Str eq])
+        , ("i", idxStr)
+        , ("ri", idxStrRaw)
+        ]
+      eq' | tableEqns opts = eq
+          | otherwise = stringify eqTxt
   return (eq', idxStr)
 
 replaceInlineMany :: Options -> [Inline] -> WS (ReplacedResult [Inline])

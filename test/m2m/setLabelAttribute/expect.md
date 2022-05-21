@@ -2,7 +2,7 @@
 
 ![Figure 1.1: Figure](./image.png){#fig:1 label="1.1"}
 
-[$$equation\qquad (1.1)$$]{#eq:1 label="(1.1)"}
+[$$equation\qquad{(1.1)}$$]{#eq:1 label="(1.1)"}
 
 ::: {#tbl:1 label="1.1"}
   a   b

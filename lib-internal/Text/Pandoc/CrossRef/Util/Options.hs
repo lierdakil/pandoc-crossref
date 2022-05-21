@@ -43,6 +43,7 @@ data Options = Options { cref :: Bool
                        , eqnBlockTemplate :: BlockTemplate
                        , eqnBlockInlineMath :: Bool
                        , eqnIndexTemplate :: Template
+                       , eqnInlineTemplate :: Template
                        , refIndexTemplate :: Text -> Template
                        , subfigureRefIndexTemplate :: Template
                        , secHeaderTemplate :: Template
