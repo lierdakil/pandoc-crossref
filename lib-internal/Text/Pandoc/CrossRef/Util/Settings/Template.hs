@@ -31,7 +31,6 @@ import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.CustomLabels
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Template
-import Text.Pandoc.Definition
 
 namedFields :: Con -> [VarStrictType]
 namedFields (RecC _ fs) = fs

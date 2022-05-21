@@ -34,7 +34,6 @@ import qualified Data.Map as M hiding (fromList, singleton, toList)
 import qualified Data.Text as T
 import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Meta
-import Text.Pandoc.Definition
 import Text.Pandoc.Generic
 import Text.Read
 

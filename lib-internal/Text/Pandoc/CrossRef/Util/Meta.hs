@@ -35,7 +35,6 @@ import Data.Default
 import qualified Data.Text as T
 import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Util
-import Text.Pandoc.Definition
 import Text.Pandoc.Shared hiding (capitalize)
 import Text.Pandoc.Walk
 

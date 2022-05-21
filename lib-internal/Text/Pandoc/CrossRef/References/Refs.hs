@@ -30,7 +30,6 @@ import qualified Data.Map as M
 import Data.Maybe
 import qualified Data.Text as T
 import Text.Pandoc.Builder
-import Text.Pandoc.Definition
 
 import Control.Applicative
 import Debug.Trace

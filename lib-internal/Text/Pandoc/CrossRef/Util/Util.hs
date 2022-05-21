@@ -34,7 +34,6 @@ import Data.Version
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Class
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.Definition
 import Text.Pandoc.Writers.LaTeX
 import Text.ParserCombinators.ReadP (readP_to_S)
 
