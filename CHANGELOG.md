@@ -1,3 +1,33 @@
+## 0.3.13.0
+
+### Main changes
+
+-   More flexible equation templates
+
+    See [the documentation](https://lierdakil.github.io/pandoc-crossref/#equation-templates).
+
+    **NOTICE**: Breaking change. If you're using `equationNumberTeX`, now
+    `eqnIndexTemplate` gets applied to the index. Besides, the special handling
+    of `qquad` is removed. TL;DR: if using `equationNumberTeX`, add `eqnIndexTemplate: $$i$$` to your metadata.
+
+    Also note that the default behaviour is changed slightly, curly braces are added around the equation index. This shouldn't affect the rendered result, but if you need to restore the old behaviour, set `eqnInlineTemplate` as follows:
+
+    ```yaml
+    eqnInlineTemplate: $$e$$$$equationNumberTeX$$ $$i$$
+    ```
+
+-   Bump minimal pandoc version to 2.18
+
+    Pandoc 2.18 changed some formatting, so tests are only compatible with
+    pandoc 2.18, hence the version bump. In a pinch, you can build with older
+    pandoc by using cabal's/stack's `--allow-newer` flag.
+
+### Genreal Maintenance
+
+-   Vendor (modified) roman-numerals library
+-   Update tests for pandoc 5f0bfd41 (hseg, PR 348)
+-   Complete purge of pandoc-citeproc references (gesh, PR #302)
+
 ## 0.3.12.2
 
 -   Make section numbering more consistent with pandoc
