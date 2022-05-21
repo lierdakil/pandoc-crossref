@@ -37,7 +37,7 @@ jobs:
     - name: install ncurses-static
       if: runner.os == 'Linux'
       run: apk add --update --no-cache ncurses-static
-    - name: Cabal confugure
+    - name: Cabal configure
       run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --constraint zip-archive'>='0.4.2.1 --enable-tests ${{matrix.extra-options}}
     - uses: actions/cache@v2
       with:
