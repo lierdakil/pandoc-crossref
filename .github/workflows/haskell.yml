@@ -11,7 +11,7 @@ jobs:
         ghcver: ['9.0.2']
         include:
         - os: ubuntu-latest
-          container: 'lierdakil/alpine-haskell:8.10.7-pwsh'
+          container: 'lierdakil/alpine-haskell:9.0.2-pwsh'
           extra-options: '--constraint "cryptonite -integer-gmp"'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
