@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5eb091301988afbd20489393babdd30cbc2d8719e1e25699f0b3c3d13d22aa75
+-- hash: 1fdce9021eba43c7280cdcb2bbde3344894c7f5cc71564dddd74d5dab82ea55a
 
 name:           pandoc-crossref
 version:        0.3.13.0
@@ -120,7 +120,7 @@ library
     , pandoc >=2.18 && <2.20
     , pandoc-crossref-internal
     , pandoc-types >=1.22.2 && <1.23
-    , text >=2.0.1 && <2.1
+    , text >=1.2.2 && <2.1
   default-language: Haskell2010
 
 library pandoc-crossref-internal
@@ -157,7 +157,7 @@ library pandoc-crossref-internal
     , pandoc-types >=1.22.2 && <1.23
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
-    , text >=2.0.1 && <2.1
+    , text >=1.2.2 && <2.1
     , utility-ht >=0.0.11 && <0.1.0
   default-language: Haskell2010
 
@@ -179,7 +179,7 @@ executable pandoc-crossref
     , pandoc-types >=1.22.2 && <1.23
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , temporary >=1.2 && <1.4
-    , text >=2.0.1 && <2.1
+    , text >=1.2.2 && <2.1
   default-language: Haskell2010
 
 test-suite test-integrative
@@ -196,7 +196,7 @@ test-suite test-integrative
     , pandoc >=2.18 && <2.20
     , pandoc-crossref
     , pandoc-types >=1.22.2 && <1.23
-    , text >=2.0.1 && <2.1
+    , text >=1.2.2 && <2.1
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
   default-language: Haskell2010
@@ -223,7 +223,7 @@ test-suite test-pandoc-crossref
     , pandoc-crossref
     , pandoc-crossref-internal
     , pandoc-types >=1.22.2 && <1.23
-    , text >=2.0.1 && <2.1
+    , text >=1.2.2 && <2.1
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
   default-language: Haskell2010
@@ -242,5 +242,5 @@ benchmark simple
     , pandoc >=2.18 && <2.20
     , pandoc-crossref
     , pandoc-types >=1.22.2 && <1.23
-    , text >=2.0.1 && <2.1
+    , text >=1.2.2 && <2.1
   default-language: Haskell2010
