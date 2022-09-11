@@ -4,7 +4,7 @@ cabal-version: 2.0
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 284171f1ac9b309f9076827741d8057c87cc91d18ea79b096192c8f9345ae485
+-- hash: 5eb091301988afbd20489393babdd30cbc2d8719e1e25699f0b3c3d13d22aa75
 
 name:           pandoc-crossref
 version:        0.3.13.0
@@ -38,6 +38,9 @@ data-files:
     test/m2m/eqnBlockTemplate/expect.md
     test/m2m/eqnBlockTemplate/expect.tex
     test/m2m/eqnBlockTemplate/input.md
+    test/m2m/eqnInlineTemplate/expect.md
+    test/m2m/eqnInlineTemplate/expect.tex
+    test/m2m/eqnInlineTemplate/input.md
     test/m2m/equationNumberLaTeX/expect.md
     test/m2m/equationNumberLaTeX/expect.tex
     test/m2m/equationNumberLaTeX/input.md
@@ -113,11 +116,11 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.11 && <5
-    , mtl >=1.1 && <2.3
-    , pandoc ==2.18.*
+    , mtl >=1.1 && <2.4
+    , pandoc >=2.18 && <2.20
     , pandoc-crossref-internal
     , pandoc-types >=1.22.2 && <1.23
-    , text >=1.2.2 && <1.3
+    , text >=2.0.1 && <2.1
   default-language: Haskell2010
 
 library pandoc-crossref-internal
@@ -150,11 +153,11 @@ library pandoc-crossref-internal
     , microlens-mtl >=0.2.0.1 && <0.3.0.0
     , microlens-th >=0.4.3.10 && <0.5.0.0
     , mtl >=1.1 && <2.3
-    , pandoc ==2.18.*
+    , pandoc >=2.18 && <2.20
     , pandoc-types >=1.22.2 && <1.23
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
-    , text >=1.2.2 && <1.3
+    , text >=2.0.1 && <2.1
     , utility-ht >=0.0.11 && <0.1.0
   default-language: Haskell2010
 
@@ -170,13 +173,13 @@ executable pandoc-crossref
     , deepseq ==1.4.*
     , gitrev >=1.3.1 && <1.4
     , open-browser ==0.2.*
-    , optparse-applicative >=0.13 && <0.17
-    , pandoc ==2.18.*
+    , optparse-applicative >=0.13 && <0.18
+    , pandoc >=2.18 && <2.20
     , pandoc-crossref
     , pandoc-types >=1.22.2 && <1.23
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , temporary >=1.2 && <1.4
-    , text >=1.2.2 && <1.3
+    , text >=2.0.1 && <2.1
   default-language: Haskell2010
 
 test-suite test-integrative
@@ -190,10 +193,10 @@ test-suite test-integrative
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
-    , pandoc ==2.18.*
+    , pandoc >=2.18 && <2.20
     , pandoc-crossref
     , pandoc-types >=1.22.2 && <1.23
-    , text >=1.2.2 && <1.3
+    , text >=2.0.1 && <2.1
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
   default-language: Haskell2010
@@ -216,11 +219,11 @@ test-suite test-pandoc-crossref
     , hspec >=2.4.4 && <3
     , microlens >=0.4.12.0 && <0.5.0.0
     , mtl >=1.1 && <2.3
-    , pandoc ==2.18.*
+    , pandoc >=2.18 && <2.20
     , pandoc-crossref
     , pandoc-crossref-internal
     , pandoc-types >=1.22.2 && <1.23
-    , text >=1.2.2 && <1.3
+    , text >=2.0.1 && <2.1
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
   default-language: Haskell2010
@@ -235,9 +238,9 @@ benchmark simple
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.11 && <5
-    , criterion >=1.5.9.0 && <1.6
-    , pandoc ==2.18.*
+    , criterion >=1.5.9.0 && <1.7
+    , pandoc >=2.18 && <2.20
     , pandoc-crossref
     , pandoc-types >=1.22.2 && <1.23
-    , text >=1.2.2 && <1.3
+    , text >=2.0.1 && <2.1
   default-language: Haskell2010
