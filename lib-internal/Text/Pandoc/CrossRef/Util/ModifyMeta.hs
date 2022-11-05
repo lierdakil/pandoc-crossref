@@ -53,12 +53,13 @@ modifyMeta opts meta
         unless (listings opts) $
           tell codelisting
         tell lolcommand
-        when (cref opts) $ do
+        when (cref opts) $ atEndPreamble $ do
           tell cleveref
           unless (listings opts) $
             tell cleverefCodelisting
         tell [ "\\makeatother" ]
       where
+        atEndPreamble = censor (\c -> "\\AtEndPreamble{%":c <> ["}"])
         subfig = [
             usepackage [] "subfig"
           , usepackage [] "caption"
@@ -108,7 +109,8 @@ modifyMeta opts meta
             , "}"
             ]
           | otherwise = ["\\newcommand*\\listoflistings{\\listof{codelisting}{" <> metaString' "lolTitle" <> "}}"]
-        cleveref = [ usepackage cleverefOpts "cleveref" ]
+        cleveref =
+          [ usepackage cleverefOpts "cleveref" ]
           <> crefname "figure" figPrefix
           <> crefname "table" tblPrefix
           <> crefname "equation" eqnPrefix
