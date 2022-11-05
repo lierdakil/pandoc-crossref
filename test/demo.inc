@@ -963,32 +963,105 @@
       2
       ( "list-of-figures" , [] , [] )
       [ Str "List" , Space , Str "of" , Space , Str "Figures" ]
-  , OrderedList
-      ( 1 , DefaultStyle , DefaultDelim )
-      [ [ Plain [ Str "A" , Space , Str "figure" ] ]
-      , [ Plain [ Str "First" , Space , Str "figure" ] ]
-      , [ Plain [ Str "Second" , Space , Str "figure" ] ]
-      , [ Plain [ Str "Third" , Space , Str "figure" ] ]
-      , [ Plain [ Str "Subfigure" , Space , Str "a" ] ]
-      , [ Plain [ Str "Subfigure" , Space , Str "b" ] ]
-      , [ Plain [ Str "Subfigures" , Space , Str "caption" ] ]
+  , Plain
+      [ Str "1."
+      , Space
+      , Str "A"
+      , Space
+      , Str "figure"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "2."
+      , Space
+      , Str "First"
+      , Space
+      , Str "figure"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "3."
+      , Space
+      , Str "Second"
+      , Space
+      , Str "figure"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "4."
+      , Space
+      , Str "Third"
+      , Space
+      , Str "figure"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "5."
+      , Space
+      , Str "Subfigures"
+      , Space
+      , Str "caption"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "5"
+      , Space
+      , Str "(a)."
+      , Space
+      , Str "Subfigure"
+      , Space
+      , Str "a"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "5"
+      , Space
+      , Str "(b)."
+      , Space
+      , Str "Subfigure"
+      , Space
+      , Str "b"
+      , LineBreak
       ]
   , Header
       2
       ( "list-of-tables" , [] , [] )
       [ Str "List" , Space , Str "of" , Space , Str "Tables" ]
-  , OrderedList
-      ( 1 , DefaultStyle , DefaultDelim )
-      [ [ Plain [ Str "Table" , Space , Str "example" ] ] ]
+  , Plain
+      [ Str "1."
+      , Space
+      , Str "Table"
+      , Space
+      , Str "example"
+      , LineBreak
+      ]
   , Header
-      1
-      ( "" , [] , [] )
+      2
+      ( "list-of-listings" , [] , [] )
       [ Str "List" , Space , Str "of" , Space , Str "Listings" ]
-  , OrderedList
-      ( 1 , DefaultStyle , DefaultDelim )
-      [ [ Plain [ Str "Listing" , Space , Str "caption" ] ]
-      , [ Plain [ Str "Listing" , Space , Str "caption" ] ]
-      , [ Plain [ Str "Listing" , Space , Str "caption" ] ]
+  , Plain
+      [ Str "1."
+      , Space
+      , Str "Listing"
+      , Space
+      , Str "caption"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "2."
+      , Space
+      , Str "Listing"
+      , Space
+      , Str "caption"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "3."
+      , Space
+      , Str "Listing"
+      , Space
+      , Str "caption"
+      , LineBreak
       ]
   , Header
       1

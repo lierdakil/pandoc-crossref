@@ -18,10 +18,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards #-}
 module Text.Pandoc.CrossRef.References.List (listOf) where
 
-import Control.Arrow
 import Data.List
 import qualified Data.Map as M
 import qualified Data.Text as T
@@ -31,32 +30,54 @@ import Lens.Micro.Mtl
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Template
 
 listOf :: Options -> [Block] -> WS [Block]
 listOf Options{outFormat=f} x | isLatexFormat f = return x
 listOf opts (RawBlock fmt "\\listoffigures":xs)
   | isLaTeXRawBlockFmt fmt
-  = use imgRefs >>= makeList opts lofTitle xs
+  = use imgRefs >>= makeList "fig" opts lofItemTemplate lofTitle xs
 listOf opts (RawBlock fmt "\\listoftables":xs)
   | isLaTeXRawBlockFmt fmt
-  = use tblRefs >>= makeList opts lotTitle xs
+  = use tblRefs >>= makeList "tbl" opts lotItemTemplate lotTitle xs
 listOf opts (RawBlock fmt "\\listoflistings":xs)
   | isLaTeXRawBlockFmt fmt
-  = use lstRefs >>= makeList opts lolTitle xs
+  = use lstRefs >>= makeList "lst" opts lolItemTemplate lolTitle xs
 listOf _ x = return x
 
-makeList :: Options -> (Options -> [Block]) -> [Block] -> M.Map T.Text RefRec -> WS [Block]
-makeList opts titlef xs refs
-  = return $
-      titlef opts ++
-      (if chaptersDepth opts > 0
-        then Div ("", ["list"], []) (itemChap `map` refsSorted)
-        else OrderedList style (item `map` refsSorted))
-      : xs
+makeList
+  :: T.Text
+  -> Options
+  -> (Options
+  -> BlockTemplate)
+  -> (Options
+  -> [Block])
+  -> [Block]
+  -> M.Map T.Text RefRec
+  -> WS [Block]
+makeList pfx o tf titlef xs refs = pure $ titlef o <> concatMap (itemChap . snd) refsSorted <> xs
   where
     refsSorted = sortBy compare' $ M.toList refs
-    compare' (_,RefRec{refIndex=i}) (_,RefRec{refIndex=j}) = compare i j
-    item = (:[]) . Plain . refTitle . snd
-    itemChap = Para . uncurry ((. (Space :)) . (++)) . (numWithChap . refIndex &&& refTitle) . snd
-    numWithChap = chapPrefix (chapDelim opts)
-    style = (1,DefaultStyle,DefaultDelim)
+    compare'
+      (_,RefRec{refIndex=i, refSubfigure=si})
+      (_,RefRec{refIndex=j, refSubfigure=sj})
+      = compare (i, si) (j, sj)
+    itemChap :: RefRec -> [Block]
+    itemChap ref@RefRec{..} = applyTemplate (numWithChap ref) refTitle (tf o)
+    numWithChap :: RefRec -> [Inline]
+    numWithChap RefRec{..} = case refSubfigure of
+      Nothing ->
+        let vars = M.fromDistinctAscList
+              [ ("i", chapPrefix (chapDelim o) refIndex)
+              , ("suf", mempty)
+              , ("t", refTitle)
+              ]
+        in applyTemplate' vars $ refIndexTemplate o pfx
+      Just s ->
+        let vars = M.fromDistinctAscList
+              [ ("i", chapPrefix (chapDelim o) refIndex)
+              , ("s", chapPrefix (chapDelim o) s)
+              , ("suf", mempty)
+              , ("t", refTitle)
+              ]
+        in applyTemplate' vars $ subfigureRefIndexTemplate o

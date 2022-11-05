@@ -964,63 +964,105 @@
       2
       ( "list-of-figures" , [] , [] )
       [ Str "List" , Space , Str "of" , Space , Str "Figures" ]
-  , Div
-      ( "" , [ "list" ] , [] )
-      [ Para [ Str "1" , Space , Str "A" , Space , Str "figure" ]
-      , Para
-          [ Str "1.1" , Space , Str "First" , Space , Str "figure" ]
-      , Para
-          [ Str "1.2" , Space , Str "Second" , Space , Str "figure" ]
-      , Para
-          [ Str "1.3" , Space , Str "Third" , Space , Str "figure" ]
-      , Para
-          [ Str "1.4" , Space , Str "Subfigure" , Space , Str "a" ]
-      , Para
-          [ Str "1.4" , Space , Str "Subfigure" , Space , Str "b" ]
-      , Para
-          [ Str "1.4"
-          , Space
-          , Str "Subfigures"
-          , Space
-          , Str "caption"
-          ]
+  , Plain
+      [ Str "1."
+      , Space
+      , Str "A"
+      , Space
+      , Str "figure"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "1.1."
+      , Space
+      , Str "First"
+      , Space
+      , Str "figure"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "1.2."
+      , Space
+      , Str "Second"
+      , Space
+      , Str "figure"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "1.3."
+      , Space
+      , Str "Third"
+      , Space
+      , Str "figure"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "1.4."
+      , Space
+      , Str "Subfigures"
+      , Space
+      , Str "caption"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "1.4"
+      , Space
+      , Str "(a)."
+      , Space
+      , Str "Subfigure"
+      , Space
+      , Str "a"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "1.4"
+      , Space
+      , Str "(b)."
+      , Space
+      , Str "Subfigure"
+      , Space
+      , Str "b"
+      , LineBreak
       ]
   , Header
       2
       ( "list-of-tables" , [] , [] )
       [ Str "List" , Space , Str "of" , Space , Str "Tables" ]
-  , Div
-      ( "" , [ "list" ] , [] )
-      [ Para
-          [ Str "3.1" , Space , Str "Table" , Space , Str "example" ]
+  , Plain
+      [ Str "3.1."
+      , Space
+      , Str "Table"
+      , Space
+      , Str "example"
+      , LineBreak
       ]
   , Header
-      1
-      ( "" , [] , [] )
+      2
+      ( "list-of-listings" , [] , [] )
       [ Str "List" , Space , Str "of" , Space , Str "Listings" ]
-  , Div
-      ( "" , [ "list" ] , [] )
-      [ Para
-          [ Str "4.1"
-          , Space
-          , Str "Listing"
-          , Space
-          , Str "caption"
-          ]
-      , Para
-          [ Str "4.2"
-          , Space
-          , Str "Listing"
-          , Space
-          , Str "caption"
-          ]
-      , Para
-          [ Str "4.3"
-          , Space
-          , Str "Listing"
-          , Space
-          , Str "caption"
-          ]
+  , Plain
+      [ Str "4.1."
+      , Space
+      , Str "Listing"
+      , Space
+      , Str "caption"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "4.2."
+      , Space
+      , Str "Listing"
+      , Space
+      , Str "caption"
+      , LineBreak
+      ]
+  , Plain
+      [ Str "4.3."
+      , Space
+      , Str "Listing"
+      , Space
+      , Str "caption"
+      , LineBreak
       ]
   , Header
       1

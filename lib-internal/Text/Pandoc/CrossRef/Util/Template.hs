@@ -85,6 +85,6 @@ makeIndexedTemplate name meta subname =
 internalVars :: M.Map T.Text [Inline] -> T.Text -> Maybe MetaValue
 internalVars vars x = MetaInlines <$> M.lookup x vars
 
-applyTemplate :: MkTemplate a b =>[Inline] -> [Inline] -> b -> [a]
+applyTemplate :: MkTemplate a b => [Inline] -> [Inline] -> b -> [a]
 applyTemplate i t =
   applyTemplate' (M.fromDistinctAscList [("i", i), ("t", t)])

@@ -40,6 +40,9 @@ data Options = Options { cref :: Bool
                        , tblPrefixTemplate :: Template
                        , lstPrefixTemplate :: Template
                        , secPrefixTemplate :: Template
+                       , lofItemTemplate :: BlockTemplate
+                       , lotItemTemplate :: BlockTemplate
+                       , lolItemTemplate :: BlockTemplate
                        , eqnBlockTemplate :: BlockTemplate
                        , eqnBlockInlineMath :: Bool
                        , eqnIndexTemplate :: Template

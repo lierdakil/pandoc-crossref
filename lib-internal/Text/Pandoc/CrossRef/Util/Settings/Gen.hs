@@ -44,6 +44,10 @@ concat <$> mapM (makeAcc . mkName)
   , "lstLabels"
   , "secLabels"
   , "secHeaderDelim"
+  , "listItemTitleDelim"
+  , "lofItemTitle"
+  , "lotItemTitle"
+  , "lolItemTitle"
   ]
 
 getOptions :: Meta -> Maybe Format -> Options
