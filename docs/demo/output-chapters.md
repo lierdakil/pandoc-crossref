@@ -24,8 +24,7 @@ sec. AppA.CustLab
 
 Subfigures are supported, see figs. 1.4, 1.4 (b)
 
-Chapter 1. Figures {#sec:sec1}
-==================
+# Chapter 1. Figures {#sec:sec1}
 
 ![Figure \# 1.1: First figure](img1.jpg){#fig:figure1}
 
@@ -43,18 +42,16 @@ Chapter 1. Figures {#sec:sec1}
 Figure \# 1.4: Subfigures caption. a --- Subfigure a, b --- Subfigure b
 :::
 
-Chapter 2. Equations {#sec:sec2}
-====================
+# Chapter 2. Equations {#sec:sec2}
 
 Display equations are labelled and numbered
 
-[$$ P_i(x) = \sum_i a_i x^i \qquad(2.1)$$]{#eq:eqn1}
+[$$ P_i(x) = \sum_i a_i x^i \qquad{(2.1)}$$]{#eq:eqn1}
 
 Since 0.1.6.0 those can also appear in the middle of paragraph
-[$$a x^2 + b x^2 + c = 0\qquad(2.2)$$]{#eq:quadr} like this.
+[$$a x^2 + b x^2 + c = 0\qquad{(2.2)}$$]{#eq:quadr} like this.
 
-Chapter 3. Tables {#sec:chapter-3.-tables}
-=================
+# Chapter 3. Tables {#sec:chapter-3.-tables}
 
 ::: {#tbl:table1}
   First Header   Second Header
@@ -72,14 +69,12 @@ Table without caption:
   Content Cell   Content Cell
   Content Cell   Content Cell
 
-Chapter 4. Code blocks {#sec:chapter-4.-code-blocks}
-======================
+# Chapter 4. Code blocks {#sec:chapter-4.-code-blocks}
 
 There are a couple options for code block labels. Those work only if
-code block id starts with `lst:`, e.g. `{#lst:label}`
+code block id starts with `lst:`, e.g. `{#lst:label}`
 
-`caption` attribute {#sec:caption-attr}
--------------------
+## `caption` attribute {#sec:caption-attr}
 
 `caption` attribute will be treated as code block caption. If code block
 has both id and `caption` attributes, it will be treated as numbered
@@ -88,15 +83,16 @@ code block.
 ::: {#lst:captionAttr .listing .haskell}
 Listing 4.1: Listing caption
 
-``` {.haskell}
+``` haskell
 main :: IO ()
 main = putStrLn "Hello World!"
 ```
 :::
 
+```{=tex}
 \pagebreak
-Table-style captions {#sec:table-capts}
---------------------
+```
+## Table-style captions {#sec:table-capts}
 
 Enabled with `codeBlockCaptions` metadata option. If code block is
 immediately adjacent to paragraph, starting with `Listing:` or `:`, said
@@ -105,14 +101,13 @@ paragraph will be treated as code block caption.
 ::: {#lst:tableCaption .listing .haskell}
 Listing 4.2: Listing caption
 
-``` {.haskell}
+``` haskell
 main :: IO ()
 main = putStrLn "Hello World!"
 ```
 :::
 
-Wrapping div {#sec:wrapping-div}
-------------
+## Wrapping div {#sec:wrapping-div}
 
 Wrapping code block without label in a div with id `lst:...` and class,
 starting with `listing`, and adding paragraph before code block, but
@@ -121,63 +116,50 @@ inside div, will treat said paragraph as code block caption.
 ::: {#lst:wrappingDiv .listing .haskell}
 Listing 4.3: Listing caption
 
-``` {.haskell}
+``` haskell
 main :: IO ()
 main = putStrLn "Hello World!"
 ```
 :::
 
-Unnumbered chapter. {#sec:unnumbered-chapter. .unnumbered}
-===================
+# Unnumbered chapter. {#sec:unnumbered-chapter. .unnumbered}
 
 This chapter doesn't change chapter prefix of referenced elements,
 instead keeping number of previous chapter, e.g.
-[$$ S(x) = \int_{x_1}^{x_2} a x+b \  \mathrm{d}x \qquad(4.1)$$]{#eq:eqn2}
+[$$ S(x) = \int_{x_1}^{x_2} a x+b \  \mathrm{d}x \qquad{(4.1)}$$]{#eq:eqn2}
 
-Chapter 5. Reference lists {#sec:chapter-5.-reference-lists}
-==========================
+# Chapter 5. Reference lists {#sec:chapter-5.-reference-lists}
 
 It's also possible to show lists of figures and tables, like this:
 
-List of Figures {#list-of-figures}
----------------
+## List of Figures {#list-of-figures}
 
-::: {.list}
-1 A figure
+1\. A figure\
 
-1.1 First figure
+1.1. First figure\
 
-1.2 Second figure
+1.2. Second figure\
 
-1.3 Third figure
+1.3. Third figure\
 
-1.4 Subfigure a
+1.4. Subfigures caption\
 
-1.4 Subfigure b
+1.4 (a). Subfigure a\
 
-1.4 Subfigures caption
-:::
+1.4 (b). Subfigure b\
 
-List of Tables {#list-of-tables}
---------------
+## List of Tables {#list-of-tables}
 
-::: {.list}
-3.1 Table example
-:::
+3.1. Table example\
 
-List of Listings
-================
+## List of Listings {#list-of-listings}
 
-::: {.list}
-4.1 Listing caption
+4.1. Listing caption\
 
-4.2 Listing caption
+4.2. Listing caption\
 
-4.3 Listing caption
-:::
+4.3. Listing caption\
 
-Appendix A. Custom labels {#sec:appendix-a.-custom-labels label="AppA"}
-=========================
+# Appendix A. Custom labels {#sec:appendix-a.-custom-labels label="AppA"}
 
-This section will have custom label {#sec:custlabs label="CustLab"}
------------------------------------
+## This section will have custom label {#sec:custlabs label="CustLab"}

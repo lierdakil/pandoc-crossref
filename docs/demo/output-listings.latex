@@ -7,13 +7,13 @@ and sections
 
 For immediate example, see fig.~\ref{fig:figure0}
 
-\hypertarget{fig:figure0}{%
 \begin{figure}
+\hypertarget{fig:figure0}{%
 \centering
 \includegraphics{img1.jpg}
 \caption{A figure}\label{fig:figure0}
-\end{figure}
 }
+\end{figure}
 
 There is also support for code blocks, for example,
 lsts.~\ref{lst:captionAttr}, \ref{lst:tableCaption}, \ref{lst:wrappingDiv}
@@ -42,29 +42,29 @@ figs.~\ref{fig:subfigures}, \ref{fig:subfigureB}
 \hypertarget{sec:sec1}{%
 \section{Chapter 1. Figures}\label{sec:sec1}}
 
-\hypertarget{fig:figure1}{%
 \begin{figure}
+\hypertarget{fig:figure1}{%
 \centering
 \includegraphics{img1.jpg}
 \caption{First figure}\label{fig:figure1}
-\end{figure}
 }
+\end{figure}
 
-\hypertarget{fig:figure2}{%
 \begin{figure}
+\hypertarget{fig:figure2}{%
 \centering
 \includegraphics{img2.jpg}
 \caption{Second figure}\label{fig:figure2}
-\end{figure}
 }
+\end{figure}
 
-\hypertarget{fig:figure3}{%
 \begin{figure}
+\hypertarget{fig:figure3}{%
 \centering
 \includegraphics{img3.jpg}
 \caption{Third figure}\label{fig:figure3}
-\end{figure}
 }
+\end{figure}
 
 \begin{figure}
 \centering
@@ -72,29 +72,28 @@ figs.~\ref{fig:subfigures}, \ref{fig:subfigureB}
 \caption{Unlabelled image}
 \end{figure}
 
-\begin{figure}
-\centering
+\begin{pandoccrossrefsubfigures}
 
 \subfloat[Subfigure a]{\includegraphics{img1.jpg}}
 
 \subfloat[Subfigure b]{\includegraphics{img1.jpg}\label{fig:subfigureB}}
 
-\caption{Subfigures caption}
+\caption[{Subfigures caption}]{Subfigures caption}
 
 \label{fig:subfigures}
 
-\end{figure}
+\end{pandoccrossrefsubfigures}
 
 \hypertarget{sec:sec2}{%
 \section{Chapter 2. Equations}\label{sec:sec2}}
 
 Display equations are labelled and numbered
 
-\begin{equation} P_i(x) = \sum_i a_i x^i \label{eq:eqn1}\end{equation}
+\begin{equation}\protect\hypertarget{eq:eqn1}{}{ P_i(x) = \sum_i a_i x^i }\label{eq:eqn1}\end{equation}
 
 Since 0.1.6.0 those can also appear in the middle of paragraph
-\begin{equation}a x^2 + b x^2 + c = 0\label{eq:quadr}\end{equation} like
-this.
+\begin{equation}\protect\hypertarget{eq:quadr}{}{a x^2 + b x^2 + c = 0}\label{eq:quadr}\end{equation}
+like this.
 
 \hypertarget{sec:chapter-3.-tables}{%
 \section{Chapter 3. Tables}\label{sec:chapter-3.-tables}}
@@ -102,37 +101,37 @@ this.
 \hypertarget{tbl:table1}{}
 \begin{longtable}[]{@{}ll@{}}
 \caption{\label{tbl:table1}Table example}\tabularnewline
-\toprule
-First Header & Second Header\tabularnewline
-\midrule
+\toprule()
+First Header & Second Header \\
+\midrule()
 \endfirsthead
-\toprule
-First Header & Second Header\tabularnewline
-\midrule
+\toprule()
+First Header & Second Header \\
+\midrule()
 \endhead
-Content Cell & Content Cell\tabularnewline
-Content Cell & Content Cell\tabularnewline
-\bottomrule
+Content Cell & Content Cell \\
+Content Cell & Content Cell \\
+\bottomrule()
 \end{longtable}
 
 Table without caption:
 
 \begin{longtable}[]{@{}ll@{}}
-\toprule
-First Header & Second Header\tabularnewline
-\midrule
+\toprule()
+First Header & Second Header \\
+\midrule()
 \endhead
-Content Cell & Content Cell\tabularnewline
-Content Cell & Content Cell\tabularnewline
-\bottomrule
+Content Cell & Content Cell \\
+Content Cell & Content Cell \\
+\bottomrule()
 \end{longtable}
 
 \hypertarget{sec:chapter-4.-code-blocks}{%
 \section{Chapter 4. Code blocks}\label{sec:chapter-4.-code-blocks}}
 
 There are a couple options for code block labels. Those work only if
-code block id starts with \passthrough{\lstinline!lst:!}, e.g.
-\passthrough{\lstinline!\{#lst:label\}!}
+code block id starts with \passthrough{\lstinline!lst:!},
+e.g.~\passthrough{\lstinline!\{\#lst:label\}!}
 
 \hypertarget{sec:caption-attr}{%
 \subsection{\texorpdfstring{\texttt{caption}
@@ -182,7 +181,7 @@ main = putStrLn "Hello World!"
 
 This chapter doesn't change chapter prefix of referenced elements,
 instead keeping number of previous chapter, e.g.
-\begin{equation} S(x) = \int_{x_1}^{x_2} a x+b \  \mathrm{d}x \label{eq:eqn2}\end{equation}
+\begin{equation}\protect\hypertarget{eq:eqn2}{}{ S(x) = \int_{x_1}^{x_2} a x+b \  \mathrm{d}x }\label{eq:eqn2}\end{equation}
 
 \hypertarget{sec:chapter-5.-reference-lists}{%
 \section{Chapter 5. Reference

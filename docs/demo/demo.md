@@ -6,6 +6,8 @@ lofTitle: |
   ## List of Figures
 lotTitle: |
   ## List of Tables
+lolTitle: |
+  ## List of Listings
 tableTemplate: |
   *$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$
 autoSectionLabels: True
