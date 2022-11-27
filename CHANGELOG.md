@@ -1,3 +1,31 @@
+## 0.3.14.0
+
+### Main changes
+
+-   Add list-of-x item templates
+
+    New template variables, `lofItemTemplate`, `lotItemTemplate`,
+    `lolItemTemplate`, allowing to specify formatting for elements in lists-of
+    items.
+
+    Default values for templates also use variables `lofItemTitle`,
+    `lotItemTitle`, `lolItemTitle`, `listItemTitleDelim`.
+
+    Historically, list-of-x lists were formatted using markdown ordered lists when not using `chapters: true`. However, this is not enabled by default any more. You can restore the old behaviour by specifying the template using ordered list explicitly, e.g.
+
+    ```yaml
+    lofItemTemplate: |
+        1. $$t$$
+    ```
+
+    Note that custom numbering (including chapter numbers) will be ignored by ordered lists, so it only works well for the simplest numbering schemes.
+
+    Bullet lists are also now supported.
+
+-   Fix cleveref latex preamble
+
+    Cleveref now complains if it's loaded before hyperref, hence loading cleveref was wrapped into `AtEndPreamble`.
+
 ## 0.3.13.0
 
 ### Main changes
