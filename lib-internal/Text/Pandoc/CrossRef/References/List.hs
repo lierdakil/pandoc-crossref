@@ -25,6 +25,7 @@ import Data.List
 import qualified Data.Map as M
 import qualified Data.Text as T
 import Text.Pandoc.Definition
+import Data.Maybe
 
 import Lens.Micro.Mtl
 import Text.Pandoc.CrossRef.References.Types
@@ -55,8 +56,23 @@ makeList
   -> [Block]
   -> M.Map T.Text RefRec
   -> WS [Block]
-makeList pfx o tf titlef xs refs = pure $ titlef o <> concatMap (itemChap . snd) refsSorted <> xs
+makeList pfx o tf titlef xs refs =
+  pure $ titlef o <> (Div ("", ["list", "list-of-" <> pfx], []) items : xs)
   where
+    items = fromMaybe items'$ pure <$> mergeList Nothing [] items'
+    items' = concatMap (itemChap . snd) refsSorted
+    mergeList Nothing acc (OrderedList style item : ys) =
+      mergeList (Just $ OrderedList style) (item <> acc) ys
+    mergeList Nothing acc (BulletList item : ys) =
+      mergeList (Just BulletList) (item <> acc) ys
+    mergeList (Just cons) acc (OrderedList style item : ys)
+      | cons [] == OrderedList style [] =
+      mergeList (Just $ OrderedList style) (item <> acc) ys
+    mergeList (Just cons) acc (BulletList item : ys)
+      | cons [] == BulletList[] =
+      mergeList (Just BulletList) (item <> acc) ys
+    mergeList (Just cons) acc [] = Just $ cons $ reverse acc
+    mergeList _ _ _ = Nothing
     refsSorted = sortBy compare' $ M.toList refs
     compare'
       (_,RefRec{refIndex=i, refSubfigure=si})

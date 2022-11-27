@@ -73,6 +73,7 @@ main = putStrLn "Hello World!"
 
 # List of Figures
 
+::: {.list .list-of-fig}
 Figure 1. 1\
 
 Figure 2. 2\
@@ -90,15 +91,19 @@ Figure 7. 7\
 Figure 8. 8\
 
 Figure 9. 9\
+:::
 
 # List of Tables
 
+::: {.list .list-of-tbl}
 Title 1. My table\
 
 Title 2. Table\
+:::
 
 # List of Listings
 
+::: {.list .list-of-lst}
 Listing 1: Listing caption 1\
 
 Listing 2: Listing caption 2\
@@ -106,3 +111,4 @@ Listing 2: Listing caption 2\
 Listing 3: Listing caption 3\
 
 Listing 4: Listing caption 4\
+:::
