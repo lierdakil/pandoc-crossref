@@ -437,15 +437,15 @@ sequences are not grouped together.
 ## Lists
 
 It's possible to use raw latex commands `\listoffigures`,
-`\listoftables` and `listoflistings`, which will produce ordered list of
+`\listoftables` and `\listoflistings`, which will produce ordered list of
 figure/table/listings titles, in order of appearance in document.
 
-`\listoflistings` depends on other options, and is defined in preamble,
-so it will work reliably only with standalone/pdf output.
+For LaTeX output, `\listoflistings` depends on other options, and is defined in
+preamble, so it will work reliably only with standalone/pdf output.
 
-**NOTE:** With Pandoc 2.0.6 and up, you'll have to explicitly separate
+**NOTE:** With Pandoc 2.0.6 and up, you might have to explicitly separate
 these commands if they are close together, at least when targeting
-something besides LaTeX. So this will not work:
+something besides LaTeX. So this might not work:
 
 ``` markdown
 \listoffigures
@@ -459,11 +459,17 @@ but this will:
 
 ``` markdown
 \listoffigures
-[]: hack to split raw blocks
+
+<!-- hack to split raw blocks -->
+
 \listoftables
-[]: hack to split raw blocks
+
+<!-- hack to split raw blocks -->
+
 \listoflistings
 ```
+
+With HTML-compatible output, lists are wrapped into a `div` with classes `list` and `list-of-<prefix>`, where `<prefix>` is either `fig`, `tbl` or `lst` depending on the type of the list. This allows for ad-hoc style overrides in HTML.
 
 # Usage
 
@@ -558,6 +564,15 @@ See [Subfigures](#subfigures)
     (lot)
 -   `lolTitle`, default `# List of Listings`: Title for list of listings
     (lol)
+
+### List items
+
+See also [List item templates](#list-item-templates)
+
+-   `lofItemTitle`, default empty: Title each item in the list of figures, i.e. each item will be prefixed by this string.
+-   `lotItemTitle`, default empty: Title each item in the list of tables, i.e. each item will be prefixed by this string.
+-   `lolItemTitle`, default empty: Title each item in the list of listings, i.e. each item will be prefixed by this string.
+-   `listItemTitleDelim`, default `.` (str "."): delimiter between list item numbers and captions.
 
 ### Reference format
 
@@ -726,6 +741,34 @@ See [Templates](#templates)
     index template
 -   `subfigureRefIndexTemplate`, default `$$i$$$$suf$$ ($$s$$)` --
     subfigure reference index template
+
+### List item templates
+
+See [Templates](#templates)
+
+-   `lofItemTemplate`, default `$$lofItemTitle$$$$i$$$$listItemTitleDelim$$ $$t$$\\\n` -- list-of-figures item template
+-   `lotItemTemplate`, default `$$lotItemTitle$$$$i$$$$listItemTitleDelim$$ $$t$$\\\n`)
+-   `lolItemTemplate`, default `$$lolItemTitle$$$$i$$$$listItemTitleDelim$$ $$t$$\\\n`)
+
+Special handling is enabled for templates that are either ordered or bullet lists: items will be merged into a single list. Thus, for example, given
+
+```yaml
+lofItemTemplate: |
+  1. $$t$$
+```
+
+the list of figures will be formatted as
+
+```markdown
+# List of Figures
+
+::: {.list .list-of-fig}
+1.  Figure 1 caption
+2.  Figure 2 caption
+3.  Figure 3 caption
+4.  ...
+:::
+```
 
 ### LaTeX customization
 
