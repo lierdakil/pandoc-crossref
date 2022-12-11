@@ -134,6 +134,7 @@ It's also possible to show lists of figures and tables, like this:
 
 ## List of Figures {#list-of-figures}
 
+::: {.list .list-of-fig}
 1\. A figure\
 
 1.1. First figure\
@@ -147,18 +148,23 @@ It's also possible to show lists of figures and tables, like this:
 1.4 (a). Subfigure a\
 
 1.4 (b). Subfigure b\
+:::
 
 ## List of Tables {#list-of-tables}
 
+::: {.list .list-of-tbl}
 3.1. Table example\
+:::
 
 ## List of Listings {#list-of-listings}
 
+::: {.list .list-of-lst}
 4.1. Listing caption\
 
 4.2. Listing caption\
 
 4.3. Listing caption\
+:::
 
 # Appendix A. Custom labels {#sec:appendix-a.-custom-labels label="AppA"}
 
