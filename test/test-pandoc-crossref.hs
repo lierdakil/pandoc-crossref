@@ -236,12 +236,12 @@ main = hspec $ do
       it "Generates list of tables" $
         testList (rawBlock "latex" "\\listoftables")
                  (tblRefs =: M.fromList $ refRec' "tbl:1" 4 "4" <> refRec' "tbl:2" 5 "5" <> refRec' "tbl:3" 6 "6")
-                 (header 1 (text "List of Tables") <>
+                 (header 1 (text "List of Tables") <> divWith ("", ["list", "list-of-tbl"], [])
                    (mconcat $ map (\n -> plain (str (T.pack $ show n <> ".") <> space <> str (T.pack $ show n) <> linebreak)) [4..6 :: Int]))
       it "Generates list of figures" $
         testList (rawBlock "latex" "\\listoffigures")
                  (imgRefs =: M.fromList $ refRec' "fig:1" 4 "4" <> refRec' "fig:2" 5 "5" <> refRec' "fig:3" 6 "6")
-                 (header 1 (text "List of Figures") <>
+                 (header 1 (text "List of Figures") <> divWith ("", ["list", "list-of-fig"], [])
                    (mconcat $ map (\n -> plain (str (T.pack $ show n <> ".") <> space <> str (T.pack $ show n) <> linebreak)) [4..6 :: Int]))
 
     describe "Util.CodeBlockCaptions" $
