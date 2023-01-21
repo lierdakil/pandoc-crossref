@@ -68,7 +68,7 @@ jobs:
     - name: Make manpage
       if: runner.os == 'Linux'
       run: |
-        cabal v2-install --installdir="$HOME" pandoc
+        cabal v2-install --installdir="$HOME" pandoc-cli
         "$HOME/pandoc" -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}/pandoc-crossref.1
     - name: Get Version
       shell: bash
