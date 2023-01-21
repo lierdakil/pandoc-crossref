@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        pandocver: ["2.19.2"]
+        pandocver: ["3.0"]
         ghcver: ['9.0.2']
         include:
         - os: ubuntu-latest
@@ -214,7 +214,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["2.19.2"]
+        pandocver: ["3.0"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
