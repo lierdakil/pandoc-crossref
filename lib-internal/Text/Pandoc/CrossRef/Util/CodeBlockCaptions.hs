@@ -27,7 +27,7 @@ module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
-import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.Definition

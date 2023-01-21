@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE TemplateHaskell #-}
 module Text.Pandoc.CrossRef.References.Types where
 
-import Control.Monad.State
 import Data.Default
 import qualified Data.Map as M
 import Data.Text (Text)
@@ -45,9 +44,6 @@ data References = References { _imgRefs :: RefMap
                              , _secRefs :: RefMap
                              , _curChap :: Index
                              } deriving (Show, Eq)
-
---state monad
-type WS a = State References a
 
 instance Default References where
   def = References n n n n n []

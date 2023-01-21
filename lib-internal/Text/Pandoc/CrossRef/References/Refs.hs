@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Control.Arrow as A
-import Control.Monad.State hiding (get, modify)
+import Control.Monad.Reader
 import Data.Function
 import Data.List
 import qualified Data.List.HT as HT
@@ -35,20 +35,23 @@ import Control.Applicative
 import Debug.Trace
 import Lens.Micro.Mtl
 import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 
-replaceRefs :: Options -> [Inline] -> WS [Inline]
-replaceRefs opts (Cite cits _:xs)
-  = toList . (<> fromList xs) . intercalate' (text ", ") . map fromList <$> mapM replaceRefs' (groupBy eqPrefix cits)
+replaceRefs :: [Inline] -> WS [Inline]
+replaceRefs (Cite cits _:xs) = do
+  opts <- ask :: WS Options
+  toList . (<> fromList xs) . intercalate' (text ", ") . map fromList <$> mapM (replaceRefs' opts) (groupBy eqPrefix cits)
   where
     eqPrefix a b = uncurry (==) $
       (fmap uncapitalizeFirst . getLabelPrefix . citationId) <***> (a,b)
     (<***>) = join (***)
-    replaceRefs' cits'
+    replaceRefs' :: Options -> [Citation] -> WS [Inline]
+    replaceRefs' opts cits'
       | Just prefix <- allCitsPrefix cits'
-      = replaceRefs'' prefix opts cits'
+      = replaceRefs'' opts prefix cits'
       | otherwise = return [Cite cits' il']
         where
           il' = toList $
@@ -58,10 +61,11 @@ replaceRefs opts (Cite cits _:xs)
           citationToInlines c =
             fromList (citationPrefix c) <> text ("@" <> citationId c)
               <> fromList (citationSuffix c)
-    replaceRefs'' = case outFormat opts of
+    replaceRefs'' :: Options -> T.Text -> [Citation] -> WS [Inline]
+    replaceRefs'' opts = ($ opts) . flip $ case outFormat opts of
                     f | isLatexFormat f -> replaceRefsLatex
-                    _                      -> replaceRefsOther
-replaceRefs _ x = return x
+                    _                   -> replaceRefsOther
+replaceRefs x = return x
 
 -- accessors to state variables
 accMap :: M.Map T.Text ((RefMap -> Const RefMap RefMap) -> References -> Const RefMap References)

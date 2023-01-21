@@ -85,6 +85,7 @@ import Control.Monad.State
 import Text.Pandoc
 
 import Text.Pandoc.CrossRef.References
+import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.ModifyMeta
 import Text.Pandoc.CrossRef.Util.Options as O
@@ -109,10 +110,10 @@ crossRefBlocks blocks = do
   let
     doWalk =
       bottomUpM (mkCodeBlockCaptions opts) blocks
-      >>= replaceAll opts
-      >>= bottomUpM (replaceRefs opts)
-      >>= bottomUpM (listOf opts)
-    (result, st) = runState doWalk def
+      >>= replaceAll
+      >>= bottomUpM replaceRefs
+      >>= bottomUpM listOf
+    (result, st) = flip runState def $ flip R.runReaderT opts $ runWS doWalk
   st `seq` return result
 
 {- | Modifies metadata for LaTeX output, adding header-includes instructions

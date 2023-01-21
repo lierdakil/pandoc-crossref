@@ -18,10 +18,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE OverloadedStrings, RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards, LambdaCase #-}
 module Text.Pandoc.CrossRef.References.List (listOf) where
 
 import Data.List
+import Control.Monad.Reader
 import qualified Data.Map as M
 import qualified Data.Text as T
 import Text.Pandoc.Definition
@@ -29,38 +30,39 @@ import Data.Maybe
 
 import Lens.Micro.Mtl
 import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Template
 
-listOf :: Options -> [Block] -> WS [Block]
-listOf Options{outFormat=f} x | isLatexFormat f = return x
-listOf opts (RawBlock fmt "\\listoffigures":xs)
-  | isLaTeXRawBlockFmt fmt
-  = use imgRefs >>= makeList "fig" opts lofItemTemplate lofTitle xs
-listOf opts (RawBlock fmt "\\listoftables":xs)
-  | isLaTeXRawBlockFmt fmt
-  = use tblRefs >>= makeList "tbl" opts lotItemTemplate lotTitle xs
-listOf opts (RawBlock fmt "\\listoflistings":xs)
-  | isLaTeXRawBlockFmt fmt
-  = use lstRefs >>= makeList "lst" opts lolItemTemplate lolTitle xs
-listOf _ x = return x
+listOf :: [Block] -> WS [Block]
+listOf blocks = asks (isLatexFormat . outFormat) >>= \case
+  True -> pure blocks
+  False -> case blocks of
+    (RawBlock fmt "\\listoffigures":xs)
+      | isLaTeXRawBlockFmt fmt
+      -> use imgRefs >>= makeList "fig" lofItemTemplate lofTitle xs
+    (RawBlock fmt "\\listoftables":xs)
+      | isLaTeXRawBlockFmt fmt
+      -> use tblRefs >>= makeList "tbl" lotItemTemplate lotTitle xs
+    (RawBlock fmt "\\listoflistings":xs)
+      | isLaTeXRawBlockFmt fmt
+      -> use lstRefs >>= makeList "lst" lolItemTemplate lolTitle xs
+    _ -> pure blocks
 
 makeList
   :: T.Text
-  -> Options
-  -> (Options
-  -> BlockTemplate)
-  -> (Options
-  -> [Block])
+  -> (Options -> BlockTemplate)
+  -> (Options -> [Block])
   -> [Block]
   -> M.Map T.Text RefRec
   -> WS [Block]
-makeList pfx o tf titlef xs refs =
-  pure $ titlef o <> (Div ("", ["list", "list-of-" <> pfx], []) items : xs)
+makeList pfx tf titlef xs refs = do
+  o <- ask
+  pure $ titlef o <> (Div ("", ["list", "list-of-" <> pfx], []) (items o) : xs)
   where
-    items = fromMaybe items'$ pure <$> mergeList Nothing [] items'
-    items' = concatMap (itemChap . snd) refsSorted
+    items o = let is = items' o in fromMaybe is $ pure <$> mergeList Nothing [] is
+    items' o = concatMap (itemChap o . snd) refsSorted
     mergeList Nothing acc (OrderedList style item : ys) =
       mergeList (Just $ OrderedList style) (item <> acc) ys
     mergeList Nothing acc (BulletList item : ys) =
@@ -78,22 +80,22 @@ makeList pfx o tf titlef xs refs =
       (_,RefRec{refIndex=i, refSubfigure=si})
       (_,RefRec{refIndex=j, refSubfigure=sj})
       = compare (i, si) (j, sj)
-    itemChap :: RefRec -> [Block]
-    itemChap ref@RefRec{..} = applyTemplate (numWithChap ref) refTitle (tf o)
-    numWithChap :: RefRec -> [Inline]
-    numWithChap RefRec{..} = case refSubfigure of
+    itemChap :: Options -> RefRec -> [Block]
+    itemChap o ref@RefRec{..} = applyTemplate (numWithChap o ref) refTitle (tf o)
+    numWithChap :: Options -> RefRec -> [Inline]
+    numWithChap Options{..} RefRec{..} = case refSubfigure of
       Nothing ->
         let vars = M.fromDistinctAscList
-              [ ("i", chapPrefix (chapDelim o) refIndex)
+              [ ("i", chapPrefix chapDelim refIndex)
               , ("suf", mempty)
               , ("t", refTitle)
               ]
-        in applyTemplate' vars $ refIndexTemplate o pfx
+        in applyTemplate' vars $ refIndexTemplate pfx
       Just s ->
         let vars = M.fromDistinctAscList
-              [ ("i", chapPrefix (chapDelim o) refIndex)
-              , ("s", chapPrefix (chapDelim o) s)
+              [ ("i", chapPrefix chapDelim refIndex)
+              , ("s", chapPrefix chapDelim s)
               , ("suf", mempty)
               , ("t", refTitle)
               ]
-        in applyTemplate' vars $ subfigureRefIndexTemplate o
+        in applyTemplate' vars subfigureRefIndexTemplate
