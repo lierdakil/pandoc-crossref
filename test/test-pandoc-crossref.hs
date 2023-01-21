@@ -21,19 +21,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, RankNTypes, ScopedTypeVariables #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
-import Text.Pandoc.Builder
+import Text.Pandoc.Builder hiding (figure)
+import qualified Text.Pandoc.Builder as B
+import Control.Monad.Reader
 import Control.Monad.State
 import Data.List
 import Control.Arrow
 import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Default as Df
+import Data.Maybe
 
 import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.References.Types
 import Lens.Micro
+import Text.Pandoc.CrossRef.References.Monad
 import qualified Text.Pandoc.CrossRef.References.Blocks as References.Blocks
 import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
 import qualified Text.Pandoc.CrossRef.References.List as References.List
@@ -85,32 +89,32 @@ main = hspec $ do
 
     describe "References.Blocks.replaceBlocks" $ do
       it "Labels images" $
-        testAll (figure "test.jpg" "" "Test figure" "figure")
-        (figure "test.jpg" "" "Figure 1: Test figure" "figure",
+        testAll (figure "test.jpg" "" "Test figure" Nothing "figure")
+        (figure "test.jpg" "" "Figure 1: Test figure" (Just "Test figure") "figure",
           imgRefs =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
       it "Labels subfigures" $
         testAll (
           divWith ("fig:subfigure",[],[]) (
-            para (figure' "fig:" "test1.jpg" "" "Test figure 1" "figure1")
-          <>para (figure' "fig:" "test2.jpg" "" "Test figure 2" "figure2")
+            para (figure' "test1.jpg" "" "Test figure 1" "figure1")
+          <>para (figure' "test2.jpg" "" "Test figure 2" "figure2")
           <>para (text "figure caption")
             ) <>
           divWith ("fig:subfigure2",[],[]) (
-            para (figure' "fig:" "test21.jpg" "" "Test figure 21" "figure21")
-          <>para (figure' "fig:" "test22.jpg" "" "Test figure 22" "figure22")
+            para (figure' "test21.jpg" "" "Test figure 21" "figure21")
+          <>para (figure' "test22.jpg" "" "Test figure 22" "figure22")
           <>para (text "figure caption 2")
             )
           )
         (
-          divWith ("fig:subfigure",["subfigures"],[]) (
-               para (figure' "fig:" "test1.jpg" "" "a" "figure1")
-            <> para (figure' "fig:" "test2.jpg" "" "b" "figure2")
-            <> para (text "Figure 1: figure caption. a — Test figure 1, b — Test figure 2")
+          figureWith ("fig:subfigure",["subfigures"],[])
+            (caption Nothing $ para (text "Figure 1: figure caption. a — Test figure 1, b — Test figure 2"))
+            ( para (figure' "test1.jpg" "" "a" "figure1")
+            <> para (figure' "test2.jpg" "" "b" "figure2")
             ) <>
-          divWith ("fig:subfigure2",["subfigures"],[]) (
-               para (figure' "fig:" "test21.jpg" "" "a" "figure21")
-            <> para (figure' "fig:" "test22.jpg" "" "b" "figure22")
-            <> para (text "Figure 2: figure caption 2. a — Test figure 21, b — Test figure 22")
+          figureWith ("fig:subfigure2",["subfigures"],[])
+            (caption Nothing $ para (text "Figure 2: figure caption 2. a — Test figure 21, b — Test figure 22"))
+            (  para (figure' "test21.jpg" "" "a" "figure21")
+            <> para (figure' "test22.jpg" "" "b" "figure22")
             )
         , imgRefs =: M.fromList [("fig:figure1",RefRec {
                                             refIndex = [(1,Nothing)],
@@ -302,7 +306,7 @@ main = hspec $ do
             `test` "\\hypertarget{sec:section_label1}{%\n\\section{Section}\\label{sec:section_label1}}\n\nsec.~\\ref{sec:section_label1}"
 
         it "Image labels" $
-          figure "img.png" "" "Title" "figure_label1"
+          figure "img.png" "" "Title" Nothing "figure_label1"
             <> para (citeGen "fig:figure_label" [1])
             `test` "\\begin{figure}\n\\hypertarget{fig:figure_label1}{%\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
 
@@ -315,7 +319,19 @@ main = hspec $ do
         it "Tbl labels" $
           table' "A table" "some_table1"
             <> para (citeGen "tbl:some_table" [1])
-            `test` "\\hypertarget{tbl:some_table1}{}\n\\begin{longtable}[]{@{}@{}}\n\\caption{\\label{tbl:some_table1}A table}\\tabularnewline\n\\toprule()\n\\endhead\n \\\\\n\\bottomrule()\n\\end{longtable}\n\ntbl.~\\ref{tbl:some_table1}"
+            `test` concat
+              [ "\\hypertarget{tbl:some_table1}{}\n"
+              , "\\begin{longtable}[]{@{}@{}}\n"
+              , "\\caption{\\label{tbl:some_table1}A table}\\tabularnewline\n"
+              , "\\toprule\\noalign{}\n"
+              , "\\endfirsthead\n"
+              , "\\endhead\n"
+              , "\\bottomrule\\noalign{}\n"
+              , "\\endlastfoot\n"
+              , " \\\\\n"
+              , "\\end{longtable}\n\n"
+              , "tbl.~\\ref{tbl:some_table1}"
+              ]
 #endif
 
         it "Code block labels" $ do
@@ -357,27 +373,34 @@ testRefs'' :: T.Text -> [Int] -> [(Int, Int)] -> Lens' References (M.Map T.Text 
 testRefs'' p l1 l2 prop res = testRefs (para $ citeGen p l1) (set prop (refGen' p l1 l2) def) (para $ text res)
 
 testAll :: (Eq a, Data a, Show a) => Many a -> (Many a, References) -> Expectation
-testAll = testState f def
-  where f = References.Blocks.replaceAll defaultOptions
+testAll = testState References.Blocks.replaceAll def
 
-testState :: (Eq s, Eq a1, Show s, Show a1, Df.Default s) =>
-               ([a] -> State s [a1]) -> s -> Many a -> (Many a1, s) -> Expectation
-testState f init' arg res = runState (f $ toList arg) init' `shouldBe` first toList res
+testState :: (Show a1, Eq a1) => ([a2] -> WS [a1]) -> References -> Many a2 -> (Many a1, References) -> Expectation
+testState f init' arg res = runWSWithOptsInit defaultOptions init' (f $ toList arg) `shouldBe` first toList res
+
+runWSWithOptsInit :: Options -> References -> WS a -> (a, References)
+runWSWithOptsInit opts st = flip runState st . flip runReaderT opts . runWS
+
+runWSWithOpts :: Options -> WS a -> (a, References)
+runWSWithOpts opts = runWSWithOptsInit opts def
 
 testRefs :: Blocks -> References -> Blocks -> Expectation
-testRefs bs st rbs = testState (bottomUpM (References.Refs.replaceRefs defaultOptions)) st bs (rbs, st)
+testRefs bs st rbs = testState (bottomUpM References.Refs.replaceRefs) st bs (rbs, st)
 
 testCBCaptions :: Blocks -> Blocks -> Expectation
-testCBCaptions bs res = runState (bottomUpM (Util.CodeBlockCaptions.mkCodeBlockCaptions defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}) (toList bs)) def `shouldBe` (toList res,def)
+testCBCaptions bs res = runWSWithOpts defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}
+  (bottomUpM (Util.CodeBlockCaptions.mkCodeBlockCaptions) (toList bs)) `shouldBe` (toList res,def)
 
 testList :: Blocks -> References -> Blocks -> Expectation
-testList bs st res = runState (bottomUpM (References.List.listOf defaultOptions) (toList bs)) st `shouldBe` (toList res,st)
+testList bs st res = runWSWithOptsInit defaultOptions st (bottomUpM References.List.listOf (toList bs))
+   `shouldBe` (toList res,st)
 
-figure :: T.Text -> T.Text -> T.Text -> T.Text -> Blocks
-figure = (((para .) .) .) . figure' "fig:"
+figure :: T.Text -> T.Text -> T.Text -> Maybe T.Text -> T.Text -> Blocks
+figure src title cap malt ref = B.figureWith ("fig:" <> ref, [], [])
+  (caption Nothing $ para $ text cap) $ plain $ figure' src title (fromMaybe cap malt) ""
 
-figure' :: T.Text -> T.Text -> T.Text -> T.Text -> T.Text -> Inlines
-figure' p src title alt ref = imageWith ("fig:" <> ref, [], []) src (p <> title) (text alt)
+figure' :: T.Text -> T.Text -> T.Text -> T.Text -> Inlines
+figure' src title alt ref = imageWith (if T.null ref then mempty else "fig:" <> ref, [], []) src title (text alt)
 
 section :: T.Text -> Int -> T.Text -> Blocks
 section text' level label = headerWith ("sec:" <> label,[],[]) level (text text')

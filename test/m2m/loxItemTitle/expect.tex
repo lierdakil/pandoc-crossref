@@ -135,32 +135,34 @@
 \hypertarget{tbl:mytable}{}
 \begin{longtable}[]{@{}lll@{}}
 \caption{\label{tbl:mytable}My table}\tabularnewline
-\toprule()
+\toprule\noalign{}
 a & b & c \\
-\midrule()
+\midrule\noalign{}
 \endfirsthead
-\toprule()
+\toprule\noalign{}
 a & b & c \\
-\midrule()
+\midrule\noalign{}
 \endhead
+\bottomrule\noalign{}
+\endlastfoot
 1 & 2 & 3 \\
 4 & 5 & 6 \\
-\bottomrule()
 \end{longtable}
 
 \hypertarget{tbl:1}{}
 \begin{longtable}[]{@{}ll@{}}
 \caption{\label{tbl:1}Table}\tabularnewline
-\toprule()
+\toprule\noalign{}
 a & b \\
-\midrule()
+\midrule\noalign{}
 \endfirsthead
-\toprule()
+\toprule\noalign{}
 a & b \\
-\midrule()
+\midrule\noalign{}
 \endhead
+\bottomrule\noalign{}
+\endlastfoot
 1 & 2 \\
-\bottomrule()
 \end{longtable}
 
 \listoffigures

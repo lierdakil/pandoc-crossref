@@ -19,15 +19,16 @@ Section}\label{other-second-level-section}}
 \hypertarget{tbl:mytable}{}
 \begin{longtable}[]{@{}lll@{}}
 \caption{\label{tbl:mytable}My table}\tabularnewline
-\toprule()
+\toprule\noalign{}
 a & b & c \\
-\midrule()
+\midrule\noalign{}
 \endfirsthead
-\toprule()
+\toprule\noalign{}
 a & b & c \\
-\midrule()
+\midrule\noalign{}
 \endhead
+\bottomrule\noalign{}
+\endlastfoot
 1 & 2 & 3 \\
 4 & 5 & 6 \\
-\bottomrule()
 \end{longtable}

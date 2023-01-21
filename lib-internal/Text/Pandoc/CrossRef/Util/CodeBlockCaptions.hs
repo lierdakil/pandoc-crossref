@@ -18,12 +18,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, LambdaCase #-}
 module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
     (
     mkCodeBlockCaptions
     ) where
 
+import Control.Monad.Reader (ask)
 import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
@@ -32,12 +33,16 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.Definition
 
-mkCodeBlockCaptions :: Options -> [Block] -> WS [Block]
-mkCodeBlockCaptions opts x@(cb@(CodeBlock _ _):p@(Para _):xs)
-  = return $ fromMaybe x $ orderAgnostic opts $ p:cb:xs
-mkCodeBlockCaptions opts x@(p@(Para _):cb@(CodeBlock _ _):xs)
-  = return $ fromMaybe x $ orderAgnostic opts $ p:cb:xs
-mkCodeBlockCaptions _ x = return x
+mkCodeBlockCaptions :: [Block] -> WS [Block]
+mkCodeBlockCaptions = \case
+  x@(cb@CodeBlock{}:p@Para{}:xs) -> go x p cb xs
+  x@(p@Para{}:cb@CodeBlock{}:xs) -> go x p cb xs
+  x -> pure x
+  where
+    go :: [Block] -> Block -> Block -> [Block] -> WS [Block]
+    go x p cb xs = do
+      opts <- ask
+      return $ fromMaybe x $ orderAgnostic opts $ p:cb:xs
 
 orderAgnostic :: Options -> [Block] -> Maybe [Block]
 orderAgnostic opts (Para ils:CodeBlock (label,classes,attrs) code:xs)

@@ -67,20 +67,28 @@
       , Space
       , Str "fig.\160\&1"
       ]
-  , Para
-      [ Image
-          ( "fig:figure0" , [] , [] )
-          [ Str "Figure"
-          , Space
-          , Str "#"
-          , Space
-          , Str "1:"
-          , Space
-          , Str "A"
-          , Space
-          , Str "figure"
+  , Figure
+      ( "fig:figure0" , [] , [] )
+      (Caption
+         Nothing
+         [ Plain
+             [ Str "Figure"
+             , Space
+             , Str "#"
+             , Space
+             , Str "1:"
+             , Space
+             , Str "A"
+             , Space
+             , Str "figure"
+             ]
+         ])
+      [ Plain
+          [ Image
+              ( "" , [] , [] )
+              [ Str "A" , Space , Str "figure" ]
+              ( "img1.jpg" , "" )
           ]
-          ( "img1.jpg" , "fig:" )
       ]
   , Para
       [ Str "There"
@@ -292,94 +300,138 @@
       1
       ( "sec:sec1" , [] , [] )
       [ Str "Chapter" , Space , Str "1." , Space , Str "Figures" ]
-  , Para
-      [ Image
-          ( "fig:figure1" , [] , [] )
-          [ Str "Figure"
-          , Space
-          , Str "#"
-          , Space
-          , Str "1.1:"
-          , Space
-          , Str "First"
-          , Space
-          , Str "figure"
-          ]
-          ( "img1.jpg" , "fig:" )
-      ]
-  , Para
-      [ Image
-          ( "fig:figure2" , [] , [] )
-          [ Str "Figure"
-          , Space
-          , Str "#"
-          , Space
-          , Str "1.2:"
-          , Space
-          , Str "Second"
-          , Space
-          , Str "figure"
-          ]
-          ( "img2.jpg" , "fig:" )
-      ]
-  , Para
-      [ Image
-          ( "fig:figure3" , [] , [] )
-          [ Str "Figure"
-          , Space
-          , Str "#"
-          , Space
-          , Str "1.3:"
-          , Space
-          , Str "Third"
-          , Space
-          , Str "figure"
-          ]
-          ( "img3.jpg" , "fig:" )
-      ]
-  , Para
-      [ Image
-          ( "" , [] , [] )
-          [ Str "Unlabelled" , Space , Str "image" ]
-          ( "img1.jpg" , "fig:" )
-      ]
-  , Div
-      ( "fig:subfigures" , [ "subfigures" ] , [] )
-      [ Para
-          [ Image ( "" , [] , [] ) [ Str "a" ] ( "img1.jpg" , "fig:" )
-          ]
-      , Para
+  , Figure
+      ( "fig:figure1" , [] , [] )
+      (Caption
+         Nothing
+         [ Plain
+             [ Str "Figure"
+             , Space
+             , Str "#"
+             , Space
+             , Str "1.1:"
+             , Space
+             , Str "First"
+             , Space
+             , Str "figure"
+             ]
+         ])
+      [ Plain
           [ Image
-              ( "fig:subfigureB" , [] , [] )
-              [ Str "b" ]
-              ( "img1.jpg" , "fig:" )
+              ( "" , [] , [] )
+              [ Str "First" , Space , Str "figure" ]
+              ( "img1.jpg" , "" )
           ]
-      , Para
-          [ Str "Figure"
-          , Space
-          , Str "#"
-          , Space
-          , Str "1.4:"
-          , Space
-          , Str "Subfigures"
-          , Space
-          , Str "caption."
-          , Space
-          , Str "a"
-          , Space
-          , Str "\8212"
-          , Space
-          , Str "Subfigure"
-          , Space
-          , Str "a,"
-          , Space
-          , Str "b"
-          , Space
-          , Str "\8212"
-          , Space
-          , Str "Subfigure"
-          , Space
-          , Str "b"
+      ]
+  , Figure
+      ( "fig:figure2" , [] , [] )
+      (Caption
+         Nothing
+         [ Plain
+             [ Str "Figure"
+             , Space
+             , Str "#"
+             , Space
+             , Str "1.2:"
+             , Space
+             , Str "Second"
+             , Space
+             , Str "figure"
+             ]
+         ])
+      [ Plain
+          [ Image
+              ( "" , [] , [] )
+              [ Str "Second" , Space , Str "figure" ]
+              ( "img2.jpg" , "" )
+          ]
+      ]
+  , Figure
+      ( "fig:figure3" , [] , [] )
+      (Caption
+         Nothing
+         [ Plain
+             [ Str "Figure"
+             , Space
+             , Str "#"
+             , Space
+             , Str "1.3:"
+             , Space
+             , Str "Third"
+             , Space
+             , Str "figure"
+             ]
+         ])
+      [ Plain
+          [ Image
+              ( "" , [] , [] )
+              [ Str "Third" , Space , Str "figure" ]
+              ( "img3.jpg" , "" )
+          ]
+      ]
+  , Figure
+      ( "" , [] , [] )
+      (Caption
+         Nothing
+         [ Plain [ Str "Unlabelled" , Space , Str "image" ] ])
+      [ Plain
+          [ Image
+              ( "" , [] , [] )
+              [ Str "Unlabelled" , Space , Str "image" ]
+              ( "img1.jpg" , "" )
+          ]
+      ]
+  , Figure
+      ( "fig:subfigures" , [ "subfigures" ] , [] )
+      (Caption
+         Nothing
+         [ Para
+             [ Str "Figure"
+             , Space
+             , Str "#"
+             , Space
+             , Str "1.4:"
+             , Space
+             , Str "Subfigures"
+             , Space
+             , Str "caption."
+             , Space
+             , Str "a"
+             , Space
+             , Str "\8212"
+             , Space
+             , Str "Subfigure"
+             , Space
+             , Str "a,"
+             , Space
+             , Str "b"
+             , Space
+             , Str "\8212"
+             , Space
+             , Str "Subfigure"
+             , Space
+             , Str "b"
+             ]
+         ])
+      [ Figure
+          ( "" , [] , [] )
+          (Caption Nothing [ Plain [ Str "a" ] ])
+          [ Plain
+              [ Image
+                  ( "" , [] , [] )
+                  [ Str "Subfigure" , Space , Str "a" ]
+                  ( "img1.jpg" , "" )
+              ]
+          ]
+      , Figure
+          ( "fig:subfigureB" , [] , [] )
+          (Caption Nothing [ Plain [ Str "b" ] ])
+          [ Plain
+              [ Image
+                  ( "" , [] , [] )
+                  [ Str "Subfigure" , Space , Str "b" ]
+                  ( "img1.jpg" , "" )
+              ]
           ]
       ]
   , Header

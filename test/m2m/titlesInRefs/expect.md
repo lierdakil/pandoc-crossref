@@ -1,6 +1,12 @@
 # Section {#sec:section}
 
-![Figure 1: A Figure](figure.png){#fig:figure}
+::: {#fig:figure .figure}
+![A Figure](figure.png)
+
+::: caption
+Figure 1: A Figure
+:::
+:::
 
 sec. 1 (Section)
 

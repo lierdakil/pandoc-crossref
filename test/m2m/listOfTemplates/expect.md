@@ -1,20 +1,74 @@
-![Figure 1: 1](fig1.png){#fig:1}
+::: {#fig:1 .figure}
+![1](fig1.png)
 
-![Figure 2: 2](fig2.png){#fig:2}
+::: caption
+Figure 1: 1
+:::
+:::
 
-![Figure 3: 3](fig3.png){#fig:3}
+::: {#fig:2 .figure}
+![2](fig2.png)
 
-![Figure 4: 4](fig4.png){#fig:4}
+::: caption
+Figure 2: 2
+:::
+:::
 
-![Figure 5: 5](fig5.png){#fig:5}
+::: {#fig:3 .figure}
+![3](fig3.png)
 
-![Figure 6: 6](fig6.png){#fig:6}
+::: caption
+Figure 3: 3
+:::
+:::
 
-![Figure 7: 7](fig7.png){#fig:7}
+::: {#fig:4 .figure}
+![4](fig4.png)
 
-![Figure 8: 8](fig8.png){#fig:8}
+::: caption
+Figure 4: 4
+:::
+:::
 
-![Figure 9: 9](fig9.png){#fig:9}
+::: {#fig:5 .figure}
+![5](fig5.png)
+
+::: caption
+Figure 5: 5
+:::
+:::
+
+::: {#fig:6 .figure}
+![6](fig6.png)
+
+::: caption
+Figure 6: 6
+:::
+:::
+
+::: {#fig:7 .figure}
+![7](fig7.png)
+
+::: caption
+Figure 7: 7
+:::
+:::
+
+::: {#fig:8 .figure}
+![8](fig8.png)
+
+::: caption
+Figure 8: 8
+:::
+:::
+
+::: {#fig:9 .figure}
+![9](fig9.png)
+
+::: caption
+Figure 9: 9
+:::
+:::
 
 ::: {#lst:code1 .listing .haskell}
 Listing 1: Listing caption 1

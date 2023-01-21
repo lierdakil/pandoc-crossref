@@ -41,7 +41,7 @@ m2m dir
     input <- runIO $ readFile ("test" </> "m2m" </> dir </> "input.md")
     expect_md <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect.md")
     let ro = def { readerExtensions = pandocExtensions }
-        wo = def { writerExtensions = disableExtension Ext_raw_attribute pandocExtensions
+        wo = def { writerExtensions = disableExtension Ext_raw_html $ disableExtension Ext_raw_attribute pandocExtensions
                  , writerHighlightStyle=Just pygments
                  , writerListings = dir `elem` listingsDirs }
     p@(Pandoc meta _) <- runIO $ either (error . show) id <$> P.runIO (readMarkdown ro $ T.pack input)

@@ -1,47 +1,126 @@
 You can define subfigures:
 
-::: {#fig:subfigures .subfigures}
+::: {#fig:subfigures .figure .subfigures}
 +:------------------:+:------------------:+:------------------:+
-| ![a](fig1          | ![b](fig2          | ![c](fig3.         |
-| .png){#fig:subfig1 | .png){#fig:subfig2 | png){width="100%"} |
-| width="100%"}      | width="100%"}      |                    |
+| ::                 | ::                 | ::: {.f            |
+| : {#fig:subfig1 .f | : {#fig:subfig2 .f | igure width="30%"} |
+| igure width="30%"} | igure width="30%"} | ![c](fig3.         |
+| ![a](fig1.         | ![b](fig2.         | png){width="100%"} |
+| png){width="100%"} | png){width="100%"} |                    |
+|                    |                    | ::: caption        |
+| ::: caption        | ::: caption        | c                  |
+| a                  | b                  | :::                |
+| :::                | :::                | :::                |
+| :::                | :::                |                    |
 +--------------------+--------------------+--------------------+
-| ![d](fig4          | ![e](fig5.         | ![f](fig6          |
-| .png){#fig:subfig4 | png){width="100%"} | .png){#fig:subfig6 |
-| width="100%"}      |                    | width="100%"}      |
+| ::                 | ::: {.f            | ::                 |
+| : {#fig:subfig4 .f | igure width="30%"} | : {#fig:subfig6 .f |
+| igure width="30%"} | ![e](fig5.         | igure width="30%"} |
+| ![d](fig4.         | png){width="100%"} | ![f](fig6.         |
+| png){width="100%"} |                    | png){width="100%"} |
+|                    | ::: caption        |                    |
+| ::: caption        | e                  | ::: caption        |
+| d                  | :::                | f                  |
+| :::                | :::                | :::                |
+| :::                |                    | :::                |
 +--------------------+--------------------+--------------------+
-| ![g](fig7          | ![h](fig8.         | ![i](fig9          |
-| .png){#fig:subfig7 | png){width="100%"} | .png){#fig:subfig9 |
-| width="100%"}      |                    | width="100%"}      |
+| ::                 | ::: {.f            | ::                 |
+| : {#fig:subfig7 .f | igure width="30%"} | : {#fig:subfig9 .f |
+| igure width="30%"} | ![h](fig8.         | igure width="30%"} |
+| ![g](fig7.         | png){width="100%"} | ![i](fig9.         |
+| png){width="100%"} |                    | png){width="100%"} |
+|                    | ::: caption        |                    |
+| ::: caption        | h                  | ::: caption        |
+| g                  | :::                | i                  |
+| :::                | :::                | :::                |
+| :::                |                    | :::                |
 +--------------------+--------------------+--------------------+
 
+::: caption
 Figure 1: Caption. a --- 1, b --- 2, c --- 3, d --- 4, e --- 5, f --- 6,
 g --- 7, h --- 8, i --- 9
 :::
+:::
 
-::: {#fig:subfigures2 .subfigures}
+::: {#fig:subfigures2 .figure .subfigures}
 +:--------------------------------------------------------------------:+
-| ![a](fig1.png){#fig:subfig21 width="100%"}                           |
+| ::: {#fig:subfig21 .figure}                                          |
+| ![1](fig1.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| a                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
-| ![b](fig2.png){#fig:subfig22 width="100%"}                           |
+| ::: {#fig:subfig22 .figure}                                          |
+| ![2](fig2.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| b                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
-| ![c](fig3.png){width="100%"}                                         |
+| ::: figure                                                           |
+| ![3](fig3.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| c                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
-| ![d](fig4.png){#fig:subfig24 width="100%"}                           |
+| ::: {#fig:subfig24 .figure}                                          |
+| ![4](fig4.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| d                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
-| ![e](fig5.png){width="100%"}                                         |
+| ::: figure                                                           |
+| ![5](fig5.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| e                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
-| ![f](fig6.png){#fig:subfig26 width="100%"}                           |
+| ::: {#fig:subfig26 .figure}                                          |
+| ![6](fig6.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| f                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
-| ![g](fig7.png){#fig:subfig27 width="100%"}                           |
+| ::: {#fig:subfig27 .figure}                                          |
+| ![7](fig7.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| g                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
-| ![h](fig8.png){width="100%"}                                         |
+| ::: figure                                                           |
+| ![8](fig8.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| h                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
-| ![i](fig9.png){#fig:subfig29 width="100%"}                           |
+| ::: {#fig:subfig29 .figure}                                          |
+| ![9](fig9.png)                                                       |
+|                                                                      |
+| ::: caption                                                          |
+| i                                                                    |
+| :::                                                                  |
+| :::                                                                  |
 +----------------------------------------------------------------------+
 
+::: caption
 Figure 2: Caption. a --- 1, b --- 2, c --- 3, d --- 4, e --- 5, f --- 6,
 g --- 7, h --- 8, i --- 9
+:::
 :::
 
 Figures themselves can be referenced fig. 2, as well as individual

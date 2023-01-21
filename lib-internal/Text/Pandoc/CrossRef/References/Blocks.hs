@@ -37,16 +37,13 @@ import Text.Pandoc.CrossRef.References.Blocks.Subfigures
 import Text.Pandoc.CrossRef.References.Blocks.Table
 import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.References.Monad
-import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
-import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 
 replaceAll :: (Data a) => a -> WS a
 replaceAll x = do
   opts <- ask
   x & runReplace (mkRR replaceBlock
-    `extRR` replaceInline
     `extRR` replaceInlineMany
     )
     . runSplitMath opts
@@ -58,12 +55,25 @@ replaceAll x = do
       = everywhere (mkT splitMath)
       | otherwise = id
 
+extractCaption :: Block -> Maybe [Inline]
+extractCaption = \case
+  Para caption -> Just caption
+  Div (_, dcls, _) [Para caption] | "caption" `elem` dcls -> Just caption
+  _ -> Nothing
+
 replaceBlock :: Block -> WS (ReplacedResult Block)
 replaceBlock (Header n attr text') = runHeader n attr text'
-replaceBlock (Div attr@(label, _, _) images)
+replaceBlock (Figure attr@(label, _, _) caption content)
   | "fig:" `T.isPrefixOf` label
-  , Para caption <- last images
-  = runSubfigures attr images caption
+  = runFigure False attr caption content
+replaceBlock (Div attr@(label, _, _) content)
+  | "fig:" `T.isPrefixOf` label
+  , Just caption <- extractCaption $ last content
+  = case init content of
+      [Figure ("", [], []) _ content'] -- nested figure due to implicit_figures...
+        -> runFigure False attr (Caption Nothing [Para caption]) content'
+      [x] -> runFigure False attr (Caption Nothing [Para caption]) [x]
+      xs -> runSubfigures attr xs caption
 replaceBlock (Div attr@(label, _, _) [Table tattr (Caption short (btitle:rest)) colspec header cells foot])
   | not $ null $ blocksToInlines [btitle]
   , "tbl:" `T.isPrefixOf` label
@@ -102,18 +112,6 @@ replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = 
         pure [Span (label,clss,setLabel opts idxStr attrs) [Math DisplayMath eq']]
   else noReplaceRecurse
 replaceInlineMany _ = noReplaceRecurse
-
-replaceInline :: Inline -> WS (ReplacedResult Inline)
-replaceInline (Image (label,cls,attrs) alt img@(_, tit))
-  | "fig:" `T.isPrefixOf` label && "fig:" `T.isPrefixOf` tit
-  = do
-    opts <- ask
-    idxStr <- replaceAttr (Right label) (lookup "label" attrs) alt imgRefs
-    let alt' = case outFormat opts of
-          f | isLatexFormat f -> alt
-          _  -> applyTemplate idxStr alt $ figureTemplate opts
-    replaceNoRecurse $ Image (label,cls,setLabel opts idxStr attrs) alt' img
-replaceInline _ = noReplaceRecurse
 
 divBlocks :: Block -> Block
 divBlocks (Table tattr (Caption short (btitle:rest)) colspec header cells foot)

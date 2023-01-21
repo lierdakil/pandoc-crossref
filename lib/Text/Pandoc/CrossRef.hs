@@ -109,7 +109,7 @@ crossRefBlocks blocks = do
   opts <- R.asks creOptions
   let
     doWalk =
-      bottomUpM (mkCodeBlockCaptions opts) blocks
+      bottomUpM mkCodeBlockCaptions blocks
       >>= replaceAll
       >>= bottomUpM replaceRefs
       >>= bottomUpM listOf
