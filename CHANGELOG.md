@@ -1,3 +1,9 @@
+## 0.3.15.0
+
+-   Update demos
+-   Updates for pandoc 3.0 and bump version
+-   Reshuffle and deduplicate block handling code
+
 ## 0.3.14.0
 
 ### Main changes
