@@ -7,9 +7,6 @@
   <title>pandoc-crossref demo document</title>
   <style>
     html {
-      line-height: 1.5;
-      font-family: Georgia, serif;
-      font-size: 20px;
       color: #1a1a1a;
       background-color: #fdfdfd;
     }
@@ -28,13 +25,16 @@
     @media (max-width: 600px) {
       body {
         font-size: 0.9em;
-        padding: 1em;
+        padding: 12px;
       }
       h1 {
         font-size: 1.8em;
       }
     }
     @media print {
+      html {
+        background-color: white;
+      }
       body {
         background-color: transparent;
         color: black;
@@ -84,9 +84,10 @@
       color: #606060;
     }
     code {
-      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
       font-size: 85%;
       margin: 0;
+      hyphens: manual;
     }
     pre {
       margin: 1em 0;
@@ -157,6 +158,8 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -220,7 +223,6 @@
     code span.va { color: #19177c; } /* Variable */
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
@@ -234,9 +236,9 @@
 cross-reference figures (see figs. 1.1-1.3), display equations (see
 eq. 2.1), tables (see tbl. 3.1) and sections (secs. 1, 2, 4.1-4.3)</p>
 <p>For immediate example, see fig. 1</p>
-<figure>
-<img src="img1.jpg" id="fig:figure0" alt="Figure # 1: A figure" />
-<figcaption aria-hidden="true">Figure # 1: A figure</figcaption>
+<figure id="fig:figure0">
+<img src="img1.jpg" alt="A figure" />
+<figcaption>Figure # 1: A figure</figcaption>
 </figure>
 <p>There is also support for code blocks, for example, lsts. 4.1-4.3</p>
 <p>It’s possible to capitalize reference prefixes, like this:
@@ -255,35 +257,34 @@ sec. AppA.CustLab</p>
 <p>Subfigures are supported, see figs. 1.4, 1.4 (b)</p>
 <h1 data-number="1" id="sec:sec1"><span
 class="header-section-number">1</span> Chapter 1. Figures</h1>
-<figure>
-<img src="img1.jpg" id="fig:figure1" alt="Figure # 1.1: First figure" />
-<figcaption aria-hidden="true">Figure # 1.1: First figure</figcaption>
+<figure id="fig:figure1">
+<img src="img1.jpg" alt="First figure" />
+<figcaption>Figure # 1.1: First figure</figcaption>
 </figure>
-<figure>
-<img src="img2.jpg" id="fig:figure2"
-alt="Figure # 1.2: Second figure" />
-<figcaption aria-hidden="true">Figure # 1.2: Second figure</figcaption>
+<figure id="fig:figure2">
+<img src="img2.jpg" alt="Second figure" />
+<figcaption>Figure # 1.2: Second figure</figcaption>
 </figure>
-<figure>
-<img src="img3.jpg" id="fig:figure3" alt="Figure # 1.3: Third figure" />
-<figcaption aria-hidden="true">Figure # 1.3: Third figure</figcaption>
+<figure id="fig:figure3">
+<img src="img3.jpg" alt="Third figure" />
+<figcaption>Figure # 1.3: Third figure</figcaption>
 </figure>
 <figure>
 <img src="img1.jpg" alt="Unlabelled image" />
 <figcaption aria-hidden="true">Unlabelled image</figcaption>
 </figure>
-<div id="fig:subfigures" class="subfigures">
+<figure id="fig:subfigures" class="subfigures">
 <figure>
-<img src="img1.jpg" alt="a" />
-<figcaption aria-hidden="true">a</figcaption>
+<img src="img1.jpg" alt="Subfigure a" />
+<figcaption>a</figcaption>
 </figure>
-<figure>
-<img src="img1.jpg" id="fig:subfigureB" alt="b" />
-<figcaption aria-hidden="true">b</figcaption>
+<figure id="fig:subfigureB">
+<img src="img1.jpg" alt="Subfigure b" />
+<figcaption>b</figcaption>
 </figure>
-<p>Figure # 1.4: Subfigures caption. a — Subfigure a, b — Subfigure
-b</p>
-</div>
+<figcaption><p>Figure # 1.4: Subfigures caption. a — Subfigure a, b —
+Subfigure b</p></figcaption>
+</figure>
 <h1 data-number="2" id="sec:sec2"><span
 class="header-section-number">2</span> Chapter 2. Equations</h1>
 <p>Display equations are labelled and numbered</p>

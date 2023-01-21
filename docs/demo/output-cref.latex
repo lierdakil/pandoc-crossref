@@ -98,29 +98,31 @@ like this.
 \hypertarget{tbl:table1}{}
 \begin{longtable}[]{@{}ll@{}}
 \caption{\label{tbl:table1}Table example}\tabularnewline
-\toprule()
+\toprule\noalign{}
 First Header & Second Header \\
-\midrule()
+\midrule\noalign{}
 \endfirsthead
-\toprule()
+\toprule\noalign{}
 First Header & Second Header \\
-\midrule()
+\midrule\noalign{}
 \endhead
+\bottomrule\noalign{}
+\endlastfoot
 Content Cell & Content Cell \\
 Content Cell & Content Cell \\
-\bottomrule()
 \end{longtable}
 
 Table without caption:
 
 \begin{longtable}[]{@{}ll@{}}
-\toprule()
+\toprule\noalign{}
 First Header & Second Header \\
-\midrule()
+\midrule\noalign{}
 \endhead
+\bottomrule\noalign{}
+\endlastfoot
 Content Cell & Content Cell \\
 Content Cell & Content Cell \\
-\bottomrule()
 \end{longtable}
 
 \hypertarget{sec:chapter-4.-code-blocks}{%

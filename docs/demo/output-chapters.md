@@ -4,7 +4,10 @@ eq. 2.1), tables (see tbl. 3.1) and sections (secs. 1, 2, 4.1-4.3)
 
 For immediate example, see fig. 1
 
-![Figure \# 1: A figure](img1.jpg){#fig:figure0}
+<figure id="fig:figure0">
+<img src="img1.jpg" alt="A figure" />
+<figcaption>Figure # 1: A figure</figcaption>
+</figure>
 
 There is also support for code blocks, for example, lsts. 4.1-4.3
 
@@ -26,21 +29,35 @@ Subfigures are supported, see figs. 1.4, 1.4 (b)
 
 # Chapter 1. Figures {#sec:sec1}
 
-![Figure \# 1.1: First figure](img1.jpg){#fig:figure1}
+<figure id="fig:figure1">
+<img src="img1.jpg" alt="First figure" />
+<figcaption>Figure # 1.1: First figure</figcaption>
+</figure>
 
-![Figure \# 1.2: Second figure](img2.jpg){#fig:figure2}
+<figure id="fig:figure2">
+<img src="img2.jpg" alt="Second figure" />
+<figcaption>Figure # 1.2: Second figure</figcaption>
+</figure>
 
-![Figure \# 1.3: Third figure](img3.jpg){#fig:figure3}
+<figure id="fig:figure3">
+<img src="img3.jpg" alt="Third figure" />
+<figcaption>Figure # 1.3: Third figure</figcaption>
+</figure>
 
 ![Unlabelled image](img1.jpg)
 
-::: {#fig:subfigures .subfigures}
-![a](img1.jpg)
-
-![b](img1.jpg){#fig:subfigureB}
-
-Figure \# 1.4: Subfigures caption. a --- Subfigure a, b --- Subfigure b
-:::
+<figure id="fig:subfigures" class="subfigures">
+<figure>
+<img src="img1.jpg" alt="Subfigure a" />
+<figcaption>a</figcaption>
+</figure>
+<figure id="fig:subfigureB">
+<img src="img1.jpg" alt="Subfigure b" />
+<figcaption>b</figcaption>
+</figure>
+<figcaption><p>Figure # 1.4: Subfigures caption. a — Subfigure a, b —
+Subfigure b</p></figcaption>
+</figure>
 
 # Chapter 2. Equations {#sec:sec2}
 
