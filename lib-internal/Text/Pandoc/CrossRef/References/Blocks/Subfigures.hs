@@ -128,7 +128,7 @@ runSubfigures (label, cls, attrs) images caption = do
         blkToRow x = [x]
         inlToCell :: Inline -> Maybe Block
         inlToCell (Image (id', cs, as) txt tgt) = Just $
-          Figure (id', cs, as) (Caption Nothing [Para txt]) [Plain [Image ("", cs, setW as) txt tgt]]
+          Figure (id', cs, []) (Caption Nothing [Para txt]) [Plain [Image ("", cs, setW as) txt tgt]]
         inlToCell _ = Nothing
         setW as = ("width", "100%"):filter ((/="width") . fst) as
 
@@ -144,8 +144,9 @@ imagesToFigures = \case
 
 imageToFigure :: Inline -> Maybe Block
 imageToFigure = \case
-  Image (label,cls,attrs) alt tgt -> Just $ Figure (label, cls, attrs) (Caption Nothing [Para alt])
-    [Plain [Image ("",cls,attrs) alt tgt]]
+  Image (label,cls,attrs) alt tgt -> Just $
+    Figure (label, cls, []) (Caption Nothing [Para alt])
+      [Plain [Image ("",cls,attrs) alt tgt]]
   _ -> Nothing
 
 replaceSubfig :: Inline -> WS [Inline]
@@ -156,10 +157,9 @@ replaceSubfig x@(Image (label,cls,attrs) alt tgt)
       idxStr <- replaceAttr label' (lookup "label" attrs) alt imgRefs
       let alt' = applyTemplate idxStr alt $ figureTemplate opts
       case outFormat opts of
-        f | isLatexFormat f ->
-          pure $ latexSubFigure x label
-        _ -> return [Image (label, cls, setLabel opts idxStr attrs) alt' tgt]
-replaceSubfig x = return [x]
+        f | isLatexFormat f -> pure $ latexSubFigure x label
+        _ -> pure [Image (label, cls, setLabel opts idxStr attrs) alt' tgt]
+replaceSubfig x = pure [x]
 
 latexSubFigure :: Inline -> T.Text -> [Inline]
 latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
@@ -203,9 +203,9 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
   opts <- ask
   let label' = normalizeLabel label
   let title = blocksToInlines [btitle]
-      attrs = fromMaybe fattrs $ case blocksToInlines content of
-        [Image (_, _, as) _ _] -> Just as
-        _ -> Nothing
+      attrs = case blocksToInlines content of
+        [Image (_, _, as) _ _] -> fattrs <> as
+        _ -> fattrs
   idxStr <- replaceAttr label' (lookup "label" attrs) title imgRefs
   let title' = case outFormat opts of
         f | isLatexFormat f -> title
@@ -214,5 +214,5 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
   replaceNoRecurse $
     if subFigure && isLatexFormat (outFormat opts)
     then Plain $ latexSubFigure (head $ blocksToInlines content) label
-    else Figure (label,cls,setLabel opts idxStr attrs) caption' content
+    else Figure (label,cls,setLabel opts idxStr fattrs) caption' content
 runFigure _ _ _ _ = noReplaceNoRecurse

@@ -14,7 +14,7 @@ Figure α: A figure
 
 other text
 
-::: {#fig:fig2 .figure label="+"}
+::: {#fig:fig2 .figure}
 ![A figure with custom label](image.png){label="+"}
 
 ::: caption

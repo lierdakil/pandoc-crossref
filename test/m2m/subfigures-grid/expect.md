@@ -2,9 +2,8 @@ You can define subfigures:
 
 ::: {#fig:subfigures .figure .subfigures}
 +:------------------:+:------------------:+:------------------:+
-| ::                 | ::                 | ::: {.f            |
-| : {#fig:subfig1 .f | : {#fig:subfig2 .f | igure width="30%"} |
-| igure width="30%"} | igure width="30%"} | ![c](fig3.         |
+| ::: {#fi           | ::: {#fi           | ::: figure         |
+| g:subfig1 .figure} | g:subfig2 .figure} | ![c](fig3.         |
 | ![a](fig1.         | ![b](fig2.         | png){width="100%"} |
 | png){width="100%"} | png){width="100%"} |                    |
 |                    |                    | ::: caption        |
@@ -13,9 +12,8 @@ You can define subfigures:
 | :::                | :::                | :::                |
 | :::                | :::                |                    |
 +--------------------+--------------------+--------------------+
-| ::                 | ::: {.f            | ::                 |
-| : {#fig:subfig4 .f | igure width="30%"} | : {#fig:subfig6 .f |
-| igure width="30%"} | ![e](fig5.         | igure width="30%"} |
+| ::: {#fi           | ::: figure         | ::: {#fi           |
+| g:subfig4 .figure} | ![e](fig5.         | g:subfig6 .figure} |
 | ![d](fig4.         | png){width="100%"} | ![f](fig6.         |
 | png){width="100%"} |                    | png){width="100%"} |
 |                    | ::: caption        |                    |
@@ -24,9 +22,8 @@ You can define subfigures:
 | :::                | :::                | :::                |
 | :::                |                    | :::                |
 +--------------------+--------------------+--------------------+
-| ::                 | ::: {.f            | ::                 |
-| : {#fig:subfig7 .f | igure width="30%"} | : {#fig:subfig9 .f |
-| igure width="30%"} | ![h](fig8.         | igure width="30%"} |
+| ::: {#fi           | ::: figure         | ::: {#fi           |
+| g:subfig7 .figure} | ![h](fig8.         | g:subfig9 .figure} |
 | ![g](fig7.         | png){width="100%"} | ![i](fig9.         |
 | png){width="100%"} |                    | png){width="100%"} |
 |                    | ::: caption        |                    |
