@@ -1,3 +1,7 @@
+## 0.3.15.1
+
+-   Do not copy image attributes to implicit figure element
+
 ## 0.3.15.0
 
 -   Update demos
