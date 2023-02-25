@@ -214,7 +214,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["3.0"]
+        pandocver: ["3.1"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
