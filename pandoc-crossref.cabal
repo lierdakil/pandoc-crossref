@@ -1,6 +1,6 @@
 cabal-version: 2.0
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -127,7 +127,7 @@ library
   build-depends:
       base >=4.11 && <5
     , mtl >=1.1 && <2.4
-    , pandoc ==3.0.*
+    , pandoc >=3.0 && <3.2
     , pandoc-crossref-internal
     , pandoc-types
     , text >=1.2.2 && <2.1
@@ -170,7 +170,7 @@ library pandoc-crossref-internal
     , microlens-mtl >=0.2.0.1 && <0.3.0.0
     , microlens-th >=0.4.3.10 && <0.5.0.0
     , mtl >=1.1 && <2.3
-    , pandoc ==3.0.*
+    , pandoc >=3.0 && <3.2
     , pandoc-types
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -191,7 +191,7 @@ executable pandoc-crossref
     , gitrev >=1.3.1 && <1.4
     , open-browser ==0.2.*
     , optparse-applicative >=0.13 && <0.18
-    , pandoc ==3.0.*
+    , pandoc >=3.0 && <3.2
     , pandoc-crossref
     , pandoc-types
     , template-haskell >=2.7.0.0 && <3.0.0.0
@@ -212,13 +212,13 @@ test-suite test-integrative
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.5
     , hspec >=2.4.4 && <3
-    , pandoc ==3.0.*
+    , pandoc >=3.0 && <3.2
     , pandoc-crossref
     , pandoc-types
     , text >=1.2.2 && <2.1
+  default-language: Haskell2010
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
-  default-language: Haskell2010
 
 test-suite test-pandoc-crossref
   type: exitcode-stdio-1.0
@@ -238,14 +238,14 @@ test-suite test-pandoc-crossref
     , hspec >=2.4.4 && <3
     , microlens >=0.4.12.0 && <0.5.0.0
     , mtl >=1.1 && <2.3
-    , pandoc ==3.0.*
+    , pandoc >=3.0 && <3.2
     , pandoc-crossref
     , pandoc-crossref-internal
     , pandoc-types
     , text >=1.2.2 && <2.1
+  default-language: Haskell2010
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
-  default-language: Haskell2010
 
 benchmark simple
   type: exitcode-stdio-1.0
@@ -258,7 +258,7 @@ benchmark simple
   build-depends:
       base >=4.11 && <5
     , criterion >=1.5.9.0 && <1.7
-    , pandoc ==3.0.*
+    , pandoc >=3.0 && <3.2
     , pandoc-crossref
     , pandoc-types
     , text >=1.2.2 && <2.1
