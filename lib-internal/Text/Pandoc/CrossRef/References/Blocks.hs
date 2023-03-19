@@ -72,7 +72,6 @@ replaceBlock (Div attr@(label, _, _) content)
   = case init content of
       [Figure ("", [], []) _ content'] -- nested figure due to implicit_figures...
         -> runFigure False attr (Caption Nothing [Para caption]) content'
-      [x] -> runFigure False attr (Caption Nothing [Para caption]) [x]
       xs -> runSubfigures attr xs caption
 replaceBlock (Div attr@(label, _, _) [Table tattr (Caption short (btitle:rest)) colspec header cells foot])
   | not $ null $ blocksToInlines [btitle]
