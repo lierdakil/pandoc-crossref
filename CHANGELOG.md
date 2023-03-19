@@ -1,3 +1,9 @@
+## 0.3.15.2
+
+-   Fix single-row subfigures
+
+    Subfigures in a single row weren't handled correctly since 0.3.15.0. See <https://github.com/lierdakil/pandoc-crossref/issues/381> for details.
+
 ## 0.3.15.1
 
 -   Do not copy image attributes to implicit figure element

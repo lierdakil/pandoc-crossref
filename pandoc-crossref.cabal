@@ -1,11 +1,11 @@
 cabal-version: 2.0
 
--- This file has been generated from package.yaml by hpack version 0.35.0.
+-- This file has been generated from package.yaml by hpack version 0.35.1.
 --
 -- see: https://github.com/sol/hpack
 
 name:           pandoc-crossref
-version:        0.3.15.1
+version:        0.3.15.2
 synopsis:       Pandoc filter for cross-references
 description:    pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 category:       Text
@@ -102,6 +102,9 @@ data-files:
     test/m2m/subfigures-grid/expect.md
     test/m2m/subfigures-grid/expect.tex
     test/m2m/subfigures-grid/input.md
+    test/m2m/subfigures-one-row/expect.md
+    test/m2m/subfigures-one-row/expect.tex
+    test/m2m/subfigures-one-row/input.md
     test/m2m/subfigures/expect.md
     test/m2m/subfigures/expect.tex
     test/m2m/subfigures/input.md
