@@ -77,14 +77,22 @@
         flake = (hixProject {}).flake {};
         flakeStatic = (hixProject { static = true; }).flake {};
       in {
+        legacyPackages = pkgs {};
         packages = {
           default = flake.packages."pandoc-crossref:exe:pandoc-crossref";
           static = flakeStatic.packages."pandoc-crossref:exe:pandoc-crossref";
+          pandoc = (hixProject {}).pandoc-cli.components.exes.pandoc;
         };
         apps = {
           default = flake.apps."pandoc-crossref:exe:pandoc-crossref";
           test = flake.apps."pandoc-crossref:test:test-pandoc-crossref";
           test-integrative = flake.apps."pandoc-crossref:test:test-integrative";
+        };
+        devShells.default = pkgs_.mkShell {
+          buildInputs = [
+            self.packages.${system}.default
+            self.packages.${system}.pandoc
+          ];
         };
       });
 
@@ -95,6 +103,5 @@
       "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
       "pandoc-crossref.cachix.org-1:LI9ABFTkGpPCTkUTzoopVSSpb1a26RSTJNMsqVbDtPM="
       ];
-    allow-import-from-derivation = "true";
   };
 }

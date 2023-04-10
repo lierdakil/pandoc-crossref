@@ -58,14 +58,14 @@ Also, for those feeling adventurous, the automatic builds for the latest commits
 
 If you don't trust random binaries downloaded off the Internet (which is
 completely reasonable), you're welcome to build from source. You have two
-preferred options for that: building from Hackage with `cabal-install`
-(you'll need [Haskell platform][]), or from repository with `stack` (you'll
-only need `stack` and maybe `git`). See below for build instructions.
+preferred options for that: building from Hackage with `cabal-install`, or from
+repository with `stack` (you'll only need `stack` and maybe `git`). See below
+for build instructions.
+
+This repository is also a nix flake. You can use `nix` to get it installed.
 
 If you're completely new to Haskell, the latter, i.e. building from repo
 with `stack`, is the easier option in most cases.
-
-[Haskell platform]: http://hackage.haskell.org/platform/
 
 Alternatively, you can use a version provided by a third party. At the
 time of writing, pandoc-crossref is provided on the following platforms
@@ -80,11 +80,20 @@ time of writing, pandoc-crossref is provided on the following platforms
 -   Gentoo Linux (via gentoo-haskell overlay)
 -   Windows (via [scoop](https://scoop.sh/))
 
-### Building from Hackage with `cabal-install` and Haskell platform
+### Building from Hackage with `cabal-install`
 
-Assuming you already installed [Haskell platform][] by whatever means necessary, you can install pandoc-crossref with `cabal`.
+You'll need to get GHC and `cabal-install` installed first. By far the easiest way to get those is via [ghcup][].
 
-If you have `cabal-install` version 3.0 or newer (i.e. `cabal --version` shows `3.0.x.x`), I recommend using new-style install:
+[ghcup]: (https://www.haskell.org/ghcup/)
+
+Describing using `ghcup` is out of scope for this small guide, but TL;DR is this:
+
+```
+ghcup install ghc
+ghcup install cabal
+```
+
+After you got `cabal-install` and `ghc`, run:
 
 ``` bash
 cabal v2-update
@@ -93,29 +102,11 @@ cabal v2-install --install-method=copy pandoc pandoc-crossref
 
 This will get `pandoc-crossref` and `pandoc` executables copied to `$HOME/.cabal/bin` (by default, if not, check your cabal config file `installdir` setting -- find out where your config file is by running `cabal help user-config`), which you can then add to `PATH` or copy/move the symlinks where you want them.
 
-On cabal-install version 2.4, it's possible to do the same, albeit you'll have to lose `--install-method copy`, it will symlink the executables instead of copying those, and it doesn't work on Windows.
-
-On cabal-install version 2.2, it's possible to do the same, albeit you'll need to use `cabal update` instead of `cabal v2-update`.
-
-On older cabal-install versions that don't support new-style installs, I highly recommend you use a sandbox for installation, e.g.
-
-``` bash
-cabal update
-mkdir pandoc-crossref
-cd pandoc-crossref
-cabal sandbox init
-cabal install pandoc pandoc-crossref
-```
-
-This will get `pandoc` and `pandoc-crossref` installed into `.cabal-sandbox/bin`.
-
 Refer to cabal documentation if you need to build a particular version (TL;DR: add `--constraint pandoc-crossref==<version>` to the installation command)
 
 ### Building from repo with `stack`
 
-If you want to build an unreleased version, just fancy building from repo, or don't want to install the Haskell platform, you can clone the repository, check out the commit/tag/branch you want and build with `stack`.
-
-First of all, get `stack` if you don't have it already: see the [official stack documentation][]. Note that `stack` is also included in the [Haskell platform][], and on Linux it is usually available in your package manager.
+First of all, get `stack` if you don't have it already: see the [official stack documentation][]. Note that `stack` can also be installed via [ghcup], and on Linux it is usually available in your package manager.
 
 [official stack documentation]: https://docs.haskellstack.org/en/stable/README/#how-to-install
 
@@ -131,6 +122,47 @@ stack install
 If you don't have `git`, just download the sources for your preferred commit/branch/tag via the GitHub interface, and run `stack install` in the directory that contains `stack.yaml` file.
 
 This will install pandoc-crossef executable to `$HOME/.local/bin`. You might also want to separately run `stack install pandoc` in the same directory (i.e. the root of the repository, the one containing `stack.yaml` file)
+
+### Installing as a nix flake
+
+TL;DR:
+
+```
+nix profile install github:lierdakil/pandoc-crossref
+```
+
+will install the latest commit from the `master` branch. You can also specify a commit, branch or tag, e.g.:
+
+```
+nix profile install github:lierdakil/pandoc-crossref/71c8c8508c222bf4110794457fdf0391b05fb9a9
+```
+
+You can also get the corresponding `pandoc` version installed via
+
+```
+nix profile install github:lierdakil/pandoc-crossref#pandoc
+```
+
+Finally, you can start a nix shell with both `pandoc` and `pandoc-crossref`
+using
+
+```
+nix develop github:lierdakil/pandoc-crossref
+```
+
+**Warning**: this uses [haskell.nix][] infrastructure for builds (because
+Haskell support in Nix is borked, and has been for a long time). This means that
+unless you use their substituters, you'll build multiple GHC versions from
+source. To avoid that, add `https://cache.iog.io` to `substituters` in
+`nix.conf` and `hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=` to
+`trusted-public-keys`.
+
+[haskell.nix]: https://github.com/input-output-hk/haskell.nix
+
+You can also use pandoc-crossref's binary cache by adding `https://pandoc-crossref.cachix.org` and `pandoc-crossref.cachix.org-1:LI9ABFTkGpPCTkUTzoopVSSpb1a26RSTJNMsqVbDtPM=` to `substituters` and `trusted-public-keys` respectively.
+
+The flake includes both by default, so if you're a nix trusted user and accept
+these configurations during flake evaluation those will be used automatically.
 
 ### Notice Fedora users
 
