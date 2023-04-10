@@ -1,4 +1,4 @@
-name: Haskell CI
+name: Nix CI
 
 on: [push]
 
