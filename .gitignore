@@ -13,3 +13,4 @@ mkcheck.sh
 mkinttest.sh
 /pandoc-crossref
 /*.tar.gz
+/result
