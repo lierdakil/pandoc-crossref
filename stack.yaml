@@ -7,15 +7,15 @@ ghc-options:
 packages:
 - .
 extra-deps:
-- pandoc-3.1.1
+- pandoc-3.1.2
 - gridtables-0.1.0.0
 - hslua-cli-1.2.0
 - hslua-list-1.1.0.1
 - hslua-module-zip-1.0.0
-- jira-wiki-markup-1.5.0
+- jira-wiki-markup-1.5.1
 - mime-types-0.1.1.0
 - doctemplates-0.11
-- texmath-0.12.6
+- texmath-0.12.7
 - citeproc-0.8.1
 - pandoc-types-1.23
 - pandoc-lua-marshal-0.2.0
@@ -29,7 +29,7 @@ extra-deps:
 - pandoc-lua-engine-0.1.1@sha256:c2351b8bc354b31d6562a3d5a8df42219e8ef514374b88a9e10e0e2cc1ac0392,6556
 - pandoc-server-0.1@sha256:d25a6165af8c7b008f1c07bbf9cb01e3f2243743f2d1aff1fa5ef1e080b52511,2634
 
-- doclayout-0.4@sha256:e98428855c12ca41233a0b6e9238b0f654d26ecf53e1e0236074a996ed595c36,2490
+- doclayout-0.4.0.1@sha256:965e4e7eb6cd2ecfce955984d343426385c2639dab45c3d8fbcae7eb4e5f7091,2409
 - skylighting-format-ansi-0.1@sha256:4e525cb8fc5f13d9cf9d1f1d07120cc494d91bbfe39045c41b7ab6cf1c77a361,1353
 - skylighting-format-blaze-html-0.1.1@sha256:9e6cf17156f6b379439aece1cd79ff3baefe41bd0eb617882aba656d07be12d1,1290
 - skylighting-format-context-0.1.0.2@sha256:1eacb2bc470821c7fbe778e92b8915b9e45931a25c6a57e2b5edee3021d908c8,1335
