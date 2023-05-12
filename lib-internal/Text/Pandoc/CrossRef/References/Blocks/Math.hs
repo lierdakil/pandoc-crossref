@@ -28,9 +28,8 @@ import qualified Data.Text as T
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared (stringify)
 
-import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
-import Text.Pandoc.CrossRef.References.Blocks.Util (setLabel, replaceAttr)
+import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
@@ -52,7 +51,7 @@ replaceEqn (label, _, attrs) eq = do
   opts <- ask
   let label' | T.null label = Left "eq"
              | otherwise = Right label
-  idxStrRaw <- replaceAttr label' attrs [] PfxEqn
+  idxStrRaw <- replaceAttr label' attrs [] SPfxEqn
   let idxStr = applyTemplate' (M.fromDistinctAscList [("i", idxStrRaw)]) $ eqnIndexTemplate opts
       eqTxt = applyTemplate' eqTxtVars $ eqnInlineTemplate opts :: [Inline]
       eqTxtVars = M.fromDistinctAscList

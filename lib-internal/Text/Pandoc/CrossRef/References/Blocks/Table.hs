@@ -27,9 +27,8 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Shared (blocksToInlines)
 import Data.Function ((&))
 
-import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
-import Text.Pandoc.CrossRef.References.Blocks.Util (setLabel, replaceAttr, walkReplaceInlines)
+import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
@@ -37,7 +36,7 @@ import Text.Pandoc.CrossRef.Util.Util
 runTable :: Attr -> Maybe Attr -> Maybe ShortCaption -> Block -> [Block] -> [ColSpec] -> TableHead -> [TableBody] -> TableFoot -> WS (ReplacedResult Block)
 runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot = do
   opts <- ask
-  idxStr <- replaceAttr (Right label) attrs title PfxTbl
+  idxStr <- replaceAttr (Right label) attrs title SPfxTbl
   let title' =
         case outFormat opts of
             f | isLatexFormat f ->

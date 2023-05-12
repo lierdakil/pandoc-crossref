@@ -39,7 +39,7 @@ import Text.Pandoc.Shared (blocksToInlines)
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
-import Text.Pandoc.CrossRef.References.Blocks.Util (setLabel, replaceAttr, walkReplaceInlines)
+import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
@@ -47,7 +47,7 @@ import Text.Pandoc.CrossRef.Util.Util
 runSubfigures :: Attr -> [Block] -> [Inline] -> WS (ReplacedResult Block)
 runSubfigures (label, cls, attrs) images caption = do
   opts <- ask
-  idxStr <- replaceAttr (Right label) attrs caption PfxImg
+  idxStr <- replaceAttr (Right label) attrs caption SPfxImg
   let (cont, st) = flip runState def $ flip runReaderT opts' $ runWS $ runReplace (mkRR replaceSubfigs `extRR` doFigure) $ images
       doFigure :: Block -> WS (ReplacedResult Block)
       doFigure (Figure attr caption' content) = runFigure True attr caption' content
@@ -154,7 +154,7 @@ replaceSubfig x@(Image (label,cls,attrs) alt tgt)
   = do
       opts <- ask
       let label' = normalizeLabel label
-      idxStr <- replaceAttr label' attrs alt PfxImg
+      idxStr <- replaceAttr label' attrs alt SPfxImg
       let alt' = applyTemplate idxStr alt $ figureTemplate opts
       case outFormat opts of
         f | isLatexFormat f -> pure $ latexSubFigure x label
@@ -206,7 +206,7 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
       attrs = case blocksToInlines content of
         [Image (_, _, as) _ _] -> fattrs <> as
         _ -> fattrs
-  idxStr <- replaceAttr label' attrs title PfxImg
+  idxStr <- replaceAttr label' attrs title SPfxImg
   let title' = case outFormat opts of
         f | isLatexFormat f -> title
         _  -> applyTemplate idxStr title $ figureTemplate opts

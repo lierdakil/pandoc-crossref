@@ -29,9 +29,8 @@ import Text.Pandoc.Shared (stringify)
 import qualified Text.Pandoc.Builder as B
 import Data.Function ((&))
 
-import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
-import Text.Pandoc.CrossRef.References.Blocks.Util (mkCaption, replaceAttr, setLabel)
+import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
@@ -59,7 +58,7 @@ runCodeBlock (label, classes, attrs) code eCaption = do
           ]
     _ -> do
       let cap = either (B.toList . B.text) id eCaption
-      idxStr <- replaceAttr (Right label) attrs cap PfxLst
+      idxStr <- replaceAttr (Right label) attrs cap SPfxLst
       let caption' = applyTemplate idxStr cap $ listingTemplate opts
       replaceNoRecurse $ Div (label, "listing":classes, []) [
           mkCaption opts "Caption" caption'

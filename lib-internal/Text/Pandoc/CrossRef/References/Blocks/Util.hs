@@ -18,7 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, RecordWildCards, ViewPatterns #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, RecordWildCards, ViewPatterns
+  , LambdaCase #-}
 
 module Text.Pandoc.CrossRef.References.Blocks.Util where
 
@@ -55,38 +56,52 @@ walkReplaceInlines newTitle title = walk replaceInlines
     | xs == title = newTitle
     | otherwise = xs
 
+-- | Exactly like 'Prefix' but doesn't have 'PfxSec'. @S@ stands for "safer".
+-- Sections are handled specially, see
+-- "Text.Pandoc.CrossRef.References.Blocks.Header"
+data SPrefix
+  = SPfxImg
+  | SPfxEqn
+  | SPfxTbl
+  | SPfxLst
+
+toPrefix :: SPrefix -> Prefix
+toPrefix = \case
+  SPfxImg -> PfxImg
+  SPfxEqn -> PfxEqn
+  SPfxTbl -> PfxTbl
+  SPfxLst -> PfxLst
+
 replaceAttr
   :: Either T.Text T.Text -- ^ Reference id
   -> [(T.Text, T.Text)] -- ^ Attributes
   -> [Inline] -- ^ Title
-  -> Prefix -- ^ Prefix type
+  -> SPrefix -- ^ Prefix type
   -> WS [Inline]
-replaceAttr _ _ _ PfxSec = error "shouldn't happen"
-replaceAttr label attrs title pfx
-  = do
-    let refLabel = lookup "label" attrs
-        number = readMaybe . T.unpack =<< lookup "number" attrs
-    Options{..} <- ask
-    chap  <- S.take chaptersDepth <$> use (ctrsAt PfxSec)
-    prop' <- use $ refsAt pfx
-    curIdx <- use $ ctrsAt pfx
-    let i | Just n <- number = n
-          | chap' :> last' <- S.viewr curIdx
-          , chap' == chap
-          = succ . fst $ last'
-          | otherwise = 1
-        index = chap <> S.singleton (i, refLabel <|> customLabel ref i)
-        ref = either id (T.takeWhile (/=':')) label
-        label' = either (<> T.pack (':' : show index)) id label
-    ctrsAt pfx .= index
-    when (M.member label' prop') $
-      error . T.unpack $ "Duplicate label: " <> label'
-    modifying (refsAt pfx) $ M.insert label' RefRec {
-      refIndex= index
-    , refTitle= title
-    , refSubfigure = Nothing
-    }
-    return $ chapPrefix chapDelim index
+replaceAttr label attrs title (toPrefix -> pfx) = do
+  let refLabel = lookup "label" attrs
+      number = readMaybe . T.unpack =<< lookup "number" attrs
+  Options{..} <- ask
+  chap  <- S.take chaptersDepth <$> use (ctrsAt PfxSec)
+  prop' <- use $ refsAt pfx
+  curIdx <- use $ ctrsAt pfx
+  let i | Just n <- number = n
+        | chap' :> last' <- S.viewr curIdx
+        , chap' == chap
+        = succ . fst $ last'
+        | otherwise = 1
+      index = chap S.|> (i, refLabel <|> customLabel ref i)
+      ref = either id (T.takeWhile (/=':')) label
+      label' = either (<> T.pack (':' : show index)) id label
+  ctrsAt pfx .= index
+  when (M.member label' prop') $
+    error . T.unpack $ "Duplicate label: " <> label'
+  modifying (refsAt pfx) $ M.insert label' RefRec {
+    refIndex= index
+  , refTitle= title
+  , refSubfigure = Nothing
+  }
+  return $ chapPrefix chapDelim index
 
 mkCaption :: Options -> T.Text -> [Inline] -> Block
 mkCaption opts style
