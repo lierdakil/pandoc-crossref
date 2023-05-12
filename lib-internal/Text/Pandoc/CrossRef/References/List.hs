@@ -41,13 +41,13 @@ listOf blocks = asks (isLatexFormat . outFormat) >>= \case
   False -> case blocks of
     (RawBlock fmt "\\listoffigures":xs)
       | isLaTeXRawBlockFmt fmt
-      -> use imgRefs >>= makeList "fig" lofItemTemplate lofTitle xs
+      -> use (refsAt PfxImg) >>= makeList "fig" lofItemTemplate lofTitle xs
     (RawBlock fmt "\\listoftables":xs)
       | isLaTeXRawBlockFmt fmt
-      -> use tblRefs >>= makeList "tbl" lotItemTemplate lotTitle xs
+      -> use (refsAt PfxTbl) >>= makeList "tbl" lotItemTemplate lotTitle xs
     (RawBlock fmt "\\listoflistings":xs)
       | isLaTeXRawBlockFmt fmt
-      -> use lstRefs >>= makeList "lst" lolItemTemplate lolTitle xs
+      -> use (refsAt PfxLst) >>= makeList "lst" lolItemTemplate lolTitle xs
     _ -> pure blocks
 
 makeList

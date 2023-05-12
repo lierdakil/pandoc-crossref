@@ -59,7 +59,7 @@ runCodeBlock (label, classes, attrs) code eCaption = do
           ]
     _ -> do
       let cap = either (B.toList . B.text) id eCaption
-      idxStr <- replaceAttr (Right label) (lookup "label" attrs) cap lstRefs
+      idxStr <- replaceAttr (Right label) attrs cap PfxLst
       let caption' = applyTemplate idxStr cap $ listingTemplate opts
       replaceNoRecurse $ Div (label, "listing":classes, []) [
           mkCaption opts "Caption" caption'

@@ -36,6 +36,7 @@ import Text.Pandoc.Class
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.Writers.LaTeX
 import Text.ParserCombinators.ReadP (readP_to_S)
+import qualified Data.Sequence as S
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
 intercalate' s xs
@@ -68,9 +69,9 @@ isFirstUpper xs
 chapPrefix :: [Inline] -> Index -> [Inline]
 chapPrefix delim = toList
   . intercalate' (fromList delim)
-  . map str
-  . filter (not . T.null)
-  . map (uncurry (fromMaybe . T.pack . show))
+  . fmap str
+  . S.filter (not . T.null)
+  . fmap (uncurry (fromMaybe . T.pack . show))
 
 data ReplacedResult a = Replaced Bool a | NotReplaced Bool
 type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))

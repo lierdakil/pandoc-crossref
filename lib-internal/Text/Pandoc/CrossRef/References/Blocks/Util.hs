@@ -18,26 +18,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, RecordWildCards, ViewPatterns #-}
 
 module Text.Pandoc.CrossRef.References.Blocks.Util where
 
 import Control.Monad.Reader.Class
 import Control.Monad.State hiding (get, modify)
 import qualified Data.Map as M
-import Data.Maybe
 import qualified Data.Text as T
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Walk (walk)
 
+import Text.Read (readMaybe)
+
 import Control.Applicative
-import Lens.Micro
 import Lens.Micro.Mtl
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
+import qualified Data.Sequence as S
+import Data.Sequence (ViewR(..))
 
 setLabel :: Options -> [Inline] -> [(T.Text, T.Text)] -> [(T.Text, T.Text)]
 setLabel opts idx
@@ -53,24 +55,38 @@ walkReplaceInlines newTitle title = walk replaceInlines
     | xs == title = newTitle
     | otherwise = xs
 
-replaceAttr :: Either T.Text T.Text -> Maybe T.Text -> [Inline] -> Lens References References RefMap RefMap -> WS [Inline]
-replaceAttr label refLabel title prop
+replaceAttr
+  :: Either T.Text T.Text -- ^ Reference id
+  -> [(T.Text, T.Text)] -- ^ Attributes
+  -> [Inline] -- ^ Title
+  -> Prefix -- ^ Prefix type
+  -> WS [Inline]
+replaceAttr _ _ _ PfxSec = error "shouldn't happen"
+replaceAttr label attrs title pfx
   = do
-    o <- ask
-    chap  <- take (chaptersDepth o) `fmap` use curChap
-    prop' <- use prop
-    let i = 1+ (M.size . M.filter (\x -> (chap == init (refIndex x)) && isNothing (refSubfigure x)) $ prop')
-        index = chap <> [(i, refLabel <|> customLabel o ref i)]
+    let refLabel = lookup "label" attrs
+        number = readMaybe . T.unpack =<< lookup "number" attrs
+    Options{..} <- ask
+    chap  <- S.take chaptersDepth <$> use (ctrsAt PfxSec)
+    prop' <- use $ refsAt pfx
+    curIdx <- use $ ctrsAt pfx
+    let i | Just n <- number = n
+          | chap' :> last' <- S.viewr curIdx
+          , chap' == chap
+          = succ . fst $ last'
+          | otherwise = 1
+        index = chap <> S.singleton (i, refLabel <|> customLabel ref i)
         ref = either id (T.takeWhile (/=':')) label
         label' = either (<> T.pack (':' : show index)) id label
+    ctrsAt pfx .= index
     when (M.member label' prop') $
       error . T.unpack $ "Duplicate label: " <> label'
-    modifying prop $ M.insert label' RefRec {
+    modifying (refsAt pfx) $ M.insert label' RefRec {
       refIndex= index
     , refTitle= title
     , refSubfigure = Nothing
     }
-    return $ chapPrefix (chapDelim o) index
+    return $ chapPrefix chapDelim index
 
 mkCaption :: Options -> T.Text -> [Inline] -> Block
 mkCaption opts style

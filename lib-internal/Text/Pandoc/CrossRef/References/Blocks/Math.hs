@@ -52,7 +52,7 @@ replaceEqn (label, _, attrs) eq = do
   opts <- ask
   let label' | T.null label = Left "eq"
              | otherwise = Right label
-  idxStrRaw <- replaceAttr label' (lookup "label" attrs) [] eqnRefs
+  idxStrRaw <- replaceAttr label' attrs [] PfxEqn
   let idxStr = applyTemplate' (M.fromDistinctAscList [("i", idxStrRaw)]) $ eqnIndexTemplate opts
       eqTxt = applyTemplate' eqTxtVars $ eqnInlineTemplate opts :: [Inline]
       eqTxtVars = M.fromDistinctAscList

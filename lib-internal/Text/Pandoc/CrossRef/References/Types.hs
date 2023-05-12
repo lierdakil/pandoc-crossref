@@ -18,16 +18,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, GeneralizedNewtypeDeriving, RankNTypes #-}
 module Text.Pandoc.CrossRef.References.Types where
 
 import Data.Default
 import qualified Data.Map as M
 import Data.Text (Text)
+import Lens.Micro.GHC
 import Lens.Micro.TH
 import Text.Pandoc.Definition
+import qualified Data.Sequence as S
 
-type Index = [(Int, Maybe Text)]
+type Index = S.Seq (Int, Maybe Text)
 
 data RefRec = RefRec { refIndex :: Index
                      , refTitle :: [Inline]
@@ -36,17 +38,26 @@ data RefRec = RefRec { refIndex :: Index
 
 type RefMap = M.Map Text RefRec
 
+data Prefix
+  = PfxImg
+  | PfxEqn
+  | PfxTbl
+  | PfxLst
+  | PfxSec
+  deriving (Eq, Ord, Enum, Bounded, Show)
+
 -- state data type
-data References = References { _imgRefs :: RefMap
-                             , _eqnRefs :: RefMap
-                             , _tblRefs :: RefMap
-                             , _lstRefs :: RefMap
-                             , _secRefs :: RefMap
-                             , _curChap :: Index
+data References = References { _stRefs :: M.Map Prefix RefMap
+                             , _stCtrs :: M.Map Prefix Index
                              } deriving (Show, Eq)
 
 instance Default References where
-  def = References n n n n n []
-    where n = M.empty
+  def = References mempty mempty
 
 makeLenses ''References
+
+refsAt :: Prefix -> Lens' References RefMap
+refsAt pfx = stRefs . at pfx . non mempty
+
+ctrsAt :: Prefix -> Lens' References Index
+ctrsAt pfx = stCtrs . at pfx . non mempty

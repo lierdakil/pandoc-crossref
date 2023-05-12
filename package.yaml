@@ -46,6 +46,7 @@ internal-libraries:
     - template-haskell >=2.7.0.0 && <3.0.0.0
     - microlens-mtl >=0.2.0.1 && <0.3.0.0
     - microlens-th >=0.4.3.10 && < 0.5.0.0
+    - microlens-ghc >=0.4.3.10 && < 0.5.0.0
     - microlens >=0.4.12.0 && <0.5.0.0
 flags:
   enable_flaky_tests:

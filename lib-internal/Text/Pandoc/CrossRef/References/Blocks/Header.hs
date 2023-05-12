@@ -18,15 +18,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, RecordWildCards, NamedFieldPuns #-}
 
 module Text.Pandoc.CrossRef.References.Blocks.Header where
 
 import Control.Monad.Reader.Class
 import Control.Monad.State hiding (get, modify)
 import qualified Data.Map as M
+import qualified Data.Sequence as S
+import Data.Sequence (ViewR(..))
 import qualified Data.Text as T
 import Text.Pandoc.Definition
+import Text.Read (readMaybe)
 
 import Control.Applicative
 import Lens.Micro.Mtl
@@ -38,42 +41,59 @@ import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 
 runHeader :: Int -> Attr -> [Inline] -> WS (ReplacedResult Block)
-runHeader n (label, cls, attrs) text' = do
-  opts <- ask
-  let label' = if autoSectionLabels opts && not ("sec:" `T.isPrefixOf` label)
-                then "sec:"<>label
-                else label
-  unless ("unnumbered" `elem` cls) $ do
-    modifying curChap $ \cc ->
-      let ln = length cc
-          cl i = lookup "label" attrs <|> customHeadingLabel opts n i <|> customLabel opts "sec" i
-          inc l = let i = fst (last l) + 1 in init l <> [(i, cl i)]
-          cc' | ln > n = inc $ take n cc
-              | ln == n = inc cc
-              | otherwise = cc <> take (n-ln-1) implicitChapters <> [(1,cl 1)]
-          implicitChapters | numberSections opts = repeat (1, Nothing)
-                            | otherwise = repeat (0, Nothing)
-      in cc'
-    when ("sec:" `T.isPrefixOf` label') $ do
-      index  <- use curChap
-      modifying secRefs $ M.insert label' RefRec {
-        refIndex=index
-      , refTitle= text'
-      , refSubfigure = Nothing
-      }
-  cc <- use curChap
-  let textCC | numberSections opts
-              , sectionsDepth opts < 0
-              || n <= if sectionsDepth opts == 0 then chaptersDepth opts else sectionsDepth opts
-              , "unnumbered" `notElem` cls
-              = applyTemplate' (M.fromDistinctAscList [
-                  ("i", idxStr)
-                , ("n", [Str $ T.pack $ show $ n - 1])
-                , ("t", text')
-                ]) $ secHeaderTemplate opts
-              | otherwise = text'
-      idxStr = chapPrefix (chapDelim opts) cc
-      attrs' | "unnumbered" `notElem` cls
-              = setLabel opts idxStr attrs
-              | otherwise = attrs
-  replaceNoRecurse $ Header n (label', cls, attrs') textCC
+runHeader n (label, cls, attrs) text'
+  | "unnumbered" `elem` cls = do
+      Options{autoSectionLabels} <- ask
+      if autoSectionLabels
+      then do
+        label' <- mangleLabel
+        replaceNoRecurse $ Header n (label', cls, attrs) text'
+      else noReplaceNoRecurse
+  | otherwise = do
+      opts@Options{..} <- ask
+      label' <- mangleLabel
+      modifying (ctrsAt PfxSec) $ \cc ->
+        let ln = length cc
+            cl i = lookup "label" attrs <|> customHeadingLabel n i <|> customLabel "sec" i
+            inc l = case S.viewr l of
+              EmptyR -> error "impossible"
+              init' :> last' ->
+                let i = succ $ fst $ last'
+                in init' S.|> (i, cl i)
+            cc' | Just num <- readMaybe . T.unpack =<< lookup "number" attrs
+                = S.take (n - 1) cc S.|> (num, cl num)
+                | ln > n = inc $ S.take n cc
+                | ln == n = inc cc
+                | otherwise = cc <> implicitChapters S.|> (1,cl 1)
+            implicitChapters
+              | numberSections = S.replicate (n-ln-1) (1, Nothing)
+              | otherwise = S.replicate (n-ln-1) (0, Nothing)
+        in cc'
+      when ("sec:" `T.isPrefixOf` label') $ do
+        index  <- use $ ctrsAt PfxSec
+        modifying (refsAt PfxSec) $ M.insert label' RefRec {
+          refIndex=index
+        , refTitle= text'
+        , refSubfigure = Nothing
+        }
+      cc <- use $ ctrsAt PfxSec
+      let textCC
+            | numberSections
+            , sectionsDepth < 0
+            || n <= if sectionsDepth == 0 then chaptersDepth else sectionsDepth
+            = applyTemplate' (M.fromDistinctAscList [
+                ("i", idxStr)
+              , ("n", [Str $ T.pack $ show $ n - 1])
+              , ("t", text')
+              ]) $ secHeaderTemplate
+            | otherwise = text'
+          idxStr = chapPrefix chapDelim cc
+          attrs' = setLabel opts idxStr attrs
+      replaceNoRecurse $ Header n (label', cls, attrs') textCC
+  where
+    mangleLabel = do
+      Options{autoSectionLabels} <- ask
+      pure $
+        if autoSectionLabels && not ("sec:" `T.isPrefixOf` label)
+        then "sec:" <> label
+        else label

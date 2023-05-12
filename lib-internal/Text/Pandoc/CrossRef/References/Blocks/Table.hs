@@ -37,7 +37,7 @@ import Text.Pandoc.CrossRef.Util.Util
 runTable :: Attr -> Maybe Attr -> Maybe ShortCaption -> Block -> [Block] -> [ColSpec] -> TableHead -> [TableBody] -> TableFoot -> WS (ReplacedResult Block)
 runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot = do
   opts <- ask
-  idxStr <- replaceAttr (Right label) (lookup "label" attrs) title tblRefs
+  idxStr <- replaceAttr (Right label) attrs title PfxTbl
   let title' =
         case outFormat opts of
             f | isLatexFormat f ->

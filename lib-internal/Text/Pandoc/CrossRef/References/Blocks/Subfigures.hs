@@ -47,7 +47,7 @@ import Text.Pandoc.CrossRef.Util.Util
 runSubfigures :: Attr -> [Block] -> [Inline] -> WS (ReplacedResult Block)
 runSubfigures (label, cls, attrs) images caption = do
   opts <- ask
-  idxStr <- replaceAttr (Right label) (lookup "label" attrs) caption imgRefs
+  idxStr <- replaceAttr (Right label) attrs caption PfxImg
   let (cont, st) = flip runState def $ flip runReaderT opts' $ runWS $ runReplace (mkRR replaceSubfigs `extRR` doFigure) $ images
       doFigure :: Block -> WS (ReplacedResult Block)
       doFigure (Figure attr caption' content) = runFigure True attr caption' content
@@ -62,7 +62,7 @@ runSubfigures (label, cls, attrs) images caption = do
         $ sortOn (refIndex . snd)
         $ filter (not . null . refTitle . snd)
         $ M.toList
-        $ st^.imgRefs
+        $ st ^. refsAt PfxImg
       collectCaps v =
             applyTemplate
               (chapPrefix (chapDelim opts) (refIndex v))
@@ -74,12 +74,12 @@ runSubfigures (label, cls, attrs) images caption = do
                 , ("t", caption)
                 ]
       capt = applyTemplate' vars $ subfigureTemplate opts
-  lastRef <- fromJust . M.lookup label <$> use imgRefs
-  modifying imgRefs $ \old ->
+  lastRef <- fromJust . M.lookup label <$> use (refsAt PfxImg)
+  modifying (refsAt PfxImg) $ \old ->
       M.union
         old
         (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
-        $ st^.imgRefs)
+        $ st ^. refsAt PfxImg)
   case outFormat opts of
     f | isLatexFormat f ->
       replaceNoRecurse $ Div nullAttr $
@@ -154,7 +154,7 @@ replaceSubfig x@(Image (label,cls,attrs) alt tgt)
   = do
       opts <- ask
       let label' = normalizeLabel label
-      idxStr <- replaceAttr label' (lookup "label" attrs) alt imgRefs
+      idxStr <- replaceAttr label' attrs alt PfxImg
       let alt' = applyTemplate idxStr alt $ figureTemplate opts
       case outFormat opts of
         f | isLatexFormat f -> pure $ latexSubFigure x label
@@ -206,7 +206,7 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
       attrs = case blocksToInlines content of
         [Image (_, _, as) _ _] -> fattrs <> as
         _ -> fattrs
-  idxStr <- replaceAttr label' (lookup "label" attrs) title imgRefs
+  idxStr <- replaceAttr label' attrs title PfxImg
   let title' = case outFormat opts of
         f | isLatexFormat f -> title
         _  -> applyTemplate idxStr title $ figureTemplate opts
