@@ -282,22 +282,42 @@ metadata option. The following variables are supported:
 
 See [section on templates](#templates) for more information
 
-## Section reference labels
+## Reference labels
 
 ***Not currently supported with LaTeX output***
 
-If you want to reference some section by a pre-defined label instead of
-by number, you can specify section attribute `label`, like this:
+If you want to reference some object by a pre-defined label instead of
+by number, you can specify attribute `label`, like this:
 
-``` markdown
- Section {label="Custom Label"}
+```markdown
+# Section {label="Custom Label"}
+
+![Figure](fig.png){fig:fig1 label="Custom label"}
 ```
 
-This label will be used instead of section number in `chapters` output
-and when referencing section directly (with `@sec:section`).
+Note that to use this with equations and tables, you need to use fenced div/span
+syntax, not the short syntax:
 
-Note that with `chapters` output with depth\>1, only given section will
-be referenced by custom label, e.g. with
+```markdown
+
+:::{#tbl:table label="T"}
+a   b   c
+--- --- ---
+1   2   3
+4   5   6
+
+: Caption
+:::
+
+[$$y = e^x$$]{#eq:equation label="E"}
+
+```
+
+This label will be used instead of a number in `chapters` output for sections
+and when referencing the element directly.
+
+Note that with `chapters` output with depth\>1, only the given section will be
+referenced by the custom label, e.g. with
 
 ``` markdown
  Chapter 1.
@@ -309,6 +329,14 @@ be referenced by custom label, e.g. with
 
 `@sec:scl` will translate into `sec. 1.SCL`, and `@fig:figure` into
 `fig. 1.SCL.1`
+
+## Manual numbering adjustment
+
+For cases when you need to manually adjust numbering, you can specify the
+`number` attribute on the object. It will set the internal section counter for
+the annotated object to the number specified, and all the following objects of
+this type will count from that. Conceptually, this is similar to document
+processors' "start from..." etc.
 
 ## Code Block labels
 

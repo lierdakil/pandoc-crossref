@@ -1,3 +1,13 @@
+## Unreleased
+
+- Add `number` attribute
+
+    For cases when you need to manually adjust numbering, you can specify the
+    `number` attribute on referencable objects. It will set the internal counter
+    for the object to that number, and all following objects of this type will
+    count up from that. Conceptually, this is similar to document processors'
+    "start from..." etc.
+
 ## 0.3.15.2
 
 -   Fix single-row subfigures

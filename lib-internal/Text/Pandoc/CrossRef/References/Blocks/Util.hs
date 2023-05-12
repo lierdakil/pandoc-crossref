@@ -93,9 +93,9 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
       index = chap S.|> (i, refLabel <|> customLabel ref i)
       ref = either id (T.takeWhile (/=':')) label
       label' = either (<> T.pack (':' : show index)) id label
-  ctrsAt pfx .= index
   when (M.member label' prop') $
     error . T.unpack $ "Duplicate label: " <> label'
+  ctrsAt pfx .= index
   modifying (refsAt pfx) $ M.insert label' RefRec {
     refIndex= index
   , refTitle= title

@@ -28,3 +28,35 @@ other text
 \subsubsection{*.A.A Subsubsection}\label{subsubsection}}
 
 text text text
+
+\hypertarget{custom-on-other-elements}{%
+\section{B Custom on other elements}\label{custom-on-other-elements}}
+
+\begin{figure}
+\hypertarget{fig:fig3}{%
+\centering
+\includegraphics{fig.png}
+\caption{Figure}\label{fig:fig3}
+}
+\end{figure}
+
+\hypertarget{tbl:table}{}
+\begin{longtable}[]{@{}lll@{}}
+\caption{\label{tbl:table}Caption}\tabularnewline
+\toprule\noalign{}
+a & b & c \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+a & b & c \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+\end{longtable}
+
+\begin{equation}\protect\hypertarget{eq:equation}{}{y = e^x}\label{eq:equation}\end{equation}
+
+fig.~\ref{fig:fig3} tbl.~\ref{tbl:table} eq.~\ref{eq:equation}
