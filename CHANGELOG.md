@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.16.0
 
 - Add `number` attribute
 
