@@ -48,7 +48,10 @@ runSubfigures :: Attr -> [Block] -> [Inline] -> WS (ReplacedResult Block)
 runSubfigures (label, cls, attrs) images caption = do
   opts <- ask
   idxStr <- replaceAttr (Right label) attrs caption SPfxImg
-  let (cont, st) = flip runState def $ flip runReaderT opts' $ runWS $ runReplace (mkRR replaceSubfigs `extRR` doFigure) $ images
+  let (cont, st) = flip runState def
+        $ flip runReaderT opts'
+        $ runWS
+        $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
       doFigure :: Block -> WS (ReplacedResult Block)
       doFigure (Figure attr caption' content) = runFigure True attr caption' content
       doFigure _ = noReplaceRecurse
@@ -75,11 +78,9 @@ runSubfigures (label, cls, attrs) images caption = do
                 ]
       capt = applyTemplate' vars $ subfigureTemplate opts
   lastRef <- fromJust . M.lookup label <$> use (refsAt PfxImg)
-  modifying (refsAt PfxImg) $ \old ->
-      M.union
-        old
-        (M.map (\v -> v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v})
-        $ st ^. refsAt PfxImg)
+  let mangledSubfigures = mangleSubfigure <$> st ^. refsAt PfxImg
+      mangleSubfigure v = v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v}
+  refsAt PfxImg %= (<> mangledSubfigures)
   case outFormat opts of
     f | isLatexFormat f ->
       replaceNoRecurse $ Div nullAttr $
@@ -150,15 +151,14 @@ imageToFigure = \case
   _ -> Nothing
 
 replaceSubfig :: Inline -> WS [Inline]
-replaceSubfig x@(Image (label,cls,attrs) alt tgt)
-  = do
-      opts <- ask
-      let label' = normalizeLabel label
-      idxStr <- replaceAttr label' attrs alt SPfxImg
-      let alt' = applyTemplate idxStr alt $ figureTemplate opts
-      case outFormat opts of
-        f | isLatexFormat f -> pure $ latexSubFigure x label
-        _ -> pure [Image (label, cls, setLabel opts idxStr attrs) alt' tgt]
+replaceSubfig x@(Image (label,cls,attrs) alt tgt) = do
+  opts <- ask
+  let label' = normalizeLabel label
+  idxStr <- replaceAttr label' attrs alt SPfxImg
+  let alt' = applyTemplate idxStr alt $ figureTemplate opts
+  case outFormat opts of
+    f | isLatexFormat f -> pure $ latexSubFigure x label
+    _ -> pure [Image (label, cls, setLabel opts idxStr attrs) alt' tgt]
 replaceSubfig x = pure [x]
 
 latexSubFigure :: Inline -> T.Text -> [Inline]

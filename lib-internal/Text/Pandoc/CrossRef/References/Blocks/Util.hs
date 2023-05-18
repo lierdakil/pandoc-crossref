@@ -96,7 +96,7 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
   when (M.member label' prop') $
     error . T.unpack $ "Duplicate label: " <> label'
   ctrsAt pfx .= index
-  modifying (refsAt pfx) $ M.insert label' RefRec {
+  refsAt pfx %= M.insert label' RefRec {
     refIndex= index
   , refTitle= title
   , refSubfigure = Nothing

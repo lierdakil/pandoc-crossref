@@ -43,16 +43,12 @@ import Text.Pandoc.CrossRef.Util.Util
 runHeader :: Int -> Attr -> [Inline] -> WS (ReplacedResult Block)
 runHeader n (label, cls, attrs) text'
   | "unnumbered" `elem` cls = do
-      Options{autoSectionLabels} <- ask
-      if autoSectionLabels
-      then do
-        label' <- mangleLabel
-        replaceNoRecurse $ Header n (label', cls, attrs) text'
-      else noReplaceNoRecurse
+      label' <- mangleLabel
+      replaceNoRecurse $ Header n (label', cls, attrs) text'
   | otherwise = do
       opts@Options{..} <- ask
       label' <- mangleLabel
-      modifying (ctrsAt PfxSec) $ \cc ->
+      ctrsAt PfxSec %= \cc ->
         let ln = length cc
             cl i = lookup "label" attrs <|> customHeadingLabel n i <|> customLabel "sec" i
             inc l = case S.viewr l of
@@ -69,14 +65,13 @@ runHeader n (label, cls, attrs) text'
               | numberSections = S.replicate (n-ln-1) (1, Nothing)
               | otherwise = S.replicate (n-ln-1) (0, Nothing)
         in cc'
-      when ("sec:" `T.isPrefixOf` label') $ do
-        index  <- use $ ctrsAt PfxSec
-        modifying (refsAt PfxSec) $ M.insert label' RefRec {
-          refIndex=index
-        , refTitle= text'
+      cc <- use $ ctrsAt PfxSec
+      when ("sec:" `T.isPrefixOf` label') $
+        refsAt PfxSec %= M.insert label' RefRec {
+          refIndex = cc
+        , refTitle = text'
         , refSubfigure = Nothing
         }
-      cc <- use $ ctrsAt PfxSec
       let textCC
             | numberSections
             , sectionsDepth < 0
