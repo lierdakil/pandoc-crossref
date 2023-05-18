@@ -332,11 +332,16 @@ referenced by the custom label, e.g. with
 
 ## Manual numbering adjustment
 
+***Not currently supported with LaTeX output***
+
 For cases when you need to manually adjust numbering, you can specify the
-`number` attribute on the object. It will set the internal section counter for
+`number` attribute on the object. It will set the internal object counter for
 the annotated object to the number specified, and all the following objects of
 this type will count from that. Conceptually, this is similar to document
 processors' "start from..." etc.
+
+Same as with `label` attributes, to use this with equations and tables, you need
+to use fenced div/span syntax, not the short syntax.
 
 ## Code Block labels
 
