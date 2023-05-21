@@ -21,7 +21,7 @@ dependencies:
 - base >=4.11 && <5
 - text >=1.2.2 && <2.1
 - pandoc >=3.0 && < 3.2
-- pandoc-types
+- pandoc-types >= 1.23 && < 1.24
 library:
   source-dirs: lib
   ghc-options: -Wall
