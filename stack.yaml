@@ -7,7 +7,7 @@ ghc-options:
 packages:
 - .
 extra-deps:
-- pandoc-3.1.2
+- pandoc-3.1.3
 - gridtables-0.1.0.0
 - hslua-cli-1.2.0
 - hslua-list-1.1.0.1
@@ -15,7 +15,9 @@ extra-deps:
 - jira-wiki-markup-1.5.1
 - mime-types-0.1.1.0
 - doctemplates-0.11
-- texmath-0.12.7
+- texmath-0.12.8
+- typst-0.1.0.0
+- typst-symbols-0.1.0.1
 - citeproc-0.8.1
 - pandoc-types-1.23
 - pandoc-lua-marshal-0.2.0
