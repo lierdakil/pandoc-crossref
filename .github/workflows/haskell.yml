@@ -21,7 +21,7 @@ jobs:
       if: '!(matrix.container)'
       with:
         ghc-version: ${{matrix.ghcver}}
-        cabal-version: '3.8.1.0'
+        cabal-version: '3.6'
     - name: Cabal init
       shell: pwsh
       run: |
