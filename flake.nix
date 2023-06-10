@@ -46,7 +46,7 @@
         '';
         hixProject = args@{ static ? false, ... }:
           (pkgs args).haskell-nix.cabalProject {
-            compiler-nix-name = "ghc927";
+            compiler-nix-name = "ghc945";
             src = nix-filter.lib {
               root = ./.;
               include = [
@@ -98,7 +98,10 @@
 
   # --- Flake Local Nix Configuration ----------------------------
   nixConfig = {
-    extra-substituters = ["https://cache.iog.io" "https://pandoc-crossref.cachix.org"];
+    extra-substituters = [
+      "https://cache.iog.io"
+      "https://pandoc-crossref.cachix.org"
+    ];
     extra-trusted-public-keys = [
       "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
       "pandoc-crossref.cachix.org-1:LI9ABFTkGpPCTkUTzoopVSSpb1a26RSTJNMsqVbDtPM="
