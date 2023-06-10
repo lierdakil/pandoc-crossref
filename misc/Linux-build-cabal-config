@@ -12,3 +12,4 @@ package pandoc
 package pandoc-crossref
   flags: +enable_flaky_tests
   ghc-options: -j +RTS -A64m -RTS
+constraints: tls < 1.7.0
