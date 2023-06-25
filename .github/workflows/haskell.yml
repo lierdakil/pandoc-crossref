@@ -16,6 +16,7 @@ jobs:
     - uses: haskell/actions/setup@v2
       with:
         ghc-version: ${{matrix.ghcver}}
+        cabal: '3.8'
     - name: Cabal init
       shell: pwsh
       run: |
