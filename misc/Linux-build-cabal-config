@@ -1,11 +1,7 @@
 package *
   debug-info: False
-  ghc-options: -fPIC -fasm -optl-static -optl-pthread +RTS -A64m -RTS
-  static: True
-  relocatable: True
   split-sections: True
   executable-stripping: True
-  shared: False
 packages: .
 package pandoc
   ghc-options: -j +RTS -A64m -RTS

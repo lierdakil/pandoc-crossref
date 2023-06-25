@@ -9,16 +9,11 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         pandocver: ["3.1.4"]
         ghcver: ['9.4.5']
-        include:
-        - os: ubuntu-latest
-          container: 'lierdakil/alpine-haskell:9.4.5-pwsh'
-          extra-options: '--constraint "crypton -integer-gmp"'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@v2
     - uses: haskell/actions/setup@v2
-      if: '!(matrix.container)'
       with:
         ghc-version: ${{matrix.ghcver}}
     - name: Cabal init
@@ -33,9 +28,6 @@ jobs:
     - name: Copy build config
       shell: bash
       run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
-    - name: install ncurses-static
-      if: runner.os == 'Linux'
-      run: apk add --update --no-cache ncurses-static
     - name: Cabal configure
       run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --constraint zip-archive'>='0.4.2.1 --enable-tests ${{matrix.extra-options}}
     - uses: actions/cache@v2
@@ -94,8 +86,44 @@ jobs:
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-*
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-*
 
+  build-nix:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: cachix/install-nix-action@v20
+      with:
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        extra_nix_config: |
+          substituters = https://cache.nixos.org https://cache.iog.io
+          trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+    - uses: cachix/cachix-action@v12
+      with:
+        name: pandoc-crossref
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - run: nix build
+    - run: nix build .#static
+    - run: |
+        cp -r result/bin/ pandoc-crossref-${{runner.os}}
+        chmod +w -R pandoc-crossref-${{runner.os}}
+    - run: nix run .#test
+    - run: nix run .#test-integrative
+    - run: nix develop -c echo ok
+    - name: Get Version
+      shell: bash
+      id: get_version
+      run: |
+        cd pandoc-crossref-${{runner.os}}/
+        chmod +x pandoc-crossref
+        VERSION="$(./pandoc-crossref --version)"
+        echo "$VERSION"
+        echo "$VERSION" > version.txt
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{runner.os}}-build-static
+        path: pandoc-crossref-${{runner.os}}
+
   release:
-    needs: [build]
+    needs: [build, build-nix]
     runs-on: ubuntu-latest
     container: alpine:3.15.0
     steps:
@@ -107,11 +135,11 @@ jobs:
     - name: Repack assets
       run: |
         mkdir assets
-        chmod +x Linux-build/pandoc-crossref
-        upx Linux-build/pandoc-crossref
+        chmod +x Linux-build-static/pandoc-crossref
+        upx Linux-build-static/pandoc-crossref
         chmod +x macOS-build/pandoc-crossref
         echo not doing upx macOS-build/pandoc-crossref
-        tar cJf assets/pandoc-crossref-Linux-${{github.sha}}.tar.xz -C Linux-build pandoc-crossref pandoc-crossref.1
+        tar cJf assets/pandoc-crossref-Linux-${{github.sha}}.tar.xz -C Linux-build-static pandoc-crossref pandoc-crossref.1
         tar cJf assets/pandoc-crossref-macOS-${{github.sha}}.tar.xz -C macOS-build pandoc-crossref
         cd Windows-build
         upx pandoc-crossref.exe
