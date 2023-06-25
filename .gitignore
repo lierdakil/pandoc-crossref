@@ -14,3 +14,4 @@ mkinttest.sh
 /pandoc-crossref
 /*.tar.gz
 /result*
+/cabal.project.freeze
