@@ -1,7 +1,7 @@
 .PHONY: build pin push
 
 build:
-	nix build . .#static .#pandoc
+	nix build . .#static .#win .#pandoc
 
 pin:
 	nix build .#static
@@ -12,6 +12,9 @@ push:
 		| jq -r '.[].outputs | to_entries[].value' \
 		| cachix push pandoc-crossref
 	nix build .#static --json \
+		| jq -r '.[].outputs | to_entries[].value' \
+		| cachix push pandoc-crossref
+	nix build .#win --json \
 		| jq -r '.[].outputs | to_entries[].value' \
 		| cachix push pandoc-crossref
 	nix build .#pandoc --json \
