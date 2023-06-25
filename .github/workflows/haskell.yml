@@ -61,11 +61,6 @@ jobs:
         mkdir pandoc-crossref-${{runner.os}}
         export GIT_DIR="$PWD/.git"
         cabal v2-install --installdir=$PWD/pandoc-crossref-${{runner.os}}
-    - name: Make manpage
-      if: runner.os == 'Linux'
-      run: |
-        cabal v2-install --installdir="$HOME" pandoc-cli
-        "$HOME/pandoc" -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}/pandoc-crossref.1
     - name: Get Version
       shell: bash
       id: get_version
@@ -113,6 +108,9 @@ jobs:
     - run: nix run .#test
     - run: nix run .#test-integrative
     - run: nix develop -c echo ok
+    - name: Make manpage
+      run: |
+        nix develop -c pandoc -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}/pandoc-crossref.1
     - name: Get Version
       shell: bash
       id: get_version
