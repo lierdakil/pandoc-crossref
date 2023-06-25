@@ -7,12 +7,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        pandocver: ["3.1.3"]
-        ghcver: ['9.0.2']
+        pandocver: ["3.1.4"]
+        ghcver: ['9.4.5']
         include:
         - os: ubuntu-latest
-          container: 'lierdakil/alpine-haskell:9.0.2-pwsh'
-          extra-options: '--constraint "cryptonite -integer-gmp"'
+          container: 'lierdakil/alpine-haskell:9.4.5-pwsh'
+          extra-options: '--constraint "crypton -integer-gmp"'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
@@ -213,7 +213,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["3.1.3"]
+        pandocver: ["3.1.4"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies

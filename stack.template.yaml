@@ -1,0 +1,13 @@
+resolver: ghc-9.4.5
+allow-newer: false
+flags:
+  pandoc-crossref:
+    enable_flaky_tests: true
+  pandoc-cli:
+    server: false
+ghc-options:
+  pandoc: -j "+RTS -A64m -RTS"
+  $targets: -j "+RTS -A64m -RTS"
+packages:
+- .
+extra-deps:

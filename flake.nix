@@ -56,6 +56,7 @@
                 ./src
                 ./test
                 ./pandoc-crossref.cabal
+                ./cabal.project.freeze
                 ./cabal.project
                 ./Setup.hs
                 ./.gitignore

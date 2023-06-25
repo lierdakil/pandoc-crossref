@@ -7,4 +7,3 @@ package pandoc-crossref
   ghc-options: -j +RTS -A64m -RTS
 tests: True
 benchmarks: True
-constraints: tls < 1.7.0
