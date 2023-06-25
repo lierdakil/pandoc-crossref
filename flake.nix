@@ -15,9 +15,9 @@
     in
       flake-utils.lib.eachSystem supportedSystems (system:
       let
-        linker-workaround = pkgs_.writeShellScript "linker-workaround" ''
+        linker-workaround = pkgs: pkgs.writeShellScript "linker-workaround" ''
           # put all flags into 'params' array
-          source ${pkgsStatic.stdenv.cc}/nix-support/utils.bash
+          source ${pkgs.stdenv.cc}/nix-support/utils.bash
           expandResponseParams "$@"
 
           # check if '-shared' flag is present
@@ -44,56 +44,50 @@
           # invoke the actual linker with the new params
           exec x86_64-unknown-linux-musl-cc @<(printf "%q\n" "''${newParams[@]}")
         '';
-        hixProject = args@{ static ? false, ... }:
-          (pkgs args).haskell-nix.cabalProject {
-            compiler-nix-name = "ghc945";
-            src = nix-filter.lib {
-              root = ./.;
-              include = [
-                ./docs
-                ./lib
-                ./lib-internal
-                ./src
-                ./test
-                ./pandoc-crossref.cabal
-                ./cabal.project.freeze
-                ./cabal.project
-                ./Setup.hs
-                ./.gitignore
-                ./LICENSE
-                ./README.md
-                ./CHANGELOG.md
-              ];
-            };
-            evalSystem = "x86_64-linux";
-            modules = [{
-              packages.pandoc-crossref.ghcOptions =
-                if static then ["-pgml=${linker-workaround}"] else [];
-            }];
+        hixProject = pkgs.haskell-nix.cabalProject {
+          compiler-nix-name = "ghc945";
+          src = nix-filter.lib {
+            root = ./.;
+            include = [
+              ./docs
+              ./lib
+              ./lib-internal
+              ./src
+              ./test
+              ./pandoc-crossref.cabal
+              ./cabal.project.freeze
+              ./cabal.project
+              ./Setup.hs
+              ./.gitignore
+              ./LICENSE
+              ./README.md
+              ./CHANGELOG.md
+            ];
           };
-        overlays = [ haskellNix.overlay (final: prev: {}) ];
-        pkgsStatic = pkgs_.pkgsCross.musl64;
-        pkgs_ = import nixpkgs { inherit system overlays; inherit (haskellNix) config; };
-        pkgs = {static ? false }: if static then pkgsStatic else pkgs_;
-        flake = (hixProject {}).flake {};
-        flakeStatic = (hixProject { static = true; }).flake {};
-      in {
-        legacyPackages = pkgs {};
+          evalSystem = "x86_64-linux";
+          modules = [({pkgs, ...}: with pkgs; {
+            packages.pandoc-crossref.ghcOptions =
+              lib.optional stdenv.hostPlatform.isMusl "-pgml=${linker-workaround pkgs}";
+          })];
+        };
+        overlays = [ haskellNix.overlay ];
+        pkgs = import nixpkgs { inherit system overlays; inherit (haskellNix) config; };
+        flake = hixProject.flake {
+          crossPlatforms = ps: with ps; [ musl64 ];
+        };
+      in pkgs.lib.recursiveUpdate { inherit (flake) packages apps checks; } {
         packages = {
           default = flake.packages."pandoc-crossref:exe:pandoc-crossref";
-          static = flakeStatic.packages."pandoc-crossref:exe:pandoc-crossref";
-          pandoc = (hixProject {}).pandoc-cli.components.exes.pandoc;
+          static = flake.packages."x86_64-unknown-linux-musl:pandoc-crossref:exe:pandoc-crossref";
+          pandoc = hixProject.pandoc-cli.components.exes.pandoc;
         };
         apps = {
           default = flake.apps."pandoc-crossref:exe:pandoc-crossref";
           test = flake.apps."pandoc-crossref:test:test-pandoc-crossref";
           test-integrative = flake.apps."pandoc-crossref:test:test-integrative";
         };
-        devShells.default = pkgs_.mkShell {
-          buildInputs = [
-            self.packages.${system}.default
-            self.packages.${system}.pandoc
-          ];
+        devShells.default = pkgs.mkShell {
+          buildInputs = with self.packages.${system}; [ default pandoc ];
         };
       });
 
