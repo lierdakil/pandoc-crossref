@@ -2,17 +2,20 @@ name: Haskell CI
 
 on: [push]
 
+env:
+  PANDOC_VERSION: "3.1.5"
+
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        pandocver: ["3.1.4"]
+        pandocver: ["${{ env.PANDOC_VERSION }}"]
         ghcver: ['9.4.5']
         include:
         - os: windows-latest
-          pandocver: "3.1.4"
+          pandocver: "${{ env.PANDOC_VERSION }}"
           ghcver: '9.0.2'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
@@ -105,9 +108,15 @@ jobs:
     - run: |
         cp -r result/bin/ pandoc-crossref-${{runner.os}}
         chmod +w -R pandoc-crossref-${{runner.os}}
+    - name: Check pandoc version for static binary
+      run: |
+        ./pandoc-crossref-${{runner.os}}/pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
     - run: nix run .#test
     - run: nix run .#test-integrative
     - run: nix develop -c echo ok
+    - name: Check pandoc version in shell
+      run: |
+        [ "$(nix develop -c pandoc --version | head -n1)" == "pandoc ${{ env.PANDOC_VERSION }}" ]
     - name: Make manpage
       run: |
         nix develop -c pandoc -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}/pandoc-crossref.1
@@ -244,7 +253,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pandocver: ["3.1.4"]
+        pandocver: ["${{ env.PANDOC_VERSION }}"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
