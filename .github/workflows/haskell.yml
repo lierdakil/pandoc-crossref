@@ -11,11 +11,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        pandocver: ["${{ env.PANDOC_VERSION }}"]
         ghcver: ['9.4.5']
         include:
         - os: windows-latest
-          pandocver: "${{ env.PANDOC_VERSION }}"
           ghcver: '9.0.2'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
@@ -37,15 +35,15 @@ jobs:
       shell: bash
       run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
     - name: Cabal configure
-      run: cabal v2-configure --constraint pandoc==${{matrix.pandocver}} --constraint zip-archive'>='0.4.2.1 --enable-tests ${{matrix.extra-options}}
+      run: cabal v2-configure --constraint pandoc==${{ env.PANDOC_VERSION }} --constraint zip-archive'>='0.4.2.1 --enable-tests ${{matrix.extra-options}}
     - uses: actions/cache@v2
       with:
         path: .cabal-store
-        key: r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+        key: r2-${{runner.os}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
         restore-keys: |
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}-${{hashFiles('pandoc-crossref.cabal')}}
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{matrix.pandocver}}
+          r2-${{runner.os}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+          r2-${{runner.os}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}
+          r2-${{runner.os}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}
     - shell: bash
       run: |
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
@@ -251,9 +249,6 @@ jobs:
 
   build-stack:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        pandocver: ["${{ env.PANDOC_VERSION }}"]
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
@@ -271,4 +266,4 @@ jobs:
     - name: Verify version
       shell: bash
       run: |
-        stack exec -- pandoc-crossref --version | grep -q 'Pandoc v${{matrix.pandocver}}'
+        stack exec -- pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
