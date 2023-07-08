@@ -6,6 +6,8 @@ flags:
     enable_flaky_tests: true
   pandoc-cli:
     server: false
+  aeson-pretty:
+    lib-only: true
 ghc-options:
   pandoc: -j "+RTS -A64m -RTS"
   $targets: -j "+RTS -A64m -RTS"
