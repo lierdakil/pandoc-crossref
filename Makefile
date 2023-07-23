@@ -8,16 +8,7 @@ pin:
 	cachix pin pandoc-crossref $$(git describe --tags) $$(nix eval --raw .#static) -a bin/pandoc-crossref --keep-revisions 1
 
 push:
-	nix build --json \
-		| jq -r '.[].outputs | to_entries[].value' \
-		| cachix push pandoc-crossref
-	nix build .#static --json \
-		| jq -r '.[].outputs | to_entries[].value' \
-		| cachix push pandoc-crossref
-	nix build .#win --json \
-		| jq -r '.[].outputs | to_entries[].value' \
-		| cachix push pandoc-crossref
-	nix build .#pandoc --json \
+	nix build . .#static .#win .#pandoc --json \
 		| jq -r '.[].outputs | to_entries[].value' \
 		| cachix push pandoc-crossref
 
