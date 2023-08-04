@@ -143,6 +143,16 @@ You can also get the corresponding `pandoc` version installed via
 nix profile install github:lierdakil/pandoc-crossref#pandoc
 ```
 
+Since you will generally want both, there's an option to install both at the
+same time, too:
+
+```
+nix profile install github:lierdakil/pandoc-crossref#pandoc-with-crossref
+```
+
+Aside from added convenience, this guarantees pandoc and pandoc-crossref
+versions to be consistent across updates.
+
 Finally, you can start a nix shell with both `pandoc` and `pandoc-crossref`
 using
 

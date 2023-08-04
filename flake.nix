@@ -72,6 +72,10 @@
         win = (flake_ { ghc = "ghc928"; })
           .packages."x86_64-w64-mingw32:pandoc-crossref:exe:pandoc-crossref";
         pandoc = (hixProject {}).hsPkgs.pandoc-cli.components.exes.pandoc;
+        pandoc-with-crossref = pkgs.symlinkJoin {
+          name = "pandoc-with-crossref";
+          paths = with self.packages.${system}; [ default pandoc ];
+        };
       };
       apps = {
         default = flake.apps."pandoc-crossref:exe:pandoc-crossref";
@@ -79,7 +83,7 @@
         test-integrative = flake.apps."pandoc-crossref:test:test-integrative";
       };
       devShells.default = pkgs.mkShell {
-        buildInputs = with self.packages.${system}; [ default pandoc ];
+        buildInputs = [ self.packages.${system}.pandoc-with-crossref ];
       };
     });
 
