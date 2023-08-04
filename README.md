@@ -62,10 +62,10 @@ preferred options for that: building from Hackage with `cabal-install`, or from
 repository with `stack` (you'll only need `stack` and maybe `git`). See below
 for build instructions.
 
-This repository is also a nix flake. You can use `nix` to get it installed.
-
 If you're completely new to Haskell, the latter, i.e. building from repo
 with `stack`, is the easier option in most cases.
+
+This repository is also a nix flake. You can use `nix` to get it installed.
 
 Alternatively, you can use a version provided by a third party. At the
 time of writing, pandoc-crossref is provided on the following platforms
@@ -82,9 +82,9 @@ time of writing, pandoc-crossref is provided on the following platforms
 
 ### Building from Hackage with `cabal-install`
 
-You'll need to get GHC and `cabal-install` installed first. By far the easiest way to get those is via [ghcup][].
+You'll need to get GHC and `cabal-install` installed first. By far the easiest way to get those is via [ghcup].
 
-[ghcup]: (https://www.haskell.org/ghcup/)
+[ghcup]: https://www.haskell.org/ghcup/
 
 Describing using `ghcup` is out of scope for this small guide, but TL;DR is this:
 
