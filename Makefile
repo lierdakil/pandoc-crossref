@@ -1,7 +1,7 @@
 .PHONY: build pin push
 
 build:
-	nix build . .#static .#win .#pandoc
+	nix build . .#static .#win .#pandoc $(NIX_EXTRA_OPTS)
 
 pin:
 	nix build .#static

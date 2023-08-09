@@ -15,3 +15,4 @@ mkinttest.sh
 /*.tar.gz
 /result*
 /cabal.project.freeze
+/.envrc
