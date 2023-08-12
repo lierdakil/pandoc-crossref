@@ -14,7 +14,7 @@ jobs:
         ghcver: ['9.4.5']
         include:
         - os: windows-latest
-          ghcver: '9.0.2'
+          ghcver: '9.4.6'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
