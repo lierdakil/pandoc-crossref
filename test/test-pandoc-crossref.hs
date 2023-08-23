@@ -302,7 +302,7 @@ main = hspec $ do
         it "Section labels" $
           headerWith ("sec:section_label1", [], []) 1 (text "Section")
             <> para (citeGen "sec:section_label" [1])
-            `test` "\\hypertarget{sec:section_label1}{%\n\\section{Section}\\label{sec:section_label1}}\n\nsec.~\\ref{sec:section_label1}"
+            `test` "\\section{Section}\\label{sec:section_label1}\n\nsec.~\\ref{sec:section_label1}"
 
         it "Image labels" $
           figure "img.png" "" "Title" Nothing "figure_label1"
