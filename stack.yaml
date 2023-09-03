@@ -181,7 +181,7 @@ extra-deps:
 - open-browser-0.2.1.0
 - optparse-applicative-0.17.1.0
 - ordered-containers-0.2.3
-- pandoc-3.1.6.2
+- pandoc-3.1.7
 - pandoc-cli-0.1.1.1
 - pandoc-lua-engine-0.2.1.1
 - pandoc-lua-marshal-0.2.2
@@ -213,8 +213,8 @@ extra-deps:
 - servant-server-0.20
 - simple-sendfile-0.2.32
 - singleton-bool-0.1.7
-- skylighting-0.13.4.1
-- skylighting-core-0.13.4.1
+- skylighting-0.14
+- skylighting-core-0.14
 - skylighting-format-ansi-0.1
 - skylighting-format-blaze-html-0.1.1
 - skylighting-format-context-0.1.0.2
