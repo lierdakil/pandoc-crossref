@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.References.Blocks.Util where
 
+import Control.Monad
 import Control.Monad.Reader.Class
 import Control.Monad.State hiding (get, modify)
 import qualified Data.Map as M

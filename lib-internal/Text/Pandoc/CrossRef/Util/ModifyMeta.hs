@@ -24,6 +24,7 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
     modifyMeta
     ) where
 
+import Control.Monad
 import Control.Monad.Writer
 import qualified Data.Text as T
 import Text.Pandoc

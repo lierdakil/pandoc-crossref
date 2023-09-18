@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Control.Arrow as A
+import Control.Monad
 import Control.Monad.Reader
 import Data.Function
 import Data.List
