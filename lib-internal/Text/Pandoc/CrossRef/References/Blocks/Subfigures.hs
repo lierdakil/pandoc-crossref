@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, LambdaCase #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, LambdaCase, MultiWayIf #-}
 
 module Text.Pandoc.CrossRef.References.Blocks.Subfigures where
 
@@ -82,27 +82,28 @@ runSubfigures (label, cls, attrs) images caption = do
   let mangledSubfigures = mangleSubfigure <$> st ^. refsAt PfxImg
       mangleSubfigure v = v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v}
   refsAt PfxImg %= (<> mangledSubfigures)
-  case outFormat opts of
-    f | isLatexFormat f ->
-      replaceNoRecurse $ Div nullAttr $
-        [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]
-        <> cont <>
-        [ Para [RawInline (Format "latex") "\\caption["
-                  , Span nullAttr (removeFootnotes caption)
-                  , RawInline (Format "latex") "]"
-                  , Span nullAttr caption]
-        , RawBlock (Format "latex") $ mkLaTeXLabel label
-        , RawBlock (Format "latex") "\\end{pandoccrossrefsubfigures}"]
-    _ -> replaceNoRecurse
-      $ Figure (label, "subfigures":cls, setLabel opts idxStr attrs) (Caption Nothing [Para capt])
-      $ toTable opts cont
+  if  | isLatexFormat opts ->
+          replaceNoRecurse $ Div nullAttr $
+            [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]
+            <> cont <>
+            [ Para [RawInline (Format "latex") "\\caption["
+                      , Span nullAttr (removeFootnotes caption)
+                      , RawInline (Format "latex") "]"
+                      , Span nullAttr caption]
+            , RawBlock (Format "latex") $ mkLaTeXLabel label
+            , RawBlock (Format "latex") "\\end{pandoccrossrefsubfigures}"]
+      | otherwise ->
+          replaceNoRecurse
+            $ Figure (label, "subfigures":cls, setLabel opts idxStr attrs)
+                     (Caption Nothing [Para capt])
+            $ toTable opts cont
   where
     removeFootnotes = walk removeFootnote
     removeFootnote Note{} = Str ""
     removeFootnote x = x
     toTable :: Options -> [Block] -> [Block]
     toTable opts blks
-      | isLatexFormat $ outFormat opts = concatMap imagesToFigures blks
+      | isLatexFormat opts = concatMap imagesToFigures blks
       | subfigGrid opts = [simpleTable align (map ColWidth widths) (map (fmap pure . blkToRow) blks)]
       | otherwise = blks
       where
@@ -157,9 +158,9 @@ replaceSubfig x@(Image (label,cls,attrs) alt tgt) = do
   let label' = normalizeLabel label
   idxStr <- replaceAttr label' attrs alt SPfxImg
   let alt' = applyTemplate idxStr alt $ figureTemplate opts
-  case outFormat opts of
-    f | isLatexFormat f -> pure $ latexSubFigure x label
-    _ -> pure [Image (label, cls, setLabel opts idxStr attrs) alt' tgt]
+  pure $ if isLatexFormat opts
+    then latexSubFigure x label
+    else [Image (label, cls, setLabel opts idxStr attrs) alt' tgt]
 replaceSubfig x = pure [x]
 
 latexSubFigure :: Inline -> T.Text -> [Inline]
@@ -208,12 +209,12 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
         [Image (_, _, as) _ _] -> fattrs <> as
         _ -> fattrs
   idxStr <- replaceAttr label' attrs title SPfxImg
-  let title' = case outFormat opts of
-        f | isLatexFormat f -> title
-        _  -> applyTemplate idxStr title $ figureTemplate opts
+  let title'
+        | isLatexFormat opts = title
+        | otherwise = applyTemplate idxStr title $ figureTemplate opts
       caption' = Caption short (walkReplaceInlines title' title btitle:rest)
   replaceNoRecurse $
-    if subFigure && isLatexFormat (outFormat opts)
+    if subFigure && isLatexFormat opts
     then Plain $ latexSubFigure (head $ blocksToInlines content) label
     else Figure (label,cls,setLabel opts idxStr fattrs) caption' content
 runFigure _ _ _ _ = noReplaceNoRecurse

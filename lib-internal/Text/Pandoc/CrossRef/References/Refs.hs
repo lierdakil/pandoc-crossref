@@ -64,9 +64,10 @@ replaceRefs (Cite cits _:xs) = do
             fromList (citationPrefix c) <> text ("@" <> citationId c)
               <> fromList (citationSuffix c)
     replaceRefs'' :: Options -> Prefix -> [Citation] -> WS [Inline]
-    replaceRefs'' opts = ($ opts) . flip $ case outFormat opts of
-                    f | isLatexFormat f -> replaceRefsLatex
-                    _                   -> replaceRefsOther
+    replaceRefs'' opts = ($ opts) . flip $
+      if isLatexFormat opts
+      then replaceRefsLatex
+      else replaceRefsOther
 replaceRefs x = return x
 
 pfxMap :: T.Text -> Maybe Prefix

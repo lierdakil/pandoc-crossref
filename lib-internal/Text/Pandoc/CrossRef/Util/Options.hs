@@ -18,9 +18,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.Util.Options (Options(..)) where
+{-# LANGUAGE OverloadedStrings#-}
+
+module Text.Pandoc.CrossRef.Util.Options (Options(..), isLatexFormat) where
 import Data.Text (Text)
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.Util.Util (isFormat)
 import Text.Pandoc.Definition
 
 data Options = Options { cref :: Bool
@@ -77,3 +80,6 @@ data Options = Options { cref :: Bool
                        , setLabelAttribute :: Bool
                        , equationNumberTeX :: Text
                        }
+
+isLatexFormat :: Options -> Bool
+isLatexFormat = ((||) <$> (isFormat "latex") <*> (isFormat "beamer")) . outFormat

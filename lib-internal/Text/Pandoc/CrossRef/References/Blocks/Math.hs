@@ -37,7 +37,7 @@ import Text.Pandoc.CrossRef.Util.Util
 runBlockMath :: Attr -> T.Text -> WS (ReplacedResult Block)
 runBlockMath (label, cls, attrs) eq = do
   opts <- ask
-  if tableEqns opts && not (isLatexFormat (outFormat opts))
+  if tableEqns opts && not (isLatexFormat opts)
   then do
     (eq', idxStr) <- replaceEqn (label, cls, attrs) eq
     let mathfmt = if eqnBlockInlineMath opts then InlineMath else DisplayMath

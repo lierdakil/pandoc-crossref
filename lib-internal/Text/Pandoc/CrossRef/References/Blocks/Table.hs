@@ -38,10 +38,10 @@ runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot
   opts <- ask
   idxStr <- replaceAttr (Right label) attrs title SPfxTbl
   let title'
-        | isLatexFormat (outFormat opts) = RawInline (Format "latex") (mkLaTeXLabel label) : title
+        | isLatexFormat opts = RawInline (Format "latex") (mkLaTeXLabel label) : title
         | otherwise = applyTemplate idxStr title $ tableTemplate opts
       caption' = Caption short (walkReplaceInlines title' title btitle:rest)
-      label' | isLatexFormat (outFormat opts) = ""
+      label' | isLatexFormat opts = ""
              | otherwise = label
   replaceNoRecurse $ (mtattr &
     maybe

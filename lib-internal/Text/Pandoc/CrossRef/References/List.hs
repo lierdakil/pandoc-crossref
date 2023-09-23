@@ -36,7 +36,7 @@ import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Template
 
 listOf :: [Block] -> WS [Block]
-listOf blocks = asks (isLatexFormat . outFormat) >>= \case
+listOf blocks = asks isLatexFormat >>= \case
   True -> pure blocks
   False -> case blocks of
     (RawBlock fmt "\\listoffigures":xs)

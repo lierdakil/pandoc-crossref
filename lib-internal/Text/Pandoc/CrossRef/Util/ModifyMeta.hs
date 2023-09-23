@@ -31,11 +31,10 @@ import Text.Pandoc
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Options
-import Text.Pandoc.CrossRef.Util.Util
 
 modifyMeta :: Options -> Meta -> Meta
 modifyMeta opts meta
-  | isLatexFormat (outFormat opts)
+  | isLatexFormat opts
   = setMeta "header-includes"
       (headerInc $ lookupMeta "header-includes" meta)
       meta

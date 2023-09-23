@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, MultiWayIf #-}
 
 module Text.Pandoc.CrossRef.References.Blocks.CodeBlock where
 
@@ -38,30 +38,29 @@ import Text.Pandoc.CrossRef.Util.Util
 runCodeBlock :: Attr -> T.Text -> Either T.Text [Inline] -> WS (ReplacedResult Block)
 runCodeBlock (label, classes, attrs) code eCaption = do
   opts <- ask
-  case outFormat opts of
-    f --if used with listings package,nothing should be done
-      | isLatexFormat f, listings opts -> eCaption &
-        either
-          (const noReplaceNoRecurse)
-          (\caption -> replaceNoRecurse $
-            CodeBlock (label,classes,("caption",escapeLaTeX $ stringify caption):attrs) code)
+      --if used with listings package,nothing should be done
+  if  | isLatexFormat opts, listings opts ->
+          eCaption & either
+            (const noReplaceNoRecurse)
+            (\caption -> replaceNoRecurse $
+              CodeBlock (label,classes,("caption",escapeLaTeX $ stringify caption):attrs) code)
       --if not using listings, however, wrap it in a codelisting environment
-      | isLatexFormat f ->
-        replaceNoRecurse $ Div nullAttr [
-            RawBlock (Format "latex") $ "\\begin{codelisting}"
-          , Plain [
-              RawInline (Format "latex") "\\caption"
-            , Span nullAttr $ either (pure . Str) id eCaption
-            , RawInline (Format "latex") $ mkLaTeXLabel label
+      | isLatexFormat opts ->
+          replaceNoRecurse $ Div nullAttr [
+              RawBlock (Format "latex") $ "\\begin{codelisting}"
+            , Plain [
+                RawInline (Format "latex") "\\caption"
+              , Span nullAttr $ either (pure . Str) id eCaption
+              , RawInline (Format "latex") $ mkLaTeXLabel label
+              ]
+            , CodeBlock ("", classes, attrs) code
+            , RawBlock (Format "latex") "\\end{codelisting}"
             ]
-          , CodeBlock ("", classes, attrs) code
-          , RawBlock (Format "latex") "\\end{codelisting}"
-          ]
-    _ -> do
-      let cap = either (B.toList . B.text) id eCaption
-      idxStr <- replaceAttr (Right label) attrs cap SPfxLst
-      let caption' = applyTemplate idxStr cap $ listingTemplate opts
-      replaceNoRecurse $ Div (label, "listing":classes, []) [
-          mkCaption opts "Caption" caption'
-        , CodeBlock ("", classes, filter ((/="caption") . fst) $ setLabel opts idxStr attrs) code
-        ]
+      | otherwise -> do
+          let cap = either (B.toList . B.text) id eCaption
+          idxStr <- replaceAttr (Right label) attrs cap SPfxLst
+          let caption' = applyTemplate idxStr cap $ listingTemplate opts
+          replaceNoRecurse $ Div (label, "listing":classes, []) [
+              mkCaption opts "Caption" caption'
+            , CodeBlock ("", classes, filter ((/="caption") . fst) $ setLabel opts idxStr attrs) code
+            ]

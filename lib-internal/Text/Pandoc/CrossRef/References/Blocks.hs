@@ -51,7 +51,7 @@ replaceAll x = do
   where
     runSplitMath opts
       | tableEqns opts
-      , not $ isLatexFormat (outFormat opts)
+      , not $ isLatexFormat opts
       = everywhere (mkT splitMath)
       | otherwise = id
 
@@ -101,7 +101,7 @@ replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = 
   opts <- ask
   if "eq:" `T.isPrefixOf` label || T.null label && autoEqnLabels opts
   then do
-    replaceRecurse . (<> xs) =<< if isLatexFormat $ outFormat opts
+    replaceRecurse . (<> xs) =<< if isLatexFormat opts
       then
         pure [RawInline (Format "latex") "\\begin{equation}"
         , Span spanAttr [RawInline (Format "latex") eq]

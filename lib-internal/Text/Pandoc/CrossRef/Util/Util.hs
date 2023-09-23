@@ -47,10 +47,6 @@ isFormat :: T.Text -> Maybe Format -> Bool
 isFormat fmt (Just (Format f)) = T.takeWhile (`notElem` ("+-" :: String)) f == fmt
 isFormat _ Nothing = False
 
-isLatexFormat :: Maybe Format -> Bool
-isLatexFormat = isFormat "latex" `or'` isFormat "beamer"
-  where a `or'` b = (||) <$> a <*> b
-
 capitalizeFirst :: T.Text -> T.Text
 capitalizeFirst t
   | Just (x, xs) <- T.uncons t = toUpper x `T.cons` xs
