@@ -23,7 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Blocks.Header where
 
 import Control.Monad.Reader.Class
-import Control.Monad.State hiding (get, modify)
+import Control.Monad (when)
 import qualified Data.Map as M
 import qualified Data.Sequence as S
 import Data.Sequence (ViewR(..))

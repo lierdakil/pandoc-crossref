@@ -25,6 +25,7 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
     ) where
 
 import Control.Monad.Writer
+import Control.Monad (when, unless)
 import qualified Data.Text as T
 import Text.Pandoc
 import Text.Pandoc.Builder hiding ((<>))

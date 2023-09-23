@@ -36,6 +36,7 @@ import Text.Pandoc.Walk (walk)
 import Lens.Micro
 import Lens.Micro.Mtl
 import Text.Pandoc.Shared (blocksToInlines)
+import Control.Monad ((<=<))
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad

@@ -30,7 +30,7 @@
         mkdir -p $out/lib/
         ln -s ${windows.mingw_w64}/lib/libcrypt32.a $out/lib/libCrypt32.a
       '';
-      hixProject = {ghc ? "ghc945"}: pkgs.haskell-nix.cabalProject' {
+      hixProject = {ghc ? "ghc962"}: pkgs.haskell-nix.cabalProject' {
         compiler-nix-name = ghc;
         src = nix-filter.lib {
           root = ./.;

@@ -32,6 +32,7 @@ import qualified Data.Text as T
 import Text.Pandoc.Builder
 import qualified Data.Sequence as S
 import Data.Sequence (ViewR(..))
+import Control.Monad (liftM2, join)
 
 import Debug.Trace
 import Lens.Micro.Mtl

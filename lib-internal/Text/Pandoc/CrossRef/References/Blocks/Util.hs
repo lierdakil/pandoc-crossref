@@ -24,12 +24,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Blocks.Util where
 
 import Control.Monad.Reader.Class
-import Control.Monad.State hiding (get, modify)
 import qualified Data.Map as M
 import qualified Data.Text as T
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Walk (walk)
+import Control.Monad (when)
 
 import Text.Read (readMaybe)
 
