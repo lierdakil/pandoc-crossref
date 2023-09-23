@@ -307,20 +307,19 @@ main = hspec $ do
         it "Image labels" $
           figure "img.png" "" "Title" Nothing "figure_label1"
             <> para (citeGen "fig:figure_label" [1])
-            `test` "\\begin{figure}\n\\hypertarget{fig:figure_label1}{%\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
+            `test` "\\begin{figure}\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
 
         it "Eqn labels" $
           equation "x^2" "some_equation1"
             <> para (citeGen "eq:some_equation" [1])
-            `test` "\\begin{equation}\\protect\\hypertarget{eq:some_equation1}{}{x^2}\\label{eq:some_equation1}\\end{equation}\n\neq.~\\ref{eq:some_equation1}"
+            `test` "\\begin{equation}\\phantomsection\\label{eq:some_equation1}{x^2}\\end{equation}\n\neq.~\\ref{eq:some_equation1}"
 
 #ifdef FLAKY
         it "Tbl labels" $
           table' "A table" "some_table1"
             <> para (citeGen "tbl:some_table" [1])
             `test` concat (
-              [ "\\hypertarget{tbl:some_table1}{}\n"
-              , "\\begin{longtable}[]{@{}@{}}\n"
+              [ "\\begin{longtable}[]{@{}@{}}\n"
               , "\\caption{\\label{tbl:some_table1}A table}\\tabularnewline\n"
               , "\\toprule\\noalign{}\n"
               , "\\endfirsthead\n"
@@ -336,15 +335,15 @@ main = hspec $ do
         it "Code block labels" $ do
           codeBlock' "A code block" "some_codeblock1"
             <> para (citeGen "lst:some_codeblock" [1])
-            `test` "\\begin{codelisting}\n\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
+            `test` "\\begin{codelisting}\n\n\\caption{A code block}\\label{lst:some_codeblock1}\n\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
           codeBlock' "A code block with under_score" "some_codeblock1"
             <> para (citeGen "lst:some_codeblock" [1])
-            `test` "\\begin{codelisting}\n\n\\caption{A code block with under\\_score}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
+            `test` "\\begin{codelisting}\n\n\\caption{A code block with under\\_score}\\label{lst:some_codeblock1}\n\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
           let test1 = test' $ setMeta "codeBlockCaptions" True nullMeta
               infixr 5 `test1`
           codeBlockForTable "some_codeblock1" <> paraText ": A code block"
             <> para (citeGen "lst:some_codeblock" [1])
-            `test1` "\\begin{codelisting}\n\n\\caption{A code block}\n\n\\hypertarget{lst:some_codeblock1}{%\n\\label{lst:some_codeblock1}}%\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
+            `test1` "\\begin{codelisting}\n\n\\caption{A code block}\\label{lst:some_codeblock1}\n\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
 
 citeGen :: T.Text -> [Int] -> Inlines
 citeGen p l = cite (mconcat $ map (cit . (p<>) . T.pack . show) l) $ text $
