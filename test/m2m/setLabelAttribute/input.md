@@ -23,3 +23,12 @@ code
 : Code Listing {#lst:1}
 
 ## Section {label="customLabel"}
+
+
+@fig:1
+
+@eq:1
+
+@tbl:1
+
+@lst:1

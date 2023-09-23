@@ -86,3 +86,20 @@ main = putStrLn "Hello World!"
 main :: IO ()
 main = putStrLn "Hello World!"
 ```
+
+
+@lst:code1
+
+@lst:code2
+
+@lst:code3
+
+@lst:code4
+
+@lst:code11
+
+@lst:code12
+
+@lst:code13
+
+@lst:code14

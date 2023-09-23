@@ -37,16 +37,16 @@ runTable :: Attr -> Maybe Attr -> Maybe ShortCaption -> Block -> [Block] -> [Col
 runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot = do
   opts <- ask
   idxStr <- replaceAttr (Right label) attrs title SPfxTbl
-  let title' =
-        case outFormat opts of
-            f | isLatexFormat f ->
-              RawInline (Format "latex") (mkLaTeXLabel label) : title
-            _  -> applyTemplate idxStr title $ tableTemplate opts
+  let title'
+        | isLatexFormat (outFormat opts) = RawInline (Format "latex") (mkLaTeXLabel label) : title
+        | otherwise = applyTemplate idxStr title $ tableTemplate opts
       caption' = Caption short (walkReplaceInlines title' title btitle:rest)
+      label' | isLatexFormat (outFormat opts) = ""
+             | otherwise = label
   replaceNoRecurse $ (mtattr &
     maybe
       (Table (label, clss, setLabel opts idxStr attrs))
-      (\tattr a b c d -> Div (label, clss, setLabel opts idxStr attrs) . pure . Table tattr a b c d)
+      (\tattr a b c d -> Div (label', clss, setLabel opts idxStr attrs) . pure . Table tattr a b c d)
     )
     caption' colspec header cells foot
   where title = blocksToInlines [btitle]

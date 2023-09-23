@@ -48,12 +48,13 @@ runCodeBlock (label, classes, attrs) code eCaption = do
       --if not using listings, however, wrap it in a codelisting environment
       | isLatexFormat f ->
         replaceNoRecurse $ Div nullAttr [
-            RawBlock (Format "latex") "\\begin{codelisting}"
+            RawBlock (Format "latex") $ "\\begin{codelisting}"
           , Plain [
               RawInline (Format "latex") "\\caption"
             , Span nullAttr $ either (pure . Str) id eCaption
+            , RawInline (Format "latex") $ mkLaTeXLabel label
             ]
-          , CodeBlock (label, classes, attrs) code
+          , CodeBlock ("", classes, attrs) code
           , RawBlock (Format "latex") "\\end{codelisting}"
           ]
     _ -> do

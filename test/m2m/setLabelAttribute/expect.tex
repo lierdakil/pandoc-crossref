@@ -1,16 +1,13 @@
 \section{Section}\label{section}
 
 \begin{figure}
-\hypertarget{fig:1}{%
 \centering
 \includegraphics{./image.png}
 \caption{Figure}\label{fig:1}
-}
 \end{figure}
 
-\begin{equation}\protect\hypertarget{eq:1}{}{equation}\label{eq:1}\end{equation}
+\begin{equation}\phantomsection\label{eq:1}{equation}\end{equation}
 
-\hypertarget{tbl:1}{}
 \begin{longtable}[]{@{}ll@{}}
 \caption{\label{tbl:1}Table}\tabularnewline
 \toprule\noalign{}
@@ -28,10 +25,8 @@ a & b \\
 
 \begin{codelisting}
 
-\caption{Code Listing}
+\caption{Code Listing}\label{lst:1}
 
-\hypertarget{lst:1}{%
-\label{lst:1}}%
 \begin{verbatim}
 code
 \end{verbatim}
@@ -39,3 +34,11 @@ code
 \end{codelisting}
 
 \subsection{Section}\label{section-1}
+
+fig.~\ref{fig:1}
+
+eq.~\ref{eq:1}
+
+tbl.~\ref{tbl:1}
+
+lst.~\ref{lst:1}

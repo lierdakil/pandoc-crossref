@@ -105,7 +105,7 @@ replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = 
       then
         pure [RawInline (Format "latex") "\\begin{equation}"
         , Span spanAttr [RawInline (Format "latex") eq]
-        , RawInline (Format "latex") $ mkLaTeXLabel label <> "\\end{equation}"]
+        , RawInline (Format "latex") $ "\\end{equation}"]
       else do
         (eq', idxStr) <- replaceEqn spanAttr eq
         pure [Span (label,clss,setLabel opts idxStr attrs) [Math DisplayMath eq']]

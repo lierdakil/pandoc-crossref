@@ -3,11 +3,9 @@
 text
 
 \begin{figure}
-\hypertarget{fig:fig1}{%
 \centering
 \includegraphics{image.png}
 \caption{A figure}\label{fig:fig1}
-}
 \end{figure}
 
 \subsection{*.A Subsection}\label{subsection}
@@ -15,11 +13,9 @@ text
 other text
 
 \begin{figure}
-\hypertarget{fig:fig2}{%
 \centering
 \includegraphics{image.png}
 \caption{A figure with custom label}\label{fig:fig2}
-}
 \end{figure}
 
 \subsubsection{*.A.A Subsubsection}\label{subsubsection}
@@ -29,14 +25,11 @@ text text text
 \section{B Custom on other elements}\label{custom-on-other-elements}
 
 \begin{figure}
-\hypertarget{fig:fig3}{%
 \centering
 \includegraphics{fig.png}
 \caption{Figure}\label{fig:fig3}
-}
 \end{figure}
 
-\hypertarget{tbl:table}{}
 \begin{longtable}[]{@{}lll@{}}
 \caption{\label{tbl:table}Caption}\tabularnewline
 \toprule\noalign{}
@@ -53,6 +46,6 @@ a & b & c \\
 4 & 5 & 6 \\
 \end{longtable}
 
-\begin{equation}\protect\hypertarget{eq:equation}{}{y = e^x}\label{eq:equation}\end{equation}
+\begin{equation}\phantomsection\label{eq:equation}{y = e^x}\end{equation}
 
 fig.~\ref{fig:fig3} tbl.~\ref{tbl:table} eq.~\ref{eq:equation}

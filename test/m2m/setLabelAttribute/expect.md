@@ -27,3 +27,11 @@ code
 :::
 
 ## Section {#section-1 label="1.customLabel"}
+
+fig. 1.1
+
+eq. 1.1
+
+tbl. 1.1
+
+lst. 1.1
