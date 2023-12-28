@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        ghcver: ['9.6.2']
+        ghcver: ['9.6.3']
         include:
         - os: windows-latest
           ghcver: '9.0.2'
