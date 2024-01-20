@@ -98,7 +98,7 @@ modifyMeta opts meta
         codelisting = [
             usepackage [] "float"
           , "\\floatstyle{ruled}"
-          , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{h}{lop}}{\\newfloat{codelisting}{h}{lop}[chapter]}"
+          , "\\@ifundefined{c@chapter}{\\newfloat{codelisting}{htbp}{lop}}{\\newfloat{codelisting}{htbp}{lop}[chapter]}"
           , "\\floatname{codelisting}{" <> metaString "listingTitle" <> "}"
           ]
         lolcommand
