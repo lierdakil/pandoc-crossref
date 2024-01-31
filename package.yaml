@@ -19,7 +19,7 @@ data-files:
 - test/m2m/*/*
 dependencies:
   base: ">=4.11 && <5"
-  text: ">=1.2.2 && <2.1"
+  text: ">=1.2.2 && <2.2"
   pandoc: ">=3.1.8 && < 3.2"
   pandoc-types: ">= 1.23 && < 1.24"
 _deps:

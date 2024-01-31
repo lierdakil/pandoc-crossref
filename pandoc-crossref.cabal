@@ -136,7 +136,7 @@ library
     , pandoc >=3.1.8 && <3.2
     , pandoc-crossref-internal
     , pandoc-types ==1.23.*
-    , text >=1.2.2 && <2.1
+    , text >=1.2.2 && <2.2
   default-language: Haskell2010
 
 library pandoc-crossref-internal
@@ -181,7 +181,7 @@ library pandoc-crossref-internal
     , pandoc-types ==1.23.*
     , syb >=0.4 && <0.8
     , template-haskell >=2.7.0.0 && <3.0.0.0
-    , text >=1.2.2 && <2.1
+    , text >=1.2.2 && <2.2
     , utility-ht >=0.0.11 && <0.1.0
   default-language: Haskell2010
 
@@ -203,7 +203,7 @@ executable pandoc-crossref
     , pandoc-types ==1.23.*
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , temporary >=1.2 && <1.4
-    , text >=1.2.2 && <2.1
+    , text >=1.2.2 && <2.2
   default-language: Haskell2010
 
 test-suite test-integrative
@@ -222,7 +222,7 @@ test-suite test-integrative
     , pandoc >=3.1.8 && <3.2
     , pandoc-crossref
     , pandoc-types ==1.23.*
-    , text >=1.2.2 && <2.1
+    , text >=1.2.2 && <2.2
   default-language: Haskell2010
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
@@ -249,7 +249,7 @@ test-suite test-pandoc-crossref
     , pandoc-crossref
     , pandoc-crossref-internal
     , pandoc-types ==1.23.*
-    , text >=1.2.2 && <2.1
+    , text >=1.2.2 && <2.2
   default-language: Haskell2010
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
@@ -268,5 +268,5 @@ benchmark simple
     , pandoc >=3.1.8 && <3.2
     , pandoc-crossref
     , pandoc-types ==1.23.*
-    , text >=1.2.2 && <2.1
+    , text >=1.2.2 && <2.2
   default-language: Haskell2010
