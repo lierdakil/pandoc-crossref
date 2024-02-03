@@ -3,7 +3,7 @@ name: Haskell CI
 on: [push]
 
 env:
-  PANDOC_VERSION: "3.1.11"
+  PANDOC_VERSION: "3.1.11.1"
 
 jobs:
   build:
@@ -11,10 +11,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        ghcver: ['9.6.3']
+        ghcver: ['9.6.4']
         include:
         - os: windows-latest
-          ghcver: '9.0.2'
+          ghcver: '9.6.4'
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:

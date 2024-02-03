@@ -30,7 +30,7 @@
         mkdir -p $out/lib/
         ln -s ${windows.mingw_w64}/lib/libcrypt32.a $out/lib/libCrypt32.a
       '';
-      hixProject = {ghc ? "ghc963"}: pkgs.haskell-nix.cabalProject' {
+      hixProject = {ghc ? "ghc964"}: pkgs.haskell-nix.cabalProject' {
         compiler-nix-name = ghc;
         src = nix-filter.lib {
           root = ./.;
@@ -69,8 +69,7 @@
       packages = {
         default = flake.packages."pandoc-crossref:exe:pandoc-crossref";
         static = flake.packages."x86_64-unknown-linux-musl:pandoc-crossref:exe:pandoc-crossref";
-        win = (flake_ { ghc = "ghc928"; })
-          .packages."x86_64-w64-mingw32:pandoc-crossref:exe:pandoc-crossref";
+        win = flake.packages."x86_64-w64-mingw32:pandoc-crossref:exe:pandoc-crossref";
         pandoc = (hixProject {}).hsPkgs.pandoc-cli.components.exes.pandoc;
         pandoc-with-crossref = pkgs.symlinkJoin {
           name = "pandoc-with-crossref";
