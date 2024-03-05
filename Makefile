@@ -13,7 +13,7 @@ push:
 		| cachix push pandoc-crossref
 
 cabal.project.freeze:
-	cabal freeze
+	cabal freeze --constraint pandoc==$$(yq '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
 
 stack.yaml: cabal.project.freeze stack.template.yaml
 	echo "# THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY" > stack.yaml
