@@ -1,4 +1,4 @@
-.PHONY: build pin push
+.PHONY: build pin push test
 
 build:
 	nix build . .#static .#win .#pandoc $(NIX_EXTRA_OPTS)
@@ -11,6 +11,9 @@ push:
 	nix build . .#static .#win .#pandoc --json \
 		| jq -r '.[].outputs | to_entries[].value' \
 		| cachix push pandoc-crossref
+
+test:
+	nix run .#test && nix run .#test-integrative
 
 cabal.project.freeze:
 	cabal freeze --constraint pandoc==$$(yq '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
