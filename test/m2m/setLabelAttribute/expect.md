@@ -1,12 +1,12 @@
 # Section {#section label="1"}
 
-::: {#fig:1 .figure label="1.1"}
+:::: {#fig:1 .figure label="1.1"}
 ![Figure](./image.png)
 
 ::: caption
 Figure 1.1: Figure
 :::
-:::
+::::
 
 [$$equation\qquad{(1.1)}$$]{#eq:1 label="(1.1)"}
 
