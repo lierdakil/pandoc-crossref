@@ -319,7 +319,7 @@ main = hspec $ do
           table' "A table" "some_table1"
             <> para (citeGen "tbl:some_table" [1])
             `test` concat (
-              [ "\\begin{longtable}[]{@{}@{}}\n"
+              [ "\\begin{longtable}[]{@{}l@{}}\n"
               , "\\caption{\\label{tbl:some_table1}A table}\\tabularnewline\n"
               , "\\toprule\\noalign{}\n"
               , "\\endfirsthead\n"
