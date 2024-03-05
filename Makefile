@@ -15,6 +15,9 @@ push:
 test:
 	nix run .#test && nix run .#test-integrative
 
+regen-test-fixtures:
+	nix develop --command bash -c './mkcheck.sh && ./mkinttest.sh'
+
 cabal.project.freeze:
 	cabal freeze --constraint pandoc==$$(yq '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
 
