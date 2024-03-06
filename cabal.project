@@ -1,4 +1,3 @@
-with-compiler: ghc-9.6.4
 packages: .
 package citeproc
   ghc-options: -j +RTS -A64m -RTS
