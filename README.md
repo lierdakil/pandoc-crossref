@@ -97,12 +97,14 @@ After you got `cabal-install` and `ghc`, run:
 
 ``` bash
 cabal v2-update
-cabal v2-install --install-method=copy pandoc pandoc-crossref
+cabal v2-install --install-method=copy pandoc-cli pandoc-crossref
 ```
 
 This will get `pandoc-crossref` and `pandoc` executables copied to `$HOME/.cabal/bin` (by default, if not, check your cabal config file `installdir` setting -- find out where your config file is by running `cabal help user-config`), which you can then add to `PATH` or copy/move the symlinks where you want them.
 
 Refer to cabal documentation if you need to build a particular version (TL;DR: add `--constraint pandoc-crossref==<version>` to the installation command)
+
+**Note**: if you're using cabal to build from a repo checkout, and not from Hackage as described above, you'll need to either **match the compiler version** specified in `ghcver` in `.github/workflows/haskell.yml`, or **remove `cabal.project.freeze`** from the root of the repository. Otherwise, cabal will complain about version mismatch of boot packages (like `base`, `ghc-boot-th`, etc)
 
 ### Building from repo with `stack`
 
@@ -121,7 +123,7 @@ stack install
 
 If you don't have `git`, just download the sources for your preferred commit/branch/tag via the GitHub interface, and run `stack install` in the directory that contains `stack.yaml` file.
 
-This will install pandoc-crossef executable to `$HOME/.local/bin`. You might also want to separately run `stack install pandoc` in the same directory (i.e. the root of the repository, the one containing `stack.yaml` file)
+This will install pandoc-crossef executable to `$HOME/.local/bin`. You might also want to separately run `stack install pandoc-cli` in the same directory (i.e. the root of the repository, the one containing `stack.yaml` file)
 
 ### Installing as a nix flake
 
