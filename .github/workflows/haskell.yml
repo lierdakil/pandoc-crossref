@@ -3,7 +3,7 @@ name: Haskell CI
 on: [push]
 
 env:
-  PANDOC_VERSION: "3.1.12.2"
+  PANDOC_VERSION: "3.1.12.3"
 
 jobs:
   build:
