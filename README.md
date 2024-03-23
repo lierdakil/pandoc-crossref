@@ -221,6 +221,7 @@ contributions):
 -   Felix Yan
 -   Wlad
 -   Wandmalfarbe
+-   Vekhir
 -   Silas Benson
 -   shutingrz
 -   Shaun Jackman
@@ -243,3 +244,13 @@ contributions):
 This repository includes code from <https://github.com/roelvandijk/roman-numerals>, covered by a different license. See
 [licenses/LICENSE.roman-numerals](https://github.com/lierdakil/pandoc-crossref/blob/master/licenses/LICENSE.roman-numerals)
 for details.
+
+# How to bump pandoc version
+
+1. Change `PANDOC_VERSION` in `.github/workflows/haskell.yml` to the new Pandoc version.
+2. Run `make update`. You need at least `nix`, `stack` and `cabal` (i.e. cabal-install) installed and in `PATH`.
+
+    If it doesn't do anything, consider nuking `cabal.project.freeze`, `flake.lock`, `stack.yaml` and `stack.yaml.lock` and trying again.
+3. Build and test.
+4. Fix broken tests.
+5. Repeat 3-4 until all tests pass.
