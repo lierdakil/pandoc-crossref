@@ -207,6 +207,8 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
   let title = blocksToInlines [btitle]
       (attrs, content') = case blocksToInlines content of
         [Image attr@(_, _, as) _ tgt] ->
+            -- the second argument is a fix for
+            -- https://github.com/jgm/pandoc/issues/9720
             (fattrs <> as, \capt -> [Plain [Image attr capt tgt]])
         _ -> (fattrs, const content)
   idxStr <- replaceAttr label' attrs title SPfxImg
