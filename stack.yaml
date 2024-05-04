@@ -1,5 +1,5 @@
 # THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY
-resolver: ghc-9.6.4
+resolver: ghc-9.6.5
 allow-newer: false
 flags:
   pandoc-crossref:
@@ -14,7 +14,7 @@ ghc-options:
 packages:
 - .
 extra-deps:
-- Cabal-syntax-3.10.1.0
+- Cabal-syntax-3.10.3.0
 - Glob-0.10.2
 - HUnit-1.6.2.0
 - JuicyPixels-3.3.8
@@ -26,7 +26,7 @@ extra-deps:
 - aeson-2.2.1.0
 - aeson-pretty-0.8.10
 - alex-3.5.1.0
-- ansi-terminal-1.1
+- ansi-terminal-1.1.1
 - ansi-terminal-types-1.1
 - appar-0.1.8
 - array-0.5.6.0
@@ -37,9 +37,9 @@ extra-deps:
 - async-2.2.5
 - attoparsec-0.14.4
 - attoparsec-aeson-2.2.0.1
-- base-compat-0.13.1
-- base-compat-batteries-0.13.1
-- base-orphans-0.9.1
+- base-compat-0.14.0
+- base-compat-batteries-0.14.0
+- base-orphans-0.9.2
 - base16-bytestring-1.0.2.0
 - base64-bytestring-1.2.1.0
 - basement-0.0.16
@@ -55,7 +55,7 @@ extra-deps:
 - cabal-doctest-1.0.9
 - call-stack-0.4.0
 - case-insensitive-1.2.1.0
-- cassava-0.5.3.0
+- cassava-0.5.3.1
 - cborg-0.2.10.0
 - cereal-0.5.8.3
 - citeproc-0.8.1
@@ -73,7 +73,7 @@ extra-deps:
 - cookie-0.5.0
 - criterion-1.6.3.0
 - criterion-measurement-0.2.1.0
-- crypton-0.34
+- crypton-1.0.0
 - crypton-connection-0.3.2
 - crypton-x509-1.7.6
 - crypton-x509-store-1.6.9
@@ -88,7 +88,7 @@ extra-deps:
 - deepseq-1.4.8.1
 - dense-linear-algebra-0.1.0.0
 - digest-0.0.2.1
-- directory-1.3.8.1
+- directory-1.3.8.4
 - distributive-0.6.2.1
 - djot-0.1.1.3
 - dlist-1.0
@@ -97,7 +97,7 @@ extra-deps:
 - emojis-0.1.3
 - exceptions-0.10.7
 - file-embed-0.0.16.0
-- filepath-1.4.200.1
+- filepath-1.4.300.1
 - generically-0.1.1
 - ghc-bignum-1.3
 - gitrev-1.3.1
@@ -105,7 +105,7 @@ extra-deps:
 - haddock-library-1.11.0
 - half-0.3.1
 - happy-1.20.1.1
-- hashable-1.4.3.0
+- hashable-1.4.4.0
 - haskell-lexer-1.1.1
 - hourglass-0.2.12
 - hsc2hs-0.68.10
@@ -126,9 +126,9 @@ extra-deps:
 - hslua-packaging-2.3.1
 - hslua-repl-0.1.2
 - hslua-typing-0.1.1
-- hspec-2.11.7
-- hspec-core-2.11.7
-- hspec-discover-2.11.7
+- hspec-2.11.8
+- hspec-core-2.11.8
+- hspec-discover-2.11.8
 - hspec-expectations-0.8.4
 - http-client-0.7.17
 - http-client-tls-0.3.6.3
@@ -147,12 +147,12 @@ extra-deps:
 - libyaml-clib-0.2.5
 - lpeg-1.1.0
 - lua-2.3.2
-- math-functions-0.3.4.3
+- math-functions-0.3.4.4
 - memory-0.18.0
 - microlens-0.4.13.1
-- microlens-ghc-0.4.14.2
+- microlens-ghc-0.4.14.3
 - microlens-mtl-0.2.0.3
-- microlens-th-0.4.3.14
+- microlens-th-0.4.3.15
 - microstache-1.0.2.3
 - mime-types-0.1.2.0
 - mono-traversable-1.0.17.0
@@ -165,10 +165,11 @@ extra-deps:
 - open-browser-0.2.1.0
 - optparse-applicative-0.18.1.0
 - ordered-containers-0.2.3
-- pandoc-3.1.12.3
-- pandoc-cli-3.1.12.3
-- pandoc-lua-engine-0.2.1.3
-- pandoc-lua-marshal-0.2.5
+- os-string-2.0.2.1
+- pandoc-3.1.13
+- pandoc-cli-3.1.13
+- pandoc-lua-engine-0.2.1.4
+- pandoc-lua-marshal-0.2.6
 - pandoc-types-1.23.1
 - parallel-3.2.2.0
 - parsec-3.1.16.1
@@ -178,7 +179,7 @@ extra-deps:
 - prettyprinter-1.7.1
 - prettyprinter-ansi-terminal-1.1.3
 - primitive-0.9.0.0
-- process-1.6.17.0
+- process-1.6.19.0
 - quickcheck-io-0.2.0
 - random-1.2.1.2
 - regex-base-0.94.0.2
@@ -207,7 +208,7 @@ extra-deps:
 - tagsoup-0.14.8
 - template-haskell-2.20.0.0
 - temporary-1.3
-- texmath-0.12.8.7
+- texmath-0.12.8.8
 - text-2.0.2
 - text-conversions-0.3.1.1
 - text-iso8601-0.1
@@ -220,13 +221,13 @@ extra-deps:
 - these-1.2
 - time-1.12.2
 - time-compat-1.9.6.1
-- tls-2.0.1
+- tls-2.0.5
 - toml-parser-2.0.0.0
 - transformers-0.6.1.0
 - transformers-compat-0.7.2
 - typed-process-0.2.11.1
-- typst-0.5.0.2
-- typst-symbols-0.1.5
+- typst-0.5.0.3
+- typst-symbols-0.1.6
 - unicode-collation-0.1.3.6
 - unicode-data-0.4.0.1
 - unicode-transforms-0.4.0.1
@@ -248,5 +249,5 @@ extra-deps:
 - xml-conduit-1.9.1.3
 - xml-types-0.3.8
 - yaml-0.11.11.2
-- zip-archive-0.4.3.1
-- zlib-0.6.3.0
+- zip-archive-0.4.3.2
+- zlib-0.7.1.0
