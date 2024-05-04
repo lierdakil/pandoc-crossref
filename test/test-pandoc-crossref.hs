@@ -90,7 +90,7 @@ main = hspec $ do
     describe "References.Blocks.replaceBlocks" $ do
       it "Labels images" $
         testAll (figure "test.jpg" "" "Test figure" Nothing "figure")
-        (figure "test.jpg" "" "Figure 1: Test figure" (Just "Test figure") "figure",
+        (figure "test.jpg" "" "Figure 1: Test figure" (Just "Figure 1: Test figure") "figure",
           PfxImg =: M.fromList $ refRec' "fig:figure" 1 "Test figure")
       it "Labels subfigures" $
         testAll (

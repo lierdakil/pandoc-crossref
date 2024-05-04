@@ -86,7 +86,16 @@
       [ Plain
           [ Image
               ( "" , [] , [] )
-              [ Str "A" , Space , Str "figure" ]
+              [ Str "Figure"
+              , Space
+              , Str "#"
+              , Space
+              , Str "1:"
+              , Space
+              , Str "A"
+              , Space
+              , Str "figure"
+              ]
               ( "img1.jpg" , "" )
           ]
       ]
@@ -319,7 +328,16 @@
       [ Plain
           [ Image
               ( "" , [] , [] )
-              [ Str "First" , Space , Str "figure" ]
+              [ Str "Figure"
+              , Space
+              , Str "#"
+              , Space
+              , Str "2:"
+              , Space
+              , Str "First"
+              , Space
+              , Str "figure"
+              ]
               ( "img1.jpg" , "" )
           ]
       ]
@@ -342,7 +360,16 @@
       [ Plain
           [ Image
               ( "" , [] , [] )
-              [ Str "Second" , Space , Str "figure" ]
+              [ Str "Figure"
+              , Space
+              , Str "#"
+              , Space
+              , Str "3:"
+              , Space
+              , Str "Second"
+              , Space
+              , Str "figure"
+              ]
               ( "img2.jpg" , "" )
           ]
       ]
@@ -365,7 +392,16 @@
       [ Plain
           [ Image
               ( "" , [] , [] )
-              [ Str "Third" , Space , Str "figure" ]
+              [ Str "Figure"
+              , Space
+              , Str "#"
+              , Space
+              , Str "4:"
+              , Space
+              , Str "Third"
+              , Space
+              , Str "figure"
+              ]
               ( "img3.jpg" , "" )
           ]
       ]
@@ -417,21 +453,13 @@
           ( "" , [] , [] )
           (Caption Nothing [ Plain [ Str "a" ] ])
           [ Plain
-              [ Image
-                  ( "" , [] , [] )
-                  [ Str "Subfigure" , Space , Str "a" ]
-                  ( "img1.jpg" , "" )
-              ]
+              [ Image ( "" , [] , [] ) [ Str "a" ] ( "img1.jpg" , "" ) ]
           ]
       , Figure
           ( "fig:subfigureB" , [] , [] )
           (Caption Nothing [ Plain [ Str "b" ] ])
           [ Plain
-              [ Image
-                  ( "" , [] , [] )
-                  [ Str "Subfigure" , Space , Str "b" ]
-                  ( "img1.jpg" , "" )
-              ]
+              [ Image ( "" , [] , [] ) [ Str "b" ] ( "img1.jpg" , "" ) ]
           ]
       ]
   , Header
