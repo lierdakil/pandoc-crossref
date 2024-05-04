@@ -305,5 +305,4 @@ constraints: any.Cabal ==3.10.3.0,
              any.zip-archive ==0.4.3.2,
              zip-archive -executable,
              any.zlib ==0.7.1.0,
-             zlib -bundled-c-zlib +non-blocking-ffi +pkg-config
 index-state: hackage.haskell.org 2024-05-04T16:06:31Z

@@ -26,7 +26,7 @@ stack.yaml: cabal.project.freeze stack.template.yaml
 	echo "# THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY" > stack.yaml
 	cat stack.template.yaml >> stack.yaml
 	grep -Ev 'any\.(ghc-boot-th|ghc-prim|rts|base) ' cabal.project.freeze \
-		| sed -rn 's/^\s*any.(.*) ==(.*),$$/- \1-\2/p' \
+		| sed -rn 's/^\s*any.(.*) ==([^,]*),?$$/- \1-\2/p' \
 		>> stack.yaml
 
 flake.lock: .github/workflows/haskell.yml
