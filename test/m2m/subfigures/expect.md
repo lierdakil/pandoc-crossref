@@ -14,77 +14,23 @@ g --- 7, h --- 8, i --- 9
 ::::
 
 :::: {#fig:subfigures2 .figure .subfigures}
-:::: {#fig:subfig21 .figure}
-![1](fig1.png)
+![a](fig1.png){#fig:subfig21}
 
-::: caption
-a
-:::
-::::
+![b](fig2.png){#fig:subfig22}
 
-:::: {#fig:subfig22 .figure}
-![2](fig2.png)
+![c](fig3.png)
 
-::: caption
-b
-:::
-::::
+![d](fig4.png){#fig:subfig24}
 
-:::: figure
-![3](fig3.png)
+![e](fig5.png)
 
-::: caption
-c
-:::
-::::
+![f](fig6.png){#fig:subfig26}
 
-:::: {#fig:subfig24 .figure}
-![4](fig4.png)
+![g](fig7.png){#fig:subfig27}
 
-::: caption
-d
-:::
-::::
+![h](fig8.png)
 
-:::: figure
-![5](fig5.png)
-
-::: caption
-e
-:::
-::::
-
-:::: {#fig:subfig26 .figure}
-![6](fig6.png)
-
-::: caption
-f
-:::
-::::
-
-:::: {#fig:subfig27 .figure}
-![7](fig7.png)
-
-::: caption
-g
-:::
-::::
-
-:::: figure
-![8](fig8.png)
-
-::: caption
-h
-:::
-::::
-
-:::: {#fig:subfig29 .figure}
-![9](fig9.png)
-
-::: caption
-i
-:::
-::::
+![i](fig9.png){#fig:subfig29}
 
 ::: caption
 Figure 2: Caption. a --- 1, b --- 2, c --- 3, d --- 4, e --- 5, f --- 6,

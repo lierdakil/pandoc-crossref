@@ -1,9 +1,20 @@
+## 0.3.17.1
+
+-   Fix images roundtripping through Markdown
+
+    Since a few versions ago, Makrdown images were not round-tripped properly.
+    This has been addressed. More information at
+    <https://github.com/jgm/pandoc/issues/9720>
+
 ## 0.3.17.0
 
 -   Bump minimal pandoc version to 3.1.8
 
 
-    Pandoc doesn't use hypertarget since 3.1.7, and inserts `label`s for named spans. This was messing with pandoc-crossref logic, hence required some changes. 3.1.7 has an unfortunate bug which prevents figures from working in LaTeX, hence the minimal version is 3.1.8.
+    Pandoc doesn't use hypertarget since 3.1.7, and inserts `label`s for named
+    spans. This was messing with pandoc-crossref logic, hence required some
+    changes. 3.1.7 has an unfortunate bug which prevents figures from working in
+    LaTeX, hence the minimal version is 3.1.8.
 
 -   Bump dependencies for GHC to 9.6.2, bump GHC to 9.6.2 on CI for Linux and macOS
 

@@ -2,25 +2,13 @@
 
 text
 
-:::: {#fig:fig1 .figure}
-![A figure](image.png)
-
-::: caption
-Figure α: A figure
-:::
-::::
+![Figure α: A figure](image.png){#fig:fig1}
 
 ## \*.A Subsection {#subsection}
 
 other text
 
-:::: {#fig:fig2 .figure}
-![A figure with custom label](image.png){label="+"}
-
-::: caption
-Figure +: A figure with custom label
-:::
-::::
+![Figure +: A figure with custom label](image.png){#fig:fig2 label="+"}
 
 ### \*.A.A Subsubsection {#subsubsection}
 
@@ -28,13 +16,7 @@ text text text
 
 # B Custom on other elements {#custom-on-other-elements}
 
-:::: {#fig:fig3 .figure}
-![Figure](fig.png){label="F"}
-
-::: caption
-Figure F: Figure
-:::
-::::
+![Figure F: Figure](fig.png){#fig:fig3 label="F"}
 
 ::: {#tbl:table label="T"}
   a   b   c

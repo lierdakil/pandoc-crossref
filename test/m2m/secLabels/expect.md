@@ -2,13 +2,7 @@
 
 ## a.a Second Level Section {#second-level-section}
 
-:::: {#fig:myfig .figure}
-![my figure](myfig.png)
-
-::: caption
-Figure a: my figure
-:::
-::::
+![Figure a: my figure](myfig.png){#fig:myfig}
 
 ## a.b Other Second Level Section {#other-second-level-section}
 

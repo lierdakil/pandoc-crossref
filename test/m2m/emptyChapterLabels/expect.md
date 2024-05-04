@@ -2,13 +2,7 @@
 
 ## 1 Subsection {#sec:subsection label=""}
 
-:::: {#fig:figure1 .figure}
-![Figure1](./image.png)
-
-::: caption
-Figure 1: Figure1
-:::
-::::
+![Figure 1: Figure1](./image.png){#fig:figure1}
 
 ### 1.1 Subsubsection {#sec:subsubsection}
 

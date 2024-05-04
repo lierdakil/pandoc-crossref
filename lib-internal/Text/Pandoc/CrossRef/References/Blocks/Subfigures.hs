@@ -205,9 +205,10 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
   opts <- ask
   let label' = normalizeLabel label
   let title = blocksToInlines [btitle]
-      attrs = case blocksToInlines content of
-        [Image (_, _, as) _ _] -> fattrs <> as
-        _ -> fattrs
+      (attrs, content') = case blocksToInlines content of
+        [Image attr@(_, _, as) _ tgt] ->
+            (fattrs <> as, \capt -> [Plain [Image attr capt tgt]])
+        _ -> (fattrs, const content)
   idxStr <- replaceAttr label' attrs title SPfxImg
   let title'
         | isLatexFormat opts = title
@@ -216,5 +217,5 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
   replaceNoRecurse $
     if subFigure && isLatexFormat opts
     then Plain $ latexSubFigure (head $ blocksToInlines content) label
-    else Figure (label,cls,setLabel opts idxStr fattrs) caption' content
+    else Figure (label,cls,setLabel opts idxStr fattrs) caption' (content' title')
 runFigure _ _ _ _ = noReplaceNoRecurse
