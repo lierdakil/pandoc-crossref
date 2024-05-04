@@ -25,11 +25,6 @@
           exec "$CC" @<(printf '%q\n' "''${params[@]}")
         fi
       '';
-      # linker looks for libCrypt32 but it's actually libcrypt32.
-      libcrypt-workaround = pkgs: with pkgs; runCommand "link-crypt32" {} ''
-        mkdir -p $out/lib/
-        ln -s ${windows.mingw_w64}/lib/libcrypt32.a $out/lib/libCrypt32.a
-      '';
       hixProject = {ghc ? "ghc964"}: pkgs.haskell-nix.cabalProject' {
         compiler-nix-name = ghc;
         src = nix-filter.lib {
@@ -53,23 +48,18 @@
         modules = [({pkgs, ...}: with pkgs; {
           packages.pandoc-crossref.ghcOptions =
             lib.optional stdenv.hostPlatform.isMusl "-pgml=${linker-workaround pkgs}";
-          packages.JuicyPixels.components.library.libs =
-            lib.optional stdenv.hostPlatform.isWindows windows.mingw_w64_pthreads;
-          packages.pandoc-crossref.components.exes.pandoc-crossref.libs =
-            lib.optional stdenv.hostPlatform.isWindows (libcrypt-workaround pkgs);
           })];
       };
       overlays = [ haskellNix.overlay ];
       pkgs = import nixpkgs { inherit system overlays; inherit (haskellNix) config; };
       flake_ = args: (hixProject args).flake {
-        crossPlatforms = ps: with ps; [ musl64 mingwW64 ];
+        crossPlatforms = ps: with ps; [ musl64 ];
       };
       flake = flake_ {};
     in {
       packages = {
         default = flake.packages."pandoc-crossref:exe:pandoc-crossref";
         static = flake.packages."x86_64-unknown-linux-musl:pandoc-crossref:exe:pandoc-crossref";
-        win = flake.packages."x86_64-w64-mingw32:pandoc-crossref:exe:pandoc-crossref";
         pandoc = (hixProject {}).hsPkgs.pandoc-cli.components.exes.pandoc;
         pandoc-with-crossref = pkgs.symlinkJoin {
           name = "pandoc-with-crossref";
