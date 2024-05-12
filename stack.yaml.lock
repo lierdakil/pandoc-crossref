@@ -432,9 +432,9 @@ packages:
   original:
     hackage: crypton-connection-0.3.2
 - completed:
-    hackage: crypton-x509-1.7.6@sha256:c567657a705b6d6521f9dd2de999bf530d618ec00f3b939df76a41fb0fe94281,2339
+    hackage: crypton-x509-1.7.6@sha256:19a6f233a73952c408599d082db8d6a3487ab9c1abe0fa350b8d362ab61776ad,2343
     pantry-tree:
-      sha256: 729e7db8dfc0a8b43e08bbd8d1387c9065e39beda6ac39e0fb9f10140810a3eb
+      sha256: 4a64cf3e2945a11661eb33584ff71abb04efc6ceaab2b8d94267af193caf1e07
       size: 1080
   original:
     hackage: crypton-x509-1.7.6
@@ -1069,12 +1069,12 @@ packages:
   original:
     hackage: os-string-2.0.2.1
 - completed:
-    hackage: pandoc-3.1.13@sha256:bf7eb14c29277a1b4610641aa48c630908223766733b1fee638de9f5c0bbfb64,38591
+    hackage: pandoc-3.2@sha256:5d2e7a7c3ced23245fa953dca1dbac16a80c748a5d6406b2d123915576cad494,38631
     pantry-tree:
-      sha256: 51b34fc92dfa50f051ce9d6c7d379316484b2a66a2b765050eeb81bc07d942f0
-      size: 149166
+      sha256: 95244f11cc2584c83bf46746ce3464fe22c4d903e9b237196747a26061b83b38
+      size: 149924
   original:
-    hackage: pandoc-3.1.13
+    hackage: pandoc-3.2
 - completed:
     hackage: pandoc-cli-3.1.13@sha256:b120d96c778a2c0c6c109c8398a8f168667f448cca45652a825a01b80d1f9f24,3008
     pantry-tree:

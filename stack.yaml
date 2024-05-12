@@ -1,6 +1,6 @@
 # THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY
 resolver: ghc-9.6.5
-allow-newer: false
+allow-newer: true
 flags:
   pandoc-crossref:
     enable_flaky_tests: true
@@ -166,7 +166,7 @@ extra-deps:
 - optparse-applicative-0.18.1.0
 - ordered-containers-0.2.3
 - os-string-2.0.2.1
-- pandoc-3.1.13
+- pandoc-3.2
 - pandoc-cli-3.1.13
 - pandoc-lua-engine-0.2.1.4
 - pandoc-lua-marshal-0.2.6
