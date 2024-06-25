@@ -307,7 +307,7 @@ main = hspec $ do
         it "Image labels" $
           figure "img.png" "" "Title" Nothing "figure_label1"
             <> para (citeGen "fig:figure_label" [1])
-            `test` "\\begin{figure}\n\\centering\n\\includegraphics{img.png}\n\\caption{Title}\\label{fig:figure_label1}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
+            `test` "\\begin{figure}\n\\centering\n\\pandocbounded{\\includegraphics[keepaspectratio]{img.png}}\n\\caption{Title}\\label{fig:figure_label1}\n\\end{figure}\n\nfig.~\\ref{fig:figure_label1}"
 
         it "Eqn labels" $
           equation "x^2" "some_equation1"
