@@ -14,7 +14,5 @@ find test/m2m -iname 'input.md' -print | while read i; do
     listings="--listings"
   fi
   "$pd" -F "$pc" "$i" -t markdown-raw_attribute-raw_html -o "$dn/expect.md"
-  case "$branch" in
-    "master") "$pd" -F "$pc" "$i" $listings -t latex -o "$dn/expect.tex";;
-  esac
+  "$pd" -F "$pc" "$i" $listings -t latex -o "$dn/expect.tex"
 done
