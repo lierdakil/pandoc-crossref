@@ -253,4 +253,9 @@ for details.
     If it doesn't do anything, consider nuking `cabal.project.freeze`, `flake.lock`, `stack.yaml` and `stack.yaml.lock` and trying again.
 3. Build and test.
 4. Fix broken tests.
+
+    Note that you can regenerate most golden tests with either
+    `make regen-test-fixtures` if using Nix, or just running `./mkcheck.sh` and
+    `./mkinttest.sh` with appropriate `pandoc` and `pandoc-crossref` binaries in
+    scope (so e.g. via `stack exec`).
 5. Repeat 3-4 until all tests pass.
