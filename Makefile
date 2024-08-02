@@ -21,6 +21,7 @@ regen-test-fixtures:
 cabal.project.freeze: .github/workflows/haskell.yml
 	rm cabal.project.freeze || true
 	cabal freeze --constraint pandoc==$$(yq '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
+	sed -i '/zlib .* +pkg-config/ d' cabal.project.freeze
 
 stack.yaml: cabal.project.freeze stack.template.yaml
 	echo "# THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY" > stack.yaml
