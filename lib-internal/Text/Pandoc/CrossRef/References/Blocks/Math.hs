@@ -81,7 +81,8 @@ replaceEqn eqTemplate (label, _, attrs) eq = do
 
 splitMath :: [Block] -> [Block]
 splitMath (Para ils:xs)
-  | length ils > 1 = map Para (split [] [] ils) <> xs
+  | _:_:_ <- ils -- at least two elements
+  = map Para (split [] [] ils) <> xs
   where
     split res acc [] = reverse (reverse acc : res)
     split res acc (x@(Span _ [Math DisplayMath _]):ys) =
