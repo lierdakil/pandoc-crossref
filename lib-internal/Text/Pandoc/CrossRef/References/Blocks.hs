@@ -18,7 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, ScopedTypeVariables, LambdaCase #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, ScopedTypeVariables
+  , LambdaCase, NamedFieldPuns #-}
 module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
@@ -107,8 +108,8 @@ replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = 
         , Span spanAttr [RawInline (Format "latex") eq]
         , RawInline (Format "latex") $ "\\end{equation}"]
       else do
-        (eq', idxStr) <- replaceEqn spanAttr eq
-        pure [Span (label,clss,setLabel opts idxStr attrs) [Math DisplayMath eq']]
+        ReplaceEqn{replaceEqnEq, replaceEqnIdx} <- replaceEqn eqnDisplayTemplate spanAttr eq
+        pure [Span (label,clss,setLabel opts replaceEqnIdx attrs) replaceEqnEq]
   else noReplaceRecurse
 replaceInlineMany _ = noReplaceRecurse
 

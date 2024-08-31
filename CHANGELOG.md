@@ -1,3 +1,19 @@
+## Unreleased
+
+-   Add `eqnInlineTableTemplate` and `eqnDisplayTemplate` options.
+
+-   Tweak how equation templates work.
+
+    Cleaned-up and generalized the logic in equation templates. This should be
+    mostly backwards-compatible, however some exotic workflows may need minor
+    tweaks. Specific changes to look out for:
+
+    - `eqnBlockInlineMath` will affect formatting when `tableEqns: false`.
+    - `eqnInlineTemplate` has new template variables in scope: `t`, `nmi`,
+      `nmri`.
+    - `eqnBlockTemplate` has new template variables in scope: `e`, `ri`, `nmi`,
+      `nmri`.
+
 ## 0.3.17.1
 
 -   Fix images roundtripping through Markdown

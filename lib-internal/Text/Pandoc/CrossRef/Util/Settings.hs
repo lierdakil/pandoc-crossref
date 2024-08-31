@@ -135,6 +135,8 @@ defaultMeta =
   <> linkReferences False
   <> nameInLink False
   <> equationNumberTeX ("\\qquad" :: T.Text)
+  <> eqnDisplayTemplate (var "e")
+  <> eqnInlineTableTemplate (var "e")
   where
     var = displayMath
     wordVerticalAlign = rawBlock "openxml" "<w:tcPr><w:vAlign w:val=\"center\"/></w:tcPr>"

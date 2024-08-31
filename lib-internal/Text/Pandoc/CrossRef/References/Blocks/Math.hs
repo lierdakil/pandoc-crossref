@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts #-}
+{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, RecordWildCards #-}
 
 module Text.Pandoc.CrossRef.References.Blocks.Math where
 
@@ -39,29 +39,45 @@ runBlockMath (label, cls, attrs) eq = do
   opts <- ask
   if tableEqns opts && not (isLatexFormat opts)
   then do
-    (eq', idxStr) <- replaceEqn (label, cls, attrs) eq
-    let mathfmt = if eqnBlockInlineMath opts then InlineMath else DisplayMath
-    replaceNoRecurse $ Div (label,cls,setLabel opts idxStr attrs) $
-      applyTemplate [Math mathfmt $ stringify idxStr] [Math mathfmt eq']
-        $ eqnBlockTemplate opts
+    ReplaceEqn{..} <- replaceEqn eqnBlockTemplate (label, cls, attrs) eq
+    replaceNoRecurse $ Div (label,cls,setLabel opts replaceEqnIdx attrs) replaceEqnEq
   else noReplaceRecurse
 
-replaceEqn :: Attr -> T.Text -> WS (T.Text, [Inline])
-replaceEqn (label, _, attrs) eq = do
+data ReplaceEqn a = ReplaceEqn
+  { replaceEqnEq :: [a]
+  , replaceEqnIdx :: [Inline]
+  }
+
+replaceEqn :: MkTemplate a t => (Options -> t) -> Attr -> T.Text -> WS (ReplaceEqn a)
+replaceEqn eqTemplate (label, _, attrs) eq = do
   opts <- ask
   let label' | T.null label = Left "eq"
              | otherwise = Right label
   idxStrRaw <- replaceAttr label' attrs [] SPfxEqn
   let idxStr = applyTemplate' (M.fromDistinctAscList [("i", idxStrRaw)]) $ eqnIndexTemplate opts
-      eqTxt = applyTemplate' eqTxtVars $ eqnInlineTemplate opts :: [Inline]
-      eqTxtVars = M.fromDistinctAscList
-        [ ("e", [Str eq])
-        , ("i", idxStr)
-        , ("ri", idxStrRaw)
+      eqTxt :: [Inline]
+      eqTxt = applyTemplate' eqTxtVars $
+        if tableEqns opts
+        then eqnInlineTableTemplate opts
+        else eqnInlineTemplate opts
+      wrapMath x = [Math mathfmt $ stringify x]
+      commonVars eqn = M.fromList $
+        [ ("e", eqn)
+        , ("t", eqn) -- backwards compatibility for eqnBlockTemplate
+        , ("i", wrapMath idxStr)
+        , ("ri", wrapMath idxStrRaw)
+        , ("nmi", idxStr)
+        , ("nmri", idxStrRaw)
         ]
-      eq' | tableEqns opts = eq
-          | otherwise = stringify eqTxt
-  return (eq', idxStr)
+      eqTxtVars = commonVars [Str eq]
+      eqInline = applyTemplate' eqInlineVars $ eqTemplate opts
+      mathfmt = if eqnBlockInlineMath opts then InlineMath else DisplayMath
+      eqInlineVars = commonVars $ wrapMath eqTxt
+  pure $ ReplaceEqn
+    { replaceEqnEq = eqInline
+    , replaceEqnIdx = idxStr
+    }
+
 
 splitMath :: [Block] -> [Block]
 splitMath (Para ils:xs)

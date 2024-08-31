@@ -714,14 +714,44 @@ See [Subfigures](#subfigures)
 
 -   `eqnInlineTemplate`, default `$$e$$$$equationNumberTeX$${$$i$$}`
 
-    A template to typeset math when `tableEqns` is `false`. Similar to `eqnIndexTemplate`, formatting is mostly ignored, due to it being typeset
-    inside a display math environment. However, most LaTeX should work (but backslashes need to be doubled). The following template variables are known:
+    A template to typeset math when `tableEqns` is `false`. Similar to
+    `eqnIndexTemplate`, formatting is mostly ignored, due to it being typeset
+    inside a math environment. However, most LaTeX should work (but backslashes
+    need to be doubled). The following template variables are known:
 
-    - `ri`, "raw" index, before applying `eqnIndexTemplate`
-    - `i`, index after applying `eqnIndexTemplate`
-    - `e`, the equation itself
+    - `e`, the equation itself,
+    - `t`, the same as `e`, for backwards compatibility,
+    - `i`, index after applying `eqnIndexTemplate`,
+    - `nmi`, same as `i`, but see `eqnDisplayTemplate`,
+    - `ri`, "raw" index, before applying `eqnIndexTemplate`,
+    - `nmri`, here, same as `ri`, but see `eqnDisplayTemplate`.
 
     `eqnInlineTemplate` is ignored if `tableEqns` is `true`.
+
+-   `eqnInlineTableTemplate`, default `$$e$$`
+
+    A counterpart of `eqnInlineTemplate` for when `tableEqns` is `true`. Behaves
+    the same. The logic is split like this mostly for backwards compatibility, but it also allows specifying unambiguous defaults.
+
+    `eqnInlineTableTemplate` is ignored if `tableEqns` is `false`.
+
+-   `eqnDisplayTemplate`, default `$$e$$`
+
+    A template to typeset the math element produced by applying
+    `eqnInlineTemplate` or `eqnInlineTableTemplate`.
+
+    The output of this template must be a sequence of inline elements. If you
+    want to produce block elements, see `eqnBlockTemplate`.
+
+    The same template variables from `eqnInlineTemplate` are available, with the
+    following changes:
+
+    - `e` (and `t`) is now the formatted equation (as per `eqnInlineTemplate` or
+      `eqnInlineTableTemplate`) wrapped in a math environment (display or inline
+      depending on `eqnBlockInlineMath`),
+    - `i` and `ri` are now wrapped in a math environment (same type as `e`).
+
+    `eqnDisplayTemplate` is ignored if `tableEqns` is `true`.
 
 -   `eqnBlockTemplate`, default
 
@@ -734,18 +764,19 @@ See [Subfigures](#subfigures)
     +----------------------------------------------------------------+-----+
     ```
 
-    When used with `tableEqns`, a block to use to format equations. A table
-    by default, but could be literally any block. `$$t$$` stands in for the
-    equation itself, and `$$i$$` stands in for the equation number.
+    When used with `tableEqns`, a block to use to format equations. A table by
+    default, but could be literally any block or a sequence of blocks. The
+    behaviour is similar to `eqnDisplayTemplate`, but the elements produced are
+    block elements (as opposed to inline).
 
     Note that the default contains a raw block to fix vertical alignment
     in docx output. If you're not targeting docx, it will be ignored by pandoc.
 
     `eqnBlockTemplate` is ignored if `tableEqns` is `false` (the default).
 
--   `eqnBlockInlineMath`, default `False`: if you need to use
-    inline math while rendering equation block template. Useful, e.g., if you're
-    using raw ooxml and tabstops to align equations in docx. For example,
+-   `eqnBlockInlineMath`, default `False`: if you need to use inline math while
+    rendering equation templates. Useful, e.g., if you're using raw ooxml and
+    tabstops to align equations in docx. For example,
 
     ```yaml
     tableEqns: true

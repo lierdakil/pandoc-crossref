@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Template
   ( Template
   , BlockTemplate
+  , MkTemplate
   , makeTemplate
   , makeIndexedTemplate
   , applyTemplate

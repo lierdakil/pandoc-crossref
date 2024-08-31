@@ -1,7 +1,13 @@
 ---
 eqnBlockTemplate: |
-  $$t$$ $$i$$
+  <span class="math-eq">$$e$$</span>
+  <span class="math-eq-backwards-compat">$$t$$</span>
+  <span class="math-eq-index-math">$$i$$</span>
+  <span class="math-eq-index-no-math">$$nmi$$</span>
+  <span class="math-eq-index-raw-math">$$ri$$</span>
+  <span class="math-eq-index-raw-no-math">$$nmri$$</span>
 tableEqns: true
+eqnDisplayTemplate: foo # ensure it's ignored
 ---
 
 $$\int_0^x e^x dx$${#eq:1}

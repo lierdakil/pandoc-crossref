@@ -50,6 +50,8 @@ data Options = Options { cref :: Bool
                        , eqnBlockInlineMath :: Bool
                        , eqnIndexTemplate :: Template
                        , eqnInlineTemplate :: Template
+                       , eqnInlineTableTemplate :: Template
+                       , eqnDisplayTemplate :: Template
                        , refIndexTemplate :: Text -> Template
                        , subfigureRefIndexTemplate :: Template
                        , secHeaderTemplate :: Template
