@@ -16,7 +16,7 @@ jobs:
     container: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@v2
-    - uses: haskell/actions/setup@v2
+    - uses: haskell-actions/setup@v2
       with:
         ghc-version: ${{matrix.ghcver}}
     - name: Cabal init
