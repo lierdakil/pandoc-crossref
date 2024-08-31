@@ -82,12 +82,17 @@ replaceEqn eqTemplate (label, _, attrs) eq = do
 splitMath :: [Block] -> [Block]
 splitMath (Para ils:xs)
   | _:_:_ <- ils -- at least two elements
-  = map Para (split [] [] ils) <> xs
+  = map Para (split ils) <> xs
   where
-    split res acc [] = reverse (reverse acc : res)
-    split res acc (x@(Span _ [Math DisplayMath _]):ys) =
-      split ([x] : reverse (dropSpaces acc) : res)
-            [] (dropSpaces ys)
-    split res acc (y:ys) = split res (y:acc) ys
+    split ys =
+      let (before, after) = break isMath ys
+          beforeEl
+            | null before = id
+            | otherwise = (before :)
+      in beforeEl $ case after of
+        z:zs -> [z] : split (dropSpaces zs)
+        [] -> []
     dropSpaces = dropWhile isSpace
+    isMath (Span _ [Math DisplayMath _]) = True
+    isMath _ = False
 splitMath xs = xs
