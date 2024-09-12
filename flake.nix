@@ -25,7 +25,7 @@
           exec "$CC" @<(printf '%q\n' "''${params[@]}")
         fi
       '';
-      hixProject = {ghc ? "ghc965"}: pkgs.haskell-nix.cabalProject' {
+      hixProject = {ghc ? "ghc966"}: pkgs.haskell-nix.cabalProject' {
         compiler-nix-name = ghc;
         src = nix-filter.lib {
           root = ./.;

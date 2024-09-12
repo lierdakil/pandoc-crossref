@@ -1,4 +1,4 @@
-resolver: ghc-9.6.5
+resolver: ghc-9.6.6
 allow-newer: false
 flags:
   pandoc-crossref:

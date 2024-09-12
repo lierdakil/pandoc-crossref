@@ -1,5 +1,5 @@
 # THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY
-resolver: ghc-9.6.5
+resolver: ghc-9.6.6
 allow-newer: false
 flags:
   pandoc-crossref:
@@ -55,7 +55,7 @@ extra-deps:
 - cabal-doctest-1.0.10
 - call-stack-0.4.0
 - case-insensitive-1.2.1.0
-- cassava-0.5.3.1
+- cassava-0.5.3.2
 - cborg-0.2.10.0
 - cereal-0.5.8.3
 - character-ps-0.1
@@ -67,7 +67,7 @@ extra-deps:
 - commonmark-extensions-0.2.5.5
 - commonmark-pandoc-0.2.2.1
 - comonad-5.0.8
-- conduit-1.3.5
+- conduit-1.3.6
 - conduit-extra-1.3.6
 - containers-0.6.7
 - contravariant-1.5.5
@@ -89,12 +89,12 @@ extra-deps:
 - deepseq-1.4.8.1
 - dense-linear-algebra-0.1.0.0
 - digest-0.0.2.1
-- directory-1.3.8.4
+- directory-1.3.8.5
 - distributive-0.6.2.1
 - djot-0.1.2.1
 - dlist-1.0
-- doclayout-0.4.0.1
-- doctemplates-0.11
+- doclayout-0.5
+- doctemplates-0.11.0.1
 - emojis-0.1.4.1
 - exceptions-0.10.7
 - file-embed-0.0.16.0
@@ -106,7 +106,7 @@ extra-deps:
 - haddock-library-1.11.0
 - half-0.3.1
 - happy-1.20.1.1
-- hashable-1.4.7.0
+- hashable-1.5.0.0
 - haskell-lexer-1.1.1
 - hourglass-0.2.12
 - hsc2hs-0.68.10
@@ -147,7 +147,7 @@ extra-deps:
 - libyaml-0.1.4
 - libyaml-clib-0.2.5
 - lpeg-1.1.0
-- lua-2.3.2
+- lua-2.3.3
 - math-functions-0.3.4.4
 - memory-0.18.0
 - microlens-0.4.13.1
@@ -156,10 +156,10 @@ extra-deps:
 - microlens-th-0.4.3.15
 - microstache-1.0.3
 - mime-types-0.1.2.0
-- mono-traversable-1.0.17.0
+- mono-traversable-1.0.20.0
 - mtl-2.3.1
 - mwc-random-0.15.1.0
-- network-3.2.1.0
+- network-3.2.3.0
 - network-uri-2.6.4.2
 - old-locale-1.0.0.7
 - old-time-1.1.0.4
@@ -167,9 +167,9 @@ extra-deps:
 - optparse-applicative-0.18.1.0
 - ordered-containers-0.2.4
 - os-string-2.0.6
-- pandoc-3.3
-- pandoc-cli-3.3
-- pandoc-lua-engine-0.3.1
+- pandoc-3.4
+- pandoc-cli-3.4
+- pandoc-lua-engine-0.3.2
 - pandoc-lua-marshal-0.2.7.1
 - pandoc-types-1.23.1
 - parallel-3.2.2.0
@@ -191,8 +191,8 @@ extra-deps:
 - semialign-1.3.1
 - semigroupoids-6.0.1
 - serialise-0.2.6.1
-- skylighting-0.14.2
-- skylighting-core-0.14.2
+- skylighting-0.14.3
+- skylighting-core-0.14.3
 - skylighting-format-ansi-0.1
 - skylighting-format-blaze-html-0.1.1.2
 - skylighting-format-context-0.1.0.2
@@ -209,7 +209,7 @@ extra-deps:
 - tagsoup-0.14.8
 - template-haskell-2.20.0.0
 - temporary-1.3
-- texmath-0.12.8.9
+- texmath-0.12.8.10
 - text-2.0.2
 - text-conversions-0.3.1.1
 - text-iso8601-0.1.1
@@ -226,8 +226,8 @@ extra-deps:
 - toml-parser-2.0.1.0
 - transformers-0.6.1.0
 - transformers-compat-0.7.2
-- typed-process-0.2.11.1
-- typst-0.5.0.5
+- typed-process-0.2.12.0
+- typst-0.6
 - typst-symbols-0.1.6
 - unicode-collation-0.1.3.6
 - unicode-data-0.6.0
