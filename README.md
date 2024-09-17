@@ -216,6 +216,7 @@ contributions):
 <!-- BEGIN CONTRIBUTORS LIST -->
 -   Nikolay Yakimov
 -   gesh
+-   Rui Chen
 -   Raphael Das Gupta
 -   Masamichi Hosoda
 -   Felix Yan
