@@ -74,7 +74,7 @@ jobs:
         esac
         echo "$VERSION"
         echo "$VERSION" > version.txt
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{runner.os}}-build
         path: pandoc-crossref-${{runner.os}}
@@ -124,7 +124,7 @@ jobs:
         VERSION="$(./pandoc-crossref --version)"
         echo "$VERSION"
         echo "$VERSION" > version.txt
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{runner.os}}-build-static
         path: pandoc-crossref-${{runner.os}}
@@ -138,7 +138,7 @@ jobs:
         echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories
         apk add --update --no-cache p7zip hub upx bash tar xz
     - uses: actions/checkout@v2
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
     - name: Repack assets
       run: |
         mkdir assets
@@ -151,7 +151,7 @@ jobs:
         cd Windows-build
         upx pandoc-crossref.exe
         7z a ../assets/pandoc-crossref-Windows-${{github.sha}}.7z pandoc-crossref.exe
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: release-assets
         path: assets
