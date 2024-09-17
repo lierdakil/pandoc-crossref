@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.18.0
 
 -   Add `eqnInlineTableTemplate` and `eqnDisplayTemplate` options.
 

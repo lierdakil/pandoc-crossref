@@ -37,4 +37,8 @@ stack.yaml.lock: .github/workflows/haskell.yml stack.yaml
 	# need this to update stack.yaml.lock, feel free to kill after that
 	stack build --no-system-ghc --no-install-ghc || true
 
+pandoc-crossref.cabal: package.yaml
+	# just use stack to generate the cabalfile
+	stack build --no-system-ghc --no-install-ghc || true
+
 update: stack.yaml flake.lock stack.yaml.lock
