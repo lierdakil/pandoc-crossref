@@ -21,7 +21,6 @@ extra-deps:
 - OneTuple-0.4.2
 - Only-0.1
 - QuickCheck-2.15.0.1
-- SHA-1.6.4.4
 - StateVar-1.2.2
 - aeson-2.2.3.0
 - aeson-pretty-0.8.10
@@ -63,9 +62,9 @@ extra-deps:
 - cmdargs-0.10.22
 - code-page-0.2.1
 - colour-2.3.6
-- commonmark-0.2.6
+- commonmark-0.2.6.1
 - commonmark-extensions-0.2.5.5
-- commonmark-pandoc-0.2.2.1
+- commonmark-pandoc-0.2.2.2
 - comonad-5.0.8
 - conduit-1.3.6
 - conduit-extra-1.3.6
@@ -91,7 +90,7 @@ extra-deps:
 - digest-0.0.2.1
 - directory-1.3.8.5
 - distributive-0.6.2.1
-- djot-0.1.2.1
+- djot-0.1.2.2
 - dlist-1.0
 - doclayout-0.5
 - doctemplates-0.11.0.1
@@ -105,7 +104,8 @@ extra-deps:
 - gridtables-0.1.0.0
 - haddock-library-1.11.0
 - half-0.3.1
-- happy-1.20.1.1
+- happy-2.0.2
+- happy-lib-2.0.2
 - hashable-1.5.0.0
 - haskell-lexer-1.1.1
 - hourglass-0.2.12
@@ -115,9 +115,9 @@ extra-deps:
 - hslua-classes-2.3.1
 - hslua-cli-1.4.3
 - hslua-core-2.3.2
-- hslua-list-1.1.1
+- hslua-list-1.1.4
 - hslua-marshalling-2.3.1
-- hslua-module-doclayout-1.1.1.2
+- hslua-module-doclayout-1.2.0
 - hslua-module-path-1.1.1
 - hslua-module-system-1.1.2
 - hslua-module-text-1.1.1
@@ -159,7 +159,7 @@ extra-deps:
 - mono-traversable-1.0.20.0
 - mtl-2.3.1
 - mwc-random-0.15.1.0
-- network-3.2.3.0
+- network-3.2.4.0
 - network-uri-2.6.4.2
 - old-locale-1.0.0.7
 - old-time-1.1.0.4
@@ -167,10 +167,10 @@ extra-deps:
 - optparse-applicative-0.18.1.0
 - ordered-containers-0.2.4
 - os-string-2.0.6
-- pandoc-3.4
-- pandoc-cli-3.4
-- pandoc-lua-engine-0.3.2
-- pandoc-lua-marshal-0.2.7.1
+- pandoc-3.5
+- pandoc-cli-3.5
+- pandoc-lua-engine-0.3.3
+- pandoc-lua-marshal-0.2.9
 - pandoc-types-1.23.1
 - parallel-3.2.2.0
 - parsec-3.1.16.1
@@ -209,7 +209,7 @@ extra-deps:
 - tagsoup-0.14.8
 - template-haskell-2.20.0.0
 - temporary-1.3
-- texmath-0.12.8.10
+- texmath-0.12.8.11
 - text-2.0.2
 - text-conversions-0.3.1.1
 - text-iso8601-0.1.1
