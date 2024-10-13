@@ -10,7 +10,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # macos-13 is amd64, while macos-latest is arm64
+        os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
         ghcver: ['9.6.6']
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
@@ -36,11 +37,11 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: .cabal-store
-        key: r2-${{runner.os}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+        key: r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
         restore-keys: |
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}
-          r2-${{runner.os}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}
+          r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+          r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}
+          r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}
     - shell: bash
       run: |
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
@@ -56,15 +57,15 @@ jobs:
     - name: Install
       shell: bash
       run: |
-        mkdir pandoc-crossref-${{runner.os}}
+        mkdir pandoc-crossref-${{runner.os}}-${{runner.arch}}
         export GIT_DIR="$PWD/.git"
-        cabal v2-install --installdir=$PWD/pandoc-crossref-${{runner.os}}
+        cabal v2-install --installdir=$PWD/pandoc-crossref-${{runner.os}}-${{runner.arch}}
     - name: Get Version
       shell: bash
       id: get_version
       run: |
-        cd pandoc-crossref-${{runner.os}}/
-        case "${{runner.os}}" in
+        cd pandoc-crossref-${{runner.os}}-${{runner.arch}}/
+        case "${{runner.os}}-${{runner.arch}}" in
         Windows)
             VERSION="$(./pandoc-crossref.exe --version)"
             ;;
@@ -76,8 +77,8 @@ jobs:
         echo "$VERSION" > version.txt
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{runner.os}}-build
-        path: pandoc-crossref-${{runner.os}}
+        name: ${{runner.os}}-${{runner.arch}}-build
+        path: pandoc-crossref-${{runner.os}}-${{runner.arch}}
     - shell: bash
       run: |
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-*
@@ -101,11 +102,11 @@ jobs:
     - run: nix build
     - run: nix build .#static
     - run: |
-        cp -r result/bin/ pandoc-crossref-${{runner.os}}
-        chmod +w -R pandoc-crossref-${{runner.os}}
+        cp -r result/bin/ pandoc-crossref-${{runner.os}}-${{runner.arch}}
+        chmod +w -R pandoc-crossref-${{runner.os}}-${{runner.arch}}
     - name: Check pandoc version for static binary
       run: |
-        ./pandoc-crossref-${{runner.os}}/pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
+        ./pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
     - run: nix run .#test
     - run: nix run .#test-integrative
     - run: nix develop -c echo ok
@@ -114,20 +115,20 @@ jobs:
         [ "$(nix develop -c pandoc --version | head -n1)" == "pandoc ${{ env.PANDOC_VERSION }}" ]
     - name: Make manpage
       run: |
-        nix develop -c pandoc -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}/pandoc-crossref.1
+        nix develop -c pandoc -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref.1
     - name: Get Version
       shell: bash
       id: get_version
       run: |
-        cd pandoc-crossref-${{runner.os}}/
+        cd pandoc-crossref-${{runner.os}}-${{runner.arch}}/
         chmod +x pandoc-crossref
         VERSION="$(./pandoc-crossref --version)"
         echo "$VERSION"
         echo "$VERSION" > version.txt
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{runner.os}}-build-static
-        path: pandoc-crossref-${{runner.os}}
+        name: ${{runner.os}}-${{runner.arch}}-build-static
+        path: pandoc-crossref-${{runner.os}}-${{runner.arch}}
 
   release:
     needs: [build, build-nix]
@@ -142,15 +143,18 @@ jobs:
     - name: Repack assets
       run: |
         mkdir assets
-        chmod +x Linux-build-static/pandoc-crossref
-        upx Linux-build-static/pandoc-crossref
-        chmod +x macOS-build/pandoc-crossref
-        echo not doing upx macOS-build/pandoc-crossref
-        tar cJf assets/pandoc-crossref-Linux-${{github.sha}}.tar.xz -C Linux-build-static pandoc-crossref pandoc-crossref.1
-        tar cJf assets/pandoc-crossref-macOS-${{github.sha}}.tar.xz -C macOS-build pandoc-crossref
-        cd Windows-build
-        upx pandoc-crossref.exe
-        7z a ../assets/pandoc-crossref-Windows-${{github.sha}}.7z pandoc-crossref.exe
+
+        chmod +x Linux-X64-build-static/pandoc-crossref
+        tar cJf assets/pandoc-crossref-Linux-X64-${{github.sha}}.tar.xz -C Linux-X64-build-static pandoc-crossref pandoc-crossref.1
+
+        chmod +x macOS-X64-build/pandoc-crossref
+        tar cJf assets/pandoc-crossref-macOS-X64-${{github.sha}}.tar.xz -C macOS-X64-build pandoc-crossref
+
+        chmod +x macOS-ARM64-build/pandoc-crossref
+        tar cJf assets/pandoc-crossref-macOS-ARM64-${{github.sha}}.tar.xz -C macOS-ARM64-build pandoc-crossref
+
+        cd Windows-X64-build
+        7z a ../assets/pandoc-crossref-Windows-X64-${{github.sha}}.7z pandoc-crossref.exe
     - uses: actions/upload-artifact@v4
       with:
         name: release-assets
@@ -210,11 +214,11 @@ jobs:
       with:
         upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
         release_id: 44009421
-        asset_path: ./assets/pandoc-crossref-Linux-${{github.sha}}.tar.xz
+        asset_path: ./assets/pandoc-crossref-Linux-X64-${{github.sha}}.tar.xz
         asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-$$.tar.xz
         asset_content_type: application/x-gtar
         max_releases: 21
-    - name: Upload "nightly" for macOS
+    - name: Upload "nightly" for macOS X64
       if: "!startsWith(github.ref, 'refs/tags/v')"
       uses: WebFreak001/deploy-nightly@v1.1.0
       env:
@@ -222,8 +226,20 @@ jobs:
       with:
         upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
         release_id: 44009421
-        asset_path: ./assets/pandoc-crossref-macOS-${{github.sha}}.tar.xz
-        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-macOS-$$.tar.xz
+        asset_path: ./assets/pandoc-crossref-macOS-X64-${{github.sha}}.tar.xz
+        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-macOS-X64-$$.tar.xz
+        asset_content_type: application/x-gtar
+        max_releases: 21
+    - name: Upload "nightly" for macOS ARM64
+      if: "!startsWith(github.ref, 'refs/tags/v')"
+      uses: WebFreak001/deploy-nightly@v1.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+        release_id: 44009421
+        asset_path: ./assets/pandoc-crossref-macOS-ARM64-${{github.sha}}.tar.xz
+        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-macOS-ARM64-$$.tar.xz
         asset_content_type: application/x-gtar
         max_releases: 21
     - name: Upload "nightly" for Windows
@@ -234,7 +250,7 @@ jobs:
       with:
         upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
         release_id: 44009421
-        asset_path: ./assets/pandoc-crossref-Windows-${{github.sha}}.7z
+        asset_path: ./assets/pandoc-crossref-Windows-X64-${{github.sha}}.7z
         asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Windows-$$.7z
         asset_content_type: application/x-7z-compressed
         max_releases: 21
