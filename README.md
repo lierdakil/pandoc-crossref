@@ -249,14 +249,15 @@ for details.
 # How to bump pandoc version
 
 1. Change `PANDOC_VERSION` in `.github/workflows/haskell.yml` to the new Pandoc version.
-2. Run `make update`. You need at least `nix`, `stack` and `cabal` (i.e. cabal-install) installed and in `PATH`.
+2. Relax version bounds in `package.yaml` if needed.
+3. Run `make update`. You need at least `nix`, `stack` and `cabal` (i.e. cabal-install) installed and in `PATH`.
 
     If it doesn't do anything, consider nuking `cabal.project.freeze`, `flake.lock`, `stack.yaml` and `stack.yaml.lock` and trying again.
-3. Build and test.
-4. Fix broken tests.
+4. Build and test.
+5. Fix broken tests.
 
     Note that you can regenerate most golden tests with either
     `make regen-test-fixtures` if using Nix, or just running `./mkcheck.sh` and
     `./mkinttest.sh` with appropriate `pandoc` and `pandoc-crossref` binaries in
     scope (so e.g. via `stack exec`).
-5. Repeat 3-4 until all tests pass.
+6. Repeat 4-5 until all tests pass.
