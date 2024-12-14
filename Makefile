@@ -20,12 +20,15 @@ regen-test-fixtures:
 
 cabal.project.freeze: .github/workflows/haskell.yml
 	rm cabal.project.freeze || true
-	cabal freeze --constraint pandoc==$$(yq '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
+	cabal freeze \
+		--with-compiler=ghc-$$(yq '.jobs.build.strategy.matrix.ghcver.0' .github/workflows/haskell.yml) \
+		--constraint pandoc==$$(yq '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
 	sed -i '/zlib .* +pkg-config/ d' cabal.project.freeze
 
-stack.yaml: cabal.project.freeze stack.template.yaml
+stack.yaml: cabal.project.freeze stack.template.yaml .github/workflows/haskell.yml
 	echo "# THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY" > stack.yaml
-	cat stack.template.yaml >> stack.yaml
+	sed 's/\$$ghcver\$$/'"$$(yq '.jobs.build.strategy.matrix.ghcver.0' .github/workflows/haskell.yml)"'/g' \
+		stack.template.yaml >> stack.yaml
 	grep -Ev 'any\.(ghc-boot-th|ghc-prim|rts|base) ' cabal.project.freeze \
 		| sed -rn 's/^\s*any.([^ ]*) ==([^, ]*)([^,]*),?$$/- \1-\2/p' \
 		>> stack.yaml

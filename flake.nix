@@ -25,7 +25,17 @@
           exec "$CC" @<(printf '%q\n' "''${params[@]}")
         fi
       '';
-      hixProject = {ghc ? "ghc966"}: pkgs.haskell-nix.cabalProject' {
+      # a very convoluted way to extract `resolver: ghc-X.Y.Z` from ./stack.yaml
+      # and convert it to `ghcXYZ`
+      ghc-version = pkgs.lib.trivial.pipe (builtins.readFile ./stack.yaml) [
+        (builtins.split "\n")
+        (builtins.filter (s: builtins.isString s && pkgs.lib.strings.hasPrefix "resolver:" s))
+        (pkgs.lib.trivial.flip builtins.elemAt 0)
+        (builtins.split ": ")
+        (pkgs.lib.trivial.flip builtins.elemAt 2)
+        (pkgs.lib.strings.stringAsChars (c: if builtins.elem c [ "-" "." ] then "" else c))
+      ];
+      hixProject = {ghc ? ghc-version}: pkgs.haskell-nix.cabalProject' {
         compiler-nix-name = ghc;
         src = nix-filter.lib {
           root = ./.;
