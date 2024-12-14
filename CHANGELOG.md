@@ -4,6 +4,8 @@
 
 -   Switch CI compiler to GHC 9.8.4.
 
+-   Add some potentially useful references to the documentation.
+
 ## 0.3.18.0
 
 -   Add `eqnInlineTableTemplate` and `eqnDisplayTemplate` options.

@@ -14,6 +14,25 @@ Bug tracker: <https://github.com/lierdakil/pandoc-crossref/issues>
 
 # Caveats
 
+## LaTeX input (a.k.a. converting LaTeX to docx/epub/etc)
+
+The principal aim of pandoc-crossref is to add references to Markdown.
+
+Other input formats may happen to work also (basically if you can make Pandoc
+citation syntax to work), but that's more of a happy coincidence than a
+deliberate design decision.
+
+In particular, LaTeX syntax is generally not recognized, although under some
+specific conditions it may seem to kinda-sorta work.
+
+Converting TeX to anything editable in general is nigh impossible, with TeX
+being a Turing-complete layout language rather than a markup language. That was
+one of the motivations for pandoc-crossref in the first place.
+
+All that said, if you really need to use LaTeX as an input format, see the
+discussions in <https://github.com/lierdakil/pandoc-crossref/issues/250> and
+<https://github.com/lierdakil/pandoc-crossref/issues/131>.
+
 ## LaTeX output and `--include-in-header`
 
 pandoc-crossref uses metadata variable `header-includes` to add LaTeX
