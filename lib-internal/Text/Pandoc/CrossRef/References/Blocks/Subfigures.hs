@@ -218,6 +218,8 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
       caption' = Caption short (walkReplaceInlines title' title btitle:rest)
   replaceNoRecurse $
     if subFigure && isLatexFormat opts
-    then Plain $ latexSubFigure (head $ blocksToInlines content) label
+    then Plain $ case blocksToInlines content of
+      ctHead:_ -> latexSubFigure ctHead label
+      _ -> error "The impossible happened: empty content in subfigures"
     else Figure (label,cls,setLabel opts idxStr fattrs) caption' (content' title')
 runFigure _ _ _ _ = noReplaceNoRecurse

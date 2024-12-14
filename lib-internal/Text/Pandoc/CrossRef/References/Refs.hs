@@ -33,6 +33,8 @@ import Text.Pandoc.Builder
 import qualified Data.Sequence as S
 import Data.Sequence (ViewR(..))
 import Control.Monad (liftM2, join)
+import qualified Data.List.NonEmpty as NE
+import Data.List.NonEmpty (NonEmpty)
 
 import Debug.Trace
 import Lens.Micro.Mtl
@@ -45,25 +47,25 @@ import Text.Pandoc.CrossRef.Util.Util
 replaceRefs :: [Inline] -> WS [Inline]
 replaceRefs (Cite cits _:xs) = do
   opts <- ask :: WS Options
-  toList . (<> fromList xs) . intercalate' (text ", ") . map fromList <$> mapM (replaceRefs' opts) (groupBy eqPrefix cits)
+  toList . (<> fromList xs) . intercalate' (text ", ") . map fromList <$> mapM (replaceRefs' opts) (NE.groupBy eqPrefix cits)
   where
     eqPrefix a b = uncurry (==) $
       (fmap uncapitalizeFirst . getLabelPrefix . citationId) <***> (a,b)
     (<***>) = join (***)
-    replaceRefs' :: Options -> [Citation] -> WS [Inline]
+    replaceRefs' :: Options -> NonEmpty Citation -> WS [Inline]
     replaceRefs' opts cits'
       | Just prefix <- allCitsPrefix cits'
       = replaceRefs'' opts prefix cits'
-      | otherwise = return [Cite cits' il']
+      | otherwise = return [Cite (NE.toList cits') il']
         where
           il' = toList $
               str "["
-            <> intercalate' (text "; ") (map citationToInlines cits')
+            <> intercalate' (text "; ") (map citationToInlines $ NE.toList cits')
             <> str "]"
           citationToInlines c =
             fromList (citationPrefix c) <> text ("@" <> citationId c)
               <> fromList (citationSuffix c)
-    replaceRefs'' :: Options -> Prefix -> [Citation] -> WS [Inline]
+    replaceRefs'' :: Options -> Prefix -> NonEmpty Citation -> WS [Inline]
     replaceRefs'' opts = ($ opts) . flip $
       if isLatexFormat opts
       then replaceRefsLatex
@@ -106,21 +108,21 @@ getRefPrefix opts prefix capitalize num cit =
   where (refprefixf, reftempl) = prefMap prefix
         refprefix = refprefixf opts capitalize num
 
-allCitsPrefix :: [Citation] -> Maybe Prefix
+allCitsPrefix :: NonEmpty Citation -> Maybe Prefix
 allCitsPrefix cits = find isCitationPrefix prefixes
   where
   isCitationPrefix p =
     all ((pfxMapR p `T.isPrefixOf`) . uncapitalizeFirst . citationId) cits
 
-replaceRefsLatex :: Prefix -> Options -> [Citation] -> WS [Inline]
+replaceRefsLatex :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
 replaceRefsLatex prefix opts cits
   | cref opts
   = replaceRefsLatex' prefix opts cits
   | otherwise
   = toList . intercalate' (text ", ") . map fromList <$>
-      mapM (replaceRefsLatex' prefix opts) (groupBy citationGroupPred cits)
+      mapM (replaceRefsLatex' prefix opts) (NE.groupBy citationGroupPred cits)
 
-replaceRefsLatex' :: Prefix -> Options -> [Citation] -> WS [Inline]
+replaceRefsLatex' :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
 replaceRefsLatex' prefix opts cits =
   return $ p [texcit]
   where
@@ -137,15 +139,18 @@ replaceRefsLatex' prefix opts cits =
       = id
       | noPrefix
       = getRefPrefix opts prefix cap (length cits - 1)
-      | otherwise = ((citationPrefix (head cits) <> [Space]) <>)
-    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
+      | otherwise = ((citationPrefix (NE.head cits) <> [Space]) <>)
+    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . NE.head $ cits
     cref' | suppressAuthor = "\\labelcref"
           | cap = "\\Cref"
           | otherwise = "\\cref"
 
-listLabels :: Prefix -> T.Text -> T.Text -> T.Text -> [Citation] -> T.Text
-listLabels prefix p sep s =
-  T.intercalate sep . map ((p <>) . (<> s) . mkLaTeXLabel' . (pfxMapR prefix <>) . getLabelWithoutPrefix . citationId)
+listLabels :: Prefix -> T.Text -> T.Text -> T.Text -> NonEmpty Citation -> T.Text
+listLabels prefix p sep s
+  = T.intercalate sep
+  . map ((p <>) . (<> s) . mkLaTeXLabel' . (pfxMapR prefix <>) . getLabelWithoutPrefix . citationId)
+  . NE.toList
+
 
 getLabelWithoutPrefix :: T.Text -> T.Text
 getLabelWithoutPrefix = T.drop 1 . T.dropWhile (/=':')
@@ -157,24 +162,24 @@ getLabelPrefix lab
   | otherwise = Nothing
   where p = flip T.snoc ':' . T.takeWhile (/=':') $ lab
 
-replaceRefsOther :: Prefix -> Options -> [Citation] -> WS [Inline]
+replaceRefsOther :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
 replaceRefsOther prefix opts cits = toList . intercalate' (text ", ") . map fromList <$>
-    mapM (replaceRefsOther' prefix opts) (groupBy citationGroupPred cits)
+    traverse (replaceRefsOther' prefix opts) (NE.groupBy citationGroupPred cits)
 
 citationGroupPred :: Citation -> Citation -> Bool
 citationGroupPred = (==) `on` liftM2 (,) citationPrefix citationMode
 
-replaceRefsOther' :: Prefix -> Options -> [Citation] -> WS [Inline]
+replaceRefsOther' :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
 replaceRefsOther' prefix opts cits = do
-  indices <- mapM (getRefIndex prefix opts) cits
+  indices <- mapM (getRefIndex prefix opts) $ NE.toList cits
   let
-    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . head $ cits
+    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . NE.head $ cits
     writePrefix | all ((==SuppressAuthor) . citationMode) cits
                 = id
                 | all (null . citationPrefix) cits
                 = cmap $ getRefPrefix opts prefix cap (length cits - 1)
                 | otherwise
-                = cmap $ toList . ((fromList (citationPrefix (head cits)) <> space) <>) . fromList
+                = cmap $ toList . ((fromList (citationPrefix (NE.head cits)) <> space) <>) . fromList
     cmap f [Link attr t w]
       | nameInLink opts = [Link attr (f t) w]
     cmap f x = f x
