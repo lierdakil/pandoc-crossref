@@ -1,3 +1,9 @@
+## 0.3.18.1
+
+-   Minor refactor to avoid new warnings introduced in GHC 9.8.
+
+-   Switch CI compiler to GHC 9.8.4.
+
 ## 0.3.18.0
 
 -   Add `eqnInlineTableTemplate` and `eqnDisplayTemplate` options.

@@ -1,11 +1,11 @@
 cabal-version: 2.0
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
 name:           pandoc-crossref
-version:        0.3.18.0
+version:        0.3.18.1
 synopsis:       Pandoc filter for cross-references
 description:    pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 category:       Text
@@ -229,9 +229,9 @@ test-suite test-integrative
     , pandoc-crossref
     , pandoc-types ==1.23.*
     , text >=1.2.2 && <2.2
+  default-language: Haskell2010
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
-  default-language: Haskell2010
 
 test-suite test-pandoc-crossref
   type: exitcode-stdio-1.0
@@ -256,9 +256,9 @@ test-suite test-pandoc-crossref
     , pandoc-crossref-internal
     , pandoc-types ==1.23.*
     , text >=1.2.2 && <2.2
+  default-language: Haskell2010
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
-  default-language: Haskell2010
 
 benchmark simple
   type: exitcode-stdio-1.0
