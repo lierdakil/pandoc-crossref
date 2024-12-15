@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {-# LANGUAGE OverloadedStrings#-}
 
-module Text.Pandoc.CrossRef.Util.Options (Options(..), isLatexFormat) where
+module Text.Pandoc.CrossRef.Util.Options (Options(..), isLatexFormat, isDocxFormat) where
 import Data.Text (Text)
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util (isFormat)
@@ -85,3 +85,6 @@ data Options = Options { cref :: Bool
 
 isLatexFormat :: Options -> Bool
 isLatexFormat = ((||) <$> (isFormat "latex") <*> (isFormat "beamer")) . outFormat
+
+isDocxFormat :: Options -> Bool
+isDocxFormat = isFormat "docx" . outFormat

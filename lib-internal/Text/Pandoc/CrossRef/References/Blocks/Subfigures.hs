@@ -127,13 +127,19 @@ runSubfigures (label, cls, attrs) images caption = do
           = perc/100.0
           | otherwise = error "Only percent allowed in subfigure width!"
         blkToRow :: Block -> [Block]
-        blkToRow (Para inls) = mapMaybe inlToCell inls
+        blkToRow (Para inls) = map inlToCell $ zip widths $ mapMaybe getImg inls
         blkToRow x = [x]
-        inlToCell :: Inline -> Maybe Block
-        inlToCell (Image (id', cs, as) txt tgt) = Just $
-          Figure (id', cs, []) (Caption Nothing [Para txt]) [Plain [Image ("", cs, setW as) txt tgt]]
-        inlToCell _ = Nothing
-        setW as = ("width", "100%"):filter ((/="width") . fst) as
+        getImg x@Image{} = Just x
+        getImg _ = Nothing
+        inlToCell :: (Double, Inline) -> Block
+        inlToCell (w, Image (id', cs, as) txt tgt) =
+          Figure (id', cs, []) (Caption Nothing [Para txt]) [Plain [Image ("", cs, setW w as) txt tgt]]
+        inlToCell _ = error "impossible"
+        setW w as
+          -- With docx, since pandoc 3.0, 100% is interpreted as "page width",
+          -- even in table cells. Hence, this hack.
+          | isDocxFormat opts = ("width", T.pack (show $ w * 100) <> "%"):filter ((/="width") . fst) as
+          | otherwise = ("width", "100%"):filter ((/="width") . fst) as
 
 replaceSubfigs :: [Inline] -> WS (ReplacedResult [Inline])
 replaceSubfigs = (replaceNoRecurse . concat) <=< mapM replaceSubfig
