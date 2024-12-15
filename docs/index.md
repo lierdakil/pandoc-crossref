@@ -30,8 +30,11 @@ being a Turing-complete layout language rather than a markup language. That was
 one of the motivations for pandoc-crossref in the first place.
 
 All that said, if you really need to use LaTeX as an input format, see the
-discussions in <https://github.com/lierdakil/pandoc-crossref/issues/250> and
-<https://github.com/lierdakil/pandoc-crossref/issues/131>.
+discussions in <https://github.com/lierdakil/pandoc-crossref/issues/250>.
+
+For best results, consider using a purpose-built filter instead of
+pandoc-crossref. For example,
+[pandoc-text-numbering](https://github.com/fncokg/pandoc-tex-numbering).
 
 ## LaTeX output and `--include-in-header`
 
