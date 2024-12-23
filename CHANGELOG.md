@@ -6,6 +6,9 @@
 
 -   Add some potentially useful references to the documentation.
 
+-   Fix image scaling in docx for `subfigGrid`. See
+    [#394](https://github.com/lierdakil/pandoc-crossref/issues/394) for details.
+
 ## 0.3.18.0
 
 -   Add `eqnInlineTableTemplate` and `eqnDisplayTemplate` options.
