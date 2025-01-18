@@ -6,6 +6,7 @@ build:
 pin:
 	nix build .#static $(NIX_EXTRA_OPTS)
 	cachix pin pandoc-crossref $$(git describe --tags) $$(nix eval --raw .#static $(NIX_EXTRA_OPTS)) -a bin/pandoc-crossref --keep-revisions 1
+	cachix pin pandoc-crossref $$(git describe --tags)-with-pandoc $$(nix eval --raw .#pandoc-with-crossref $(NIX_EXTRA_OPTS)) --keep-revisions 1
 
 push:
 	nix build . .#static .#pandoc $(NIX_EXTRA_OPTS) --json \
