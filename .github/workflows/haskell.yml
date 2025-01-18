@@ -65,14 +65,8 @@ jobs:
       id: get_version
       run: |
         cd pandoc-crossref-${{runner.os}}-${{runner.arch}}/
-        case "${{runner.os}}-${{runner.arch}}" in
-        Windows)
-            VERSION="$(./pandoc-crossref.exe --version)"
-            ;;
-        *)  chmod +x pandoc-crossref
-            VERSION="$(./pandoc-crossref --version)"
-            ;;
-        esac
+        chmod +x pandoc-crossref
+        VERSION="$(./pandoc-crossref --version)"
         echo "$VERSION"
         echo "$VERSION" > version.txt
     - uses: actions/upload-artifact@v4
@@ -81,9 +75,9 @@ jobs:
         path: pandoc-crossref-${{runner.os}}-${{runner.arch}}
     - shell: bash
       run: |
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-*
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-*
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-*
+        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
+        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-* || true
+        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-* || true
 
   build-nix:
     runs-on: ubuntu-latest
