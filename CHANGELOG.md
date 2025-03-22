@@ -1,3 +1,10 @@
+## 0.3.18.2
+
+-   Ensure items in list-of are in order of appearance
+
+    See [#466](https://github.com/lierdakil/pandoc-crossref/issues/466) for more
+    info.
+
 ## 0.3.18.1
 
 -   Minor refactor to avoid new warnings introduced in GHC 9.8.
