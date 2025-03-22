@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Types where
 
 import Data.Default
+import Numeric.Natural
 import qualified Data.Map as M
 import Data.Text (Text)
 import Lens.Micro.GHC
@@ -32,6 +33,7 @@ import qualified Data.Sequence as S
 type Index = S.Seq (Int, Maybe Text)
 
 data RefRec = RefRec { refIndex :: Index
+                     , refGlobal :: Natural
                      , refTitle :: [Inline]
                      , refSubfigure :: Maybe Index
                      } deriving (Show, Eq)
@@ -49,10 +51,11 @@ data Prefix
 -- state data type
 data References = References { _stRefs :: M.Map Prefix RefMap
                              , _stCtrs :: M.Map Prefix Index
+                             , _stGlob :: Natural
                              } deriving (Show, Eq)
 
 instance Default References where
-  def = References mempty mempty
+  def = References mempty mempty 0
 
 makeLenses ''References
 

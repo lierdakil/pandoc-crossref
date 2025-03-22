@@ -1,0 +1,42 @@
+\section*{main section}\label{main-section}
+\addcontentsline{toc}{section}{main section}
+
+blah blah blah figs.~\ref{fig:fig1}, \ref{fig:fig_s1}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig1.jpg}}
+\caption{first figure}\label{fig:fig1}
+\end{figure}
+
+furthermore, etc., (figs.~\ref{fig:fig2}, \ref{fig:fig_s2})
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig2.jpg}}
+\caption{second figure}\label{fig:fig2}
+\end{figure}
+
+and finally (fig.~\ref{fig:fig3})
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig3.jpg}}
+\caption{third figure}\label{fig:fig3}
+\end{figure}
+
+\section{supplemental section}\label{supplemental-section}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\caption{first supp figure}\label{fig:fig_s1}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\caption{second supp figure}\label{fig:fig_s2}
+\end{figure}
+
+\listoffigures

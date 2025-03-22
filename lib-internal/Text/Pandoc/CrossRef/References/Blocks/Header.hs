@@ -66,9 +66,11 @@ runHeader n (label, cls, attrs) text'
               | otherwise = S.replicate (n-ln-1) (0, Nothing)
         in cc'
       cc <- use $ ctrsAt PfxSec
+      globCtr <- stGlob <<%= (+ 1)
       when ("sec:" `T.isPrefixOf` label') $
         refsAt PfxSec %= M.insert label' RefRec {
           refIndex = cc
+        , refGlobal = globCtr
         , refTitle = text'
         , refSubfigure = Nothing
         }

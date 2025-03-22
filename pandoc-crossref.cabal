@@ -75,6 +75,9 @@ data-files:
     test/m2m/listings-code-block-caption-278/expect.md
     test/m2m/listings-code-block-caption-278/expect.tex
     test/m2m/listings-code-block-caption-278/input.md
+    test/m2m/listOfOrdering/expect.md
+    test/m2m/listOfOrdering/expect.tex
+    test/m2m/listOfOrdering/input.md
     test/m2m/listOfTemplates-buillet-list/expect.md
     test/m2m/listOfTemplates-buillet-list/expect.tex
     test/m2m/listOfTemplates-buillet-list/input.md

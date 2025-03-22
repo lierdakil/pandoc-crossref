@@ -49,7 +49,8 @@ runSubfigures :: Attr -> [Block] -> [Inline] -> WS (ReplacedResult Block)
 runSubfigures (label, cls, attrs) images caption = do
   opts <- ask
   idxStr <- replaceAttr (Right label) attrs caption SPfxImg
-  let (cont, st) = flip runState def
+  glob <- use stGlob
+  let (cont, st) = flip runState (References def def glob)
         $ flip runReaderT opts'
         $ runWS
         $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
@@ -82,6 +83,7 @@ runSubfigures (label, cls, attrs) images caption = do
   let mangledSubfigures = mangleSubfigure <$> st ^. refsAt PfxImg
       mangleSubfigure v = v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v}
   refsAt PfxImg %= (<> mangledSubfigures)
+  stGlob .= st ^. stGlob
   if  | isLatexFormat opts ->
           replaceNoRecurse $ Div nullAttr $
             [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]

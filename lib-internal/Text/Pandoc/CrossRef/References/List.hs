@@ -77,9 +77,9 @@ makeList pfx tf titlef xs refs = do
     mergeList _ _ _ = Nothing
     refsSorted = sortBy compare' $ M.toList refs
     compare'
-      (_,RefRec{refIndex=i, refSubfigure=si})
-      (_,RefRec{refIndex=j, refSubfigure=sj})
-      = compare (i, si) (j, sj)
+      (_,RefRec{refGlobal=i})
+      (_,RefRec{refGlobal=j})
+      = compare i j
     itemChap :: Options -> RefRec -> [Block]
     itemChap o ref@RefRec{..} = applyTemplate (numWithChap o ref) refTitle (tf o)
     numWithChap :: Options -> RefRec -> [Inline]

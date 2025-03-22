@@ -95,9 +95,11 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
       label' = either (<> T.pack (':' : show index)) id label
   when (M.member label' prop') $
     error . T.unpack $ "Duplicate label: " <> label'
+  globCtr <- stGlob <<%= (+ 1)
   ctrsAt pfx .= index
   refsAt pfx %= M.insert label' RefRec {
     refIndex= index
+  , refGlobal = globCtr
   , refTitle= title
   , refSubfigure = Nothing
   }
