@@ -1,6 +1,6 @@
 # THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY
 resolver: ghc-9.8.4
-allow-newer: false
+allow-newer: true
 flags:
   pandoc-crossref:
     enable_flaky_tests: true

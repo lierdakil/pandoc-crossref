@@ -1,5 +1,5 @@
 resolver: ghc-$ghcver$
-allow-newer: false
+allow-newer: true
 flags:
   pandoc-crossref:
     enable_flaky_tests: true
