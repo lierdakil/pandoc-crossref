@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: haskell-actions/setup@v2
       with:
         ghc-version: ${{matrix.ghcver}}
@@ -34,7 +34,7 @@ jobs:
       run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
     - name: Cabal configure
       run: cabal v2-configure --constraint pandoc==${{ env.PANDOC_VERSION }} --constraint zip-archive'>='0.4.2.1 --enable-tests ${{matrix.extra-options}}
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       with:
         path: .cabal-store
         key: r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
@@ -82,7 +82,7 @@ jobs:
   build-nix:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: cachix/install-nix-action@v20
       with:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -132,7 +132,7 @@ jobs:
     - run: |
         echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories
         apk add --update --no-cache p7zip hub upx bash tar xz
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v4
     - name: Repack assets
       run: |
@@ -257,14 +257,14 @@ jobs:
   build-stack:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         wget https://get.haskellstack.org/stable/linux-x86_64.tar.gz
         tar zxf linux-x86_64.tar.gz
         mv stack-*/stack ./
         chmod +x ./stack
-    - uses: actions/cache@v1
+    - uses: actions/cache@v4
       with:
         path: /home/runner/.stack
         key: ${{ runner.os }}-stack
