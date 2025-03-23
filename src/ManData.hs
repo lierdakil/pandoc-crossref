@@ -34,7 +34,7 @@ dataFile = "docs/index.md"
 
 readDataFile :: IO T.Text
 readDataFile =
-  withFile dataFile ReadMode $ \h -> do
+  withFile dataFile ReadMode \h -> do
     hSetEncoding h utf8
     cont <- T.replace "* TOC\n{:toc}\n" "" <$> T.hGetContents h
     return $!! cont

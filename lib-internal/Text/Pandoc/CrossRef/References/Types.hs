@@ -36,6 +36,7 @@ data RefRec = RefRec { refIndex :: Index
                      , refTitle :: [Inline]
                      , refSubfigure :: Maybe Index
                      , refHideFromList :: Bool
+                     , refLabel :: Text
                      } deriving (Show, Eq)
 
 type RefMap = M.Map Text RefRec
@@ -52,10 +53,20 @@ data Prefix
 data References = References { _stRefs :: M.Map Prefix RefMap
                              , _stCtrs :: M.Map Prefix Index
                              , _stGlob :: Natural
+                             , _stHiddenHeaderLevel :: [HiddenHeader]
                              } deriving (Show, Eq)
 
+data HiddenHeader = HiddenHeader
+  { hhLevel :: Int
+  , hhHidden :: Bool
+  } deriving (Show, Eq)
+
+isHdrHidden :: [HiddenHeader] -> Bool
+isHdrHidden [] = False
+isHdrHidden (HiddenHeader{..}:_) = hhHidden
+
 instance Default References where
-  def = References mempty mempty 0
+  def = References mempty mempty 0 mempty
 
 makeLenses ''References
 

@@ -51,7 +51,8 @@ replaceEqn eqTemplate (label, _, attrs) eq = do
   opts <- ask
   let label' | T.null label = Left "eq"
              | otherwise = Right label
-  idxStrRaw <- replaceAttr label' attrs [] SPfxEqn
+  ref <- replaceAttr label' attrs [] SPfxEqn
+  idxStrRaw <- chapIndex ref
   let idxStr = applyTemplate' (M.fromDistinctAscList [("i", idxStrRaw)]) $ eqnIndexTemplate opts
       eqTxt :: [Inline]
       eqTxt = applyTemplate' eqTxtVars $

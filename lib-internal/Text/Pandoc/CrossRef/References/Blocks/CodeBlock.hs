@@ -43,20 +43,19 @@ runCodeBlock (label, classes, attrs) code eCaption = do
             (\caption -> replaceNoRecurse $
               CodeBlock (label,classes,("caption",escapeLaTeX $ stringify caption):attrs) code)
       --if not using listings, however, wrap it in a codelisting environment
-      | isLatexFormat opts ->
+      | isLatexFormat opts -> do
+          let cap = either (B.toList . B.text) id eCaption
+          ref <- replaceAttr (Right label) attrs cap SPfxLst
           replaceNoRecurse $ Div nullAttr [
               RawBlock (Format "latex") $ "\\begin{codelisting}"
-            , Plain [
-                RawInline (Format "latex") "\\caption"
-              , Span nullAttr $ either (pure . Str) id eCaption
-              , RawInline (Format "latex") $ mkLaTeXLabel label
-              ]
+            , Plain $ latexCaption ref
             , CodeBlock ("", classes, attrs) code
             , RawBlock (Format "latex") "\\end{codelisting}"
             ]
       | otherwise -> do
           let cap = either (B.toList . B.text) id eCaption
-          idxStr <- replaceAttr (Right label) attrs cap SPfxLst
+          ref <- replaceAttr (Right label) attrs cap SPfxLst
+          idxStr <- chapIndex ref
           let caption' = applyTemplate idxStr cap $ listingTemplate opts
           replaceNoRecurse $ Div (label, "listing":classes, []) [
               mkCaption opts "Caption" caption'

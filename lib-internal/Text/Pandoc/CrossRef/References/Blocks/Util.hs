@@ -22,11 +22,14 @@ module Text.Pandoc.CrossRef.References.Blocks.Util where
 
 import Control.Monad.Reader.Class
 import qualified Data.Map as M
+import qualified Data.Set as Set
+import Data.Set (Set)
 import qualified Data.Text as T
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared (stringify)
 import Text.Pandoc.Walk (walk)
 import Control.Monad (when)
+import Data.Maybe (fromMaybe)
 
 import Text.Read (readMaybe)
 
@@ -74,7 +77,7 @@ replaceAttr
   -> [(T.Text, T.Text)] -- ^ Attributes
   -> [Inline] -- ^ Title
   -> SPrefix -- ^ Prefix type
-  -> WS [Inline]
+  -> WS RefRec
 replaceAttr label attrs title (toPrefix -> pfx) = do
   let refLabel = lookup "label" attrs
       number = readMaybe . T.unpack =<< lookup "number" attrs
@@ -94,15 +97,68 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
     error . T.unpack $ "Duplicate label: " <> label'
   globCtr <- stGlob <<%= (+ 1)
   ctrsAt pfx .= index
-  refsAt pfx %= M.insert label' RefRec {
+  refHideFromList <- checkHidden attrs
+  let rec' = RefRec {
     refIndex= index
   , refGlobal = globCtr
   , refTitle= title
   , refSubfigure = Nothing
+  , refHideFromList
+  , refLabel = label'
   }
-  return $ chapPrefix chapDelim index
+  refsAt pfx %= M.insert label' rec'
+  return $ rec'
+
+chapIndex :: RefRec -> WS [Inline]
+chapIndex r = do
+  Options{chapDelim} <- ask
+  pure $ chapPrefix chapDelim $ refIndex r
 
 mkCaption :: Options -> T.Text -> [Inline] -> Block
 mkCaption opts style
   | outFormat opts == Just (Format "docx") = Div ("", [], [("custom-style", style)]) . return . Para
   | otherwise = Para
+
+latexCaption :: RefRec -> [Inline]
+latexCaption ref =
+  caption <>
+  [ Span nullAttr $ refTitle ref
+  , RawInline (Format "latex") $ mkLaTeXLabel $ refLabel ref
+  ]
+  where
+    sansFootnotes = refTitle ref
+    caption
+      | refHideFromList ref = [ RawInline (Format "latex") "\\caption[]" ]
+      | refTitle ref == sansFootnotes = [ RawInline (Format "latex") "\\caption" ]
+      | otherwise =
+        [ RawInline (Format "latex") "\\caption["
+        , Span nullAttr $ removeFootnotes $ refTitle ref
+        , RawInline (Format "latex") "]"
+        ]
+    removeFootnotes = walk \case
+      Note{} -> Str ""
+      x -> x
+
+checkHidden :: [(T.Text, T.Text)] -> WS Bool
+checkHidden attrs = do
+  hiddenHdr <- use stHiddenHeaderLevel
+  pure . fromMaybe (isHdrHidden hiddenHdr) $
+    not . isFalseValue <$> lookup "hidden" attrs
+
+isFalseValue :: T.Text -> Bool
+isFalseValue = (`Set.member` falseValues) . T.strip . T.toLower
+
+falseValues :: Set T.Text
+falseValues = Set.fromList
+  [ "no"
+  , "n"
+  , "false"
+  , "f"
+  , "off"
+  , "0"
+  , "none"
+  , "null"
+  , "disable"
+  , "disabled"
+  , "unset"
+  ]

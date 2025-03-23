@@ -27,6 +27,7 @@ import Data.Function ((&))
 
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.References.Blocks.Util
+import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
@@ -34,11 +35,15 @@ import Text.Pandoc.CrossRef.Util.Util
 runTable :: Attr -> Maybe Attr -> Maybe ShortCaption -> Block -> [Block] -> [ColSpec] -> TableHead -> [TableBody] -> TableFoot -> WS (ReplacedResult Block)
 runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot = do
   opts <- ask
-  idxStr <- replaceAttr (Right label) attrs title SPfxTbl
+  ref <- replaceAttr (Right label) attrs title SPfxTbl
+  idxStr <- chapIndex ref
+  let listHidden = refHideFromList ref
+  let short' | listHidden = Just mempty
+             | otherwise = short
   let title'
         | isLatexFormat opts = RawInline (Format "latex") (mkLaTeXLabel label) : title
         | otherwise = applyTemplate idxStr title $ tableTemplate opts
-      caption' = Caption short (walkReplaceInlines title' title btitle:rest)
+      caption' = Caption short' (walkReplaceInlines title' title btitle:rest)
       label' | isLatexFormat opts = ""
              | otherwise = label
   replaceNoRecurse $ (mtattr &

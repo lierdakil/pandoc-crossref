@@ -1,0 +1,207 @@
+\section*{main section}\label{main-section}
+\addcontentsline{toc}{section}{main section}
+
+blah blah blah figs.~\ref{fig:fig1}, \ref{fig:fig_s1}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig1.jpg}}
+\caption{first figure}\label{fig:fig1}
+\end{figure}
+
+furthermore, etc., (figs.~\ref{fig:fig2}, \ref{fig:fig_s2})
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig2.jpg}}
+\caption{second figure}\label{fig:fig2}
+\end{figure}
+
+and finally (fig.~\ref{fig:fig3})
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig3.jpg}}
+\caption{third figure}\label{fig:fig3}
+\end{figure}
+
+\section{S hidden supplemental
+section}\label{hidden-supplemental-section}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\caption[]{hidden! first supp figure}\label{fig:fig_s1}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\caption[]{hidden! second supp figure}\label{fig:fig_s2}
+\end{figure}
+
+\section{2 hidden section}\label{hidden-section}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\caption[]{hidden! first hidden figure}\label{fig:fig_h1}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\caption[]{hidden! second hidden figure}\label{fig:fig_h2}
+\end{figure}
+
+\subsection{2.1 subsection of a hidden
+section}\label{subsection-of-a-hidden-section}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\caption[]{hidden! first hidden subsection figure}\label{fig:fig_h1_s}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\caption[]{hidden! second hidden subsection figure}\label{fig:fig_h2_s}
+\end{figure}
+
+\section{3 regular section}\label{regular-section}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\caption{first regular section figure}\label{fig:fig_r1}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\caption{second regular section figure}\label{fig:fig_r2}
+\end{figure}
+
+\subsection{3.1 normal subsection}\label{normal-subsection}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\caption{first normal subsection figure}\label{fig:fig_nss1}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\caption{second normal subsection figure}\label{fig:fig_nss2}
+\end{figure}
+
+\subsection{3.2 hidden subsection}\label{hidden-subsection}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\caption[]{hidden! first hidden subsection figure}\label{fig:fig_ss1}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\caption[]{hidden! second hidden subsection figure}\label{fig:fig_ss2}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s3.jpg}}
+\caption{visible! overridden visibility}\label{fig:fig_ss3}
+\end{figure}
+
+\begin{pandoccrossrefsubfigures}
+
+\subfloat[hidden!
+subfigure1]{\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}\label{fig:fig_sss1}}
+\subfloat[hidden!
+subfigure2]{\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}\label{fig:fig_sss2}}
+
+\caption[]{hidden! subfigures}\label{fig:subfigs}
+
+\end{pandoccrossrefsubfigures}
+
+\begin{codelisting}
+
+\caption[]{hidden!}\label{lst:listing}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{main }\OtherTok{=} \FunctionTok{putStrLn} \StringTok{"Hello, World!"}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
+
+\begin{codelisting}
+
+\caption{visible!}\label{lst:listing2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{main }\OtherTok{=} \FunctionTok{putStrLn} \StringTok{"Hello, World!"}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{hidden! table}\tabularnewline
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 10 \\
+2 & 20 \\
+3 & 30 \\
+\end{longtable}
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{\label{tbl:table2}visible! table}\tabularnewline
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 10 \\
+2 & 20 \\
+3 & 30 \\
+\end{longtable}
+
+\section{4 one more regular section}\label{one-more-regular-section}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\caption{first other regular section figure}\label{fig:fig_or1}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\caption{second other regular section figure}\label{fig:fig_or2}
+\end{figure}
+
+\listoffigures
+
+\listoflistings
+
+\listoftables

@@ -528,6 +528,35 @@ but this will:
 
 With HTML-compatible output, lists are wrapped into a `div` with classes `list` and `list-of-<prefix>`, where `<prefix>` is either `fig`, `tbl` or `lst` depending on the type of the list. This allows for ad-hoc style overrides in HTML.
 
+### Hiding items from list-of-X lists
+
+NB: Highly experimental with LaTeX output (that includes PDF). Might not work as
+expected or break in some edge cases. F.ex., this is known to not work with
+listings when `--listings` Pandoc option is enabled.
+
+If you need to hide a figure/table/code block from the corresponding `\listofX`,
+you can set `hidden` attribute on the item, e.g.
+
+```markdown
+![Hidden figure](fig.png){#fig:hidden hidden="y"}
+```
+
+The following values are interpreted as "no", so setting `hidden` to those will
+leave the object visible in the list-of-X: `no`, `n`, `false`, `f`, `off`, `0`,
+`none`, `null`, `disable`, `disabled`, `unset`. Any other value (including empty
+string!) will hide the item from list-of-X.
+
+Additionally, this attribute can be set on sections. Since there isn't a
+list-of-sections per se, table of contents notwithstanding, instead of hiding a
+section, this will implicitly hide all items inside that section and all its
+subsections.
+
+You can override subsections or individual items inside a hidden section to be
+visible by explicitly setting `hidden=no` (or to any other falsy value).
+
+Same as with other attributes, to use this with tables, you need to use fenced
+div syntax, not the short syntax.
+
 # Usage
 
 Run pandoc with `--filter` option, passing path to pandoc-crossref

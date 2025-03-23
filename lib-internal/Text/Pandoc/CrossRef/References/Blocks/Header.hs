@@ -33,17 +33,22 @@ import Control.Applicative
 import Lens.Micro.Mtl
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
-import Text.Pandoc.CrossRef.References.Blocks.Util (setLabel)
+import Text.Pandoc.CrossRef.References.Blocks.Util (setLabel, checkHidden)
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 
 runHeader :: Int -> Attr -> [Inline] -> WS (ReplacedResult Block)
-runHeader n (label, cls, attrs) text'
-  | "unnumbered" `elem` cls = do
+runHeader n (label, cls, attrs) text' = do
+  stHiddenHeaderLevel %= filter \HiddenHeader{hhLevel} -> hhLevel < n
+  hhHidden <- checkHidden attrs
+  stHiddenHeaderLevel %= (HiddenHeader { hhLevel = n, hhHidden }:)
+
+  if "unnumbered" `elem` cls
+    then do
       label' <- mangleLabel
       replaceNoRecurse $ Header n (label', cls, attrs) text'
-  | otherwise = do
+    else do
       opts@Options{..} <- ask
       label' <- mangleLabel
       ctrsAt PfxSec %= \cc ->
@@ -71,6 +76,8 @@ runHeader n (label, cls, attrs) text'
         , refGlobal = globCtr
         , refTitle = text'
         , refSubfigure = Nothing
+        , refHideFromList = hhHidden
+        , refLabel = label'
         }
       let textCC
             | numberSections

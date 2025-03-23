@@ -1,11 +1,11 @@
 cabal-version: 2.0
 
--- This file has been generated from package.yaml by hpack version 0.37.0.
+-- This file has been generated from package.yaml by hpack version 0.36.1.
 --
 -- see: https://github.com/sol/hpack
 
 name:           pandoc-crossref
-version:        0.3.18.2
+version:        0.3.19
 synopsis:       Pandoc filter for cross-references
 description:    pandoc-crossref is a pandoc filter for numbering figures, equations, tables and cross-references to them.
 category:       Text
@@ -75,6 +75,9 @@ data-files:
     test/m2m/listings-code-block-caption-278/expect.md
     test/m2m/listings-code-block-caption-278/expect.tex
     test/m2m/listings-code-block-caption-278/input.md
+    test/m2m/listOfHidden/expect.md
+    test/m2m/listOfHidden/expect.tex
+    test/m2m/listOfHidden/input.md
     test/m2m/listOfOrdering/expect.md
     test/m2m/listOfOrdering/expect.tex
     test/m2m/listOfOrdering/input.md
@@ -146,6 +149,7 @@ library
       ViewPatterns
       MultiWayIf
       ApplicativeDo
+      BlockArguments
   ghc-options: -Wall
   build-depends:
       base >=4.16 && <5
@@ -191,6 +195,7 @@ library pandoc-crossref-internal
       ViewPatterns
       MultiWayIf
       ApplicativeDo
+      BlockArguments
   build-depends:
       base >=4.16 && <5
     , containers >=0.1 && <0.7
@@ -224,6 +229,7 @@ executable pandoc-crossref
       ViewPatterns
       MultiWayIf
       ApplicativeDo
+      BlockArguments
   ghc-options: -Wall -threaded
   build-depends:
       base >=4.16 && <5
@@ -252,6 +258,7 @@ test-suite test-integrative
       ViewPatterns
       MultiWayIf
       ApplicativeDo
+      BlockArguments
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-tool-depends:
       pandoc-cli:pandoc
@@ -286,6 +293,7 @@ test-suite test-pandoc-crossref
       ViewPatterns
       MultiWayIf
       ApplicativeDo
+      BlockArguments
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.16 && <5
@@ -318,6 +326,7 @@ benchmark simple
       ViewPatterns
       MultiWayIf
       ApplicativeDo
+      BlockArguments
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
       base >=4.16 && <5

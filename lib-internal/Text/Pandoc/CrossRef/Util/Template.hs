@@ -54,7 +54,7 @@ instance MkTemplate Block BlockTemplate where
   applyTemplate' vars (BlockTemplate g) = g (internalVars vars)
 
 makeTemplate :: MkTemplate a b => Meta -> [a] -> b
-makeTemplate dtv xs' = mkTemplate $ \vf -> scan (\var -> vf var <|> lookupMeta var dtv) xs'
+makeTemplate dtv xs' = mkTemplate \vf -> scan (\var -> vf var <|> lookupMeta var dtv) xs'
   where
   scan = bottomUp . go
   go vf (x@(Math DisplayMath var):xs)

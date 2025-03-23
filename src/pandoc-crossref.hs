@@ -64,7 +64,7 @@ run = do
       <> " and GHC " <> TOOL_VERSION_ghc
     go (Just NumericVersion) _ = T.putStrLn VERSION_pandoc_crossref
     go (Just Man    ) _ = T.putStrLn man
-    go (Just HtmlMan) _ = withSystemTempFile "pandoc-crossref-manual.html" $ \fp h -> do
+    go (Just HtmlMan) _ = withSystemTempFile "pandoc-crossref-manual.html" \fp h -> do
       hSetEncoding h utf8
       T.hPutStrLn h manHtml
       hClose h

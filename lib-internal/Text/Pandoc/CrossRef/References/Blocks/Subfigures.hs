@@ -30,7 +30,6 @@ import qualified Text.Pandoc.Builder as B
 import Data.Default (def)
 import Data.List
 import Data.Maybe
-import Text.Pandoc.Walk (walk)
 import Lens.Micro
 import Lens.Micro.Mtl
 import Text.Pandoc.Shared (blocksToInlines)
@@ -46,9 +45,11 @@ import Text.Pandoc.CrossRef.Util.Util
 runSubfigures :: Attr -> [Block] -> [Inline] -> WS (ReplacedResult Block)
 runSubfigures (label, cls, attrs) images caption = do
   opts <- ask
-  idxStr <- replaceAttr (Right label) attrs caption SPfxImg
+  ref <- replaceAttr (Right label) attrs caption SPfxImg
+  idxStr <- chapIndex ref
   glob <- use stGlob
-  let (cont, st) = flip runState (References def def glob)
+  hiddenHdr <- use stHiddenHeaderLevel
+  let (cont, st) = flip runState (References def def glob hiddenHdr)
         $ flip runReaderT opts'
         $ runWS
         $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
@@ -82,15 +83,13 @@ runSubfigures (label, cls, attrs) images caption = do
       mangleSubfigure v = v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v}
   refsAt PfxImg %= (<> mangledSubfigures)
   stGlob .= st ^. stGlob
-  if  | isLatexFormat opts ->
+  -- stHiddenHeaderLevel shouldn't have changed, but for future-proofing...
+  stHiddenHeaderLevel .= st ^. stHiddenHeaderLevel
+  if  | isLatexFormat opts -> do
           replaceNoRecurse $ Div nullAttr $
             [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]
             <> cont <>
-            [ Para [RawInline (Format "latex") "\\caption["
-                      , Span nullAttr (removeFootnotes caption)
-                      , RawInline (Format "latex") "]"
-                      , Span nullAttr caption]
-            , RawBlock (Format "latex") $ mkLaTeXLabel label
+            [ Para $ latexCaption ref
             , RawBlock (Format "latex") "\\end{pandoccrossrefsubfigures}"]
       | otherwise ->
           replaceNoRecurse
@@ -98,12 +97,8 @@ runSubfigures (label, cls, attrs) images caption = do
                      (Caption Nothing [Para capt])
             $ toTable opts cont
   where
-    removeFootnotes = walk removeFootnote
-    removeFootnote Note{} = Str ""
-    removeFootnote x = x
     toTable :: Options -> [Block] -> [Block]
     toTable opts blks
-      | isLatexFormat opts = concatMap imagesToFigures blks
       | subfigGrid opts = [simpleTable align (map ColWidth widths) (map (fmap pure . blkToRow) blks)]
       | otherwise = blks
       where
@@ -144,25 +139,12 @@ runSubfigures (label, cls, attrs) images caption = do
 replaceSubfigs :: [Inline] -> WS (ReplacedResult [Inline])
 replaceSubfigs = (replaceNoRecurse . concat) <=< mapM replaceSubfig
 
-imagesToFigures :: Block -> [Block]
-imagesToFigures = \case
-  x@Figure{} -> [x]
-  Para xs -> mapMaybe imageToFigure xs
-  Plain xs -> mapMaybe imageToFigure xs
-  _ -> []
-
-imageToFigure :: Inline -> Maybe Block
-imageToFigure = \case
-  Image (label,cls,attrs) alt tgt -> Just $
-    Figure (label, cls, []) (Caption Nothing [Para alt])
-      [Plain [Image ("",cls,attrs) alt tgt]]
-  _ -> Nothing
-
 replaceSubfig :: Inline -> WS [Inline]
 replaceSubfig x@(Image (label,cls,attrs) alt tgt) = do
   opts <- ask
   let label' = normalizeLabel label
-  idxStr <- replaceAttr label' attrs alt SPfxImg
+  ref <- replaceAttr label' attrs alt SPfxImg
+  idxStr <- chapIndex ref
   let alt' = applyTemplate idxStr alt $ figureTemplate opts
   pure $ if isLatexFormat opts
     then latexSubFigure x label
@@ -217,11 +199,15 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
             -- https://github.com/jgm/pandoc/issues/9720
             (fattrs <> as, \capt -> [Plain [Image attr capt tgt]])
         _ -> (fattrs, const content)
-  idxStr <- replaceAttr label' attrs title SPfxImg
+  ref <- replaceAttr label' attrs title SPfxImg
+  idxStr <- chapIndex ref
+  let listHidden = refHideFromList ref
+  let short' | listHidden = Just mempty
+             | otherwise = short
   let title'
         | isLatexFormat opts = title
         | otherwise = applyTemplate idxStr title $ figureTemplate opts
-      caption' = Caption short (walkReplaceInlines title' title btitle:rest)
+      caption' = Caption short' (walkReplaceInlines title' title btitle:rest)
   replaceNoRecurse $
     if subFigure && isLatexFormat opts
     then Plain $ case blocksToInlines content of

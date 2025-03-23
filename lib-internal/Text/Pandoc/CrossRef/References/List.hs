@@ -74,7 +74,8 @@ makeList pfx tf titlef xs refs = do
       mergeList (Just BulletList) (item <> acc) ys
     mergeList (Just cons) acc [] = Just $ cons $ reverse acc
     mergeList _ _ _ = Nothing
-    refsSorted = sortBy compare' $ M.toList refs
+    refsSorted = sortBy compare' $ filter notHidden $ M.toList refs
+    notHidden (_, RefRec{refHideFromList}) = not refHideFromList
     compare'
       (_,RefRec{refGlobal=i})
       (_,RefRec{refGlobal=j})
