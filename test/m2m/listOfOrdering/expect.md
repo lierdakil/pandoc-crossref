@@ -4,7 +4,7 @@ blah blah blah figs. 1, S.1
 
 ![Figure 1: first figure](figs/fig1.jpg){#fig:fig1}
 
-furthermore, etc., (figs. S.2, 2)
+furthermore, etc., (figs. 2, S.2)
 
 ![Figure 2: second figure](figs/fig2.jpg){#fig:fig2}
 

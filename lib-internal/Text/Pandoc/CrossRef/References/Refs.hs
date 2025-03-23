@@ -23,6 +23,7 @@ module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 import Control.Arrow as A
 import Control.Monad.Reader
 import Data.Function
+import Numeric.Natural
 import Data.List
 import qualified Data.List.HT as HT
 import qualified Data.Map as M
@@ -184,16 +185,14 @@ replaceRefsOther' prefix opts cits = do
     cmap f x = f x
   return $ writePrefix (makeIndices opts indices)
 
-data RefData = RefData { rdLabel :: T.Text
+data RefData = RefData { rdGlob :: Maybe Natural
+                       , rdLabel :: T.Text
                        , rdIdx :: Maybe Index
                        , rdSubfig :: Maybe Index
                        , rdSuffix :: [Inline]
                        , rdTitle :: Maybe [Inline]
                        , rdPfx :: T.Text
                        } deriving (Eq)
-
-instance Ord RefData where
-  (<=) = (<=) `on` rdIdx
 
 getRefIndex :: Prefix -> Options -> Citation -> WS RefData
 getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
@@ -202,8 +201,10 @@ getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
     let sub = refSubfigure <$> ref
         idx = refIndex <$> ref
         tit = refTitle <$> ref
+        glob = refGlobal <$> ref
     return RefData
-      { rdLabel = lab
+      { rdGlob = glob
+      , rdLabel = lab
       , rdIdx = idx
       , rdSubfig = join sub
       , rdSuffix = suf
@@ -217,7 +218,7 @@ getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
 data RefItem = RefRange RefData RefData | RefSingle RefData
 
 makeIndices :: Options -> [RefData] -> [Inline]
-makeIndices o s = format $ concatMap f $ HT.groupBy g $ sort $ nub s
+makeIndices o = format . concatMap f . HT.groupBy g . sortOn rdGlob . nub
   where
   g :: RefData -> RefData -> Bool
   g a b = all (null . rdSuffix) [a, b] && (
