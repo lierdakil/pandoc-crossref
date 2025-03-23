@@ -480,3 +480,7 @@ a =: b = def
   & ctrsAt a .~ (refIndex $ last $ M.elems b)
   & refsAt a .~ b
   & stGlob %~ (+ fromIntegral (M.size b))
+  & stHiddenHeaderLevel .~
+    if a == PfxSec
+    then [HiddenHeader { hhLevel = 1, hhHidden = False }]
+    else []
