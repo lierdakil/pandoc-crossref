@@ -18,7 +18,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.References.Blocks.Util where
+module Text.Pandoc.CrossRef.References.Blocks.Util
+  ( replaceAttr
+  , SPrefix(..)
+  , latexCaption
+  , latexCaptionRaw
+  , chapIndex
+  , mkCaption
+  , setLabel
+  , checkHidden
+  , latexLabel
+  , walkReplaceInlines
+  ) where
 
 import Control.Monad.Reader.Class
 import qualified Data.Map as M
@@ -35,6 +46,7 @@ import Text.Read (readMaybe)
 
 import Control.Applicative
 import Lens.Micro.Mtl
+import Text.Pandoc.Shared (deNote)
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
@@ -131,7 +143,7 @@ latexCaption ref = latexCaptionGeneric lcsRich ref <> latexLabel ref
           [ RawInline (Format "latex") "\\caption[]", Span nullAttr caption ]
       , lcsWithoutShort = \caption ->
           [ RawInline (Format "latex") "\\caption", Span nullAttr caption ]
-      , lcsWithShort = \short long ->
+      , lcsWithShort = \(Short short) long ->
           [ RawInline (Format "latex") "\\caption["
           , Span nullAttr short
           , RawInline (Format "latex") "]"
@@ -140,9 +152,12 @@ latexCaption ref = latexCaptionGeneric lcsRich ref <> latexLabel ref
 
 data LatexCaptionSpec a = LatexCaptionSpec
   { lcsEmptyShort :: [Inline] -> a
-  , lcsWithShort :: [Inline] -> [Inline] -> a
+  , lcsWithShort :: Short -> [Inline] -> a
   , lcsWithoutShort :: [Inline] -> a
   }
+
+newtype Short = Short [Inline]
+  deriving Eq
 
 -- | Only used in lstlistings code blocks.
 latexCaptionRaw :: RefRec -> T.Text
@@ -150,7 +165,7 @@ latexCaptionRaw = latexCaptionGeneric lcsRaw
   where
     lcsRaw = LatexCaptionSpec
       { lcsEmptyShort = \caption -> "[]" <> toTeX caption
-      , lcsWithShort = \short long -> "[" <> toTeX short <> "]" <> toTeX long
+      , lcsWithShort = \(Short short) long -> "[" <> toTeX short <> "]" <> toTeX long
       , lcsWithoutShort = toTeX
       }
     toTeX = escapeLaTeX . stringify
@@ -158,14 +173,11 @@ latexCaptionRaw = latexCaptionGeneric lcsRaw
 latexCaptionGeneric :: Monoid a => LatexCaptionSpec a -> RefRec -> a
 latexCaptionGeneric LatexCaptionSpec{..} ref
   | refHideFromList ref = lcsEmptyShort caption
-  | refTitle ref == sansFootnotes = lcsWithoutShort caption
+  | Short (refTitle ref) == sansFootnotes = lcsWithoutShort caption
   | otherwise = lcsWithShort sansFootnotes caption
   where
     caption = refTitle ref
-    sansFootnotes = removeFootnotes caption
-    removeFootnotes = walk \case
-      Note{} -> Str ""
-      x -> x
+    sansFootnotes = Short $ walk deNote caption
 
 checkHidden :: [(T.Text, T.Text)] -> WS Bool
 checkHidden attrs = do
