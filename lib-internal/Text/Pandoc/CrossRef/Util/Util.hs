@@ -18,7 +18,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE CPP #-}
 module Text.Pandoc.CrossRef.Util.Util
   ( module Text.Pandoc.CrossRef.Util.Util
   , module Data.Generics
@@ -27,15 +26,12 @@ module Text.Pandoc.CrossRef.Util.Util
 import Data.Char (isUpper, toLower, toUpper)
 import Data.Default
 import Data.Generics
-import Data.List (find)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
-import Data.Version
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.Class
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.Writers.LaTeX
-import Text.ParserCombinators.ReadP (readP_to_S)
 import qualified Data.Sequence as S
 
 intercalate' :: (Eq a, Monoid a, Foldable f) => a -> f a -> a
@@ -118,15 +114,6 @@ mkLaTeXLabel' l =
   let ll = either (error . show) id $
             runPure (writeLaTeX def $ Pandoc nullMeta [Div (l, [], []) []])
   in T.takeWhile (/='}') . T.drop 1 . T.dropWhile (/='{') $ ll
-
-escapeLaTeX :: T.Text -> T.Text
-escapeLaTeX l =
-  let ll = either (error . show) id $
-            runPure (writeLaTeX def $ Pandoc nullMeta [Plain [Str l]])
-      pv = fmap fst . find (null . snd) . readP_to_S parseVersion $ VERSION_pandoc
-      mv = makeVersion [2,11,0,1]
-      cond = maybe False (mv >=) pv
-  in if cond then ll else l
 
 getRefLabel :: Prefix -> [Inline] -> Maybe T.Text
 getRefLabel _ [] = Nothing

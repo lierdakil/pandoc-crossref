@@ -164,11 +164,10 @@ latexCaptionRaw :: RefRec -> T.Text
 latexCaptionRaw = latexCaptionGeneric lcsRaw
   where
     lcsRaw = LatexCaptionSpec
-      { lcsEmptyShort = \caption -> "[]" <> toTeX caption
-      , lcsWithShort = \(Short short) long -> "[" <> toTeX short <> "]" <> toTeX long
-      , lcsWithoutShort = toTeX
+      { lcsEmptyShort = \caption -> "[]" <> stringify caption
+      , lcsWithShort = \(Short short) long -> "[" <> stringify short <> "]" <> stringify long
+      , lcsWithoutShort = stringify
       }
-    toTeX = escapeLaTeX . stringify
 
 latexCaptionGeneric :: Monoid a => LatexCaptionSpec a -> RefRec -> a
 latexCaptionGeneric LatexCaptionSpec{..} ref
