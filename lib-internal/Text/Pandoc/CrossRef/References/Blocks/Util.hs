@@ -73,7 +73,7 @@ toPrefix = \case
   SPfxLst -> PfxLst
 
 replaceAttr
-  :: Either T.Text T.Text -- ^ Reference id
+  :: Maybe T.Text -- ^ Reference id
   -> [(T.Text, T.Text)] -- ^ Attributes
   -> [Inline] -- ^ Title
   -> SPrefix -- ^ Prefix type
@@ -90,24 +90,23 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
         , chap' == chap
         = succ . fst $ last'
         | otherwise = 1
-      index = chap S.|> (i, refLabel <|> customLabel ref i)
-      ref = either id (T.takeWhile (/=':')) label
-      label' = either (<> T.pack (':' : show index)) id label
+      index = chap S.|> (i, refLabel <|> customLabel (Pfx pfx) i)
+      label' = fromMaybe (T.pack (show pfx <> (':' : show index))) label
   when (M.member label' prop') $
     error . T.unpack $ "Duplicate label: " <> label'
   globCtr <- stGlob <<%= (+ 1)
   ctrsAt pfx .= index
   refHideFromList <- checkHidden attrs
   let rec' = RefRec {
-    refIndex= index
-  , refGlobal = globCtr
-  , refTitle= title
-  , refSubfigure = Nothing
-  , refHideFromList
-  , refLabel = label'
-  }
+      refIndex= index
+    , refGlobal = globCtr
+    , refTitle= title
+    , refSubfigure = Nothing
+    , refHideFromList
+    , refLabel = label
+    }
   refsAt pfx %= M.insert label' rec'
-  return $ rec'
+  pure rec'
 
 chapIndex :: RefRec -> WS [Inline]
 chapIndex r = do
@@ -119,22 +118,51 @@ mkCaption opts style
   | outFormat opts == Just (Format "docx") = Div ("", [], [("custom-style", style)]) . return . Para
   | otherwise = Para
 
+latexLabel :: RefRec -> [Inline]
+latexLabel RefRec{refLabel}
+  | Just lab <- refLabel = [ RawInline (Format "latex") $ mkLaTeXLabel lab ]
+  | otherwise = mempty
+
 latexCaption :: RefRec -> [Inline]
-latexCaption ref =
-  caption <>
-  [ Span nullAttr $ refTitle ref
-  , RawInline (Format "latex") $ mkLaTeXLabel $ refLabel ref
-  ]
+latexCaption ref = latexCaptionGeneric lcsRich ref <> latexLabel ref
   where
-    sansFootnotes = refTitle ref
-    caption
-      | refHideFromList ref = [ RawInline (Format "latex") "\\caption[]" ]
-      | refTitle ref == sansFootnotes = [ RawInline (Format "latex") "\\caption" ]
-      | otherwise =
-        [ RawInline (Format "latex") "\\caption["
-        , Span nullAttr $ removeFootnotes $ refTitle ref
-        , RawInline (Format "latex") "]"
-        ]
+    lcsRich = LatexCaptionSpec
+      { lcsEmptyShort = \caption ->
+          [ RawInline (Format "latex") "\\caption[]", Span nullAttr caption ]
+      , lcsWithoutShort = \caption ->
+          [ RawInline (Format "latex") "\\caption", Span nullAttr caption ]
+      , lcsWithShort = \short long ->
+          [ RawInline (Format "latex") "\\caption["
+          , Span nullAttr short
+          , RawInline (Format "latex") "]"
+          , Span nullAttr long ]
+      }
+
+data LatexCaptionSpec a = LatexCaptionSpec
+  { lcsEmptyShort :: [Inline] -> a
+  , lcsWithShort :: [Inline] -> [Inline] -> a
+  , lcsWithoutShort :: [Inline] -> a
+  }
+
+-- | Only used in lstlistings code blocks.
+latexCaptionRaw :: RefRec -> T.Text
+latexCaptionRaw = latexCaptionGeneric lcsRaw
+  where
+    lcsRaw = LatexCaptionSpec
+      { lcsEmptyShort = \caption -> "[]" <> toTeX caption
+      , lcsWithShort = \short long -> "[" <> toTeX short <> "]" <> toTeX long
+      , lcsWithoutShort = toTeX
+      }
+    toTeX = escapeLaTeX . stringify
+
+latexCaptionGeneric :: Monoid a => LatexCaptionSpec a -> RefRec -> a
+latexCaptionGeneric LatexCaptionSpec{..} ref
+  | refHideFromList ref = lcsEmptyShort caption
+  | refTitle ref == sansFootnotes = lcsWithoutShort caption
+  | otherwise = lcsWithShort sansFootnotes caption
+  where
+    caption = refTitle ref
+    sansFootnotes = removeFootnotes caption
     removeFootnotes = walk \case
       Note{} -> Str ""
       x -> x

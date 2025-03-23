@@ -49,12 +49,10 @@ replaceRefs (Cite cits _:xs) = do
   opts <- ask :: WS Options
   toList . (<> fromList xs) . intercalate' (text ", ") . map fromList <$> mapM (replaceRefs' opts) (NE.groupBy eqPrefix cits)
   where
-    eqPrefix a b = uncurry (==) $
-      (fmap uncapitalizeFirst . getLabelPrefix . citationId) <***> (a,b)
-    (<***>) = join (***)
+    eqPrefix = (==) `on` getLabelPrefix . citationId
     replaceRefs' :: Options -> NonEmpty Citation -> WS [Inline]
     replaceRefs' opts cits'
-      | Just prefix <- allCitsPrefix cits'
+      | Just prefix <- getLabelPrefix . citationId $ NE.head cits'
       = replaceRefs'' opts prefix cits'
       | otherwise = return [Cite (NE.toList cits') il']
         where
@@ -71,23 +69,6 @@ replaceRefs (Cite cits _:xs) = do
       then replaceRefsLatex
       else replaceRefsOther
 replaceRefs x = return x
-
-pfxMap :: T.Text -> Maybe Prefix
-pfxMap = \case
-  "fig:" -> Just PfxImg
-  "eq:"  -> Just PfxEqn
-  "tbl:" -> Just PfxTbl
-  "lst:" -> Just PfxLst
-  "sec:" -> Just PfxSec
-  _ -> Nothing
-
-pfxMapR :: Prefix -> T.Text
-pfxMapR = \case
-  PfxImg -> "fig:"
-  PfxEqn -> "eq:"
-  PfxTbl -> "tbl:"
-  PfxLst -> "lst:"
-  PfxSec -> "sec:"
 
 -- accessors to options
 prefMap :: Prefix -> (Options -> Bool -> Int -> [Inline], Options -> Template)
@@ -107,12 +88,6 @@ getRefPrefix opts prefix capitalize num cit =
         $ reftempl opts
   where (refprefixf, reftempl) = prefMap prefix
         refprefix = refprefixf opts capitalize num
-
-allCitsPrefix :: NonEmpty Citation -> Maybe Prefix
-allCitsPrefix cits = find isCitationPrefix prefixes
-  where
-  isCitationPrefix p =
-    all ((pfxMapR p `T.isPrefixOf`) . uncapitalizeFirst . citationId) cits
 
 replaceRefsLatex :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
 replaceRefsLatex prefix opts cits
@@ -140,7 +115,7 @@ replaceRefsLatex' prefix opts cits =
       | noPrefix
       = getRefPrefix opts prefix cap (length cits - 1)
       | otherwise = ((citationPrefix (NE.head cits) <> [Space]) <>)
-    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . NE.head $ cits
+    cap = isFirstUpper . citationId . NE.head $ cits
     cref' | suppressAuthor = "\\labelcref"
           | cap = "\\Cref"
           | otherwise = "\\cref"
@@ -148,19 +123,17 @@ replaceRefsLatex' prefix opts cits =
 listLabels :: Prefix -> T.Text -> T.Text -> T.Text -> NonEmpty Citation -> T.Text
 listLabels prefix p sep s
   = T.intercalate sep
-  . map ((p <>) . (<> s) . mkLaTeXLabel' . (pfxMapR prefix <>) . getLabelWithoutPrefix . citationId)
+  . map ((p <>) . (<> s) . mkLaTeXLabel' . (pfxTextCol prefix <>) . getLabelWithoutPrefix . citationId)
   . NE.toList
 
 
 getLabelWithoutPrefix :: T.Text -> T.Text
 getLabelWithoutPrefix = T.drop 1 . T.dropWhile (/=':')
 
-getLabelPrefix :: T.Text -> Maybe T.Text
-getLabelPrefix lab
-  | Just pfx <- pfxMap (uncapitalizeFirst p)
-  , pfx `elem` prefixes = Just p
-  | otherwise = Nothing
-  where p = flip T.snoc ':' . T.takeWhile (/=':') $ lab
+getLabelPrefix :: T.Text -> Maybe Prefix
+getLabelPrefix lab = find (p `hasPfx`) prefixes
+  where
+    p = uncapitalizeFirst $ flip T.snoc ':' . T.takeWhile (/=':') $ lab
 
 replaceRefsOther :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
 replaceRefsOther prefix opts cits = toList . intercalate' (text ", ") . map fromList <$>
@@ -173,7 +146,7 @@ replaceRefsOther' :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
 replaceRefsOther' prefix opts cits = do
   indices <- mapM (getRefIndex prefix opts) $ NE.toList cits
   let
-    cap = maybe False isFirstUpper $ getLabelPrefix . citationId . NE.head $ cits
+    cap = isFirstUpper . citationId . NE.head $ cits
     writePrefix | all ((==SuppressAuthor) . citationMode) cits
                 = id
                 | all (null . citationPrefix) cits
@@ -191,7 +164,7 @@ data RefData = RefData { rdGlob :: Maybe Natural
                        , rdSubfig :: Maybe Index
                        , rdSuffix :: [Inline]
                        , rdTitle :: Maybe [Inline]
-                       , rdPfx :: T.Text
+                       , rdPfx :: Prefix
                        } deriving (Eq)
 
 getRefIndex :: Prefix -> Options -> Citation -> WS RefData
@@ -209,11 +182,11 @@ getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
       , rdSubfig = join sub
       , rdSuffix = suf
       , rdTitle = tit
-      , rdPfx = pfxMapR prefix
+      , rdPfx = prefix
       }
   where
   prop = refsAt prefix
-  lab = pfxMapR prefix <> getLabelWithoutPrefix cid
+  lab = pfxTextCol prefix <> getLabelWithoutPrefix cid
 
 data RefItem = RefRange RefData RefData | RefSingle RefData
 
@@ -270,7 +243,7 @@ makeIndices o = format . concatMap f . HT.groupBy g . sortOn rdGlob . nub
                       , ("suf", suf)
                       , ("t", fromMaybe mempty tit)
                       ]
-          in applyTemplate' vars $ refIndexTemplate o (T.dropEnd 1 pfx)
+          in applyTemplate' vars $ refIndexTemplate o pfx
   show' RefData{rdLabel=l, rdIdx=Nothing, rdSuffix = suf} =
     trace (T.unpack $ "Undefined cross-reference: " <> l)
           (strong (text $ "¿" <> l <> "?") <> fromList suf)

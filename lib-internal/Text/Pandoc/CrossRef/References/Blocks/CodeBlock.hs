@@ -23,10 +23,9 @@ module Text.Pandoc.CrossRef.References.Blocks.CodeBlock where
 import Control.Monad.Reader.Class
 import qualified Data.Text as T
 import Text.Pandoc.Definition
-import Text.Pandoc.Shared (stringify)
 import qualified Text.Pandoc.Builder as B
-import Data.Function ((&))
 
+import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.Util.Options
@@ -37,15 +36,17 @@ runCodeBlock :: Attr -> T.Text -> Either T.Text [Inline] -> WS (ReplacedResult B
 runCodeBlock (label, classes, attrs) code eCaption = do
   opts <- ask
       --if used with listings package,nothing should be done
-  if  | isLatexFormat opts, listings opts ->
-          eCaption & either
-            (const noReplaceNoRecurse)
-            (\caption -> replaceNoRecurse $
-              CodeBlock (label,classes,("caption",escapeLaTeX $ stringify caption):attrs) code)
+  if  | isLatexFormat opts, listings opts -> do
+          let cap = either (B.toList . B.text) id eCaption
+          ref <- replaceAttr (Just label) attrs cap SPfxLst
+          let attrs' =
+                [ ("nolol", "true") | refHideFromList ref ] <>
+                (("caption", latexCaptionRaw ref) : filter (\(k, _) -> k /= "hidden") attrs)
+          replaceNoRecurse $ CodeBlock (label, classes, attrs') code
       --if not using listings, however, wrap it in a codelisting environment
       | isLatexFormat opts -> do
           let cap = either (B.toList . B.text) id eCaption
-          ref <- replaceAttr (Right label) attrs cap SPfxLst
+          ref <- replaceAttr (Just label) attrs cap SPfxLst
           replaceNoRecurse $ Div nullAttr [
               RawBlock (Format "latex") $ "\\begin{codelisting}"
             , Plain $ latexCaption ref
@@ -54,7 +55,7 @@ runCodeBlock (label, classes, attrs) code eCaption = do
             ]
       | otherwise -> do
           let cap = either (B.toList . B.text) id eCaption
-          ref <- replaceAttr (Right label) attrs cap SPfxLst
+          ref <- replaceAttr (Just label) attrs cap SPfxLst
           idxStr <- chapIndex ref
           let caption' = applyTemplate idxStr cap $ listingTemplate opts
           replaceNoRecurse $ Div (label, "listing":classes, []) [

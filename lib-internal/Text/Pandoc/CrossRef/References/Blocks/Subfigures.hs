@@ -45,7 +45,7 @@ import Text.Pandoc.CrossRef.Util.Util
 runSubfigures :: Attr -> [Block] -> [Inline] -> WS (ReplacedResult Block)
 runSubfigures (label, cls, attrs) images caption = do
   opts <- ask
-  ref <- replaceAttr (Right label) attrs caption SPfxImg
+  ref <- replaceAttr (Just label) attrs caption SPfxImg
   idxStr <- chapIndex ref
   glob <- use stGlob
   hiddenHdr <- use stHiddenHeaderLevel
@@ -58,7 +58,7 @@ runSubfigures (label, cls, attrs) images caption = do
       doFigure _ = noReplaceRecurse
       opts' = opts
           { figureTemplate = subfigureChildTemplate opts
-          , customLabel = \r i -> customLabel opts ("sub"<>r) i
+          , customLabel = \r i -> customLabel opts (Sub r) i
           }
       collectedCaptions = B.toList $
           intercalate' (B.fromList $ ccsDelim opts)
@@ -142,40 +142,36 @@ replaceSubfigs = (replaceNoRecurse . concat) <=< mapM replaceSubfig
 replaceSubfig :: Inline -> WS [Inline]
 replaceSubfig x@(Image (label,cls,attrs) alt tgt) = do
   opts <- ask
-  let label' = normalizeLabel label
-  ref <- replaceAttr label' attrs alt SPfxImg
+  ref <- replaceAttr (normalizeLabel label) attrs alt SPfxImg
   idxStr <- chapIndex ref
   let alt' = applyTemplate idxStr alt $ figureTemplate opts
   pure $ if isLatexFormat opts
-    then latexSubFigure x label
-    else [Image (label, cls, setLabel opts idxStr attrs) alt' tgt]
+    then latexSubFigure x ref
+    else [Image (fromMaybe "" (refLabel ref), cls, setLabel opts idxStr attrs) alt' tgt]
 replaceSubfig x = pure [x]
 
-latexSubFigure :: Inline -> T.Text -> [Inline]
-latexSubFigure (Image (_, cls, attrs) alt (src, title)) label =
+latexSubFigure :: Inline -> RefRec -> [Inline]
+latexSubFigure (Image (_, cls, attrs) alt (src, title)) ref =
   let
     title' = fromMaybe title $ T.stripPrefix "fig:" title
-    texlabel | T.null label = []
-             | otherwise = [RawInline (Format "latex") $ mkLaTeXLabel label]
     texalt | "nocaption" `elem` cls  = []
            | otherwise = concat
               [ [ RawInline (Format "latex") "["]
               , alt
               , [ RawInline (Format "latex") "]"]
               ]
-    img = Image (label, cls, attrs) alt (src, title')
+    img = Image (fromMaybe "" (refLabel ref), cls, attrs) alt (src, title')
   in concat [
       [ RawInline (Format "latex") "\\subfloat" ]
       , texalt
-      , [Span nullAttr $ img:texlabel]
+      , [Span nullAttr $ img : latexLabel ref]
       ]
 latexSubFigure x _ = [x]
 
-normalizeLabel :: T.Text -> Either T.Text T.Text
+normalizeLabel :: T.Text -> Maybe T.Text
 normalizeLabel label
-  | "fig:" `T.isPrefixOf` label = Right label
-  | T.null label = Left "fig"
-  | otherwise  = Right $ "fig:" <> label
+  | T.null label = Nothing
+  | otherwise  = Just label
 
 simpleTable :: [Alignment] -> [ColWidth] -> [[[Block]]] -> Block
 simpleTable align width bod = Table nullAttr noCaption (zip align width)
@@ -211,7 +207,7 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
   replaceNoRecurse $
     if subFigure && isLatexFormat opts
     then Plain $ case blocksToInlines content of
-      ctHead:_ -> latexSubFigure ctHead label
+      ctHead:_ -> latexSubFigure ctHead ref
       _ -> error "The impossible happened: empty content in subfigures"
     else Figure (label,cls,setLabel opts idxStr fattrs) caption' (content' title')
 runFigure _ _ _ _ = noReplaceNoRecurse

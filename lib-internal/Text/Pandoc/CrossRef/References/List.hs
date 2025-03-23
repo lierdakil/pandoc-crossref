@@ -23,7 +23,6 @@ module Text.Pandoc.CrossRef.References.List (listOf) where
 import Data.List
 import Control.Monad.Reader
 import qualified Data.Map as M
-import qualified Data.Text as T
 import Text.Pandoc.Definition
 import Data.Maybe
 
@@ -40,28 +39,27 @@ listOf blocks = asks isLatexFormat >>= \case
   False -> case blocks of
     (RawBlock fmt "\\listoffigures":xs)
       | isLaTeXRawBlockFmt fmt
-      -> use (refsAt PfxImg) >>= makeList "fig" lofItemTemplate lofTitle xs
+      -> makeList PfxImg lofItemTemplate lofTitle xs
     (RawBlock fmt "\\listoftables":xs)
       | isLaTeXRawBlockFmt fmt
-      -> use (refsAt PfxTbl) >>= makeList "tbl" lotItemTemplate lotTitle xs
+      -> makeList PfxTbl lotItemTemplate lotTitle xs
     (RawBlock fmt "\\listoflistings":xs)
       | isLaTeXRawBlockFmt fmt
-      -> use (refsAt PfxLst) >>= makeList "lst" lolItemTemplate lolTitle xs
+      -> makeList PfxLst lolItemTemplate lolTitle xs
     _ -> pure blocks
 
 makeList
-  :: T.Text
+  :: Prefix
   -> (Options -> BlockTemplate)
   -> (Options -> [Block])
   -> [Block]
-  -> M.Map T.Text RefRec
   -> WS [Block]
-makeList pfx tf titlef xs refs = do
+makeList pfx tf titlef xs = do
   o <- ask
-  pure $ titlef o <> (Div ("", ["list", "list-of-" <> pfx], []) (items o) : xs)
-  where
-    items o = let is = items' o in fromMaybe is $ pure <$> mergeList Nothing [] is
-    items' o = concatMap (itemChap o . snd) refsSorted
+  refs <- use $ refsAt pfx
+  let
+    items = fromMaybe items' $ pure <$> mergeList Nothing [] items'
+    items' = concatMap (itemChap . snd) refsSorted
     mergeList Nothing acc (OrderedList style item : ys) =
       mergeList (Just $ OrderedList style) (item <> acc) ys
     mergeList Nothing acc (BulletList item : ys) =
@@ -80,10 +78,10 @@ makeList pfx tf titlef xs refs = do
       (_,RefRec{refGlobal=i})
       (_,RefRec{refGlobal=j})
       = compare i j
-    itemChap :: Options -> RefRec -> [Block]
-    itemChap o ref@RefRec{..} = applyTemplate (numWithChap o ref) refTitle (tf o)
-    numWithChap :: Options -> RefRec -> [Inline]
-    numWithChap Options{..} RefRec{..} = case refSubfigure of
+    itemChap :: RefRec -> [Block]
+    itemChap ref@RefRec{..} = applyTemplate (numWithChap ref) refTitle (tf o)
+    numWithChap :: RefRec -> [Inline]
+    numWithChap RefRec{..} = case refSubfigure of
       Nothing ->
         let vars = M.fromDistinctAscList
               [ ("i", chapPrefix chapDelim refIndex)
@@ -99,3 +97,6 @@ makeList pfx tf titlef xs refs = do
               , ("t", refTitle)
               ]
         in applyTemplate' vars subfigureRefIndexTemplate
+      where
+        Options{chapDelim, refIndexTemplate, subfigureRefIndexTemplate} = o
+  pure $ titlef o <> (Div ("", ["list", "list-of-" <> pfxText pfx], []) items : xs)

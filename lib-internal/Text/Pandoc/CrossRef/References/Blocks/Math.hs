@@ -49,8 +49,8 @@ data ReplaceEqn a = ReplaceEqn
 replaceEqn :: MkTemplate a t => (Options -> t) -> Attr -> T.Text -> WS (ReplaceEqn a)
 replaceEqn eqTemplate (label, _, attrs) eq = do
   opts <- ask
-  let label' | T.null label = Left "eq"
-             | otherwise = Right label
+  let label' | T.null label = Nothing
+             | otherwise = Just label
   ref <- replaceAttr label' attrs [] SPfxEqn
   idxStrRaw <- chapIndex ref
   let idxStr = applyTemplate' (M.fromDistinctAscList [("i", idxStrRaw)]) $ eqnIndexTemplate opts

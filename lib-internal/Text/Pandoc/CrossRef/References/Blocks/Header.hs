@@ -53,7 +53,7 @@ runHeader n (label, cls, attrs) text' = do
       label' <- mangleLabel
       ctrsAt PfxSec %= \cc ->
         let ln = length cc
-            cl i = lookup "label" attrs <|> customHeadingLabel n i <|> customLabel "sec" i
+            cl i = lookup "label" attrs <|> customHeadingLabel n i <|> customLabel (Pfx PfxSec) i
             inc l = case S.viewr l of
               EmptyR -> error "impossible"
               init' :> last' ->
@@ -70,14 +70,14 @@ runHeader n (label, cls, attrs) text' = do
         in cc'
       cc <- use $ ctrsAt PfxSec
       globCtr <- stGlob <<%= (+ 1)
-      when ("sec:" `T.isPrefixOf` label') $
+      when (label' `hasPfx` PfxSec) $
         refsAt PfxSec %= M.insert label' RefRec {
           refIndex = cc
         , refGlobal = globCtr
         , refTitle = text'
         , refSubfigure = Nothing
         , refHideFromList = hhHidden
-        , refLabel = label'
+        , refLabel = if T.null label' then Nothing else Just label'
         }
       let textCC
             | numberSections
@@ -96,6 +96,6 @@ runHeader n (label, cls, attrs) text' = do
     mangleLabel = do
       Options{autoSectionLabels} <- ask
       pure $
-        if autoSectionLabels && not ("sec:" `T.isPrefixOf` label)
-        then "sec:" <> label
+        if autoSectionLabels && not (label `hasPfx` PfxSec)
+        then pfxTextCol PfxSec <> label
         else label

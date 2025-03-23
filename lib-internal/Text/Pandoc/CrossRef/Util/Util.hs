@@ -128,13 +128,13 @@ escapeLaTeX l =
       cond = maybe False (mv >=) pv
   in if cond then ll else l
 
-getRefLabel :: T.Text -> [Inline] -> Maybe T.Text
+getRefLabel :: Prefix -> [Inline] -> Maybe T.Text
 getRefLabel _ [] = Nothing
 getRefLabel tag ils
   | Str attr <- last ils
   , all (==Space) (init ils)
   , "}" `T.isSuffixOf` attr
-  , ("{#"<>tag<>":") `T.isPrefixOf` attr
+  , ("{#"<> pfxText tag <>":") `T.isPrefixOf` attr
   = T.init `fmap` T.stripPrefix "{#" attr
 getRefLabel _ _ = Nothing
 

@@ -530,9 +530,9 @@ With HTML-compatible output, lists are wrapped into a `div` with classes `list` 
 
 ### Hiding items from list-of-X lists
 
-NB: Highly experimental with LaTeX output (that includes PDF). Might not work as
-expected or break in some edge cases. F.ex., this is known to not work with
-listings when `--listings` Pandoc option is enabled.
+> NB: Highly experimental with LaTeX output (that includes PDF). Might not work
+> as expected or break in some edge cases. Please check your output and raise
+> issues!
 
 If you need to hide a figure/table/code block from the corresponding `\listofX`,
 you can set `hidden` attribute on the item, e.g.

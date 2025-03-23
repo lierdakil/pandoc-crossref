@@ -131,13 +131,15 @@ main = putStrLn "Hello, World!"
 ```
 :::
 
+::: {#tbl:table1}
   foo   bar
   ----- -----
   1     10
   2     20
   3     30
 
-  : hidden! table
+  : Table 3.2.1: hidden! table
+:::
 
 ::: {#tbl:table2 hidden="n"}
   foo   bar
@@ -146,7 +148,7 @@ main = putStrLn "Hello, World!"
   2     20
   3     30
 
-  : Table 3.2.1: visible! table
+  : Table 3.2.2: visible! table
 :::
 
 # 4 one more regular section
@@ -190,5 +192,5 @@ figure](figs/fig_s2.jpg){#fig:fig_or2}
 # List of Tables
 
 ::: {.list .list-of-tbl}
-3.2.1. visible! table\
+3.2.2. visible! table\
 :::

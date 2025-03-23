@@ -30,6 +30,7 @@ import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.CustomLabels
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.References.Types
 
 namedFields :: Con -> [VarStrictType]
 namedFields (RecC _ fs) = fs
@@ -79,8 +80,8 @@ makeCon' t accName = do
     intT <- [t|$(conT t) -> Int|]
     tmplT <- [t|$(conT t) -> Template|]
     btmplT <- [t|$(conT t) -> BlockTemplate|]
-    idxTmplT <- [t|$(conT t) -> Text -> Template|]
-    clT <- [t|$(conT t) -> Text -> Int -> Maybe Text|]
+    idxTmplT <- [t|$(conT t) -> Prefix -> Template|]
+    clT <- [t|$(conT t) -> SubPfx -> Int -> Maybe Text|]
     chlT <- [t|$(conT t) -> Int -> Int -> Maybe Text|]
     let varName | Name (OccName n) _ <- accName = liftString n
     let dtv = return $ VarE $ mkName "dtv"

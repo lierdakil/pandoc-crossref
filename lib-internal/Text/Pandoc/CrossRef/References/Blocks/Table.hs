@@ -35,13 +35,12 @@ import Text.Pandoc.CrossRef.Util.Util
 runTable :: Attr -> Maybe Attr -> Maybe ShortCaption -> Block -> [Block] -> [ColSpec] -> TableHead -> [TableBody] -> TableFoot -> WS (ReplacedResult Block)
 runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot = do
   opts <- ask
-  ref <- replaceAttr (Right label) attrs title SPfxTbl
+  ref <- replaceAttr (Just label) attrs title SPfxTbl
   idxStr <- chapIndex ref
-  let listHidden = refHideFromList ref
-  let short' | listHidden = Just mempty
+  let short' | refHideFromList ref = Just mempty
              | otherwise = short
-  let title'
-        | isLatexFormat opts = RawInline (Format "latex") (mkLaTeXLabel label) : title
+      title'
+        | isLatexFormat opts = latexLabel ref <> title
         | otherwise = applyTemplate idxStr title $ tableTemplate opts
       caption' = Caption short' (walkReplaceInlines title' title btitle:rest)
       label' | isLatexFormat opts = ""

@@ -24,6 +24,7 @@ import Data.Default
 import Numeric.Natural
 import qualified Data.Map as M
 import Data.Text (Text)
+import qualified Data.Text as T
 import Lens.Micro.GHC
 import Lens.Micro.TH
 import Text.Pandoc.Definition
@@ -36,7 +37,7 @@ data RefRec = RefRec { refIndex :: Index
                      , refTitle :: [Inline]
                      , refSubfigure :: Maybe Index
                      , refHideFromList :: Bool
-                     , refLabel :: Text
+                     , refLabel :: Maybe Text
                      } deriving (Show, Eq)
 
 type RefMap = M.Map Text RefRec
@@ -48,6 +49,28 @@ data Prefix
   | PfxLst
   | PfxSec
   deriving (Eq, Ord, Enum, Bounded, Show)
+
+pfxText :: Prefix -> Text
+pfxText = \case
+  PfxEqn -> "eq"
+  PfxImg -> "fig"
+  PfxLst -> "lst"
+  PfxSec -> "sec"
+  PfxTbl -> "tbl"
+
+pfxTextCol :: Prefix -> Text
+pfxTextCol = (<> ":") . pfxText
+
+hasPfx :: Text -> Prefix -> Bool
+hasPfx lab pfx = pfxTextCol pfx `T.isPrefixOf` lab
+
+data SubPfx = Pfx Prefix | Sub SubPfx
+  deriving (Eq, Show)
+
+subPfxText :: SubPfx -> Text
+subPfxText = \case
+  Pfx pfx -> pfxText pfx
+  Sub pfx -> "sub" <> subPfxText pfx
 
 -- state data type
 data References = References { _stRefs :: M.Map Prefix RefMap

@@ -84,7 +84,7 @@ foo bar
 2   20
 3   30
 
-: hidden! table
+: hidden! table {#tbl:table1}
 
 :::{#tbl:table2 hidden=n}
 foo bar

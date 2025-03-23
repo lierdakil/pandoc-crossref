@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.Util.Options (Options(..), isLatexFormat, isDocxFormat) where
 import Data.Text (Text)
 import Text.Pandoc.CrossRef.Util.Template
+import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Util (isFormat)
 import Text.Pandoc.Definition
 
@@ -50,7 +51,7 @@ data Options = Options { cref :: Bool
                        , eqnInlineTemplate :: Template
                        , eqnInlineTableTemplate :: Template
                        , eqnDisplayTemplate :: Template
-                       , refIndexTemplate :: Text -> Template
+                       , refIndexTemplate :: Prefix -> Template
                        , subfigureRefIndexTemplate :: Template
                        , secHeaderTemplate :: Template
                        , chapDelim   :: [Inline]
@@ -68,7 +69,7 @@ data Options = Options { cref :: Bool
                        , ccsTemplate :: Template
                        , tableTemplate  :: Template
                        , listingTemplate :: Template
-                       , customLabel :: Text -> Int -> Maybe Text
+                       , customLabel :: SubPfx -> Int -> Maybe Text
                        , customHeadingLabel :: Int -> Int -> Maybe Text
                        , ccsDelim :: [Inline]
                        , ccsLabelSep :: [Inline]

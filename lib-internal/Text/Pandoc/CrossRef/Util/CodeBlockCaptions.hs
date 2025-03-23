@@ -27,6 +27,7 @@ import Control.Monad.Reader (ask)
 import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
+import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
@@ -48,13 +49,13 @@ orderAgnostic opts (Para ils:CodeBlock (label,classes,attrs) code:xs)
   | codeBlockCaptions opts
   , Just caption <- getCodeBlockCaption ils
   , not $ T.null label
-  , "lst" `T.isPrefixOf` label
+  , label `hasPfx` PfxLst
   = return $ Div (label,["listing"], [])
       [Para caption, CodeBlock ("",classes,attrs) code] : xs
 orderAgnostic opts (Para ils:CodeBlock (_,classes,attrs) code:xs)
   | codeBlockCaptions opts
   , Just (caption, labinl) <- splitLast <$> getCodeBlockCaption ils
-  , Just label <- getRefLabel "lst" labinl
+  , Just label <- getRefLabel PfxLst labinl
   = return $ Div (label,["listing"], [])
       [Para $ init caption, CodeBlock ("",classes,attrs) code] : xs
   where

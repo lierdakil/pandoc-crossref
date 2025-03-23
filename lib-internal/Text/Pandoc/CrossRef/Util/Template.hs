@@ -34,6 +34,7 @@ import qualified Data.Map as M hiding (fromList, singleton, toList)
 import qualified Data.Text as T
 import Text.Pandoc.Builder
 import Text.Pandoc.CrossRef.Util.Meta
+import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.Generic
 import Text.Read
 
@@ -73,14 +74,16 @@ makeTemplate dtv xs' = mkTemplate \vf -> scan (\var -> vf var <|> lookupMeta var
   go _ [] = []
   replaceVar var val def' = maybe def' (toInlines ("variable " <> var)) val
 
-makeIndexedTemplate :: T.Text -> Meta -> T.Text -> Template
-makeIndexedTemplate name meta subname =
+makeIndexedTemplate :: T.Text -> Meta -> Prefix -> Template
+makeIndexedTemplate name meta pfx =
   makeTemplate meta $ case lookupMeta name meta of
     Just (MetaMap m) -> case lookupMeta subname (Meta m) of
       Just x -> toInlines name x
       Nothing -> getMetaInlines "default" (Meta m)
     Just x -> toInlines name x
     Nothing -> []
+  where
+    subname = pfxText pfx
 
 internalVars :: M.Map T.Text [Inline] -> T.Text -> Maybe MetaValue
 internalVars vars x = MetaInlines <$> M.lookup x vars

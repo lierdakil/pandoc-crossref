@@ -24,12 +24,12 @@ import qualified Data.Text as T
 import Text.Numeral.Roman
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.Definition
+import Text.Pandoc.CrossRef.References.Types
 
-customLabel :: Meta -> T.Text -> Int -> Maybe T.Text
-customLabel meta ref i
-  | refLabel <- T.takeWhile (/=':') ref
-  , Just cl <- lookupMeta (refLabel <> "Labels") meta
-  = mkLabel i (refLabel <> "Labels") cl
+customLabel :: Meta -> SubPfx -> Int -> Maybe T.Text
+customLabel meta pfx i
+  | Just cl <- lookupMeta (subPfxText pfx <> "Labels") meta
+  = mkLabel i (subPfxText pfx <> "Labels") cl
   | otherwise = Nothing
 
 customHeadingLabel :: Meta -> Int -> Int -> Maybe T.Text
