@@ -18,8 +18,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE Rank2Types, OverloadedStrings, FlexibleContexts, LambdaCase, MultiWayIf #-}
-
 module Text.Pandoc.CrossRef.References.Blocks.Subfigures where
 
 import Control.Monad.Reader

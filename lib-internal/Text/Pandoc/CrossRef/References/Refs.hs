@@ -18,7 +18,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE OverloadedStrings, LambdaCase, RankNTypes #-}
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Control.Arrow as A

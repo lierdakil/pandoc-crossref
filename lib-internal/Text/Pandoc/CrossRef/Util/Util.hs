@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE RankNTypes, OverloadedStrings, CPP #-}
+{-# LANGUAGE CPP #-}
 module Text.Pandoc.CrossRef.Util.Util
   ( module Text.Pandoc.CrossRef.Util.Util
   , module Data.Generics

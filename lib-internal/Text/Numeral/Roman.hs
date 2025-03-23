@@ -21,9 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 This file contains code covered by the license found in licenses/LICENSE.roman-numerals
 -}
 
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 {-| Parsing and pretty printing of Roman numerals.
 
 This module provides functions for parsing and pretty printing Roman

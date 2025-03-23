@@ -19,7 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE OverloadedStrings #-}
 module Text.Pandoc.CrossRef.Util.Settings (getSettings, defaultMeta) where
 
 import Control.Exception (IOException, handle)

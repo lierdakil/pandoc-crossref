@@ -1,5 +1,14 @@
 name: pandoc-crossref
 version: '0.3.18.2'
+language: GHC2021
+default-extensions:
+- OverloadedStrings
+- LambdaCase
+- TemplateHaskell
+- RecordWildCards
+- ViewPatterns
+- MultiWayIf
+- ApplicativeDo
 synopsis: Pandoc filter for cross-references
 description: pandoc-crossref is a pandoc filter for numbering figures, equations,
   tables and cross-references to them.
@@ -18,7 +27,7 @@ data-files:
 - docs/index.md
 - test/m2m/*/*
 dependencies:
-  base: ">=4.11 && <5"
+  base: ">=4.16 && <5"
   text: ">=1.2.2 && <2.2"
   pandoc: ">=3.1.8 && < 3.7"
   pandoc-types: ">= 1.23 && < 1.24"

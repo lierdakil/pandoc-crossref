@@ -138,15 +138,23 @@ library
       Text.Pandoc.CrossRef
   hs-source-dirs:
       lib
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      TemplateHaskell
+      RecordWildCards
+      ViewPatterns
+      MultiWayIf
+      ApplicativeDo
   ghc-options: -Wall
   build-depends:
-      base >=4.11 && <5
+      base >=4.16 && <5
     , mtl >=1.1 && <2.4
     , pandoc >=3.1.8 && <3.7
     , pandoc-crossref-internal
     , pandoc-types ==1.23.*
     , text >=1.2.2 && <2.2
-  default-language: Haskell2010
+  default-language: GHC2021
 
 library pandoc-crossref-internal
   exposed-modules:
@@ -175,8 +183,16 @@ library pandoc-crossref-internal
       Text.Pandoc.CrossRef.Util.Util
   hs-source-dirs:
       lib-internal
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      TemplateHaskell
+      RecordWildCards
+      ViewPatterns
+      MultiWayIf
+      ApplicativeDo
   build-depends:
-      base >=4.11 && <5
+      base >=4.16 && <5
     , containers >=0.1 && <0.7
     , data-default >=0.4 && <0.8
     , directory >=1 && <1.4
@@ -192,7 +208,7 @@ library pandoc-crossref-internal
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , text >=1.2.2 && <2.2
     , utility-ht >=0.0.11 && <0.1.0
-  default-language: Haskell2010
+  default-language: GHC2021
 
 executable pandoc-crossref
   main-is: pandoc-crossref.hs
@@ -200,9 +216,17 @@ executable pandoc-crossref
       ManData
   hs-source-dirs:
       src
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      TemplateHaskell
+      RecordWildCards
+      ViewPatterns
+      MultiWayIf
+      ApplicativeDo
   ghc-options: -Wall -threaded
   build-depends:
-      base >=4.11 && <5
+      base >=4.16 && <5
     , deepseq >=1.4 && <1.6
     , gitrev >=1.3.1 && <1.4
     , open-browser ==0.2.*
@@ -213,18 +237,26 @@ executable pandoc-crossref
     , template-haskell >=2.7.0.0 && <3.0.0.0
     , temporary >=1.2 && <1.4
     , text >=1.2.2 && <2.2
-  default-language: Haskell2010
+  default-language: GHC2021
 
 test-suite test-integrative
   type: exitcode-stdio-1.0
   main-is: test-integrative.hs
   hs-source-dirs:
       test
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      TemplateHaskell
+      RecordWildCards
+      ViewPatterns
+      MultiWayIf
+      ApplicativeDo
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-tool-depends:
       pandoc-cli:pandoc
   build-depends:
-      base >=4.11 && <5
+      base >=4.16 && <5
     , directory >=1 && <1.4
     , filepath >=1.1 && <1.6
     , hspec >=2.4.4 && <3
@@ -232,7 +264,7 @@ test-suite test-integrative
     , pandoc-crossref
     , pandoc-types ==1.23.*
     , text >=1.2.2 && <2.2
-  default-language: Haskell2010
+  default-language: GHC2021
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
 
@@ -246,9 +278,17 @@ test-suite test-pandoc-crossref
       Paths_pandoc_crossref
   hs-source-dirs:
       test
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      TemplateHaskell
+      RecordWildCards
+      ViewPatterns
+      MultiWayIf
+      ApplicativeDo
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
-      base >=4.11 && <5
+      base >=4.16 && <5
     , containers >=0.1 && <0.7
     , data-default >=0.4 && <0.8
     , hspec >=2.4.4 && <3
@@ -259,7 +299,7 @@ test-suite test-pandoc-crossref
     , pandoc-crossref-internal
     , pandoc-types ==1.23.*
     , text >=1.2.2 && <2.2
-  default-language: Haskell2010
+  default-language: GHC2021
   if flag(enable_flaky_tests)
     cpp-options: -DFLAKY
 
@@ -270,12 +310,20 @@ benchmark simple
       Native
   hs-source-dirs:
       test
+  default-extensions:
+      OverloadedStrings
+      LambdaCase
+      TemplateHaskell
+      RecordWildCards
+      ViewPatterns
+      MultiWayIf
+      ApplicativeDo
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded
   build-depends:
-      base >=4.11 && <5
+      base >=4.16 && <5
     , criterion >=1.5.9.0 && <1.7
     , pandoc >=3.1.8 && <3.7
     , pandoc-crossref
     , pandoc-types ==1.23.*
     , text >=1.2.2 && <2.2
-  default-language: Haskell2010
+  default-language: GHC2021

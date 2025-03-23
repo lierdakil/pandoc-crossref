@@ -66,7 +66,6 @@ Example:
 >       <> chaptersDepth (MetaString "2")
 
 -}
-{-# LANGUAGE RankNTypes #-}
 
 module Text.Pandoc.CrossRef (
     crossRefBlocks

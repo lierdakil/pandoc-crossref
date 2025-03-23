@@ -18,8 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE FlexibleContexts, CPP, OverloadedStrings, RankNTypes
-  , ScopedTypeVariables, OverloadedLists #-}
+{-# LANGUAGE CPP, OverloadedLists #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder hiding (figure)
@@ -120,31 +119,37 @@ main = hspec $ do
                                             refIndex = [(1,Nothing)],
                                             refGlobal = 1,
                                             refTitle = [Str "Test",Space,Str "figure",Space,Str "1"],
+                                            refHideFromList = False,
                                             refSubfigure = Just [(1, Just "a")]}),
                                     ("fig:figure2",RefRec {
                                             refIndex = [(1,Nothing)],
                                             refGlobal = 2,
                                             refTitle = [Str "Test",Space,Str "figure",Space,Str "2"],
+                                            refHideFromList = False,
                                             refSubfigure = Just [(2, Just "b")]}),
                                     ("fig:subfigure",RefRec {
                                             refIndex = [(1,Nothing)],
                                             refGlobal = 0,
                                             refTitle = [Str "figure",Space,Str "caption"],
+                                            refHideFromList = False,
                                             refSubfigure = Nothing}),
                                     ("fig:figure21",RefRec {
                                             refIndex = [(2,Nothing)],
                                             refGlobal = 4,
                                             refTitle = [Str "Test",Space,Str "figure",Space,Str "21"],
+                                            refHideFromList = False,
                                             refSubfigure = Just [(1, Just "a")]}),
                                     ("fig:figure22",RefRec {
                                             refIndex = [(2,Nothing)],
                                             refGlobal = 5,
                                             refTitle = [Str "Test",Space,Str "figure",Space,Str "22"],
+                                            refHideFromList = False,
                                             refSubfigure = Just [(2, Just "b")]}),
                                     ("fig:subfigure2",RefRec {
                                             refIndex = [(2,Nothing)],
                                             refGlobal = 3,
                                             refTitle = [Str "figure",Space,Str "caption",Space,Str "2"],
+                                            refHideFromList = False,
                                             refSubfigure = Nothing})
                                    ]
             )
@@ -362,13 +367,13 @@ refGen' :: T.Text -> [Int] -> [(Int, Int)] -> M.Map T.Text RefRec
 refGen' p l1 l2 = M.fromList $ mconcat $ zipWith refRec''' (((uncapitalizeFirst p<>) . T.pack . show) `map` l1) l2
 
 refRec' :: T.Text -> Int -> T.Text -> [(T.Text, RefRec)]
-refRec' ref i tit = [(ref, RefRec{refIndex=[(i,Nothing)],refGlobal=0,refTitle=toList $ text tit,refSubfigure=Nothing})]
+refRec' ref i tit = [(ref, RefRec{refIndex=[(i,Nothing)],refGlobal=0,refHideFromList=False,refTitle=toList $ text tit,refSubfigure=Nothing})]
 
 refRec'' :: T.Text -> Int -> [(T.Text, RefRec)]
 refRec'' ref i = refRec' ref i ""
 
 refRec''' :: T.Text -> (Int, Int) -> [(T.Text, RefRec)]
-refRec''' ref (c,i) = [(ref, RefRec{refIndex=[(c,Nothing), (i,Nothing)],refGlobal=0,refTitle=toList $ text "",refSubfigure=Nothing})]
+refRec''' ref (c,i) = [(ref, RefRec{refIndex=[(c,Nothing), (i,Nothing)],refGlobal=0,refHideFromList=False,refTitle=toList $ text "",refSubfigure=Nothing})]
 
 testRefs' :: T.Text -> [Int] -> [Int] -> Prefix -> T.Text -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (set (refsAt prop) (refGen p l1 l2) def) (para $ text res)

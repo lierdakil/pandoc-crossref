@@ -18,7 +18,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE TemplateHaskell, GeneralizedNewtypeDeriving, RankNTypes, DataKinds #-}
 module Text.Pandoc.CrossRef.References.Types where
 
 import Data.Default
@@ -36,6 +35,7 @@ data RefRec = RefRec { refIndex :: Index
                      , refGlobal :: Natural
                      , refTitle :: [Inline]
                      , refSubfigure :: Maybe Index
+                     , refHideFromList :: Bool
                      } deriving (Show, Eq)
 
 type RefMap = M.Map Text RefRec

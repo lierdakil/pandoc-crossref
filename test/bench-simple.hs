@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE StandaloneDeriving, GeneralizedNewtypeDeriving #-}
 import Criterion.Main
 import Text.Pandoc.CrossRef
 import Text.Pandoc
