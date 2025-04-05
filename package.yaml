@@ -98,6 +98,7 @@ library:
   ghc-options: -Wall
   exposed-modules:
   - Text.Pandoc.CrossRef
+  - Text.Pandoc.CrossRef.Internal
   other-modules: []
   dependencies:
     <<: *lib-deps

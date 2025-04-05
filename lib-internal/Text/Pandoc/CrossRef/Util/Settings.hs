@@ -111,6 +111,7 @@ defaultMeta =
   <> lofTitle (header 1 $ text "List of Figures")
   <> lotTitle (header 1 $ text "List of Tables")
   <> lolTitle (header 1 $ text "List of Listings")
+  <> listOfMetadata False
   <> figureTemplate (var "figureTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> tableTemplate (var "tableTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")
   <> listingTemplate (var "listingTitle" <> space <> var "i" <> var "titleDelim" <> space <> var "t")

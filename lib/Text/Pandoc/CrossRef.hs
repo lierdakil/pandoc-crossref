@@ -42,8 +42,8 @@ Example of use:
 >     go fmt p@(Pandoc meta _) = runCrossRefIO meta fmt action p
 >       where
 >         action (Pandoc _ bs) = do
->           meta' <- crossRefMeta
 >           bs' <- crossRefBlocks bs
+>           meta' <- crossRefMeta
 >           return $ Pandoc meta' bs'
 
 This module also exports utility functions for setting up meta-settings for
@@ -87,60 +87,51 @@ import Text.Pandoc.CrossRef.References
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.ModifyMeta
-import Text.Pandoc.CrossRef.Util.Options as O
 import Text.Pandoc.CrossRef.Util.Settings
 import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
 
--- | Enviromnent for 'CrossRefM'
-data CrossRefEnv = CrossRefEnv {
-                      creSettings :: Meta -- ^Metadata settings
-                    , creOptions :: Options -- ^Internal pandoc-crossref options
-                   }
-
--- | Essentially a reader monad for basic pandoc-crossref environment
-type CrossRefM a = R.Reader CrossRefEnv a
+import Text.Pandoc.CrossRef.Internal
 
 {- | Walk over blocks, while inserting cross-references, list-of, etc.
 
 Works in 'CrossRefM' monad. -}
 crossRefBlocks :: [Block] -> CrossRefM [Block]
-crossRefBlocks blocks = do
-  opts <- R.asks creOptions
-  let
+crossRefBlocks blocks = CrossRefM $ R.withReaderT creOptions $ runWS doWalk
+  where
     doWalk =
       bottomUpM mkCodeBlockCaptions blocks
       >>= replaceAll
       >>= bottomUpM replaceRefs
       >>= bottomUpM listOf
-    (result, st) = flip runState def $ flip R.runReaderT opts $ runWS doWalk
-  st `seq` return result
 
-{- | Modifies metadata for LaTeX output, adding header-includes instructions
-to setup custom and builtin environments.
+{- | Modifies metadata, adding header-includes instructions to setup custom and
+builtin environments, plus list-of-x metadata fields if
+'Text.Pandoc.CrossRef.Util.Settings.Gen.listOfMetadata' is enabled.
 
-Note, that if output format is not "latex", this function does nothing.
+Note for @listOfMetadata@ to work properly, this MUST be invoked AFTER
+'crossRefBlocks'.
 
 Works in 'CrossRefM' monad. -}
 crossRefMeta :: CrossRefM Meta
 crossRefMeta = do
   opts <- R.asks creOptions
   dtv <- R.asks creSettings
-  return $ modifyMeta opts dtv
+  CrossRefM $ R.withReaderT creOptions $ runWS $ modifyMeta opts dtv
 
 {- | Combines 'crossRefMeta' and 'crossRefBlocks'
 
 Works in 'CrossRefM' monad. -}
 defaultCrossRefAction :: Pandoc -> CrossRefM Pandoc
 defaultCrossRefAction (Pandoc _ bs) = do
-  meta' <- crossRefMeta
   bs' <- crossRefBlocks bs
+  meta' <- crossRefMeta
   return $ Pandoc meta' bs'
 
 {- | Run an action in 'CrossRefM' monad with argument, and return pure result.
 
 This is primary function to work with 'CrossRefM' -}
 runCrossRef :: forall a b. Meta -> Maybe Format -> (a -> CrossRefM b) -> a -> b
-runCrossRef meta fmt action arg = R.runReader (action arg) env
+runCrossRef meta fmt action arg = runCrossRefInternal env $ action arg
   where
     settings = defaultMeta <> meta
     env = CrossRefEnv {
@@ -160,4 +151,9 @@ runCrossRefIO meta fmt action arg = do
             creSettings = settings
           , creOptions = getOptions settings fmt
          }
-  return $ R.runReader (action arg) env
+  pure $ runCrossRefInternal env $ action arg
+
+runCrossRefInternal :: CrossRefEnv -> CrossRefM b -> b
+runCrossRefInternal env (CrossRefM action) =
+  let (res, st) = flip runState def $ flip R.runReaderT env action
+   in st `seq` res

@@ -139,6 +139,7 @@ flag enable_flaky_tests
 library
   exposed-modules:
       Text.Pandoc.CrossRef
+      Text.Pandoc.CrossRef.Internal
   hs-source-dirs:
       lib
   default-extensions:

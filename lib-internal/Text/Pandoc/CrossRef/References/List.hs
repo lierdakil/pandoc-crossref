@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-module Text.Pandoc.CrossRef.References.List (listOf) where
+module Text.Pandoc.CrossRef.References.List (listOf, listOfFigures, listOfTables, listOfListings) where
 
 import Data.List
 import Control.Monad.Reader
@@ -39,22 +39,26 @@ listOf blocks = asks isLatexFormat >>= \case
   False -> case blocks of
     (RawBlock fmt "\\listoffigures":xs)
       | isLaTeXRawBlockFmt fmt
-      -> makeList PfxImg lofItemTemplate lofTitle xs
+      -> (<> xs) <$> listOfFigures
     (RawBlock fmt "\\listoftables":xs)
       | isLaTeXRawBlockFmt fmt
-      -> makeList PfxTbl lotItemTemplate lotTitle xs
+      -> (<> xs) <$> listOfTables
     (RawBlock fmt "\\listoflistings":xs)
       | isLaTeXRawBlockFmt fmt
-      -> makeList PfxLst lolItemTemplate lolTitle xs
+      -> (<> xs) <$> listOfListings
     _ -> pure blocks
+
+listOfFigures, listOfTables, listOfListings:: WS [Block]
+listOfFigures = makeList PfxImg lofItemTemplate lofTitle
+listOfTables = makeList PfxTbl lotItemTemplate lotTitle
+listOfListings = makeList PfxLst lolItemTemplate lolTitle
 
 makeList
   :: Prefix
   -> (Options -> BlockTemplate)
   -> (Options -> [Block])
-  -> [Block]
   -> WS [Block]
-makeList pfx tf titlef xs = do
+makeList pfx tf titlef = do
   o <- ask
   refs <- use $ refsAt pfx
   let
@@ -99,4 +103,4 @@ makeList pfx tf titlef xs = do
         in applyTemplate' vars subfigureRefIndexTemplate
       where
         Options{chapDelim, refIndexTemplate, subfigureRefIndexTemplate} = o
-  pure $ titlef o <> (Div ("", ["list", "list-of-" <> pfxText pfx], []) items : xs)
+  pure $ titlef o <> [Div ("", ["list", "list-of-" <> pfxText pfx], []) items]

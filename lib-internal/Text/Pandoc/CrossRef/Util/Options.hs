@@ -80,6 +80,7 @@ data Options = Options { cref :: Bool
                        , nameInLink :: Bool
                        , setLabelAttribute :: Bool
                        , equationNumberTeX :: Text
+                       , listOfMetadata :: Bool
                        }
 
 isLatexFormat :: Options -> Bool

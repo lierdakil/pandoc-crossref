@@ -557,6 +557,24 @@ visible by explicitly setting `hidden=no` (or to any other falsy value).
 Same as with other attributes, to use this with tables, you need to use fenced
 div syntax, not the short syntax.
 
+### List-of-X in Pandoc templates
+
+If you'd prefer to include list-of-X things in your custom template, rather than
+use `\listofX` directly in the document, set the `listOfMetadata` option to
+`true`, and add something like this to your template:
+
+```
+$if(list-of-figures)$
+$list-of-figures$
+$endif$
+```
+
+The following variables are supported:
+
+- `list-of-figures`
+- `list-of-tables`
+- `list-of-listings`
+
 # Usage
 
 Run pandoc with `--filter` option, passing path to pandoc-crossref
@@ -615,6 +633,8 @@ A list of variables follows.
 -   `equationNumberTeX`, default `\\qquad`: use a LaTeX command for typesetting
     equation numbers. Remember that metadata is parsed as Markdown, so you may need to escape backslashes.
     This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
+-   `listOfMetadata`, default `false`. Enables setting `list-of-figures` &c
+    variables to pass through to the Pandoc's templating engine.
 
 ### Item title format
 
