@@ -1,3 +1,29 @@
+## 0.3.19
+
+### New features
+
+-   Hiding items from list-of-X
+
+    See <https://lierdakil.github.io/pandoc-crossref/#hiding-items-from-list-of-x-lists>.
+
+-   New `listOfMetadata` option
+
+    See <https://lierdakil.github.io/pandoc-crossref/#list-of-x-in-pandoc-templates>.
+
+### Fixes
+
+-   Ensure references are also sorted in order of appearance inline
+
+    This is a minor continuation of
+    [#466](https://github.com/lierdakil/pandoc-crossref/issues/466), caught
+    after the previous release.
+
+### Maintenance
+
+-   Remove long-redundant escapeLaTeX
+-   General clean-up and some refactoring
+-   Switch to GHC2021 and enable some extensions by default
+
 ## 0.3.18.2
 
 -   Ensure items in list-of are in order of appearance
