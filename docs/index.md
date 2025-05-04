@@ -78,6 +78,67 @@ or pass `-MrangeDelim='&#32;-&#32;'` to pandoc on command line.
 
 You can use other html entites of course, like `&nbsp;` etc.
 
+## Using raw blocks to define elements
+
+It may be useful/convenient to define some elements as raw blocks, as Pandoc
+Markdown, while very powerful, doesn't support everything Pandoc can support
+internally (e.g. colspan/rowspan in tables).
+
+Pandoc-crossref relies on Pandoc's AST representation, thus simply using [raw
+blocks](https://pandoc.org/MANUAL.html#extension-raw_attribute) won't work.
+
+However, it's feasible if Pandoc can actually parse the contents of the raw
+block with a little helper Lua filter. For example, something like this:
+
+```lua
+function Div(div)
+  local id = div.attr.identifier
+  if (id:match "^tbl:" or id:match "^fig:") and div.content[2].t == "RawBlock"
+  then
+    local raw = div.content[2]
+    local elem = pandoc.read(raw.text, raw.format).blocks
+    elem[1].caption = pandoc.Caption(div.content[1])
+    elem[1].attr = div.attr
+    return elem
+  end
+end
+```
+
+applied before pandoc-crossref, will reparse table definitions like this:
+
+``````markdown
+:::{#tbl:foo}
+Caption
+
+```{=html}
+<table>
+  <tr><th>Foo</th><th>Bar</th></tr>
+  <tr><td rowspan=2>1</td><td>Quux</td></tr>
+  <tr><td>Baz</td></tr>
+</table>
+```
+:::
+``````
+
+This also will work for figures, e.g.:
+
+
+``````markdown
+:::{#fig:foo}
+Caption
+
+```{=html}
+<figure>
+  <p>This is just a paragraph instead of an image in a figure, nothing to see
+  here</p>
+</figure>
+```
+:::
+``````
+
+Bear in mind that if Pandoc fails to parse the raw block, pandoc-crossref will
+fail to interpret it.
+
 # Syntax
 
 Syntax is loosely based on discussion in
