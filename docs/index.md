@@ -907,6 +907,16 @@ the list of figures will be formatted as
 :::
 ```
 
+Variables available in these templates:
+
+- `i` -- item number with chapter (if chapters are enabled), formatted according
+  to `refIndexTemplate` or `subfigureRefIndexTemplate` if item is a subfigure
+- `ri` -- "raw" item number, before applying formatting (but with chapter if
+  chapters are enabled)
+- `lt` -- title, linked back to the item (i.e. wrapped in an anchor element)
+- `t` -- just the title itself, without any links
+- `s` -- subfigure identifier, if any; empty if not a subfigure
+
 ### LaTeX customization
 
 Support for above variables with LaTeX/PDF output is limited. In

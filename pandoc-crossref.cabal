@@ -78,6 +78,9 @@ data-files:
     test/m2m/listOfHidden/expect.md
     test/m2m/listOfHidden/expect.tex
     test/m2m/listOfHidden/input.md
+    test/m2m/listOfLinked/expect.md
+    test/m2m/listOfLinked/expect.tex
+    test/m2m/listOfLinked/input.md
     test/m2m/listOfOrdering/expect.md
     test/m2m/listOfOrdering/expect.tex
     test/m2m/listOfOrdering/input.md

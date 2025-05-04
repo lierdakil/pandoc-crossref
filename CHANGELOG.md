@@ -10,6 +10,10 @@
 
     See <https://lierdakil.github.io/pandoc-crossref/#list-of-x-in-pandoc-templates>.
 
+-   New template variables in list-of item templates
+
+    See <https://lierdakil.github.io/pandoc-crossref/#list-item-templates>
+
 ### Fixes
 
 -   Ensure references are also sorted in order of appearance inline

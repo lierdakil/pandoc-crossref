@@ -24,6 +24,7 @@ import Data.List
 import Control.Monad.Reader
 import qualified Data.Map as M
 import Text.Pandoc.Definition
+import Text.Pandoc.Builder qualified as B
 import Data.Maybe
 
 import Lens.Micro.Mtl
@@ -83,24 +84,24 @@ makeList pfx tf titlef = do
       (_,RefRec{refGlobal=j})
       = compare i j
     itemChap :: RefRec -> [Block]
-    itemChap ref@RefRec{..} = applyTemplate (numWithChap ref) refTitle (tf o)
-    numWithChap :: RefRec -> [Inline]
-    numWithChap RefRec{..} = case refSubfigure of
-      Nothing ->
-        let vars = M.fromDistinctAscList
-              [ ("i", chapPrefix chapDelim refIndex)
-              , ("suf", mempty)
-              , ("t", refTitle)
-              ]
-        in applyTemplate' vars $ refIndexTemplate pfx
-      Just s ->
-        let vars = M.fromDistinctAscList
-              [ ("i", chapPrefix chapDelim refIndex)
-              , ("s", chapPrefix chapDelim s)
-              , ("suf", mempty)
-              , ("t", refTitle)
-              ]
-        in applyTemplate' vars subfigureRefIndexTemplate
+    itemChap ref@RefRec{..} =
+      let vars = M.fromDistinctAscList $
+            [ ("i", numWithChap vars ref)
+            , ("lt", linked refLabel refTitle)
+            , ("ri", chapPrefix chapDelim refIndex)
+            , ("s", maybe mempty (chapPrefix chapDelim) refSubfigure)
+            , ("suf", mempty)
+            , ("t", refTitle)
+            ]
+      in applyTemplate' vars $ tf o
       where
+        Options{chapDelim} = o
+    linked (Just lab) = B.toList . B.link ("#" <> lab) "" . B.fromList
+    linked Nothing = id
+    numWithChap vars RefRec{..} = applyTemplate' vars' $ case refSubfigure of
+      Nothing -> refIndexTemplate pfx
+      Just _ -> subfigureRefIndexTemplate
+      where
+        vars' = M.insert "i" (chapPrefix chapDelim refIndex) vars
         Options{chapDelim, refIndexTemplate, subfigureRefIndexTemplate} = o
   pure $ titlef o <> [Div ("", ["list", "list-of-" <> pfxText pfx], []) items]
