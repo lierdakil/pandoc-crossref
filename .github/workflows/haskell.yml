@@ -94,6 +94,12 @@ jobs:
       with:
         name: pandoc-crossref
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - name: Setup Attic cache
+      uses: ryanccn/attic-action@v0
+      with:
+        endpoint: https://nix-cache.undo.it
+        cache: pandoc-crossref
+        token: ${{ secrets.ATTIC_TOKEN }}
     - run: nix build
     - run: nix build .#static
     - run: |

@@ -91,10 +91,12 @@
     extra-substituters = [
       "https://cache.iog.io"
       "https://pandoc-crossref.cachix.org"
+      "https://nix-cache.undo.it/pandoc-crossref"
     ];
     extra-trusted-public-keys = [
       "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
       "pandoc-crossref.cachix.org-1:LI9ABFTkGpPCTkUTzoopVSSpb1a26RSTJNMsqVbDtPM="
+      "pandoc-crossref:BpLYGmAnkEz8OUuR3WD6j5XqSM3o1HdQtCEKEIPArxs="
       ];
   };
 }

@@ -13,6 +13,11 @@ push:
 		| jq -r '.[].outputs | to_entries[].value' \
 		| cachix push pandoc-crossref
 
+push-attic:
+	nix build . .#static .#pandoc $(NIX_EXTRA_OPTS) --json \
+		| jq -r '.[].outputs | to_entries[].value' \
+		| attic push pandoc-crossref --stdin
+
 test:
 	nix run .#test $(NIX_EXTRA_OPTS) && nix run .#test-integrative $(NIX_EXTRA_OPTS)
 
