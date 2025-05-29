@@ -5,7 +5,7 @@ blah blah blah figs.~\ref{fig:fig1}, \ref{fig:fig_s1}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig1.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={first figure}]{figs/fig1.jpg}}
 \caption{first figure}\label{fig:fig1}
 \end{figure}
 
@@ -13,7 +13,7 @@ furthermore, etc., (figs.~\ref{fig:fig2}, \ref{fig:fig_s2})
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig2.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={second figure}]{figs/fig2.jpg}}
 \caption{second figure}\label{fig:fig2}
 \end{figure}
 
@@ -21,7 +21,7 @@ and finally (fig.~\ref{fig:fig3})
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig3.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={third figure}]{figs/fig3.jpg}}
 \caption{third figure}\label{fig:fig3}
 \end{figure}
 
@@ -30,13 +30,13 @@ section}\label{hidden-supplemental-section}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! first supp figure}]{figs/fig_s1.jpg}}
 \caption[]{hidden! first supp figure}\label{fig:fig_s1}
 \end{figure}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! second supp figure}]{figs/fig_s2.jpg}}
 \caption[]{hidden! second supp figure}\label{fig:fig_s2}
 \end{figure}
 
@@ -44,13 +44,13 @@ section}\label{hidden-supplemental-section}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! first hidden figure}]{figs/fig_s1.jpg}}
 \caption[]{hidden! first hidden figure}\label{fig:fig_h1}
 \end{figure}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! second hidden figure}]{figs/fig_s2.jpg}}
 \caption[]{hidden! second hidden figure}\label{fig:fig_h2}
 \end{figure}
 
@@ -59,13 +59,13 @@ section}\label{subsection-of-a-hidden-section}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! first hidden subsection figure}]{figs/fig_s1.jpg}}
 \caption[]{hidden! first hidden subsection figure}\label{fig:fig_h1_s}
 \end{figure}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! second hidden subsection figure}]{figs/fig_s2.jpg}}
 \caption[]{hidden! second hidden subsection figure}\label{fig:fig_h2_s}
 \end{figure}
 
@@ -73,13 +73,13 @@ section}\label{subsection-of-a-hidden-section}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={first regular section figure}]{figs/fig_s1.jpg}}
 \caption{first regular section figure}\label{fig:fig_r1}
 \end{figure}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={second regular section figure}]{figs/fig_s2.jpg}}
 \caption{second regular section figure}\label{fig:fig_r2}
 \end{figure}
 
@@ -87,13 +87,13 @@ section}\label{subsection-of-a-hidden-section}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={first normal subsection figure}]{figs/fig_s1.jpg}}
 \caption{first normal subsection figure}\label{fig:fig_nss1}
 \end{figure}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={second normal subsection figure}]{figs/fig_s2.jpg}}
 \caption{second normal subsection figure}\label{fig:fig_nss2}
 \end{figure}
 
@@ -101,28 +101,28 @@ section}\label{subsection-of-a-hidden-section}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! first hidden subsection figure}]{figs/fig_s1.jpg}}
 \caption[]{hidden! first hidden subsection figure}\label{fig:fig_ss1}
 \end{figure}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! second hidden subsection figure}]{figs/fig_s2.jpg}}
 \caption[]{hidden! second hidden subsection figure}\label{fig:fig_ss2}
 \end{figure}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s3.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={visible! overridden visibility}]{figs/fig_s3.jpg}}
 \caption{visible! overridden visibility}\label{fig:fig_ss3}
 \end{figure}
 
 \begin{pandoccrossrefsubfigures}
 
 \subfloat[hidden!
-subfigure1]{\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}\label{fig:fig_sss1}}
+subfigure1]{\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! subfigure1}]{figs/fig_s2.jpg}}\label{fig:fig_sss1}}
 \subfloat[hidden!
-subfigure2]{\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}\label{fig:fig_sss2}}
+subfigure2]{\pandocbounded{\includegraphics[keepaspectratio,alt={hidden! subfigure2}]{figs/fig_s2.jpg}}\label{fig:fig_sss2}}
 
 \caption[]{hidden! subfigures}\label{fig:subfigs}
 
@@ -190,13 +190,13 @@ foo & bar \\
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s1.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={first other regular section figure}]{figs/fig_s1.jpg}}
 \caption{first other regular section figure}\label{fig:fig_or1}
 \end{figure}
 
 \begin{figure}
 \centering
-\pandocbounded{\includegraphics[keepaspectratio]{figs/fig_s2.jpg}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={second other regular section figure}]{figs/fig_s2.jpg}}
 \caption{second other regular section figure}\label{fig:fig_or2}
 \end{figure}
 
