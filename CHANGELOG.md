@@ -1,3 +1,13 @@
+## 0.3.20
+
+-   Support Pandoc 3.7
+
+-   Minimal supported Pandoc version is 3.7.0.2
+
+    This is mostly because some changes in 3.7 break tests.
+
+No other changes since 0.3.19.
+
 ## 0.3.19
 
 ### New features
