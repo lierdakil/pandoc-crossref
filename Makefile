@@ -54,6 +54,8 @@ update: stack.yaml flake.lock stack.yaml.lock
 
 upload:
 	cabal sdist
-	cabal cabal haddock --haddock-for-hackage
-	cabal upload dist-newstyle/sdist/$$(yq '.name + "-" + .version' package.yaml).tar.gz
-	cabal upload -d dist-newstyle/$$(yq '.name + "-" + .version' package.yaml)-docs.tar.gz
+	cabal upload --publish dist-newstyle/sdist/$$(yq '.name + "-" + .version' package.yaml).tar.gz
+
+upload-docs:
+	cabal haddock --haddock-for-hackage
+	cabal upload --publish -d dist-newstyle/$$(yq '.name + "-" + .version' package.yaml)-docs.tar.gz
