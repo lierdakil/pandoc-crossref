@@ -81,8 +81,8 @@
         test = flake.apps."pandoc-crossref:test:test-pandoc-crossref";
         test-integrative = flake.apps."pandoc-crossref:test:test-integrative";
       };
-      devShells.default = pkgs.mkShell {
-        buildInputs = [ self.packages.${system}.pandoc-with-crossref ];
+      devShells.default = pkgs.mkShellNoCC {
+        packages = with self.packages.${system}; [ default pandoc ];
       };
     });
 
