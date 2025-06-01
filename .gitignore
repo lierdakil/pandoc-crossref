@@ -13,3 +13,4 @@ cabal.sandbox.config
 /*.tar.gz
 /result*
 /.envrc
+/.direnv

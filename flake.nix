@@ -55,9 +55,10 @@
             ./CHANGELOG.md
           ];
         };
-        modules = [({pkgs, ...}: with pkgs; {
+        modules = [({pkgs, lib, ...}: {
+          doHaddock = lib.mkForce false;
           packages.pandoc-crossref.ghcOptions =
-            lib.optional stdenv.hostPlatform.isMusl "-pgml=${linker-workaround pkgs}";
+            lib.optional pkgs.stdenv.hostPlatform.isMusl "-pgml=${linker-workaround pkgs}";
           })];
       };
       overlays = [ haskellNix.overlay ];
@@ -84,6 +85,7 @@
       devShells.default = pkgs.mkShellNoCC {
         packages = with self.packages.${system}; [ default pandoc ];
       };
+      devShells.dev = flake.devShell;
     });
 
   # --- Flake Local Nix Configuration ----------------------------
