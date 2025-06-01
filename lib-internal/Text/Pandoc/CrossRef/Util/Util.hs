@@ -18,6 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
+{-# LANGUAGE MonoLocalBinds #-}
+
 module Text.Pandoc.CrossRef.Util.Util
   ( module Text.Pandoc.CrossRef.Util.Util
   , module Data.Generics
@@ -65,18 +67,27 @@ chapPrefix delim = toList
   . S.filter (not . T.null)
   . fmap (uncurry (fromMaybe . T.pack . show))
 
-data ReplacedResult a = Replaced Bool a | NotReplaced Bool
-type GenRR m = forall a. Data a => (a -> m (ReplacedResult a))
+data ReplacedResult a
+  = Replaced Recurse a
+  | ReplacedList (IsList a)
+  | NotReplaced Recurse
+data Recurse = Recurse | NoRecurse
+data IsList a where
+  IsList :: (Monoid b, Show b, a ~ [c]) => (a -> b) -> (b -> a) -> b -> b -> IsList a
 newtype RR m a = RR {unRR :: a -> m (ReplacedResult a)}
 
-runReplace :: (Monad m) => GenRR m -> GenericM m
-runReplace f x = do
-  res <- f x
-  case res of
-    Replaced True x' -> gmapM (runReplace f) x'
-    Replaced False x' -> return x'
-    NotReplaced True -> gmapM (runReplace f) x
-    NotReplaced False -> return x
+runReplace
+  :: forall m a. (Monad m, Data a)
+  => (forall d. Data d => (d -> m (ReplacedResult d)))
+  -> a -> m a
+runReplace f x = f x >>= \case
+  Replaced Recurse x' -> gmapM (runReplace f) x'
+  Replaced NoRecurse x' -> pure x'
+  NotReplaced Recurse -> gmapM (runReplace f) x
+  NotReplaced NoRecurse -> pure x
+  ReplacedList (IsList fromList' toList' hd tl) -> do
+    tl' <- runReplace f (toList' tl)
+    pure $ toList' $ hd <> fromList' tl'
 
 mkRR :: (Monad m, Typeable a, Typeable b)
      => (b -> m (ReplacedResult b))
@@ -90,19 +101,22 @@ extRR :: ( Monad m, Typeable a, Typeable b)
 extRR def' ext = unRR (RR def' `ext0` RR ext)
 
 replaceRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceRecurse = return . Replaced True
+replaceRecurse = return . Replaced Recurse
 
 replaceNoRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceNoRecurse = return . Replaced False
+replaceNoRecurse = return . Replaced NoRecurse
 
-noReplace :: Monad m => Bool -> m (ReplacedResult a)
+replaceList :: (Monad m, Monoid b, Show b) => ([a] -> b) -> (b -> [a]) -> b -> b -> m (ReplacedResult [a])
+replaceList f g hd tl = return $ ReplacedList $ IsList f g hd tl
+
+noReplace :: Monad m => Recurse -> m (ReplacedResult a)
 noReplace recurse = return $ NotReplaced recurse
 
 noReplaceRecurse :: Monad m => m (ReplacedResult a)
-noReplaceRecurse = noReplace True
+noReplaceRecurse = noReplace Recurse
 
 noReplaceNoRecurse :: Monad m => m (ReplacedResult a)
-noReplaceNoRecurse = noReplace False
+noReplaceNoRecurse = noReplace NoRecurse
 
 mkLaTeXLabel :: T.Text -> T.Text
 mkLaTeXLabel l

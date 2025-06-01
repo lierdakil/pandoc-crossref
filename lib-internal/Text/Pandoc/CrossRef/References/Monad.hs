@@ -22,9 +22,16 @@ module Text.Pandoc.CrossRef.References.Monad where
 
 import Control.Monad.State
 import Control.Monad.Reader
+import Data.Function
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
 
 --state monad
-newtype WS a = WS { runWS :: ReaderT Options (State References) a }
+newtype WS a = WS { runWS :: ReaderT Options (StateT References ((->) References)) a }
   deriving (Functor, Applicative, Monad, MonadReader Options, MonadState References)
+
+liftF :: (References -> a) -> WS a
+liftF = WS . lift . lift
+
+fixF :: (References -> (b, References)) -> (b, References)
+fixF x = fix $ x . snd

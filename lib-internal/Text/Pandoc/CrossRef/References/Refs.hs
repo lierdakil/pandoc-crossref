@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Refs (replaceRefs) where
 
 import Control.Arrow as A
-import Control.Monad.Reader
 import Data.Function
 import Numeric.Natural
 import Data.List
@@ -37,23 +36,21 @@ import qualified Data.List.NonEmpty as NE
 import Data.List.NonEmpty (NonEmpty)
 
 import Debug.Trace
-import Lens.Micro.Mtl
+import Lens.Micro
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 
-replaceRefs :: [Inline] -> WS [Inline]
-replaceRefs (Cite cits _:xs) = do
-  opts <- ask :: WS Options
-  toList . (<> fromList xs) . intercalate' (text ", ") . map fromList <$> mapM (replaceRefs' opts) (NE.groupBy eqPrefix cits)
+replaceRefs :: Inline -> Options -> References -> Maybe Inlines
+replaceRefs (Cite cits _) opts = Just .
+  intercalate' (text ", ") . map fromList <$> mapM replaceRefs' (NE.groupBy eqPrefix cits)
   where
     eqPrefix = (==) `on` getLabelPrefix . citationId
-    replaceRefs' :: Options -> NonEmpty Citation -> WS [Inline]
-    replaceRefs' opts cits'
+    replaceRefs' :: NonEmpty Citation -> References -> [Inline]
+    replaceRefs' cits'
       | Just prefix <- getLabelPrefix . citationId $ NE.head cits'
-      = replaceRefs'' opts prefix cits'
+      = replaceRefs'' prefix cits'
       | otherwise = return [Cite (NE.toList cits') il']
         where
           il' = toList $
@@ -63,12 +60,12 @@ replaceRefs (Cite cits _:xs) = do
           citationToInlines c =
             fromList (citationPrefix c) <> text ("@" <> citationId c)
               <> fromList (citationSuffix c)
-    replaceRefs'' :: Options -> Prefix -> NonEmpty Citation -> WS [Inline]
-    replaceRefs'' opts = ($ opts) . flip $
+    replaceRefs'' :: Prefix -> NonEmpty Citation -> References -> [Inline]
+    replaceRefs'' = ($ opts) . flip $
       if isLatexFormat opts
       then replaceRefsLatex
       else replaceRefsOther
-replaceRefs x = return x
+replaceRefs _ _ = pure Nothing
 
 -- accessors to options
 prefMap :: Prefix -> (Options -> Bool -> Int -> [Inline], Options -> Template)
@@ -89,7 +86,7 @@ getRefPrefix opts prefix capitalize num cit =
   where (refprefixf, reftempl) = prefMap prefix
         refprefix = refprefixf opts capitalize num
 
-replaceRefsLatex :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
+replaceRefsLatex :: Prefix -> Options -> NonEmpty Citation -> References -> [Inline]
 replaceRefsLatex prefix opts cits
   | cref opts
   = replaceRefsLatex' prefix opts cits
@@ -97,7 +94,7 @@ replaceRefsLatex prefix opts cits
   = toList . intercalate' (text ", ") . map fromList <$>
       mapM (replaceRefsLatex' prefix opts) (NE.groupBy citationGroupPred cits)
 
-replaceRefsLatex' :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
+replaceRefsLatex' :: Prefix -> Options -> NonEmpty Citation -> References -> [Inline]
 replaceRefsLatex' prefix opts cits =
   return $ p [texcit]
   where
@@ -135,17 +132,17 @@ getLabelPrefix lab = find (p `hasPfx`) prefixes
   where
     p = uncapitalizeFirst $ flip T.snoc ':' . T.takeWhile (/=':') $ lab
 
-replaceRefsOther :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
+replaceRefsOther :: Prefix -> Options -> NonEmpty Citation -> References -> [Inline]
 replaceRefsOther prefix opts cits = toList . intercalate' (text ", ") . map fromList <$>
     traverse (replaceRefsOther' prefix opts) (NE.groupBy citationGroupPred cits)
 
 citationGroupPred :: Citation -> Citation -> Bool
 citationGroupPred = (==) `on` liftM2 (,) citationPrefix citationMode
 
-replaceRefsOther' :: Prefix -> Options -> NonEmpty Citation -> WS [Inline]
-replaceRefsOther' prefix opts cits = do
-  indices <- mapM (getRefIndex prefix opts) $ NE.toList cits
+replaceRefsOther' :: Prefix -> Options -> NonEmpty Citation -> References -> [Inline]
+replaceRefsOther' prefix opts cits refs =
   let
+    indices = getRefIndex prefix refs <$> NE.toList cits
     cap = isFirstUpper . citationId . NE.head $ cits
     writePrefix | all ((==SuppressAuthor) . citationMode) cits
                 = id
@@ -156,7 +153,7 @@ replaceRefsOther' prefix opts cits = do
     cmap f [Link attr t w]
       | nameInLink opts = [Link attr (f t) w]
     cmap f x = f x
-  return $ writePrefix (makeIndices opts indices)
+  in writePrefix (makeIndices opts indices)
 
 data RefData = RefData { rdGlob :: Maybe Natural
                        , rdLabel :: T.Text
@@ -167,15 +164,14 @@ data RefData = RefData { rdGlob :: Maybe Natural
                        , rdPfx :: Prefix
                        } deriving (Eq)
 
-getRefIndex :: Prefix -> Options -> Citation -> WS RefData
-getRefIndex prefix _opts Citation{citationId=cid,citationSuffix=suf}
-  = do
-    ref <- M.lookup lab <$> use prop
-    let sub = refSubfigure <$> ref
+getRefIndex :: Prefix -> References -> Citation -> RefData
+getRefIndex prefix refs Citation{citationId=cid,citationSuffix=suf}
+  = let ref = M.lookup lab $ refs ^. prop
+        sub = refSubfigure <$> ref
         idx = refIndex <$> ref
         tit = refTitle <$> ref
         glob = refGlobal <$> ref
-    return RefData
+    in RefData
       { rdGlob = glob
       , rdLabel = lab
       , rdIdx = idx

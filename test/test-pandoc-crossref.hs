@@ -394,21 +394,33 @@ testState :: (Show a1, Eq a1) => ([a2] -> WS [a1]) -> References -> Many a2 -> (
 testState f init' arg res = runWSWithOptsInit defaultOptions init' (f $ toList arg) `shouldBe` first toList res
 
 runWSWithOptsInit :: Options -> References -> WS a -> (a, References)
-runWSWithOptsInit opts st = flip runState st . flip runReaderT opts . runWS
+runWSWithOptsInit opts st = fixF . flip runStateT st . flip runReaderT opts . runWS
 
 runWSWithOpts :: Options -> WS a -> (a, References)
 runWSWithOpts opts = runWSWithOptsInit opts def
 
 testRefs :: Blocks -> References -> Blocks -> Expectation
-testRefs bs st rbs = testState (bottomUpM References.Refs.replaceRefs) st bs (rbs, st)
+testRefs bs st rbs = testState (bottomUpM replaceRefs') st bs (rbs, st)
+
+replaceRefs' :: [Inline] -> WS [Inline]
+replaceRefs' (x:xs) = References.Refs.replaceRefs x <$> ask <*> get <&> \case
+  Just xs' -> toList $ xs' <> fromList xs
+  Nothing -> x : xs
+replaceRefs' [] = pure []
 
 testCBCaptions :: Blocks -> Blocks -> Expectation
 testCBCaptions bs res = runWSWithOpts defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}
   (bottomUpM (Util.CodeBlockCaptions.mkCodeBlockCaptions) (toList bs)) `shouldBe` (toList res,def)
 
 testList :: Blocks -> References -> Blocks -> Expectation
-testList bs st res = runWSWithOptsInit defaultOptions st (bottomUpM References.List.listOf (toList bs))
+testList bs st res = runWSWithOptsInit defaultOptions st (bottomUpM listOf' (toList bs))
    `shouldBe` (toList res,st)
+
+listOf' :: [Block] -> WS [Block]
+listOf' (x:xs) = References.List.listOf x <$> ask <*> get <&> \case
+  Just res' -> res' <> xs
+  Nothing -> x : xs
+listOf' [] = pure []
 
 figure :: T.Text -> T.Text -> T.Text -> Maybe T.Text -> T.Text -> Blocks
 figure src title cap malt ref = B.figureWith ("fig:" <> ref, [], [])

@@ -27,9 +27,12 @@ import Data.List
 import qualified Data.Text as T
 import Lens.Micro
 import Text.Pandoc.Definition
+import qualified Text.Pandoc.Builder as B
 import Text.Pandoc.Shared (blocksToInlines)
 
 import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Refs
+import Text.Pandoc.CrossRef.References.List
 import Text.Pandoc.CrossRef.References.Blocks.CodeBlock
 import Text.Pandoc.CrossRef.References.Blocks.Header
 import Text.Pandoc.CrossRef.References.Blocks.Math
@@ -45,6 +48,7 @@ replaceAll x = do
   opts <- ask
   x & runReplace (mkRR replaceBlock
     `extRR` replaceInlineMany
+    `extRR` listOfExt
     )
     . runSplitMath opts
     . everywhere (mkT divBlocks `extT` spanInlines opts)
@@ -110,7 +114,26 @@ replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = 
         ReplaceEqn{replaceEqnEq, replaceEqnIdx} <- replaceEqn eqnDisplayTemplate spanAttr eq
         pure [Span (label,clss,setLabel opts replaceEqnIdx attrs) replaceEqnEq]
   else noReplaceRecurse
-replaceInlineMany _ = noReplaceRecurse
+replaceInlineMany (x:xs) = do
+  opts <- ask
+  -- NB: must be very-very careful to not inspect the result beyond Maybe,
+  -- otherwise fix in deferred part will loop
+  res <- liftF $ replaceRefs x opts
+  case res of
+    Just res' -> replaceList B.fromList B.toList res' $ B.fromList xs
+    Nothing -> noReplaceRecurse
+replaceInlineMany [] = noReplaceNoRecurse
+
+listOfExt :: [Block] -> WS (ReplacedResult [Block])
+listOfExt (x:xs) = do
+  opts <- ask
+  -- NB: must be very-very careful to not inspect the result beyond Maybe,
+  -- otherwise fix in deferred part will loop
+  res <- liftF $ listOf x opts
+  case res of
+    Just res' -> replaceList id id res' xs
+    Nothing -> noReplaceRecurse
+listOfExt [] = noReplaceNoRecurse
 
 divBlocks :: Block -> Block
 divBlocks (Table tattr (Caption short (btitle:rest)) colspec header cells foot)

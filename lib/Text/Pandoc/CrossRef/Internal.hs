@@ -47,5 +47,5 @@ data CrossRefEnv = CrossRefEnv {
                    }
 
 -- | Reader + State monad for pandoc-crossref.
-newtype CrossRefM a = CrossRefM (R.ReaderT CrossRefEnv (State References) a)
+newtype CrossRefM a = CrossRefM (R.ReaderT CrossRefEnv (StateT References ((->) References)) a)
   deriving (Functor, Applicative, Monad, R.MonadReader CrossRefEnv, MonadState References)

@@ -21,35 +21,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.List (listOf, listOfFigures, listOfTables, listOfListings) where
 
 import Data.List
-import Control.Monad.Reader
 import qualified Data.Map as M
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder qualified as B
 import Data.Maybe
 
-import Lens.Micro.Mtl
+import Lens.Micro
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Template
 
-listOf :: [Block] -> WS [Block]
-listOf blocks = asks isLatexFormat >>= \case
-  True -> pure blocks
-  False -> case blocks of
-    (RawBlock fmt "\\listoffigures":xs)
-      | isLaTeXRawBlockFmt fmt
-      -> (<> xs) <$> listOfFigures
-    (RawBlock fmt "\\listoftables":xs)
-      | isLaTeXRawBlockFmt fmt
-      -> (<> xs) <$> listOfTables
-    (RawBlock fmt "\\listoflistings":xs)
-      | isLaTeXRawBlockFmt fmt
-      -> (<> xs) <$> listOfListings
-    _ -> pure blocks
+listOf :: Block -> Options -> References -> Maybe [Block]
+listOf _ opts | isLatexFormat opts = pure Nothing
+listOf (RawBlock fmt content) opts | isLaTeXRawBlockFmt fmt =
+  case content of
+    "\\listoffigures" -> Just <$> listOfFigures opts
+    "\\listoftables" -> Just <$> listOfTables opts
+    "\\listoflistings" -> Just <$> listOfListings opts
+    _ -> pure Nothing
+listOf _ _ = pure Nothing
 
-listOfFigures, listOfTables, listOfListings:: WS [Block]
+
+listOfFigures, listOfTables, listOfListings:: Options -> References -> [Block]
 listOfFigures = makeList PfxImg lofItemTemplate lofTitle
 listOfTables = makeList PfxTbl lotItemTemplate lotTitle
 listOfListings = makeList PfxLst lolItemTemplate lolTitle
@@ -58,11 +52,12 @@ makeList
   :: Prefix
   -> (Options -> BlockTemplate)
   -> (Options -> [Block])
-  -> WS [Block]
-makeList pfx tf titlef = do
-  o <- ask
-  refs <- use $ refsAt pfx
+  -> Options
+  -> References
+  -> [Block]
+makeList pfx tf titlef o refsMap = do
   let
+    refs = refsMap ^. refsAt pfx
     items = fromMaybe items' $ pure <$> mergeList Nothing [] items'
     items' = concatMap (itemChap . snd) refsSorted
     mergeList Nothing acc (OrderedList style item : ys) =
@@ -104,4 +99,4 @@ makeList pfx tf titlef = do
       where
         vars' = M.insert "i" (chapPrefix chapDelim refIndex) vars
         Options{chapDelim, refIndexTemplate, subfigureRefIndexTemplate} = o
-  pure $ titlef o <> [Div ("", ["list", "list-of-" <> pfxText pfx], []) items]
+  titlef o <> [Div ("", ["list", "list-of-" <> pfxText pfx], []) items]

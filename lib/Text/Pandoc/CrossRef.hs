@@ -101,8 +101,6 @@ crossRefBlocks blocks = CrossRefM $ R.withReaderT creOptions $ runWS doWalk
     doWalk =
       bottomUpM mkCodeBlockCaptions blocks
       >>= replaceAll
-      >>= bottomUpM replaceRefs
-      >>= bottomUpM listOf
 
 {- | Modifies metadata, adding header-includes instructions to setup custom and
 builtin environments, plus list-of-x metadata fields if
@@ -155,5 +153,4 @@ runCrossRefIO meta fmt action arg = do
 
 runCrossRefInternal :: CrossRefEnv -> CrossRefM b -> b
 runCrossRefInternal env (CrossRefM action) =
-  let (res, st) = flip runState def $ flip R.runReaderT env action
-   in st `seq` res
+  fst $ fixF $ flip runStateT def $ flip R.runReaderT env action

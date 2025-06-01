@@ -49,18 +49,18 @@ runSubfigures (label, cls, attrs) images caption = do
   idxStr <- chapIndex ref
   glob <- use stGlob
   hiddenHdr <- use stHiddenHeaderLevel
-  let (cont, st) = flip runState (References def def glob hiddenHdr)
-        $ flip runReaderT opts'
-        $ runWS
-        $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
-      doFigure :: Block -> WS (ReplacedResult Block)
+  let doFigure :: Block -> WS (ReplacedResult Block)
       doFigure (Figure attr caption' content) = runFigure True attr caption' content
       doFigure _ = noReplaceRecurse
       opts' = opts
           { figureTemplate = subfigureChildTemplate opts
           , customLabel = \r i -> customLabel opts (Sub r) i
           }
-      collectedCaptions = B.toList $
+  (cont, st) <- liftF $ flip runStateT (References def def glob hiddenHdr)
+        $ flip runReaderT opts'
+        $ runWS
+        $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
+  let collectedCaptions = B.toList $
           intercalate' (B.fromList $ ccsDelim opts)
         $ map (B.fromList . collectCaps . snd)
         $ sortOn (refIndex . snd)

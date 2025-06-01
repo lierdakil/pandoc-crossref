@@ -24,6 +24,8 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
     ) where
 
 import Control.Monad.Writer
+import Control.Monad.Reader
+import Control.Monad.State
 import Control.Monad (when, unless, (>=>))
 import Data.Function ((&))
 import qualified Data.Text as T
@@ -33,17 +35,20 @@ import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.References.List
 import Text.Pandoc.CrossRef.References.Monad
+import Text.Pandoc.CrossRef.References.Types
 
 modifyMeta :: Options -> Meta -> WS Meta
 modifyMeta opts meta
   = meta
     & opt isLatexFormat (setMeta "header-includes" (headerInc $ lookupMeta "header-includes" meta))
     & optM listOfMetadata
-        ( setMetaM "list-of-figures"    (fromList <$> listOfFigures)
-        >=> setMetaM "list-of-tables"   (fromList <$> listOfTables)
-        >=> setMetaM "list-of-listings" (fromList <$> listOfListings)
+        ( setMetaM "list-of-figures"    (fromList <$> liftList listOfFigures)
+        >=> setMetaM "list-of-tables"   (fromList <$> liftList listOfTables)
+        >=> setMetaM "list-of-listings" (fromList <$> liftList listOfListings)
         )
   where
+    liftList :: (Options -> References -> [Block]) -> WS [Block]
+    liftList f = f <$> ask <*> get
     setMetaM :: ToMetaValue v => T.Text -> WS v -> Meta -> WS Meta
     setMetaM k m meta' = m >>= \v -> pure $ setMeta k v meta'
     opt q f
