@@ -31,12 +31,13 @@ Internal definitions, exported only for convenience. No stability guarantees.
 
 -}
 
-module Text.Pandoc.CrossRef.Internal (CrossRefEnv(..), CrossRefM(..)) where
+module Text.Pandoc.CrossRef.Internal (CrossRefEnv(..), CrossRefM(..), creToWS) where
 
-import qualified Control.Monad.Reader as R
+import Lens.Micro
 import Control.Monad.State
 import Text.Pandoc
 
+import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.References
 import Text.Pandoc.CrossRef.Util.Options
 
@@ -44,8 +45,17 @@ import Text.Pandoc.CrossRef.Util.Options
 data CrossRefEnv = CrossRefEnv {
                       creSettings :: Meta -- ^Metadata settings
                     , creOptions :: Options -- ^Internal pandoc-crossref options
+                    , creReferences :: References -- ^ Internal state tracking references
                    }
 
 -- | Reader + State monad for pandoc-crossref.
-newtype CrossRefM a = CrossRefM (R.ReaderT CrossRefEnv (StateT References ((->) References)) a)
-  deriving (Functor, Applicative, Monad, R.MonadReader CrossRefEnv, MonadState References)
+newtype CrossRefM a = CrossRefM (StateT CrossRefEnv ((->) References) a)
+  deriving (Functor, Applicative, Monad, MonadState CrossRefEnv)
+
+creToWS :: Lens' CrossRefEnv WState
+creToWS = lens get' set'
+  where
+    get' CrossRefEnv { creOptions, creReferences } = WState creOptions creReferences
+    set' CrossRefEnv { creSettings } (WState creOptions creReferences) = CrossRefEnv {
+      creOptions, creSettings, creReferences
+    }

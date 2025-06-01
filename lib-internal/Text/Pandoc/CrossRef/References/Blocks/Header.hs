@@ -20,7 +20,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.References.Blocks.Header where
 
-import Control.Monad.Reader.Class
+import Control.Applicative
+import Lens.Micro.Mtl
 import Control.Monad (when)
 import qualified Data.Map as M
 import qualified Data.Sequence as S
@@ -29,8 +30,6 @@ import qualified Data.Text as T
 import Text.Pandoc.Definition
 import Text.Read (readMaybe)
 
-import Control.Applicative
-import Lens.Micro.Mtl
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.References.Blocks.Util (setLabel, checkHidden)
@@ -40,18 +39,18 @@ import Text.Pandoc.CrossRef.Util.Util
 
 runHeader :: Int -> Attr -> [Inline] -> WS (ReplacedResult Block)
 runHeader n (label, cls, attrs) text' = do
-  stHiddenHeaderLevel %= filter \HiddenHeader{hhLevel} -> hhLevel < n
+  wsReferences . stHiddenHeaderLevel %= filter \HiddenHeader{hhLevel} -> hhLevel < n
   hhHidden <- checkHidden attrs
-  stHiddenHeaderLevel %= (HiddenHeader { hhLevel = n, hhHidden }:)
+  wsReferences . stHiddenHeaderLevel %= (HiddenHeader { hhLevel = n, hhHidden }:)
 
   if "unnumbered" `elem` cls
     then do
       label' <- mangleLabel
       replaceNoRecurse $ Header n (label', cls, attrs) text'
     else do
-      opts@Options{..} <- ask
+      opts@Options{..} <- use wsOptions
       label' <- mangleLabel
-      ctrsAt PfxSec %= \cc ->
+      wsReferences . ctrsAt PfxSec %= \cc ->
         let ln = length cc
             cl i = lookup "label" attrs <|> customHeadingLabel n i <|> customLabel (Pfx PfxSec) i
             inc l = case S.viewr l of
@@ -68,10 +67,10 @@ runHeader n (label, cls, attrs) text' = do
               | numberSections = S.replicate (n-ln-1) (1, Nothing)
               | otherwise = S.replicate (n-ln-1) (0, Nothing)
         in cc'
-      cc <- use $ ctrsAt PfxSec
-      globCtr <- stGlob <<%= (+ 1)
+      cc <- use $ wsReferences . ctrsAt PfxSec
+      globCtr <- wsReferences . stGlob <<%= (+ 1)
       when (label' `hasPfx` PfxSec) $
-        refsAt PfxSec %= M.insert label' RefRec {
+        wsReferences . refsAt PfxSec %= M.insert label' RefRec {
           refIndex = cc
         , refGlobal = globCtr
         , refTitle = text'
@@ -94,7 +93,7 @@ runHeader n (label, cls, attrs) text' = do
       replaceNoRecurse $ Header n (label', cls, attrs') textCC
   where
     mangleLabel = do
-      Options{autoSectionLabels} <- ask
+      Options{autoSectionLabels} <- use wsOptions
       pure $
         if autoSectionLabels && not (label `hasPfx` PfxSec)
         then pfxTextCol PfxSec <> label

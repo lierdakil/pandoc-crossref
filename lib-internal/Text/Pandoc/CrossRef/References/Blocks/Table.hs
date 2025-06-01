@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.References.Blocks.Table where
 
-import Control.Monad.Reader.Class
+import Lens.Micro.Mtl
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared (blocksToInlines)
 import Data.Function ((&))
@@ -34,7 +34,7 @@ import Text.Pandoc.CrossRef.Util.Util
 
 runTable :: Attr -> Maybe Attr -> Maybe ShortCaption -> Block -> [Block] -> [ColSpec] -> TableHead -> [TableBody] -> TableFoot -> WS (ReplacedResult Block)
 runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot = do
-  opts <- ask
+  opts <- use wsOptions
   ref <- replaceAttr (Just label) attrs title SPfxTbl
   idxStr <- chapIndex ref
   let short' | refHideFromList ref = Just mempty

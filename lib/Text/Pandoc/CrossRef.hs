@@ -79,7 +79,8 @@ module Text.Pandoc.CrossRef (
   , CrossRefEnv(..)
   ) where
 
-import qualified Control.Monad.Reader as R
+import Lens.Micro.Mtl
+import Data.Bifunctor
 import Control.Monad.State
 import Text.Pandoc
 
@@ -96,7 +97,7 @@ import Text.Pandoc.CrossRef.Internal
 
 Works in 'CrossRefM' monad. -}
 crossRefBlocks :: [Block] -> CrossRefM [Block]
-crossRefBlocks blocks = CrossRefM $ R.withReaderT creOptions $ runWS doWalk
+crossRefBlocks blocks = CrossRefM $ zoom creToWS $ runWS doWalk
   where
     doWalk =
       bottomUpM mkCodeBlockCaptions blocks
@@ -111,10 +112,9 @@ Note for @listOfMetadata@ to work properly, this MUST be invoked AFTER
 
 Works in 'CrossRefM' monad. -}
 crossRefMeta :: CrossRefM Meta
-crossRefMeta = do
-  opts <- R.asks creOptions
-  dtv <- R.asks creSettings
-  CrossRefM $ R.withReaderT creOptions $ runWS $ modifyMeta opts dtv
+crossRefMeta = CrossRefM do
+  CrossRefEnv { creOptions, creSettings } <- get
+  zoom creToWS $ runWS $ modifyMeta creOptions creSettings
 
 {- | Combines 'crossRefMeta' and 'crossRefBlocks'
 
@@ -135,6 +135,7 @@ runCrossRef meta fmt action arg = runCrossRefInternal env $ action arg
     env = CrossRefEnv {
             creSettings = settings
           , creOptions = getOptions settings fmt
+          , creReferences = def
          }
 
 {- | Run an action in 'CrossRefM' monad with argument, and return 'IO' result.
@@ -148,9 +149,10 @@ runCrossRefIO meta fmt action arg = do
     env = CrossRefEnv {
             creSettings = settings
           , creOptions = getOptions settings fmt
+          , creReferences = def
          }
   pure $ runCrossRefInternal env $ action arg
 
 runCrossRefInternal :: CrossRefEnv -> CrossRefM b -> b
 runCrossRefInternal env (CrossRefM action) =
-  fst $ fixF $ flip runStateT def $ flip R.runReaderT env action
+  fst $ fixF $ second creReferences <$> runStateT action env

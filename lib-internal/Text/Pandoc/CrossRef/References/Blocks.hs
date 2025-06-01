@@ -22,7 +22,7 @@ module Text.Pandoc.CrossRef.References.Blocks
   ( replaceAll
   ) where
 
-import Control.Monad.Reader
+import Lens.Micro.Mtl
 import Data.List
 import qualified Data.Text as T
 import Lens.Micro
@@ -45,7 +45,7 @@ import Text.Pandoc.CrossRef.Util.Util
 
 replaceAll :: (Data a) => a -> WS a
 replaceAll x = do
-  opts <- ask
+  opts <- use wsOptions
   x & runReplace (mkRR replaceBlock
     `extRR` replaceInlineMany
     `extRR` listOfExt
@@ -102,7 +102,7 @@ replaceBlock _ = noReplaceRecurse
 
 replaceInlineMany :: [Inline] -> WS (ReplacedResult [Inline])
 replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = do
-  opts <- ask
+  opts <- use wsOptions
   if label `hasPfx` PfxEqn || T.null label && autoEqnLabels opts
   then do
     replaceRecurse . (<> xs) =<< if isLatexFormat opts
@@ -115,7 +115,7 @@ replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = 
         pure [Span (label,clss,setLabel opts replaceEqnIdx attrs) replaceEqnEq]
   else noReplaceRecurse
 replaceInlineMany (x:xs) = do
-  opts <- ask
+  opts <- use wsOptions
   -- NB: must be very-very careful to not inspect the result beyond Maybe,
   -- otherwise fix in deferred part will loop
   res <- liftF $ replaceRefs x opts
@@ -126,7 +126,7 @@ replaceInlineMany [] = noReplaceNoRecurse
 
 listOfExt :: [Block] -> WS (ReplacedResult [Block])
 listOfExt (x:xs) = do
-  opts <- ask
+  opts <- use wsOptions
   -- NB: must be very-very careful to not inspect the result beyond Maybe,
   -- otherwise fix in deferred part will loop
   res <- liftF $ listOf x opts

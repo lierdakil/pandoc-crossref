@@ -31,7 +31,6 @@ module Text.Pandoc.CrossRef.References.Blocks.Util
   , walkReplaceInlines
   ) where
 
-import Control.Monad.Reader.Class
 import qualified Data.Map as M
 import qualified Data.Set as Set
 import Data.Set (Set)
@@ -93,10 +92,10 @@ replaceAttr
 replaceAttr label attrs title (toPrefix -> pfx) = do
   let refLabel = lookup "label" attrs
       number = readMaybe . T.unpack =<< lookup "number" attrs
-  Options{..} <- ask
-  chap  <- S.take chaptersDepth <$> use (ctrsAt PfxSec)
-  prop' <- use $ refsAt pfx
-  curIdx <- use $ ctrsAt pfx
+  Options{..} <- use wsOptions
+  chap  <- S.take chaptersDepth <$> use (wsReferences . ctrsAt PfxSec)
+  prop' <- use $ wsReferences . refsAt pfx
+  curIdx <- use $ wsReferences . ctrsAt pfx
   let i | Just n <- number = n
         | chap' :> last' <- S.viewr curIdx
         , chap' == chap
@@ -106,8 +105,8 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
       label' = fromMaybe (T.pack (show pfx <> (':' : show index))) label
   when (M.member label' prop') $
     error . T.unpack $ "Duplicate label: " <> label'
-  globCtr <- stGlob <<%= (+ 1)
-  ctrsAt pfx .= index
+  globCtr <- wsReferences . stGlob <<%= (+ 1)
+  wsReferences . ctrsAt pfx .= index
   refHideFromList <- checkHidden attrs
   let rec' = RefRec {
       refIndex= index
@@ -117,12 +116,12 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
     , refHideFromList
     , refLabel = label
     }
-  refsAt pfx %= M.insert label' rec'
+  wsReferences . refsAt pfx %= M.insert label' rec'
   pure rec'
 
 chapIndex :: RefRec -> WS [Inline]
 chapIndex r = do
-  Options{chapDelim} <- ask
+  Options{chapDelim} <- use wsOptions
   pure $ chapPrefix chapDelim $ refIndex r
 
 mkCaption :: Options -> T.Text -> [Inline] -> Block
@@ -180,7 +179,7 @@ latexCaptionGeneric LatexCaptionSpec{..} ref
 
 checkHidden :: [(T.Text, T.Text)] -> WS Bool
 checkHidden attrs = do
-  hiddenHdr <- use stHiddenHeaderLevel
+  hiddenHdr <- use $ wsReferences . stHiddenHeaderLevel
   pure . fromMaybe (isHdrHidden hiddenHdr) $
     not . isFalseValue <$> lookup "hidden" attrs
 

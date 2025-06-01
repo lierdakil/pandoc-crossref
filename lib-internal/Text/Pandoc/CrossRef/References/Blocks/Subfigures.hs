@@ -20,7 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.References.Blocks.Subfigures where
 
-import Control.Monad.Reader
 import Control.Monad.State hiding (get, modify)
 import qualified Data.Map as M
 import qualified Data.Text as T
@@ -44,11 +43,11 @@ import Text.Pandoc.CrossRef.Util.Util
 
 runSubfigures :: Attr -> [Block] -> [Inline] -> WS (ReplacedResult Block)
 runSubfigures (label, cls, attrs) images caption = do
-  opts <- ask
+  opts <- use wsOptions
   ref <- replaceAttr (Just label) attrs caption SPfxImg
   idxStr <- chapIndex ref
-  glob <- use stGlob
-  hiddenHdr <- use stHiddenHeaderLevel
+  glob <- use $ wsReferences . stGlob
+  hiddenHdr <- use $ wsReferences . stHiddenHeaderLevel
   let doFigure :: Block -> WS (ReplacedResult Block)
       doFigure (Figure attr caption' content) = runFigure True attr caption' content
       doFigure _ = noReplaceRecurse
@@ -56,8 +55,7 @@ runSubfigures (label, cls, attrs) images caption = do
           { figureTemplate = subfigureChildTemplate opts
           , customLabel = \r i -> customLabel opts (Sub r) i
           }
-  (cont, st) <- liftF $ flip runStateT (References def def glob hiddenHdr)
-        $ flip runReaderT opts'
+  (cont, st) <- liftF $ flip runStateT (WState opts' (References def def glob hiddenHdr))
         $ runWS
         $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
   let collectedCaptions = B.toList $
@@ -66,7 +64,7 @@ runSubfigures (label, cls, attrs) images caption = do
         $ sortOn (refIndex . snd)
         $ filter (not . null . refTitle . snd)
         $ M.toList
-        $ st ^. refsAt PfxImg
+        $ st ^. wsReferences . refsAt PfxImg
       collectCaps v =
             applyTemplate
               (chapPrefix (chapDelim opts) (refIndex v))
@@ -78,13 +76,13 @@ runSubfigures (label, cls, attrs) images caption = do
                 , ("t", caption)
                 ]
       capt = applyTemplate' vars $ subfigureTemplate opts
-  lastRef <- fromJust . M.lookup label <$> use (refsAt PfxImg)
-  let mangledSubfigures = mangleSubfigure <$> st ^. refsAt PfxImg
+  lastRef <- fromJust . M.lookup label <$> use (wsReferences . refsAt PfxImg)
+  let mangledSubfigures = mangleSubfigure <$> st ^. wsReferences . refsAt PfxImg
       mangleSubfigure v = v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v}
-  refsAt PfxImg %= (<> mangledSubfigures)
-  stGlob .= st ^. stGlob
+  wsReferences . refsAt PfxImg %= (<> mangledSubfigures)
+  wsReferences . stGlob .= st ^. wsReferences . stGlob
   -- stHiddenHeaderLevel shouldn't have changed, but for future-proofing...
-  stHiddenHeaderLevel .= st ^. stHiddenHeaderLevel
+  wsReferences . stHiddenHeaderLevel .= st ^. wsReferences . stHiddenHeaderLevel
   if  | isLatexFormat opts -> do
           replaceNoRecurse $ Div nullAttr $
             [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]
@@ -141,7 +139,7 @@ replaceSubfigs = (replaceNoRecurse . concat) <=< mapM replaceSubfig
 
 replaceSubfig :: Inline -> WS [Inline]
 replaceSubfig x@(Image (label,cls,attrs) alt tgt) = do
-  opts <- ask
+  opts <- use wsOptions
   ref <- replaceAttr (normalizeLabel label) attrs alt SPfxImg
   idxStr <- chapIndex ref
   let alt' = applyTemplate idxStr alt $ figureTemplate opts
@@ -186,7 +184,7 @@ simpleTable align width bod = Table nullAttr noCaption (zip align width)
 
 runFigure :: Bool -> Attr -> Caption -> [Block] -> WS (ReplacedResult Block)
 runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content = do
-  opts <- ask
+  opts <- use wsOptions
   let label' = normalizeLabel label
   let title = blocksToInlines [btitle]
       (attrs, content') = case blocksToInlines content of

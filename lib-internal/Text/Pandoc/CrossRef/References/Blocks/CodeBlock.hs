@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.References.Blocks.CodeBlock where
 
-import Control.Monad.Reader.Class
+import Lens.Micro.Mtl
 import qualified Data.Text as T
 import Text.Pandoc.Definition
 import qualified Text.Pandoc.Builder as B
@@ -34,7 +34,7 @@ import Text.Pandoc.CrossRef.Util.Util
 
 runCodeBlock :: Attr -> T.Text -> Either T.Text [Inline] -> WS (ReplacedResult Block)
 runCodeBlock (label, classes, attrs) code eCaption = do
-  opts <- ask
+  opts <- use wsOptions
       --if used with listings package,nothing should be done
   if  | isLatexFormat opts, listings opts -> do
           let cap = either (B.toList . B.text) id eCaption

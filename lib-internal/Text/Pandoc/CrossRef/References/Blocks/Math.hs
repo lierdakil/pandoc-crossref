@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.References.Blocks.Math where
 
-import Control.Monad.Reader.Class
+import Lens.Micro.Mtl
 import qualified Data.Map as M
 import qualified Data.Text as T
 import Text.Pandoc.Definition
@@ -34,7 +34,7 @@ import Text.Pandoc.CrossRef.Util.Util
 
 runBlockMath :: Attr -> T.Text -> WS (ReplacedResult Block)
 runBlockMath (label, cls, attrs) eq = do
-  opts <- ask
+  opts <- use wsOptions
   if tableEqns opts && not (isLatexFormat opts)
   then do
     ReplaceEqn{..} <- replaceEqn eqnBlockTemplate (label, cls, attrs) eq
@@ -48,7 +48,7 @@ data ReplaceEqn a = ReplaceEqn
 
 replaceEqn :: MkTemplate a t => (Options -> t) -> Attr -> T.Text -> WS (ReplaceEqn a)
 replaceEqn eqTemplate (label, _, attrs) eq = do
-  opts <- ask
+  opts <- use wsOptions
   let label' | T.null label = Nothing
              | otherwise = Just label
   ref <- replaceAttr label' attrs [] SPfxEqn

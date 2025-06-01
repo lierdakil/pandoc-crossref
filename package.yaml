@@ -69,6 +69,8 @@ _deps:
   lib-deps: &lib-deps
     pandoc-crossref-internal: null
     <<: *mtl
+    <<: *microlens
+    <<: *microlens-mtl
   exec-deps: &exec-deps
     pandoc-crossref: null
     <<: *deepseq
@@ -84,6 +86,7 @@ _deps:
     <<: *data-default
     <<: *hspec
     <<: *microlens
+    <<: *microlens-mtl
     <<: *mtl
   test-int-deps: &test-int-deps
     pandoc-crossref: null

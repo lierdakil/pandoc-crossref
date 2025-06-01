@@ -24,8 +24,7 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
     ) where
 
 import Control.Monad.Writer
-import Control.Monad.Reader
-import Control.Monad.State
+import Lens.Micro.Mtl
 import Control.Monad (when, unless, (>=>))
 import Data.Function ((&))
 import qualified Data.Text as T
@@ -48,7 +47,7 @@ modifyMeta opts meta
         )
   where
     liftList :: (Options -> References -> [Block]) -> WS [Block]
-    liftList f = f <$> ask <*> get
+    liftList f = f <$> use wsOptions <*> use wsReferences
     setMetaM :: ToMetaValue v => T.Text -> WS v -> Meta -> WS Meta
     setMetaM k m meta' = m >>= \v -> pure $ setMeta k v meta'
     opt q f

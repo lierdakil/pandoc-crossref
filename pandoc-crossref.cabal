@@ -157,6 +157,8 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.16 && <5
+    , microlens >=0.4.12.0 && <0.5.0.0
+    , microlens-mtl >=0.2.0.1 && <0.3.0.0
     , mtl >=1.1 && <2.4
     , pandoc >=3.7.0.2 && <3.8
     , pandoc-crossref-internal
@@ -305,6 +307,7 @@ test-suite test-pandoc-crossref
     , data-default >=0.4 && <0.8
     , hspec >=2.4.4 && <3
     , microlens >=0.4.12.0 && <0.5.0.0
+    , microlens-mtl >=0.2.0.1 && <0.3.0.0
     , mtl >=1.1 && <2.4
     , pandoc >=3.7.0.2 && <3.8
     , pandoc-crossref

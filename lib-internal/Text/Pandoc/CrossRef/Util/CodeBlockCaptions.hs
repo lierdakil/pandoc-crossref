@@ -23,7 +23,7 @@ module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
     mkCodeBlockCaptions
     ) where
 
-import Control.Monad.Reader (ask)
+import Lens.Micro.Mtl
 import Data.List (stripPrefix)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
@@ -41,7 +41,7 @@ mkCodeBlockCaptions = \case
   where
     go :: [Block] -> Block -> Block -> [Block] -> WS [Block]
     go x p cb xs = do
-      opts <- ask
+      opts <- use wsOptions
       return $ fromMaybe x $ orderAgnostic opts $ p:cb:xs
 
 orderAgnostic :: Options -> [Block] -> Maybe [Block]

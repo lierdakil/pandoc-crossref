@@ -21,17 +21,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 module Text.Pandoc.CrossRef.References.Monad where
 
 import Control.Monad.State
-import Control.Monad.Reader
 import Data.Function
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
+import Lens.Micro.TH
+
+data WState = WState
+  { _wsOptions :: Options
+  , _wsReferences :: References
+  }
+
+makeLenses ''WState
 
 --state monad
-newtype WS a = WS { runWS :: ReaderT Options (StateT References ((->) References)) a }
-  deriving (Functor, Applicative, Monad, MonadReader Options, MonadState References)
+newtype WS a = WS { runWS :: StateT WState ((->) References) a }
+  deriving (Functor, Applicative, Monad, MonadState WState)
 
 liftF :: (References -> a) -> WS a
-liftF = WS . lift . lift
+liftF = WS . lift
 
 fixF :: (References -> (b, References)) -> (b, References)
 fixF x = fix $ x . snd

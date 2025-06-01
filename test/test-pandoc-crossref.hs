@@ -23,13 +23,13 @@ import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder hiding (figure)
 import qualified Text.Pandoc.Builder as B
-import Control.Monad.Reader
 import Control.Monad.State
 import Data.List
 import Control.Arrow
 import qualified Data.Map as M
 import qualified Data.Text as T
 import Data.Maybe
+import Lens.Micro.Mtl
 
 import Text.Pandoc.CrossRef
 import Text.Pandoc.CrossRef.Util.Options
@@ -394,7 +394,7 @@ testState :: (Show a1, Eq a1) => ([a2] -> WS [a1]) -> References -> Many a2 -> (
 testState f init' arg res = runWSWithOptsInit defaultOptions init' (f $ toList arg) `shouldBe` first toList res
 
 runWSWithOptsInit :: Options -> References -> WS a -> (a, References)
-runWSWithOptsInit opts st = fixF . flip runStateT st . flip runReaderT opts . runWS
+runWSWithOptsInit opts st = fixF . fmap (second (^. wsReferences)) . flip runStateT (WState opts st) . runWS
 
 runWSWithOpts :: Options -> WS a -> (a, References)
 runWSWithOpts opts = runWSWithOptsInit opts def
@@ -403,7 +403,7 @@ testRefs :: Blocks -> References -> Blocks -> Expectation
 testRefs bs st rbs = testState (bottomUpM replaceRefs') st bs (rbs, st)
 
 replaceRefs' :: [Inline] -> WS [Inline]
-replaceRefs' (x:xs) = References.Refs.replaceRefs x <$> ask <*> get <&> \case
+replaceRefs' (x:xs) = References.Refs.replaceRefs x <$> use wsOptions <*> use wsReferences <&> \case
   Just xs' -> toList $ xs' <> fromList xs
   Nothing -> x : xs
 replaceRefs' [] = pure []
@@ -417,7 +417,7 @@ testList bs st res = runWSWithOptsInit defaultOptions st (bottomUpM listOf' (toL
    `shouldBe` (toList res,st)
 
 listOf' :: [Block] -> WS [Block]
-listOf' (x:xs) = References.List.listOf x <$> ask <*> get <&> \case
+listOf' (x:xs) = References.List.listOf x <$> use wsOptions <*> use wsReferences <&> \case
   Just res' -> res' <> xs
   Nothing -> x : xs
 listOf' [] = pure []
