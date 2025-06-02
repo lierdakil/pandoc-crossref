@@ -24,8 +24,7 @@ module Text.Pandoc.CrossRef.Util.ModifyMeta
     ) where
 
 import Control.Monad.Writer
-import Lens.Micro.Mtl
-import Control.Monad (when, unless, (>=>))
+import Control.Monad (when, unless)
 import Data.Function ((&))
 import qualified Data.Text as T
 import Text.Pandoc
@@ -33,29 +32,21 @@ import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.Util.Meta
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.References.List
-import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.References.Types
 
-modifyMeta :: Options -> Meta -> WS Meta
-modifyMeta opts meta
+modifyMeta :: Options -> Meta -> References -> Meta
+modifyMeta opts meta refs
   = meta
     & opt isLatexFormat (setMeta "header-includes" (headerInc $ lookupMeta "header-includes" meta))
-    & optM listOfMetadata
-        ( setMetaM "list-of-figures"    (fromList <$> liftList listOfFigures)
-        >=> setMetaM "list-of-tables"   (fromList <$> liftList listOfTables)
-        >=> setMetaM "list-of-listings" (fromList <$> liftList listOfListings)
+    & opt listOfMetadata
+        ( setMeta "list-of-figures"    (fromList $ listOfFigures opts refs)
+        . setMeta "list-of-tables"   (fromList $ listOfTables opts refs)
+        . setMeta "list-of-listings" (fromList $ listOfListings opts refs)
         )
   where
-    liftList :: (Options -> References -> [Block]) -> WS [Block]
-    liftList f = f <$> use wsOptions <*> use wsReferences
-    setMetaM :: ToMetaValue v => T.Text -> WS v -> Meta -> WS Meta
-    setMetaM k m meta' = m >>= \v -> pure $ setMeta k v meta'
     opt q f
       | q opts = f
       | otherwise = id
-    optM q f
-      | q opts = f
-      | otherwise = pure
     headerInc :: Maybe MetaValue -> MetaValue
     headerInc Nothing = incList
     headerInc (Just (MetaList x)) = MetaList $ x <> [incList]

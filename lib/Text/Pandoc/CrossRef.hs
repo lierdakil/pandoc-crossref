@@ -107,23 +107,17 @@ crossRefBlocks blocks = CrossRefM $ zoom creToWS $ runWS doWalk
 builtin environments, plus list-of-x metadata fields if
 'Text.Pandoc.CrossRef.Util.Settings.Gen.listOfMetadata' is enabled.
 
-Note for @listOfMetadata@ to work properly, this MUST be invoked AFTER
-'crossRefBlocks'.
-
 Works in 'CrossRefM' monad. -}
 crossRefMeta :: CrossRefM Meta
 crossRefMeta = CrossRefM do
   CrossRefEnv { creOptions, creSettings } <- get
-  zoom creToWS $ runWS $ modifyMeta creOptions creSettings
+  zoom creToWS $ runWS $ liftF $ modifyMeta creOptions creSettings
 
 {- | Combines 'crossRefMeta' and 'crossRefBlocks'
 
 Works in 'CrossRefM' monad. -}
 defaultCrossRefAction :: Pandoc -> CrossRefM Pandoc
-defaultCrossRefAction (Pandoc _ bs) = do
-  bs' <- crossRefBlocks bs
-  meta' <- crossRefMeta
-  return $ Pandoc meta' bs'
+defaultCrossRefAction (Pandoc _ bs) = Pandoc <$> crossRefMeta <*> crossRefBlocks bs
 
 {- | Run an action in 'CrossRefM' monad with argument, and return pure result.
 
