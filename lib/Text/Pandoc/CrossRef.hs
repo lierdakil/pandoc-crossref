@@ -116,7 +116,7 @@ defaultCrossRefAction (Pandoc _ bs) = Pandoc <$> crossRefMeta <*> crossRefBlocks
 
 {- | Run an action in 'CrossRefM' monad with argument, and return pure result.
 
-This is primary function to work with 'CrossRefM' -}
+This is the primary function to work with 'CrossRefM' -}
 runCrossRef :: forall a b. Meta -> Maybe Format -> (a -> CrossRefM b) -> a -> b
 runCrossRef meta fmt action arg = runCrossRefInternal env $ action arg
   where
