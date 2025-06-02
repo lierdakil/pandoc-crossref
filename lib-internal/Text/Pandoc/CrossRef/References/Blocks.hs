@@ -27,11 +27,9 @@ import Data.List
 import qualified Data.Text as T
 import Lens.Micro
 import Text.Pandoc.Definition
-import qualified Text.Pandoc.Builder as B
 import Text.Pandoc.Shared (blocksToInlines)
 
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.References.Refs
 import Text.Pandoc.CrossRef.References.List
 import Text.Pandoc.CrossRef.References.Blocks.CodeBlock
 import Text.Pandoc.CrossRef.References.Blocks.Header
@@ -42,22 +40,22 @@ import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.Options
+import Text.Pandoc.CrossRef.Util.Generic
 import Text.Pandoc.CrossRef.Util.Util
 
 replaceAll :: (Data a) => a -> WS a
 replaceAll x = do
   opts <- use wsOptions
-  x & runReplace (mkRR replaceBlock
-    `extRR` replaceInlineMany
-    `extRR` replaceBlockMany
-    )
-    . runSplitMath opts
-    . everywhere (mkT divBlocks `extT` spanInlines opts)
+  x & everywhere (mkT (spanInlines opts) `extT` doSplitMath opts) -- bottom-up pass
+    & runReplace (mkRR replaceBlock -- top-down pass
+      `extRR` replaceInlineMany
+      `extRR` replaceBlockMany
+      )
   where
-    runSplitMath opts
+    doSplitMath opts
       | tableEqns opts
       , not $ isLatexFormat opts
-      = everywhere (mkT splitMath)
+      = splitMath
       | otherwise = id
 
 extractCaption :: Block -> Maybe [Inline]
@@ -99,14 +97,14 @@ replaceBlock
   = runCodeBlock (label, nub $ divClasses <> cbClasses, divAttrs <> cbAttrs) code $ Right caption
 replaceBlock (Para [Span attr [Math DisplayMath eq]])
   = runBlockMath attr eq
-replaceBlock _ = noReplaceRecurse
+replaceBlock x = maybe noReplaceRecurse replaceBlock $ divBlocks x
 
 replaceInlineMany :: [Inline] -> WS (ReplacedResult [Inline])
 replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = do
   opts <- use wsOptions
   if label `hasPfx` PfxEqn || T.null label && autoEqnLabels opts
   then do
-    replaceRecurse . (<> xs) =<< if isLatexFormat opts
+    res <- if isLatexFormat opts
       then
         pure [RawInline (Format "latex") "\\begin{equation}"
         , Span spanAttr [RawInline (Format "latex") eq]
@@ -114,40 +112,28 @@ replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = 
       else do
         ReplaceEqn{replaceEqnEq, replaceEqnIdx} <- replaceEqn eqnDisplayTemplate spanAttr eq
         pure [Span (label,clss,setLabel opts replaceEqnIdx attrs) replaceEqnEq]
+    replaceList res xs
   else noReplaceRecurse
-replaceInlineMany (x:xs) = do
-  opts <- use wsOptions
-  -- NB: must be very-very careful to not inspect the result beyond Maybe,
-  -- otherwise fix in deferred part will loop
-  res <- liftF $ replaceRefs x opts
-  case res of
-    Just res' -> replaceList B.fromList B.toList res' $ B.fromList xs
-    Nothing -> noReplaceRecurse
-replaceInlineMany [] = noReplaceNoRecurse
+replaceInlineMany (x:xs) = fixRefs' x xs
+replaceInlineMany [] = noReplaceRecurse
 
 replaceBlockMany :: [Block] -> WS (ReplacedResult [Block])
 replaceBlockMany bs@(x:xs) = do
   opts <- use wsOptions
   case mkCodeBlockCaptions opts bs of
     Just res' -> replaceRecurse res'
-    Nothing -> do
-      -- NB: must be very-very careful to not inspect the result beyond Maybe,
-      -- otherwise fix in deferred part will loop
-      res <- liftF $ listOf x opts
-      case res of
-        Just res' -> replaceList id id res' xs
-        Nothing -> noReplaceRecurse
-replaceBlockMany [] = noReplaceNoRecurse
+    Nothing -> fixRefs xs $ listOf x opts
+replaceBlockMany [] = noReplaceRecurse
 
-divBlocks :: Block -> Block
+divBlocks :: Block -> Maybe Block
 divBlocks (Table tattr (Caption short (btitle:rest)) colspec header cells foot)
   | not $ null title
   , Just label <- getRefLabel PfxTbl [last title]
-  = Div (label,[],[]) [
+  = Just $ Div (label,[],[]) [
     Table tattr (Caption short $ walkReplaceInlines (dropWhileEnd isSpace (init title)) title btitle:rest) colspec header cells foot]
   where
     title = blocksToInlines [btitle]
-divBlocks x = x
+divBlocks _ = Nothing
 
 spanInlines :: Options -> [Inline] -> [Inline]
 spanInlines opts (math@(Math DisplayMath _eq):ils)

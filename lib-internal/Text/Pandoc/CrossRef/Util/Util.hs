@@ -18,8 +18,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE MonoLocalBinds #-}
-
 module Text.Pandoc.CrossRef.Util.Util
   ( module Text.Pandoc.CrossRef.Util.Util
   , module Data.Generics
@@ -66,57 +64,6 @@ chapPrefix delim = toList
   . fmap str
   . S.filter (not . T.null)
   . fmap (uncurry (fromMaybe . T.pack . show))
-
-data ReplacedResult a
-  = Replaced Recurse a
-  | ReplacedList (IsList a)
-  | NotReplaced Recurse
-data Recurse = Recurse | NoRecurse
-data IsList a where
-  IsList :: (Monoid b, Show b, a ~ [c]) => (a -> b) -> (b -> a) -> b -> b -> IsList a
-newtype RR m a = RR {unRR :: a -> m (ReplacedResult a)}
-
-runReplace
-  :: forall m a. (Monad m, Data a)
-  => (forall d. Data d => (d -> m (ReplacedResult d)))
-  -> a -> m a
-runReplace f x = f x >>= \case
-  Replaced Recurse x' -> gmapM (runReplace f) x'
-  Replaced NoRecurse x' -> pure x'
-  NotReplaced Recurse -> gmapM (runReplace f) x
-  NotReplaced NoRecurse -> pure x
-  ReplacedList (IsList fromList' toList' hd tl) -> do
-    tl' <- runReplace f (toList' tl)
-    pure $ toList' $ hd <> fromList' tl'
-
-mkRR :: (Monad m, Typeable a, Typeable b)
-     => (b -> m (ReplacedResult b))
-     -> (a -> m (ReplacedResult a))
-mkRR = extRR (const noReplaceRecurse)
-
-extRR :: ( Monad m, Typeable a, Typeable b)
-     => (a -> m (ReplacedResult a))
-     -> (b -> m (ReplacedResult b))
-     -> (a -> m (ReplacedResult a))
-extRR def' ext = unRR (RR def' `ext0` RR ext)
-
-replaceRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceRecurse = return . Replaced Recurse
-
-replaceNoRecurse :: Monad m => a -> m (ReplacedResult a)
-replaceNoRecurse = return . Replaced NoRecurse
-
-replaceList :: (Monad m, Monoid b, Show b) => ([a] -> b) -> (b -> [a]) -> b -> b -> m (ReplacedResult [a])
-replaceList f g hd tl = return $ ReplacedList $ IsList f g hd tl
-
-noReplace :: Monad m => Recurse -> m (ReplacedResult a)
-noReplace recurse = return $ NotReplaced recurse
-
-noReplaceRecurse :: Monad m => m (ReplacedResult a)
-noReplaceRecurse = noReplace Recurse
-
-noReplaceNoRecurse :: Monad m => m (ReplacedResult a)
-noReplaceNoRecurse = noReplace NoRecurse
 
 mkLaTeXLabel :: T.Text -> T.Text
 mkLaTeXLabel l

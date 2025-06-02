@@ -30,7 +30,7 @@ import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
-import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Generic
 
 runCodeBlock :: Attr -> T.Text -> Either T.Text [Inline] -> WS (ReplacedResult Block)
 runCodeBlock (label, classes, attrs) code eCaption = do
@@ -47,7 +47,7 @@ runCodeBlock (label, classes, attrs) code eCaption = do
       | isLatexFormat opts -> do
           let cap = either (B.toList . B.text) id eCaption
           ref <- replaceAttr (Just label) attrs cap SPfxLst
-          replaceNoRecurse $ Div nullAttr [
+          replaceRecurse $ Div nullAttr [
               RawBlock (Format "latex") $ "\\begin{codelisting}"
             , Plain $ latexCaption ref
             , CodeBlock ("", classes, attrs) code
@@ -58,7 +58,7 @@ runCodeBlock (label, classes, attrs) code eCaption = do
           ref <- replaceAttr (Just label) attrs cap SPfxLst
           idxStr <- chapIndex ref
           let caption' = applyTemplate idxStr cap $ listingTemplate opts
-          replaceNoRecurse $ Div (label, "listing":classes, []) [
+          replaceRecurse $ Div (label, "listing":classes, []) [
               mkCaption opts "Caption" caption'
             , CodeBlock ("", classes, filter ((/="caption") . fst) $ setLabel opts idxStr attrs) code
             ]

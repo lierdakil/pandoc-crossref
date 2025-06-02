@@ -102,6 +102,9 @@ data-files:
     test/m2m/numberOverride/expect.md
     test/m2m/numberOverride/expect.tex
     test/m2m/numberOverride/input.md
+    test/m2m/refsInObjects/expect.md
+    test/m2m/refsInObjects/expect.tex
+    test/m2m/refsInObjects/input.md
     test/m2m/secLabels/expect.md
     test/m2m/secLabels/expect.tex
     test/m2m/secLabels/input.md
@@ -186,6 +189,7 @@ library pandoc-crossref-internal
       Text.Pandoc.CrossRef.References.Types
       Text.Pandoc.CrossRef.Util.CodeBlockCaptions
       Text.Pandoc.CrossRef.Util.CustomLabels
+      Text.Pandoc.CrossRef.Util.Generic
       Text.Pandoc.CrossRef.Util.Meta
       Text.Pandoc.CrossRef.Util.ModifyMeta
       Text.Pandoc.CrossRef.Util.Options

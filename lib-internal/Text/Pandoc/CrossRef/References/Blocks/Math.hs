@@ -31,6 +31,7 @@ import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Generic
 
 runBlockMath :: Attr -> T.Text -> WS (ReplacedResult Block)
 runBlockMath (label, cls, attrs) eq = do
@@ -38,7 +39,7 @@ runBlockMath (label, cls, attrs) eq = do
   if tableEqns opts && not (isLatexFormat opts)
   then do
     ReplaceEqn{..} <- replaceEqn eqnBlockTemplate (label, cls, attrs) eq
-    replaceNoRecurse $ Div (label,cls,setLabel opts replaceEqnIdx attrs) replaceEqnEq
+    replaceRecurse $ Div (label,cls,setLabel opts replaceEqnIdx attrs) replaceEqnEq
   else noReplaceRecurse
 
 data ReplaceEqn a = ReplaceEqn

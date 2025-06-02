@@ -30,7 +30,7 @@ import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
-import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Generic
 
 runTable :: Attr -> Maybe Attr -> Maybe ShortCaption -> Block -> [Block] -> [ColSpec] -> TableHead -> [TableBody] -> TableFoot -> WS (ReplacedResult Block)
 runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot = do
@@ -45,7 +45,7 @@ runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot
       caption' = Caption short' (walkReplaceInlines title' title btitle:rest)
       label' | isLatexFormat opts = ""
              | otherwise = label
-  replaceNoRecurse $ (mtattr &
+  replaceRecurse $ (mtattr &
     maybe
       (Table (label, clss, setLabel opts idxStr attrs))
       (\tattr a b c d -> Div (label', clss, setLabel opts idxStr attrs) . pure . Table tattr a b c d)

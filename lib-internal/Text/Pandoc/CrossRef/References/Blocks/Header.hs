@@ -36,6 +36,7 @@ import Text.Pandoc.CrossRef.References.Blocks.Util (setLabel, checkHidden)
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Generic
 
 runHeader :: Int -> Attr -> [Inline] -> WS (ReplacedResult Block)
 runHeader n (label, cls, attrs) text' = do
@@ -46,7 +47,7 @@ runHeader n (label, cls, attrs) text' = do
   if "unnumbered" `elem` cls
     then do
       label' <- mangleLabel
-      replaceNoRecurse $ Header n (label', cls, attrs) text'
+      replaceRecurse $ Header n (label', cls, attrs) text'
     else do
       opts@Options{..} <- use wsOptions
       label' <- mangleLabel
@@ -90,7 +91,7 @@ runHeader n (label, cls, attrs) text' = do
             | otherwise = text'
           idxStr = chapPrefix chapDelim cc
           attrs' = setLabel opts idxStr attrs
-      replaceNoRecurse $ Header n (label', cls, attrs') textCC
+      replaceRecurse $ Header n (label', cls, attrs') textCC
   where
     mangleLabel = do
       Options{autoSectionLabels} <- use wsOptions

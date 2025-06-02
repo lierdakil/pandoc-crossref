@@ -32,7 +32,6 @@ import Data.Maybe
 import Lens.Micro
 import Lens.Micro.Mtl
 import Text.Pandoc.Shared (blocksToInlines)
-import Control.Monad ((<=<))
 
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
@@ -40,6 +39,7 @@ import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
+import Text.Pandoc.CrossRef.Util.Generic
 
 runSubfigures :: Attr -> [Block] -> [Inline] -> WS (ReplacedResult Block)
 runSubfigures (label, cls, attrs) images caption = do
@@ -83,17 +83,15 @@ runSubfigures (label, cls, attrs) images caption = do
   wsReferences . stGlob .= st ^. wsReferences . stGlob
   -- stHiddenHeaderLevel shouldn't have changed, but for future-proofing...
   wsReferences . stHiddenHeaderLevel .= st ^. wsReferences . stHiddenHeaderLevel
-  if  | isLatexFormat opts -> do
-          replaceNoRecurse $ Div nullAttr $
-            [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]
-            <> cont <>
-            [ Para $ latexCaption ref
-            , RawBlock (Format "latex") "\\end{pandoccrossrefsubfigures}"]
-      | otherwise ->
-          replaceNoRecurse
-            $ Figure (label, "subfigures":cls, setLabel opts idxStr attrs)
-                     (Caption Nothing [Para capt])
-            $ toTable opts cont
+  replaceNoRecurse $ if isLatexFormat opts
+    then Div nullAttr $
+      [ RawBlock (Format "latex") "\\begin{pandoccrossrefsubfigures}" ]
+      <> cont <>
+      [ Para $ latexCaption ref
+      , RawBlock (Format "latex") "\\end{pandoccrossrefsubfigures}"]
+    else Figure (label, "subfigures":cls, setLabel opts idxStr attrs)
+                (Caption Nothing [Para capt])
+      $ toTable opts cont
   where
     toTable :: Options -> [Block] -> [Block]
     toTable opts blks
@@ -135,18 +133,21 @@ runSubfigures (label, cls, attrs) images caption = do
               | otherwise = "100%"
 
 replaceSubfigs :: [Inline] -> WS (ReplacedResult [Inline])
-replaceSubfigs = (replaceNoRecurse . concat) <=< mapM replaceSubfig
+replaceSubfigs (x:xs) = replaceSubfig x >>= \case
+  Just res'' -> replaceList res'' xs
+  Nothing -> fixRefs' x xs
+replaceSubfigs [] = noReplaceRecurse
 
-replaceSubfig :: Inline -> WS [Inline]
+replaceSubfig :: Inline -> WS (Maybe [Inline])
 replaceSubfig x@(Image (label,cls,attrs) alt tgt) = do
   opts <- use wsOptions
   ref <- replaceAttr (normalizeLabel label) attrs alt SPfxImg
   idxStr <- chapIndex ref
   let alt' = applyTemplate idxStr alt $ figureTemplate opts
-  pure $ if isLatexFormat opts
+  pure $ Just $ if isLatexFormat opts
     then latexSubFigure x ref
     else [Image (fromMaybe "" (refLabel ref), cls, setLabel opts idxStr attrs) alt' tgt]
-replaceSubfig x = pure [x]
+replaceSubfig _ = pure Nothing
 
 latexSubFigure :: Inline -> RefRec -> [Inline]
 latexSubFigure (Image (_, cls, attrs) alt (src, title)) ref =
@@ -208,4 +209,4 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
       ctHead:_ -> latexSubFigure ctHead ref
       _ -> error "The impossible happened: empty content in subfigures"
     else Figure (label,cls,setLabel opts idxStr fattrs) caption' (content' title')
-runFigure _ _ _ _ = noReplaceNoRecurse
+runFigure _ _ _ _ = noReplaceRecurse
