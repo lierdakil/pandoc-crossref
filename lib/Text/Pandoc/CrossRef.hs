@@ -86,7 +86,6 @@ import Text.Pandoc
 
 import Text.Pandoc.CrossRef.References
 import Text.Pandoc.CrossRef.References.Monad
-import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.ModifyMeta
 import Text.Pandoc.CrossRef.Util.Settings
 import Text.Pandoc.CrossRef.Util.Settings.Gen as SG
@@ -97,11 +96,7 @@ import Text.Pandoc.CrossRef.Internal
 
 Works in 'CrossRefM' monad. -}
 crossRefBlocks :: [Block] -> CrossRefM [Block]
-crossRefBlocks blocks = CrossRefM $ zoom creToWS $ runWS doWalk
-  where
-    doWalk =
-      bottomUpM mkCodeBlockCaptions blocks
-      >>= replaceAll
+crossRefBlocks = CrossRefM . zoom creToWS . runWS . replaceAll
 
 {- | Modifies metadata, adding header-includes instructions to setup custom and
 builtin environments, plus list-of-x metadata fields if

@@ -396,9 +396,6 @@ testState f init' arg res = runWSWithOptsInit defaultOptions init' (f $ toList a
 runWSWithOptsInit :: Options -> References -> WS a -> (a, References)
 runWSWithOptsInit opts st = fixF . fmap (second (^. wsReferences)) . flip runStateT (WState opts st) . runWS
 
-runWSWithOpts :: Options -> WS a -> (a, References)
-runWSWithOpts opts = runWSWithOptsInit opts def
-
 testRefs :: Blocks -> References -> Blocks -> Expectation
 testRefs bs st rbs = testState (bottomUpM replaceRefs') st bs (rbs, st)
 
@@ -409,8 +406,9 @@ replaceRefs' (x:xs) = References.Refs.replaceRefs x <$> use wsOptions <*> use ws
 replaceRefs' [] = pure []
 
 testCBCaptions :: Blocks -> Blocks -> Expectation
-testCBCaptions bs res = runWSWithOpts defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}
-  (bottomUpM (Util.CodeBlockCaptions.mkCodeBlockCaptions) (toList bs)) `shouldBe` (toList res,def)
+testCBCaptions bs res =
+  let opts = defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}
+  in (bottomUp (\bs' -> fromMaybe bs' $ Util.CodeBlockCaptions.mkCodeBlockCaptions opts bs') (toList bs)) `shouldBe` toList res
 
 testList :: Blocks -> References -> Blocks -> Expectation
 testList bs st res = runWSWithOptsInit defaultOptions st (bottomUpM listOf' (toList bs))

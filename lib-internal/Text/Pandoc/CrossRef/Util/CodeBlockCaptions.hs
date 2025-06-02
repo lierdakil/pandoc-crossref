@@ -23,28 +23,18 @@ module Text.Pandoc.CrossRef.Util.CodeBlockCaptions
     mkCodeBlockCaptions
     ) where
 
-import Lens.Micro.Mtl
 import Data.List (stripPrefix)
-import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Text.Pandoc.CrossRef.References.Types
-import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.Definition
 
-mkCodeBlockCaptions :: [Block] -> WS [Block]
-mkCodeBlockCaptions = \case
-  x@(cb@CodeBlock{}:p@Para{}:xs) -> go x p cb xs
-  x@(p@Para{}:cb@CodeBlock{}:xs) -> go x p cb xs
-  x -> pure x
-  where
-    go :: [Block] -> Block -> Block -> [Block] -> WS [Block]
-    go x p cb xs = do
-      opts <- use wsOptions
-      return $ fromMaybe x $ orderAgnostic opts $ p:cb:xs
+mkCodeBlockCaptions :: Options -> [Block] -> Maybe [Block]
+mkCodeBlockCaptions = orderAgnostic
 
 orderAgnostic :: Options -> [Block] -> Maybe [Block]
+orderAgnostic opts (a@CodeBlock{}:b@Para{}:xs) = orderAgnostic opts (b:a:xs)
 orderAgnostic opts (Para ils:CodeBlock (label,classes,attrs) code:xs)
   | codeBlockCaptions opts
   , Just caption <- getCodeBlockCaption ils

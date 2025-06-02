@@ -40,6 +40,7 @@ import Text.Pandoc.CrossRef.References.Blocks.Subfigures
 import Text.Pandoc.CrossRef.References.Blocks.Table
 import Text.Pandoc.CrossRef.References.Blocks.Util
 import Text.Pandoc.CrossRef.References.Monad
+import Text.Pandoc.CrossRef.Util.CodeBlockCaptions
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 
@@ -48,7 +49,7 @@ replaceAll x = do
   opts <- use wsOptions
   x & runReplace (mkRR replaceBlock
     `extRR` replaceInlineMany
-    `extRR` listOfExt
+    `extRR` replaceBlockMany
     )
     . runSplitMath opts
     . everywhere (mkT divBlocks `extT` spanInlines opts)
@@ -124,16 +125,19 @@ replaceInlineMany (x:xs) = do
     Nothing -> noReplaceRecurse
 replaceInlineMany [] = noReplaceNoRecurse
 
-listOfExt :: [Block] -> WS (ReplacedResult [Block])
-listOfExt (x:xs) = do
+replaceBlockMany :: [Block] -> WS (ReplacedResult [Block])
+replaceBlockMany bs@(x:xs) = do
   opts <- use wsOptions
-  -- NB: must be very-very careful to not inspect the result beyond Maybe,
-  -- otherwise fix in deferred part will loop
-  res <- liftF $ listOf x opts
-  case res of
-    Just res' -> replaceList id id res' xs
-    Nothing -> noReplaceRecurse
-listOfExt [] = noReplaceNoRecurse
+  case mkCodeBlockCaptions opts bs of
+    Just res' -> replaceRecurse res'
+    Nothing -> do
+      -- NB: must be very-very careful to not inspect the result beyond Maybe,
+      -- otherwise fix in deferred part will loop
+      res <- liftF $ listOf x opts
+      case res of
+        Just res' -> replaceList id id res' xs
+        Nothing -> noReplaceRecurse
+replaceBlockMany [] = noReplaceNoRecurse
 
 divBlocks :: Block -> Block
 divBlocks (Table tattr (Caption short (btitle:rest)) colspec header cells foot)
