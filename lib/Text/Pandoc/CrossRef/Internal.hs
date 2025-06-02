@@ -48,7 +48,10 @@ data CrossRefEnv = CrossRefEnv {
                     , creReferences :: References -- ^ Internal state tracking references
                    }
 
--- | Reader + State monad for pandoc-crossref.
+-- | Bit of a weird self-recursive State monad (not MonadFix). The inner reader
+-- (function) monad takes the final state (or part of it anyway) as its input.
+-- This is all carefully choreographed to lazily converge to a fixpoint, but it
+-- is also feasible to evaluate this in two passes instead.
 newtype CrossRefM a = CrossRefM (StateT CrossRefEnv ((->) References) a)
   deriving (Functor, Applicative, Monad, MonadState CrossRefEnv)
 
