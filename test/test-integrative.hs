@@ -26,6 +26,7 @@ import Text.Pandoc.CrossRef
 import System.FilePath
 import System.Directory
 import Control.Monad
+import Data.Maybe
 import Text.Pandoc.Highlighting
 import qualified Data.Text as T
 
@@ -41,17 +42,25 @@ m2m dir
     input <- runIO $ readFile ("test" </> "m2m" </> dir </> "input.md")
     expect_md <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect.md")
     let ro = def { readerExtensions = pandocExtensions }
-        wo = def { writerExtensions = disableExtension Ext_raw_html $ disableExtension Ext_raw_attribute pandocExtensions
-                 , writerHighlightStyle=Just pygments
-                 , writerListings = dir `elem` listingsDirs }
     p@(Pandoc meta _) <- runIO $ either (error . show) id <$> P.runIO (readMarkdown ro $ T.pack input)
+    let standalone = isJust $ lookupMeta "standalone" meta
+    template <- runIO $ either (error . show) id <$> P.runIO (compileDefaultTemplate "markdown")
+    let wo = def { writerExtensions
+                    = disableExtension Ext_raw_html
+                    $ disableExtension Ext_raw_attribute
+                    $ pandocExtensions
+                , writerHighlightStyle=Just pygments
+                , writerListings = dir `elem` listingsDirs
+                , writerTemplate = if standalone then Just template else Nothing
+                }
+        woTex = wo { writerTemplate = Nothing }
     let actual_md = either (fail . show) T.unpack $ runPure $ writeMarkdown wo $ runCrossRef meta (Just $ Format "markdown") defaultCrossRefAction p
     it "Markdown" $ do
       zipWithM_ shouldBe (lines' actual_md) (lines' expect_md)
       length' (lines' actual_md) `shouldBe` length' (lines' expect_md)
 #ifdef FLAKY
     expect_tex <- runIO $ readFile ("test" </> "m2m" </> dir </> "expect.tex")
-    let actual_tex = either (fail . show) T.unpack $ runPure $ writeLaTeX wo $ runCrossRef meta (Just $ Format "latex") defaultCrossRefAction p
+    let actual_tex = either (fail . show) T.unpack $ runPure $ writeLaTeX woTex $ runCrossRef meta (Just $ Format "latex") defaultCrossRefAction p
     it "LaTeX" $ do
       zipWithM_ shouldBe (lines' actual_tex) (lines' expect_tex)
       length' (lines' actual_tex) `shouldBe` length' (lines' expect_tex)

@@ -114,6 +114,9 @@ data-files:
     test/m2m/setLabelAttribute/expect.md
     test/m2m/setLabelAttribute/expect.tex
     test/m2m/setLabelAttribute/input.md
+    test/m2m/standalone-listOfMetadata/expect.md
+    test/m2m/standalone-listOfMetadata/expect.tex
+    test/m2m/standalone-listOfMetadata/input.md
     test/m2m/subfigures-ccsDelim/expect.md
     test/m2m/subfigures-ccsDelim/expect.tex
     test/m2m/subfigures-ccsDelim/input.md
