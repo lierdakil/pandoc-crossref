@@ -84,7 +84,7 @@ data Options = Options { cref :: Bool
                        }
 
 isLatexFormat :: Options -> Bool
-isLatexFormat = ((||) <$> (isFormat "latex") <*> (isFormat "beamer")) . outFormat
+isLatexFormat = ((||) <$> isFormat "latex" <*> isFormat "beamer") . outFormat
 
 isDocxFormat :: Options -> Bool
 isDocxFormat = isFormat "docx" . outFormat

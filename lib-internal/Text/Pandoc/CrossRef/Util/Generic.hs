@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -}
 
-{-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE MonoLocalBinds, TypeAbstractions #-}
 
 module Text.Pandoc.CrossRef.Util.Generic
   ( module Data.Generics
@@ -43,13 +43,11 @@ import Lens.Micro.Mtl
 import Lens.Micro
 import qualified Text.Pandoc.Builder as B
 
-data ReplacedResult a
-  = Replaced Recurse a
-  | ReplacedList (a -> WS a) (IsList a)
-  | NotReplaced
+data ReplacedResult a where
+  Replaced :: Recurse -> a -> ReplacedResult a
+  ReplacedList :: FixRefs a b => ([a] -> WS [a]) -> b -> b -> ReplacedResult [a]
+  NotReplaced :: ReplacedResult a
 data Recurse = Recurse | NoRecurse
-data IsList a where
-  IsList :: Monoid b => (Lens' b [a]) -> b -> b -> IsList [a]
 newtype RR m a = RR {unRR :: a -> m (ReplacedResult a)}
 
 class Monoid b => FixRefs a b where
@@ -88,10 +86,10 @@ runReplace f x = f x >>= \case
   Replaced Recurse x' -> gmapM (runReplace f) x'
   Replaced NoRecurse x' -> pure x'
   NotReplaced -> gmapM (runReplace f) x
-  ReplacedList hdT (IsList lens'' hd tl) -> do
-    hd' <- hdT `lens''` hd
-    tl' <- runReplace f `lens''` tl
-    pure $ view lens'' $ hd' <> tl'
+  ReplacedList @a hdT hd tl -> do
+    hd' <- hdT `lens'` hd
+    tl' <- runReplace @[a] f `lens'` tl
+    pure $ view lens' $ hd' <> tl'
 
 mkRR :: (Monad m, Typeable a, Typeable b)
      => (b -> m (ReplacedResult b))
@@ -114,7 +112,7 @@ replaceList :: (FixRefs a b, Monad m, Monoid b, Data a) => b -> [a] -> m (Replac
 replaceList = replaceList' doReplaceRefs
 
 replaceList' :: (FixRefs a b, Monad m, Monoid b, Data a) => ([a] -> WS [a]) -> b -> [a] -> m (ReplacedResult [a])
-replaceList' hdT hd tl = pure $ ReplacedList hdT $ IsList lens' hd (mempty & lens' .~ tl)
+replaceList' hdT hd tl = pure $ ReplacedList hdT hd (mempty & lens' .~ tl)
 
 noReplaceRecurse :: Monad m => m (ReplacedResult a)
 noReplaceRecurse = pure NotReplaced

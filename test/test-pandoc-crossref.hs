@@ -23,7 +23,6 @@ import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder hiding (figure)
 import qualified Text.Pandoc.Builder as B
-import Control.Monad.State
 import Data.List
 import Control.Arrow
 import qualified Data.Map as M
@@ -394,7 +393,7 @@ testState :: (Show a1, Eq a1) => ([a2] -> WS [a1]) -> References -> Many a2 -> (
 testState f init' arg res = runWSWithOptsInit defaultOptions init' (f $ toList arg) `shouldBe` first toList res
 
 runWSWithOptsInit :: Options -> References -> WS a -> (a, References)
-runWSWithOptsInit opts st = fixF . fmap (second (^. wsReferences)) . flip runStateT (WState opts st) . runWS
+runWSWithOptsInit opts st act = runWS (WState opts st) act & _2 %~ view wsReferences
 
 testRefs :: Blocks -> References -> Blocks -> Expectation
 testRefs bs st rbs = testState (bottomUpM replaceRefs') st bs (rbs, st)

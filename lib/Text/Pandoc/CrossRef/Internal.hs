@@ -31,10 +31,9 @@ Internal definitions, exported only for convenience. No stability guarantees.
 
 -}
 
-module Text.Pandoc.CrossRef.Internal (CrossRefEnv(..), CrossRefM(..), creToWS) where
+module Text.Pandoc.CrossRef.Internal (CrossRefEnv(..), CrossRefM(..)) where
 
-import Lens.Micro
-import Control.Monad.State
+import Control.Monad.Reader
 import Text.Pandoc
 
 import Text.Pandoc.CrossRef.References.Monad
@@ -52,13 +51,5 @@ data CrossRefEnv = CrossRefEnv {
 -- (function) monad takes the final state (or part of it anyway) as its input.
 -- This is all carefully choreographed to lazily converge to a fixpoint, but it
 -- is also feasible to evaluate this in two passes instead.
-newtype CrossRefM a = CrossRefM (StateT CrossRefEnv ((->) References) a)
-  deriving (Functor, Applicative, Monad, MonadState CrossRefEnv)
-
-creToWS :: Lens' CrossRefEnv WState
-creToWS = lens get' set'
-  where
-    get' CrossRefEnv { creOptions, creReferences } = WState creOptions creReferences
-    set' CrossRefEnv { creSettings } (WState creOptions creReferences) = CrossRefEnv {
-      creOptions, creSettings, creReferences
-    }
+newtype CrossRefM a = CrossRefM (ReaderT Meta WS a)
+  deriving (Functor, Applicative, Monad, MonadReader Meta)

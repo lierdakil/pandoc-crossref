@@ -20,7 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 module Text.Pandoc.CrossRef.References.Blocks.Subfigures where
 
-import Control.Monad.State hiding (get, modify)
 import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Text.Read as T
@@ -53,11 +52,10 @@ runSubfigures (label, cls, attrs) images caption = do
       doFigure _ = noReplaceRecurse
       opts' = opts
           { figureTemplate = subfigureChildTemplate opts
-          , customLabel = \r i -> customLabel opts (Sub r) i
+          , customLabel = customLabel opts . Sub
           }
-  (cont, st) <- liftF $ flip runStateT (WState opts' (References def def glob hiddenHdr))
-        $ runWS
-        $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
+  (cont, st) <- embedWS (WState opts' (References def def glob hiddenHdr))
+    $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
   let collectedCaptions = B.toList $
           intercalate' (B.fromList $ ccsDelim opts)
         $ map (B.fromList . collectCaps . snd)
@@ -76,9 +74,8 @@ runSubfigures (label, cls, attrs) images caption = do
                 , ("t", caption)
                 ]
       capt = applyTemplate' vars $ subfigureTemplate opts
-  lastRef <- fromJust . M.lookup label <$> use (wsReferences . refsAt PfxImg)
   let mangledSubfigures = mangleSubfigure <$> st ^. wsReferences . refsAt PfxImg
-      mangleSubfigure v = v{refIndex = refIndex lastRef, refSubfigure = Just $ refIndex v}
+      mangleSubfigure v = v{refIndex = refIndex ref, refSubfigure = Just $ refIndex v}
   wsReferences . refsAt PfxImg %= (<> mangledSubfigures)
   wsReferences . stGlob .= st ^. wsReferences . stGlob
   -- stHiddenHeaderLevel shouldn't have changed, but for future-proofing...
@@ -178,7 +175,7 @@ simpleTable align width bod = Table nullAttr noCaption (zip align width)
   where
   mkBody xs = TableBody nullAttr (RowHeadColumns 0) [] (map mkRow xs)
   mkRow xs = Row nullAttr (map mkCell xs)
-  mkCell xs = Cell nullAttr AlignDefault (RowSpan 1) (ColSpan 1) xs
+  mkCell = Cell nullAttr AlignDefault (RowSpan 1) (ColSpan 1)
   noCaption = Caption Nothing mempty
   noTableHead = TableHead nullAttr []
   noTableFoot = TableFoot nullAttr []

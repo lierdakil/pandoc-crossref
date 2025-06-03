@@ -36,7 +36,7 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import qualified Data.Text as T
 import Text.Pandoc.Definition
-import Text.Pandoc.Shared (stringify)
+import Text.Pandoc.Shared (stringify, deNote)
 import Text.Pandoc.Walk (walk)
 import Control.Monad (when)
 import Data.Maybe (fromMaybe)
@@ -45,7 +45,6 @@ import Text.Read (readMaybe)
 
 import Control.Applicative
 import Lens.Micro.Mtl
-import Text.Pandoc.Shared (deNote)
 import Text.Pandoc.CrossRef.References.Types
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.Util.Options
@@ -180,8 +179,8 @@ latexCaptionGeneric LatexCaptionSpec{..} ref
 checkHidden :: [(T.Text, T.Text)] -> WS Bool
 checkHidden attrs = do
   hiddenHdr <- use $ wsReferences . stHiddenHeaderLevel
-  pure . fromMaybe (isHdrHidden hiddenHdr) $
-    not . isFalseValue <$> lookup "hidden" attrs
+  pure $ maybe (isHdrHidden hiddenHdr) (not . isFalseValue)
+    $ lookup "hidden" attrs
 
 isFalseValue :: T.Text -> Bool
 isFalseValue = (`Set.member` falseValues) . T.strip . T.toLower

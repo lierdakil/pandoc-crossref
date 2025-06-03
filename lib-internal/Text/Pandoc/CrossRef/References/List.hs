@@ -24,7 +24,6 @@ import Data.List
 import qualified Data.Map as M
 import Text.Pandoc.Definition
 import Text.Pandoc.Builder qualified as B
-import Data.Maybe
 
 import Lens.Micro
 import Text.Pandoc.CrossRef.References.Types
@@ -58,7 +57,7 @@ makeList
 makeList pfx tf titlef o refsMap = do
   let
     refs = refsMap ^. refsAt pfx
-    items = fromMaybe items' $ pure <$> mergeList Nothing [] items'
+    items = maybe items' pure $ mergeList Nothing [] items'
     items' = concatMap (itemChap . snd) refsSorted
     mergeList Nothing acc (OrderedList style item : ys) =
       mergeList (Just $ OrderedList style) (item <> acc) ys
@@ -80,7 +79,7 @@ makeList pfx tf titlef o refsMap = do
       = compare i j
     itemChap :: RefRec -> [Block]
     itemChap ref@RefRec{..} =
-      let vars = M.fromDistinctAscList $
+      let vars = M.fromDistinctAscList
             [ ("i", numWithChap vars ref)
             , ("lt", linked refLabel refTitle)
             , ("ri", chapPrefix chapDelim refIndex)

@@ -48,7 +48,7 @@ runCodeBlock (label, classes, attrs) code eCaption = do
           let cap = either (B.toList . B.text) id eCaption
           ref <- replaceAttr (Just label) attrs cap SPfxLst
           replaceRecurse $ Div nullAttr [
-              RawBlock (Format "latex") $ "\\begin{codelisting}"
+              RawBlock (Format "latex") "\\begin{codelisting}"
             , Plain $ latexCaption ref
             , CodeBlock ("", classes, attrs) code
             , RawBlock (Format "latex") "\\end{codelisting}"

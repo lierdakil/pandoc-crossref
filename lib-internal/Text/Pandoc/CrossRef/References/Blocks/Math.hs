@@ -61,7 +61,7 @@ replaceEqn eqTemplate (label, _, attrs) eq = do
         then eqnInlineTableTemplate opts
         else eqnInlineTemplate opts
       wrapMath x = [Math mathfmt $ stringify x]
-      commonVars eqn = M.fromList $
+      commonVars eqn = M.fromList
         [ ("e", eqn)
         , ("t", eqn) -- backwards compatibility for eqnBlockTemplate
         , ("i", wrapMath idxStr)

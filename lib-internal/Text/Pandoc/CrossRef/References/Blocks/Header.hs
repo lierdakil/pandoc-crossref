@@ -57,7 +57,7 @@ runHeader n (label, cls, attrs) text' = do
             inc l = case S.viewr l of
               EmptyR -> error "impossible"
               init' :> last' ->
-                let i = succ $ fst $ last'
+                let i = succ $ fst last'
                 in init' S.|> (i, cl i)
             cc' | Just num <- readMaybe . T.unpack =<< lookup "number" attrs
                 = S.take (n - 1) cc S.|> (num, cl num)
@@ -87,7 +87,7 @@ runHeader n (label, cls, attrs) text' = do
                 ("i", idxStr)
               , ("n", [Str $ T.pack $ show $ n - 1])
               , ("t", text')
-              ]) $ secHeaderTemplate
+              ]) secHeaderTemplate
             | otherwise = text'
           idxStr = chapPrefix chapDelim cc
           attrs' = setLabel opts idxStr attrs

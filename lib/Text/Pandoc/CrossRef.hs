@@ -80,8 +80,7 @@ module Text.Pandoc.CrossRef (
   ) where
 
 import Lens.Micro.Mtl
-import Data.Bifunctor
-import Control.Monad.State
+import Control.Monad.Reader
 import Text.Pandoc
 
 import Text.Pandoc.CrossRef.References
@@ -96,7 +95,7 @@ import Text.Pandoc.CrossRef.Internal
 
 Works in 'CrossRefM' monad. -}
 crossRefBlocks :: [Block] -> CrossRefM [Block]
-crossRefBlocks = CrossRefM . zoom creToWS . runWS . replaceAll
+crossRefBlocks = CrossRefM . lift . replaceAll
 
 {- | Modifies metadata, adding header-includes instructions to setup custom and
 builtin environments, plus list-of-x metadata fields if
@@ -105,8 +104,10 @@ builtin environments, plus list-of-x metadata fields if
 Works in 'CrossRefM' monad. -}
 crossRefMeta :: CrossRefM Meta
 crossRefMeta = CrossRefM do
-  CrossRefEnv { creOptions, creSettings } <- get
-  zoom creToWS $ runWS $ liftF $ modifyMeta creOptions creSettings
+  settings <- ask
+  lift do
+    opts <- use wsOptions
+    liftF $ modifyMeta opts settings
 
 {- | Combines 'crossRefMeta' and 'crossRefBlocks'
 
@@ -143,5 +144,5 @@ runCrossRefIO meta fmt action arg = do
   pure $ runCrossRefInternal env $ action arg
 
 runCrossRefInternal :: CrossRefEnv -> CrossRefM b -> b
-runCrossRefInternal env (CrossRefM action) =
-  fst $ fixF $ second creReferences <$> runStateT action env
+runCrossRefInternal CrossRefEnv { creOptions, creReferences, creSettings } (CrossRefM action) =
+  fst $ runWS (WState creOptions creReferences) (runReaderT action creSettings)
