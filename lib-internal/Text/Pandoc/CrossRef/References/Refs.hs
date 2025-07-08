@@ -42,9 +42,8 @@ import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Template
 import Text.Pandoc.CrossRef.Util.Util
 
-replaceRefs :: Inline -> Options -> References -> Maybe Inlines
-replaceRefs (Cite cits _) opts = Just .
-  intercalate' (text ", ") . map fromList <$> mapM replaceRefs' (NE.groupBy eqPrefix cits)
+replaceRefs :: [Citation] -> Options -> References -> Inlines
+replaceRefs cits opts = intercalate' (text ", ") . map fromList <$> mapM replaceRefs' (NE.groupBy eqPrefix cits)
   where
     eqPrefix = (==) `on` getLabelPrefix . citationId
     replaceRefs' :: NonEmpty Citation -> References -> [Inline]
@@ -65,7 +64,6 @@ replaceRefs (Cite cits _) opts = Just .
       if isLatexFormat opts
       then replaceRefsLatex
       else replaceRefsOther
-replaceRefs _ _ = pure Nothing
 
 -- accessors to options
 prefMap :: Prefix -> (Options -> Bool -> Int -> [Inline], Options -> Template)

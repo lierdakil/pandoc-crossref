@@ -399,10 +399,15 @@ testRefs :: Blocks -> References -> Blocks -> Expectation
 testRefs bs st rbs = testState (bottomUpM replaceRefs') st bs (rbs, st)
 
 replaceRefs' :: [Inline] -> WS [Inline]
-replaceRefs' (x:xs) = References.Refs.replaceRefs x <$> use wsOptions <*> use wsReferences <&> \case
-  Just xs' -> toList $ xs' <> fromList xs
-  Nothing -> x : xs
+replaceRefs' (x:xs) = do
+  x' <- replaceRefOne x
+  pure $ toList $ x' <> fromList xs
 replaceRefs' [] = pure []
+
+replaceRefOne :: Inline -> WS Inlines
+replaceRefOne = \case
+  Cite cits _ -> References.Refs.replaceRefs cits <$> use wsOptions <*> use wsReferences
+  x -> pure $ fromList [x]
 
 testCBCaptions :: Blocks -> Blocks -> Expectation
 testCBCaptions bs res =

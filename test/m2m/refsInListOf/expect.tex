@@ -1,0 +1,42 @@
+\section{Chapter 1}\label{chapter-1}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={first figure caption with a citation to fig.~ in it}]{fig1.jpg}}
+\caption{first figure caption with a citation to fig.~\ref{fig:fig2} in
+it}\label{fig:fig1}
+\end{figure}
+
+Some filler text, with in-text citations of both fig.~\ref{fig:fig1} and
+fig.~\ref{fig:fig2}, and also (functionally) citing tbl.~\ref{tbl:tbl1}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={second figure caption with a citation to fig.~ in it}]{fig2.jpg}}
+\caption{second figure caption with a citation to fig.~\ref{fig:fig1} in
+it}\label{fig:fig2}
+\end{figure}
+
+There's actually a new problem where it breaks \emph{other} valid
+references if you try to cite them in main text next to one of the ones
+cited in a figure caption, e.g.~(fig.~\ref{fig:fig1}) or
+(fig.~\ref{fig:fig2}), although if you cite the thing alone it'll work
+just fine (tbl.~\ref{tbl:tbl1})
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{\label{tbl:tbl1}Table 1}\tabularnewline
+\toprule\noalign{}
+col1 & col2 \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+col1 & col2 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+row1 & row1 \\
+row2 & ro2 \\
+\end{longtable}
+
+\listoffigures

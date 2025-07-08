@@ -32,13 +32,15 @@ module Text.Pandoc.CrossRef.Util.Generic
   , replaceList
   , fixRefs
   , fixRefs'
+  , replaceRefsWalk
   ) where
 
 import Data.Generics
 import Text.Pandoc.Builder hiding ((<>))
 import Text.Pandoc.CrossRef.References.Monad
-import Text.Pandoc.CrossRef.References.Refs
 import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.References.Refs
+import Text.Pandoc.CrossRef.Util.Options
 import Lens.Micro.Mtl
 import Lens.Micro
 import qualified Text.Pandoc.Builder as B
@@ -62,16 +64,27 @@ instance FixRefs Block Blocks where
 instance FixRefs a [a] where
   lens' = id
 
-fixRefs :: (Data a, FixRefs a b) => [a] -> (References -> Maybe b) -> WS (ReplacedResult [a])
-fixRefs rest f =
+fixRefs :: (Data a, FixRefs a b, Monad m) => m (Maybe b) -> [a] -> m (ReplacedResult [a])
+fixRefs x rest =
   -- NB: must be very-very careful to not inspect the result beyond Maybe,
   -- otherwise fix in deferred part will loop
-  liftF f >>= \case
+  x >>= \case
     Just res' -> replaceList' pure res' rest
     Nothing -> noReplaceRecurse
 
 fixRefs' :: Inline -> [Inline] -> WS (ReplacedResult [Inline])
-fixRefs' x xs = fixRefs xs . replaceRefs x =<< use wsOptions
+fixRefs' = fixRefs . replaceRefsInline
+
+replaceRefsInline :: Inline -> WS (Maybe Inlines)
+replaceRefsInline (Cite cits _) = Just <$> do
+  opts <- use wsOptions
+  -- recurse into prefix/suffix
+  cits' <- doReplaceRefs cits
+  liftF $ replaceRefs cits' opts
+replaceRefsInline _ = pure Nothing
+
+replaceRefsWalk :: Data a => Options -> References -> a -> a
+replaceRefsWalk o r x = fst $ unwrapWS (doReplaceRefs x) (WState o r) r
 
 doReplaceRefs :: Data a => a -> WS a
 doReplaceRefs = runReplace $ mkRR \case

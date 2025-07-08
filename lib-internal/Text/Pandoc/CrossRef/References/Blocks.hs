@@ -122,7 +122,7 @@ replaceBlockMany bs@(x:xs) = do
   opts <- use wsOptions
   case mkCodeBlockCaptions opts bs of
     Just res' -> replaceRecurse res'
-    Nothing -> fixRefs xs $ listOf x opts
+    Nothing -> liftF (listOf x opts) `fixRefs` xs
 replaceBlockMany [] = noReplaceRecurse
 
 divBlocks :: Block -> Maybe Block

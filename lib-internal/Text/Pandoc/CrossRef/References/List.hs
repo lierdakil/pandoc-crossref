@@ -27,6 +27,7 @@ import Text.Pandoc.Builder qualified as B
 
 import Lens.Micro
 import Text.Pandoc.CrossRef.References.Types
+import Text.Pandoc.CrossRef.Util.Generic
 import Text.Pandoc.CrossRef.Util.Options
 import Text.Pandoc.CrossRef.Util.Util
 import Text.Pandoc.CrossRef.Util.Template
@@ -81,14 +82,15 @@ makeList pfx tf titlef o refsMap = do
     itemChap ref@RefRec{..} =
       let vars = M.fromDistinctAscList
             [ ("i", numWithChap vars ref)
-            , ("lt", linked refLabel refTitle)
+            , ("lt", linked refLabel title)
             , ("ri", chapPrefix chapDelim refIndex)
             , ("s", maybe mempty (chapPrefix chapDelim) refSubfigure)
             , ("suf", mempty)
-            , ("t", refTitle)
+            , ("t", title)
             ]
       in applyTemplate' vars $ tf o
       where
+        title = replaceRefsWalk o refsMap refTitle
         Options{chapDelim} = o
     linked (Just lab) = B.toList . B.link ("#" <> lab) "" . B.fromList
     linked Nothing = id

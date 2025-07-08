@@ -10,7 +10,7 @@ codeBlockCaptions: true
 |-|-|-|
 | | | |
 
-: @tbl:table {#tbl:table}
+: @tbl:table @fig:subfigures @fig:subfig1 @fig:subfig2 @lst:lst {#tbl:table}
 
 <!---->
 
@@ -18,12 +18,12 @@ codeBlockCaptions: true
 foo
 ```
 
-: Listing @lst:lst
+: Listing @tbl:table @fig:subfigures @fig:subfig1 @fig:subfig2 @lst:lst
 
 <div id="fig:subfigures">
-  ![@fig:subfig1](fig1.png){#fig:subfig1}
-  ![@fig:subfig2](fig2.png){#fig:subfig2}
+  ![@tbl:table @fig:subfigures @fig:subfig1 @fig:subfig2 @lst:lst](fig1.png){#fig:subfig1}
+  ![@tbl:table @fig:subfigures @fig:subfig1 @fig:subfig2 @lst:lst](fig2.png){#fig:subfig2}
   ![3](fig3.png)
 
-  Caption @fig:subfig1 @fig:subfig2
+  Caption @tbl:table @fig:subfigures @fig:subfig1 @fig:subfig2 @lst:lst
 </div>

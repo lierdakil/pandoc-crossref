@@ -102,6 +102,9 @@ data-files:
     test/m2m/numberOverride/expect.md
     test/m2m/numberOverride/expect.tex
     test/m2m/numberOverride/input.md
+    test/m2m/refsInListOf/expect.md
+    test/m2m/refsInListOf/expect.tex
+    test/m2m/refsInListOf/input.md
     test/m2m/refsInObjects/expect.md
     test/m2m/refsInObjects/expect.tex
     test/m2m/refsInObjects/input.md

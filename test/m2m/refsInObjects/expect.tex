@@ -7,7 +7,9 @@
 \end{figure}
 
 \begin{longtable}[]{@{}lll@{}}
-\caption{\label{tbl:table}tbl.~\ref{tbl:table}}\tabularnewline
+\caption{\label{tbl:table}tbl.~\ref{tbl:table} fig.~\ref{fig:subfigures}
+fig.~\ref{fig:subfig1} fig.~\ref{fig:subfig2}
+lst.~\ref{lst:lst}}\tabularnewline
 \toprule\noalign{}
 \endfirsthead
 \endhead
@@ -18,7 +20,9 @@
 
 \begin{codelisting}
 
-\caption{Listing lst.~\ref{lst:lst}}\label{lst:lst}
+\caption{Listing tbl.~\ref{tbl:table} fig.~\ref{fig:subfigures}
+fig.~\ref{fig:subfig1} fig.~\ref{fig:subfig2}
+lst.~\ref{lst:lst}}\label{lst:lst}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -30,11 +34,16 @@
 
 \begin{pandoccrossrefsubfigures}
 
-\subfloat[fig.~\ref{fig:subfig1}]{\pandocbounded{\includegraphics[keepaspectratio,alt={fig.~}]{fig1.png}}\label{fig:subfig1}}
-\subfloat[fig.~\ref{fig:subfig2}]{\pandocbounded{\includegraphics[keepaspectratio,alt={fig.~}]{fig2.png}}\label{fig:subfig2}}
+\subfloat[tbl.~\ref{tbl:table} fig.~\ref{fig:subfigures}
+fig.~\ref{fig:subfig1} fig.~\ref{fig:subfig2}
+lst.~\ref{lst:lst}]{\pandocbounded{\includegraphics[keepaspectratio,alt={tbl.~ fig.~ fig.~ fig.~ lst.~}]{fig1.png}}\label{fig:subfig1}}
+\subfloat[tbl.~\ref{tbl:table} fig.~\ref{fig:subfigures}
+fig.~\ref{fig:subfig1} fig.~\ref{fig:subfig2}
+lst.~\ref{lst:lst}]{\pandocbounded{\includegraphics[keepaspectratio,alt={tbl.~ fig.~ fig.~ fig.~ lst.~}]{fig2.png}}\label{fig:subfig2}}
 \subfloat[3]{\pandocbounded{\includegraphics[keepaspectratio,alt={3}]{fig3.png}}}
 
-\caption{Caption fig.~\ref{fig:subfig1}
-fig.~\ref{fig:subfig2}}\label{fig:subfigures}
+\caption{Caption tbl.~\ref{tbl:table} fig.~\ref{fig:subfigures}
+fig.~\ref{fig:subfig1} fig.~\ref{fig:subfig2}
+lst.~\ref{lst:lst}}\label{fig:subfigures}
 
 \end{pandoccrossrefsubfigures}

@@ -7,11 +7,11 @@
         
   -- -- --
 
-  : Table 1: tbl. 1
+  : Table 1: tbl. 1 fig. 2 fig. 2 (a) fig. 2 (b) lst. 1
 :::
 
 ::: {#lst:lst .listing .cpp}
-Listing 1: Listing lst. 1
+Listing 1: Listing tbl. 1 fig. 2 fig. 2 (a) fig. 2 (b) lst. 1
 
 ``` cpp
 foo
@@ -22,7 +22,8 @@ foo
 ![a](fig1.png){#fig:subfig1} ![b](fig2.png){#fig:subfig2} ![c](fig3.png)
 
 ::: caption
-Figure 2: Caption fig. 2 (a) fig. 2 (b). a --- fig. 2 (a), b --- fig. 2
-(b), c --- 3
+Figure 2: Caption tbl. 1 fig. 2 fig. 2 (a) fig. 2 (b) lst. 1. a ---
+tbl. 1 fig. 2 fig. 2 (a) fig. 2 (b) lst. 1, b --- tbl. 1 fig. 2 fig. 2
+(a) fig. 2 (b) lst. 1, c --- 3
 :::
 ::::
