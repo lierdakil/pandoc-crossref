@@ -49,8 +49,9 @@ m2m dir
                     = disableExtension Ext_raw_html
                     $ disableExtension Ext_raw_attribute
                     $ pandocExtensions
-                , writerHighlightStyle=Just pygments
-                , writerListings = dir `elem` listingsDirs
+                , writerHighlightMethod = if dir `elem` listingsDirs
+                      then IdiomaticHighlighting
+                      else Skylighting pygments
                 , writerTemplate = if standalone then Just template else Nothing
                 }
         woTex = wo { writerTemplate = Nothing }
