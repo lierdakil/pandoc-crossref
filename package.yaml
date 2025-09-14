@@ -30,12 +30,12 @@ data-files:
 dependencies:
   base: ">=4.16 && <5"
   text: ">=1.2.2 && <2.2"
-  pandoc: ">=3.7.0.2 && < 3.8"
+  pandoc: ">=3.8 && <3.9"
   pandoc-types: ">= 1.23 && < 1.24"
 _deps:
-  containers: &containers { containers: ">=0.1 && <0.7" }
+  containers: &containers { containers: ">=0.1 && <0.9" }
   criterion: &criterion { criterion: ">=1.5.9.0 && <1.7" }
-  data-default: &data-default { data-default: ">=0.4 && <0.8" }
+  data-default: &data-default { data-default: ">=0.4 && <0.9" }
   deepseq: &deepseq { deepseq: ">= 1.4 && < 1.6" }
   directory: &directory { directory: ">=1 && <1.4" }
   filepath: &filepath { filepath: ">=1.1 && <1.6" }
@@ -46,8 +46,8 @@ _deps:
   microlens-th: &microlens-th { microlens-th: ">=0.4.3.10 && < 0.5.0.0" }
   microlens: &microlens { microlens: ">=0.4.12.0 && <0.5.0.0" }
   mtl: &mtl { mtl: ">=1.1 && <2.4" }
-  open-browser: &open-browser { open-browser: ">= 0.2 && < 0.3" }
-  optparse-applicative: &optparse-applicative { optparse-applicative: ">= 0.13 && < 0.19" }
+  open-browser: &open-browser { open-browser: ">= 0.2 && < 0.4" }
+  optparse-applicative: &optparse-applicative { optparse-applicative: ">= 0.13 && < 0.20" }
   syb: &syb { syb: ">=0.4 && <0.8" }
   template-haskell: &template-haskell { template-haskell: ">=2.7.0.0 && <3.0.0.0" }
   temporary: &temporary { temporary: ">= 1.2 && < 1.4" }

@@ -62,7 +62,7 @@ embedManualHtml = do
           $   P.compileDefaultTemplate "html5"
   embedManual $ P.writeHtml5String P.def{
     P.writerTemplate = Just tt
-  , P.writerHighlightStyle = Just pygments
+  , P.writerHighlightMethod = P.Skylighting pygments
   , P.writerTOCDepth = 6
   , P.writerTableOfContents = True
   }
