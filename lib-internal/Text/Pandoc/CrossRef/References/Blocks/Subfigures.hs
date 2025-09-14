@@ -47,15 +47,12 @@ runSubfigures (label, cls, attrs) images caption = do
   idxStr <- chapIndex ref
   glob <- use $ wsReferences . stGlob
   hiddenHdr <- use $ wsReferences . stHiddenHeaderLevel
-  let doFigure :: Block -> WS (ReplacedResult Block)
-      doFigure (Figure attr caption' content) = runFigure True attr caption' content
-      doFigure _ = noReplaceRecurse
-      opts' = opts
+  let opts' = opts
           { figureTemplate = subfigureChildTemplate opts
           , customLabel = customLabel opts . Sub
           }
   (cont, st) <- embedWS (WState opts' (References def def glob hiddenHdr))
-    $ runReplace (mkRR replaceSubfigs `extRR` doFigure) images
+    $ runReplace (mkRR replaceSubfigs) images
   let collectedCaptions = B.toList $
           intercalate' (B.fromList $ ccsDelim opts)
         $ map (B.fromList . collectCaps . snd)
@@ -92,35 +89,18 @@ runSubfigures (label, cls, attrs) images caption = do
   where
     toTable :: Options -> [Block] -> [Block]
     toTable opts blks
-      | subfigGrid opts = [simpleTable align (map ColWidth widths) (map (fmap pure . blkToRow) blks)]
+      | subfigGrid opts = [simpleTable align (map ColWidth widths') (map (fmap pure . blkToRow) blks)]
       | otherwise = blks
       where
+        widths' = widths blks
         align | b:_ <- blks = let ils = blocksToInlines [b] in replicate (length $ mapMaybe getWidth ils) AlignCenter
               | otherwise = error "Misformatted subfigures block"
-        widths | b:_ <- blks = let ils = blocksToInlines [b] in fixZeros $ mapMaybe getWidth ils
-               | otherwise = error "Misformatted subfigures block"
-        getWidth (Image (_id, _class, as) _ _)
-          = Just $ maybe 0 percToDouble $ lookup "width" as
-        getWidth _ = Nothing
-        fixZeros :: [Double] -> [Double]
-        fixZeros ws
-          = let nz = length $ filter (== 0) ws
-                rzw = (0.99 - sum ws) / fromIntegral nz
-            in if nz>0
-                then map (\x -> if x == 0 then rzw else x) ws
-                else ws
-        percToDouble :: T.Text -> Double
-        percToDouble percs
-          | Right (perc, "%") <- T.double percs
-          = perc/100.0
-          | otherwise = error "Only percent allowed in subfigure width!"
         blkToRow :: Block -> [Block]
-        blkToRow (Para inls) = zipWith inlToCell widths $ mapMaybe getImg inls
+        blkToRow (Para inls) = zipWith inlToCell widths' $ mapMaybe getImg inls
         blkToRow x = [x]
         getImg (Image (id', cs, as) txt tgt) = Just (id', cs, as, txt, tgt)
         getImg _ = Nothing
-        inlToCell w (id', cs, as, txt, tgt) =
-          Figure (id', cs, []) (Caption Nothing [Para txt]) [Plain [Image ("", cs, setW w as) txt tgt]]
+        inlToCell w (id', cs, as, txt, tgt) = implicitFigure (id', cs, setW w as) txt tgt Figure
         setW w as = ("width", width):filter ((/="width") . fst) as
           where
             -- With docx, since pandoc 3.0, 100% is interpreted as "page width",
@@ -129,40 +109,87 @@ runSubfigures (label, cls, attrs) images caption = do
               | isDocxFormat opts = T.pack (show $ w * 100) <> "%"
               | otherwise = "100%"
 
-replaceSubfigs :: [Inline] -> WS (ReplacedResult [Inline])
-replaceSubfigs (x:xs) = replaceSubfig x >>= \case
-  Just res'' -> replaceList res'' xs
-  Nothing -> fixRefs' x xs
-replaceSubfigs [] = noReplaceRecurse
+getWidth :: Inline -> Maybe Double
+getWidth (Image (_id, _class, as) _ _)
+  = Just $ maybe 0 percToDouble $ lookup "width" as
+  where
+    percToDouble :: T.Text -> Double
+    percToDouble percs
+      | Right (perc, "%") <- T.double percs
+      = perc/100.0
+      | otherwise = error "Only percent allowed in subfigure width!"
+getWidth _ = Nothing
 
-replaceSubfig :: Inline -> WS (Maybe [Inline])
-replaceSubfig x@(Image (label,cls,attrs) alt tgt) = do
+widths :: [Block] -> [Double]
+widths (b:_) = let ils = blocksToInlines [b] in fixZeros $ mapMaybe getWidth ils
+  where
+    fixZeros :: [Double] -> [Double]
+    fixZeros ws
+      = let nz = length $ filter (== 0) ws
+            rzw = (0.99 - sum ws) / fromIntegral nz
+        in if nz>0
+            then map (\x -> if x == 0 then rzw else x) ws
+            else ws
+widths _ = error "Misformatted subfigures block"
+
+replaceSubfigs :: Block -> WS (ReplacedResult Block)
+replaceSubfigs (Figure attr caption' content) = runFigure True attr caption' content
+-- this triggers when implicit_figures is disabled
+replaceSubfigs (Para [Image attr caption' tgt]) =
+  implicitFigure attr caption' tgt $ runFigure True
+replaceSubfigs blk@(Para images) =
+  let go _ [] = pure []
+      go (w:ws) (x@Image{}:xs) = liftA2 (:) (replaceSubfig w x) (go ws xs)
+      go ws (x:xs) = ([x] :) <$> go ws xs
+  in replaceNoRecurse . Para . concat =<< go (widths [blk]) images
+replaceSubfigs _ = noReplaceRecurse
+
+-- this is mostly copy-paste from pandoc markdown reader
+implicitFigure :: Attr -> [Inline] -> (T.Text, T.Text) -> (Attr -> Caption -> [Block] -> a) -> a
+implicitFigure (ident, classes, attribs) capt' (url, title) f =
+  let alt = maybe capt B.text $ lookup "alt" attribs
+      capt = B.fromList capt'
+      attribs' = filter (liftA2 (&&) (/= "latex-placement") (/= "alt") . fst) attribs
+      figattribs = filter ((=="latex-placement") . fst) attribs
+      figattr = (ident, mempty, figattribs)
+      caption = B.simpleCaption $ B.plain capt
+      figbody = B.plain $ B.imageWith ("", classes, attribs') url title alt
+  in f figattr caption (B.toList figbody)
+
+replaceSubfigs' :: [(Double, Inline)] -> WS [Inline]
+replaceSubfigs' = fmap concat . mapM (uncurry replaceSubfig)
+
+replaceSubfig :: Double -> Inline -> WS [Inline]
+replaceSubfig width x@(Image (label,cls,attrs) alt tgt) = do
   opts <- use wsOptions
   ref <- replaceAttr (normalizeLabel label) attrs alt SPfxImg
   idxStr <- chapIndex ref
   let alt' = applyTemplate idxStr alt $ figureTemplate opts
-  pure $ Just $ if isLatexFormat opts
-    then latexSubFigure x ref
+  pure $ if isLatexFormat opts
+    then latexSubFigure width x ref
     else [Image (fromMaybe "" (refLabel ref), cls, setLabel opts idxStr attrs) alt' tgt]
-replaceSubfig _ = pure Nothing
+replaceSubfig _ _ = pure []
 
-latexSubFigure :: Inline -> RefRec -> [Inline]
-latexSubFigure (Image (_, cls, attrs) alt (src, title)) ref =
+latexSubFigure :: Double -> Inline -> RefRec -> [Inline]
+latexSubFigure width (Image (_, cls, attrs) alt (src, title)) ref =
   let
     title' = fromMaybe title $ T.stripPrefix "fig:" title
     texalt | "nocaption" `elem` cls  = []
            | otherwise = concat
-              [ [ RawInline (Format "latex") "["]
+              [ [ RawInline (Format "latex") "\\caption{"]
               , alt
-              , [ RawInline (Format "latex") "]"]
+              , latexLabel ref
+              , [ RawInline (Format "latex") "}"]
               ]
-    img = Image (fromMaybe "" (refLabel ref), cls, attrs) alt (src, title')
+    filterWidth = filter $ (/= "width") . fst
+    img = Image (fromMaybe "" (refLabel ref), cls, filterWidth attrs) alt (src, title')
   in concat [
-      [ RawInline (Format "latex") "\\subfloat" ]
+      [ RawInline (Format "latex") ("\\begin{subfigure}{" <> T.pack (show width) <> "\\linewidth}") ]
+      , [ img ]
       , texalt
-      , [Span nullAttr $ img : latexLabel ref]
+      , [RawInline (Format "latex") "\\end{subfigure}%\n"]
       ]
-latexSubFigure x _ = [x]
+latexSubFigure _ x _ = [x]
 
 normalizeLabel :: T.Text -> Maybe T.Text
 normalizeLabel label
@@ -203,7 +230,7 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
   replaceNoRecurse $
     if subFigure && isLatexFormat opts
     then Plain $ case blocksToInlines content of
-      ctHead:_ -> latexSubFigure ctHead ref
+      ctHead:_ -> latexSubFigure 1.0 ctHead ref
       _ -> error "The impossible happened: empty content in subfigures"
     else Figure (label,cls,setLabel opts idxStr fattrs) caption' (content' title')
 runFigure _ _ _ _ = noReplaceRecurse

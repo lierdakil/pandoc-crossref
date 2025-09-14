@@ -68,9 +68,9 @@ modifyMeta opts meta refs
       where
         atEndPreamble = censor (\c -> "\\AtEndPreamble{%":c <> ["}"])
         subfig = [
-            usepackage [] "subfig"
+            usepackage [] "subcaption"
           , usepackage [] "caption"
-          , "\\captionsetup[subfloat]{margin=0.5em}"
+          , "\\captionsetup[subfigure]{margin=0.5em}"
           ]
         floatnames = [
             "\\AtBeginDocument{%"

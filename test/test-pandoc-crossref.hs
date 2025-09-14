@@ -106,13 +106,13 @@ main = hspec $ do
         (
           figureWith ("fig:subfigure",["subfigures"],[])
             (caption Nothing $ para (text "Figure 1: figure caption. a — Test figure 1, b — Test figure 2"))
-            ( para (figure' "test1.jpg" "" "a" "figure1")
-            <> para (figure' "test2.jpg" "" "b" "figure2")
+            (  figure "test1.jpg" "" "a" Nothing "figure1"
+            <> figure "test2.jpg" "" "b" Nothing "figure2"
             ) <>
           figureWith ("fig:subfigure2",["subfigures"],[])
             (caption Nothing $ para (text "Figure 2: figure caption 2. a — Test figure 21, b — Test figure 22"))
-            (  para (figure' "test21.jpg" "" "a" "figure21")
-            <> para (figure' "test22.jpg" "" "b" "figure22")
+            (  figure "test21.jpg" "" "a" Nothing "figure21"
+            <> figure "test22.jpg" "" "b" Nothing "figure22"
             )
         , PfxImg =: M.fromList [("fig:figure1",RefRec {
                                             refIndex = [(1,Nothing)],
@@ -426,7 +426,7 @@ listOf' [] = pure []
 
 figure :: T.Text -> T.Text -> T.Text -> Maybe T.Text -> T.Text -> Blocks
 figure src title cap malt ref = B.figureWith ("fig:" <> ref, [], [])
-  (caption Nothing $ para $ text cap) $ plain $ figure' src title (fromMaybe cap malt) ""
+  (caption Nothing $ plain $ text cap) $ plain $ figure' src title (fromMaybe cap malt) ""
 
 figure' :: T.Text -> T.Text -> T.Text -> T.Text -> Inlines
 figure' src title alt ref = imageWith (if T.null ref then mempty else "fig:" <> ref, [], []) src title (text alt)
