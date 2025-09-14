@@ -1,3 +1,47 @@
+## 0.3.21
+
+### New features
+
+-   Switch to using `subcaption` for LaTeX subfigures
+
+    `subfig` is reportedly deprecated and has some issues (e.g.
+    [#182](https://github.com/lierdakil/pandoc-crossref/issues/182))
+
+    This isn't as straightforward as one would like, there may be side effects.
+    Please report any issues you encounter.
+
+-   Add subfigColumns option
+
+    See <http://lierdakil.github.io/pandoc-crossref/#subfigure-columns> for more
+    info
+
+### Fixes
+
+-   Ensure automatic reference keys are unique
+
+    Fixes edge case issues with list-of-stuff
+
+-   Properly render citations in list-of-stuff
+
+### Maintenance
+
+-   Support Pandoc 3.8
+
+-   Minimal supported Pandoc version is 3.8
+
+-   Relax upper bounds on some dependencies:
+
+    - containers
+    - data-default
+    - open-browser
+    - optparse-applicative
+
+-   Large internal refactor to avoid explicit two-pass parse
+
+    This isn't tested exhaustively, some edge case issues may or may not be
+    present. As always, please report any issues you encounter, including
+    non-termination and/or abnormal RAM consumption.
+
 ## 0.3.20
 
 -   Support Pandoc 3.7
