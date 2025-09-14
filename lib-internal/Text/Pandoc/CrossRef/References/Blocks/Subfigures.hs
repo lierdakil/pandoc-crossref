@@ -90,8 +90,20 @@ runSubfigures (label, cls, attrs) images caption = do
     toTable :: Options -> [Block] -> [Block]
     toTable opts blks
       | subfigGrid opts = [simpleTable align (map ColWidth widths') (map (fmap pure . blkToRow) blks)]
+      | subfigColumns opts = mapMaybe figurize blks
       | otherwise = blks
       where
+        figurize x
+          | Para is <- x = case (mapMaybe getImg is) `zip` widths' of
+              [] -> Nothing -- skip empty Paras
+              [_] -> error "The impossible happened: single-element Para in \
+                \subfigure which is not a figure"
+              xs -> Just $ Div ("", ["columns"], []) $ map columnize xs
+          | otherwise = Just x
+        columnize ((id', cs, as, alt, tgt), width) =
+          Div ("", ["column"], [("width", T.pack (show (width * 100.0)) <> "%")]) [
+            implicitFigure (id', cs, filter ((/="width") . fst) as) alt tgt Figure
+          ]
         widths' = widths blks
         align | b:_ <- blks = let ils = blocksToInlines [b] in replicate (length $ mapMaybe getWidth ils) AlignCenter
               | otherwise = error "Misformatted subfigures block"

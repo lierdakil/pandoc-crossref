@@ -183,7 +183,7 @@ reference attributes. Last paragraph contains figure caption.
 If you put more than one figure in the paragraph, those will still be
 rendered, but Pandoc will omit subfigure caption in most outputs (but it
 will work as expected with LaTeX). You can use output-specific hacks to
-work around that, or use `subfigGrid` (see below).
+work around that, or use `subfigGrid` or `subfigColumn` (see below).
 
 Output is customizable, with metadata fields. See
 [Customization](#customization) for more information.
@@ -262,6 +262,17 @@ This option is ignored with LaTeX output, but paragraph breaks should
 produce similar effect, so images should be typeset correctly. TL;DR you
 don't need `subfigGrid` enabled for it to work with LaTeX, but you can
 still enable it.
+
+#### Subfigure columns
+
+Similar to `subfigGrid`, `subfigColumns` option will align each subfigure row as
+Pandoc's columns environment. This primarily works well with HTML output.
+
+All the caveats applicable to `subfigGrid` are equally applicable to
+`subfigColumns` as well.
+
+`subfigGrid` and `subfigColumns` are mutually exclusive. If both are specified,
+the former takes precedence.
 
 ## Equation labels
 
@@ -722,6 +733,8 @@ See [Subfigures](#subfigures)
     [Subfigures](#subfigures) and [Templates](#templates)
 -   `subfigGrid`, default `false`. If true, typeset subfigures inside a
     table. Ignored with LaTeX output. See [Subfigures](#subfigures)
+-   `subfigColumns`, default `false`. If true, typeset subfigure rows as column
+    environment. Ignored with LaTeX output. See [Subfigures](#subfigures)
 
 ### List titles
 

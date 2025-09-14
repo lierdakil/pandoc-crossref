@@ -126,6 +126,9 @@ data-files:
     test/m2m/subfigures-ccsDelim/expect.md
     test/m2m/subfigures-ccsDelim/expect.tex
     test/m2m/subfigures-ccsDelim/input.md
+    test/m2m/subfigures-columns/expect.md
+    test/m2m/subfigures-columns/expect.tex
+    test/m2m/subfigures-columns/input.md
     test/m2m/subfigures-grid/expect.md
     test/m2m/subfigures-grid/expect.tex
     test/m2m/subfigures-grid/input.md

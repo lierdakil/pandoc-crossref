@@ -76,6 +76,7 @@ data Options = Options { cref :: Bool
                        , tableEqns :: Bool
                        , autoEqnLabels :: Bool
                        , subfigGrid :: Bool
+                       , subfigColumns :: Bool
                        , linkReferences :: Bool
                        , nameInLink :: Bool
                        , setLabelAttribute :: Bool
