@@ -462,6 +462,82 @@
               [ Image ( "" , [] , [] ) [ Str "b" ] ( "img1.jpg" , "" ) ]
           ]
       ]
+  , Figure
+      ( "fig:subfigures-side-by-side" , [ "subfigures" ] , [] )
+      (Caption
+         Nothing
+         [ Para
+             [ Str "Figure"
+             , Space
+             , Str "#"
+             , Space
+             , Str "6:"
+             , Space
+             , Str "Subfigures"
+             , Space
+             , Str "side"
+             , Space
+             , Str "by"
+             , Space
+             , Str "side."
+             , Space
+             , Str "a"
+             , Space
+             , Str "\8212"
+             , Space
+             , Str "Subfigure"
+             , Space
+             , Str "a,"
+             , Space
+             , Str "b"
+             , Space
+             , Str "\8212"
+             , Space
+             , Str "Subfigure"
+             , Space
+             , Str "b,"
+             , Space
+             , Str "c"
+             , Space
+             , Str "\8212"
+             , Space
+             , Str "Subfigure"
+             , Space
+             , Str "c"
+             ]
+         ])
+      [ Div
+          ( "" , [ "columns" ] , [] )
+          [ Div
+              ( "" , [ "column" ] , [ ( "width" , "49.5%" ) ] )
+              [ Figure
+                  ( "" , [] , [] )
+                  (Caption Nothing [ Plain [ Str "a" ] ])
+                  [ Plain
+                      [ Image
+                          ( "" , [] , [] ) [ Str "a" ] ( "img1.jpg" , "" )
+                      ]
+                  ]
+              ]
+          , Div
+              ( "" , [ "column" ] , [ ( "width" , "49.5%" ) ] )
+              [ Figure
+                  ( "" , [] , [] )
+                  (Caption Nothing [ Plain [ Str "b" ] ])
+                  [ Plain
+                      [ Image
+                          ( "" , [] , [] ) [ Str "b" ] ( "img2.jpg" , "" )
+                      ]
+                  ]
+              ]
+          ]
+      , Figure
+          ( "" , [] , [] )
+          (Caption Nothing [ Plain [ Str "c" ] ])
+          [ Plain
+              [ Image ( "" , [] , [] ) [ Str "c" ] ( "img3.jpg" , "" ) ]
+          ]
+      ]
   , Header
       1
       ( "sec:sec2" , [] , [] )
@@ -1103,6 +1179,48 @@
           , Str "Subfigure"
           , Space
           , Str "b"
+          , LineBreak
+          ]
+      , Plain
+          [ Str "6."
+          , Space
+          , Str "Subfigures"
+          , Space
+          , Str "side"
+          , Space
+          , Str "by"
+          , Space
+          , Str "side"
+          , LineBreak
+          ]
+      , Plain
+          [ Str "6"
+          , Space
+          , Str "(a)."
+          , Space
+          , Str "Subfigure"
+          , Space
+          , Str "a"
+          , LineBreak
+          ]
+      , Plain
+          [ Str "6"
+          , Space
+          , Str "(b)."
+          , Space
+          , Str "Subfigure"
+          , Space
+          , Str "b"
+          , LineBreak
+          ]
+      , Plain
+          [ Str "6"
+          , Space
+          , Str "(c)."
+          , Space
+          , Str "Subfigure"
+          , Space
+          , Str "c"
           , LineBreak
           ]
       ]

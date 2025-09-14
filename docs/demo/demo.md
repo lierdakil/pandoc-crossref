@@ -12,6 +12,7 @@ tableTemplate: |
   *$$tableTitle$$ $$i$$*$$titleDelim$$ $$t$$
 autoSectionLabels: True
 title: pandoc-crossref demo document
+subfigColumns: True
 ---
 
 This is a demo file for pandoc-crossref. With this filter, you can cross-reference figures (see [@fig:figure1;@fig:figure2;@fig:figure3]), display equations (see @eq:eqn1), tables (see [@tbl:table1]) and sections ([@sec:sec1; @sec:sec2; @sec:caption-attr; @sec:table-capts; @sec:wrapping-div])
@@ -48,6 +49,14 @@ Subfigures are supported, see [@fig:subfigures; @fig:subfigureB]
 ![Subfigure b](img1.jpg){#fig:subfigureB}
 
 Subfigures caption
+</div>
+
+<div id="fig:subfigures-side-by-side">
+![Subfigure a](img1.jpg)![Subfigure b](img2.jpg)
+
+![Subfigure c](img3.jpg)
+
+Subfigures side by side
 </div>
 
 # Chapter 2. Equations {#sec:sec2}

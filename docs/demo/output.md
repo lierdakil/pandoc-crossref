@@ -4,10 +4,7 @@ tables (see tbl. 1) and sections (secs. 1, 2, 4.1-4.3)
 
 For immediate example, see fig. 1
 
-<figure id="fig:figure0">
-<img src="img1.jpg" alt="A figure" />
-<figcaption>Figure # 1: A figure</figcaption>
-</figure>
+![Figure \# 1: A figure](img1.jpg){#fig:figure0}
 
 There is also support for code blocks, for example, lsts. 1-3
 
@@ -28,34 +25,47 @@ Subfigures are supported, see figs. 5, 5 (b)
 
 # Chapter 1. Figures {#sec:sec1}
 
-<figure id="fig:figure1">
-<img src="img1.jpg" alt="First figure" />
-<figcaption>Figure # 2: First figure</figcaption>
-</figure>
+![Figure \# 2: First figure](img1.jpg){#fig:figure1}
 
-<figure id="fig:figure2">
-<img src="img2.jpg" alt="Second figure" />
-<figcaption>Figure # 3: Second figure</figcaption>
-</figure>
+![Figure \# 3: Second figure](img2.jpg){#fig:figure2}
 
-<figure id="fig:figure3">
-<img src="img3.jpg" alt="Third figure" />
-<figcaption>Figure # 4: Third figure</figcaption>
-</figure>
+![Figure \# 4: Third figure](img3.jpg){#fig:figure3}
 
 ![Unlabelled image](img1.jpg)
 
 <figure id="fig:subfigures" class="subfigures">
 <figure>
-<img src="img1.jpg" alt="Subfigure a" />
-<figcaption>a</figcaption>
+<img src="img1.jpg" alt="a" />
+<figcaption aria-hidden="true">a</figcaption>
 </figure>
 <figure id="fig:subfigureB">
-<img src="img1.jpg" alt="Subfigure b" />
-<figcaption>b</figcaption>
+<img src="img1.jpg" alt="b" />
+<figcaption aria-hidden="true">b</figcaption>
 </figure>
 <figcaption><p>Figure # 5: Subfigures caption. a — Subfigure a, b —
 Subfigure b</p></figcaption>
+</figure>
+
+<figure id="fig:subfigures-side-by-side" class="subfigures">
+<div class="columns">
+<div class="column" style="width:49.5%;">
+<figure>
+<img src="img1.jpg" alt="a" />
+<figcaption aria-hidden="true">a</figcaption>
+</figure>
+</div><div class="column" style="width:49.5%;">
+<figure>
+<img src="img2.jpg" alt="b" />
+<figcaption aria-hidden="true">b</figcaption>
+</figure>
+</div>
+</div>
+<figure>
+<img src="img3.jpg" alt="c" />
+<figcaption aria-hidden="true">c</figcaption>
+</figure>
+<figcaption><p>Figure # 6: Subfigures side by side. a — Subfigure a, b —
+Subfigure b, c — Subfigure c</p></figcaption>
 </figure>
 
 # Chapter 2. Equations {#sec:sec2}
@@ -105,9 +115,8 @@ main = putStrLn "Hello World!"
 ```
 :::
 
-```{=tex}
 \pagebreak
-```
+
 ## Table-style captions {#sec:table-capts}
 
 Enabled with `codeBlockCaptions` metadata option. If code block is
@@ -164,6 +173,14 @@ It's also possible to show lists of figures and tables, like this:
 5 (a). Subfigure a\
 
 5 (b). Subfigure b\
+
+6\. Subfigures side by side\
+
+6 (a). Subfigure a\
+
+6 (b). Subfigure b\
+
+6 (c). Subfigure c\
 :::
 
 ## List of Tables {#list-of-tables}
