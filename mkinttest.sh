@@ -10,7 +10,7 @@ find test/m2m -iname 'input.md' -print | while read i; do
   listings=""
   standalone=""
   if [ "${bdn%%-*}" == "listings" ]; then
-    listings="--listings"
+    listings="--syntax-highlighting=idiomatic"
   fi
   if [ "${bdn%%-*}" == "standalone" ]; then
     standalone="--standalone"
