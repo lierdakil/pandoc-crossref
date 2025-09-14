@@ -9,12 +9,12 @@ pin:
 	cachix pin pandoc-crossref $$(git describe --tags)-with-pandoc $$(nix eval --raw .#pandoc-with-crossref $(NIX_EXTRA_OPTS)) --keep-revisions 1
 
 push:
-	nix build . .#static .#pandoc $(NIX_EXTRA_OPTS) --json \
+	nix build . .#static .#pandoc .#pandoc-with-crossref $(NIX_EXTRA_OPTS) --json \
 		| jq -r '.[].outputs | to_entries[].value' \
 		| cachix push pandoc-crossref
 
 push-attic:
-	nix build . .#static .#pandoc $(NIX_EXTRA_OPTS) --json \
+	nix build . .#static .#pandoc .#pandoc-with-crossref $(NIX_EXTRA_OPTS) --json \
 		| jq -r '.[].outputs | to_entries[].value' \
 		| attic push pandoc-crossref --stdin
 
