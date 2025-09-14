@@ -85,7 +85,7 @@
       devShells.default = pkgs.mkShellNoCC {
         packages = with self.packages.${system}; [ default pandoc ];
       };
-      devShells.dev = flake.devShell;
+      devShells.dev = flake.devShells.default;
     });
 
   # --- Flake Local Nix Configuration ----------------------------

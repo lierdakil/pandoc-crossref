@@ -29,7 +29,7 @@ cabal.project.freeze: .github/workflows/haskell.yml
 	cabal freeze \
 		--with-compiler=ghc-$$(yq '.jobs.build.strategy.matrix.ghcver.0' .github/workflows/haskell.yml) \
 		--constraint pandoc==$$(yq '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
-	sed -i '/zlib .* +pkg-config/ d' cabal.project.freeze
+	sed -ri '/ *\S+ [^=]/ s/ *[+-]pkg-config//' cabal.project.freeze
 
 stack.yaml: cabal.project.freeze stack.template.yaml .github/workflows/haskell.yml
 	echo "# THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY" > stack.yaml
@@ -44,11 +44,11 @@ flake.lock: .github/workflows/haskell.yml
 
 stack.yaml.lock: .github/workflows/haskell.yml stack.yaml
 	# need this to update stack.yaml.lock, feel free to kill after that
-	stack build --no-system-ghc --no-install-ghc || true
+	stack build --no-system-ghc --no-install-ghc --no-nix || true
 
 pandoc-crossref.cabal: package.yaml
 	# just use stack to generate the cabalfile
-	stack build --no-system-ghc --no-install-ghc || true
+	stack build --no-system-ghc --no-install-ghc --no-nix || true
 
 update: stack.yaml flake.lock stack.yaml.lock
 
