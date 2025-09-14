@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 -}
 
 {-# LANGUAGE CPP, OverloadedLists #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 import Test.Hspec
 import Text.Pandoc hiding (getDataFileName)
 import Text.Pandoc.Builder hiding (figure)
@@ -41,6 +42,7 @@ import qualified Text.Pandoc.CrossRef.References.Refs as References.Refs
 import qualified Text.Pandoc.CrossRef.References.List as References.List
 import qualified Text.Pandoc.CrossRef.Util.Template as Util.Template
 import qualified Text.Pandoc.CrossRef.Util.CodeBlockCaptions as Util.CodeBlockCaptions
+import Data.String (IsString(..))
 
 import qualified Native
 import Paths_pandoc_crossref
@@ -361,24 +363,30 @@ main = hspec $ do
             <> para (citeGen "lst:some_codeblock" [1])
             `test1` "\\begin{codelisting}\n\n\\caption{A code block}\\label{lst:some_codeblock1}\n\n\\begin{Shaded}\n\\begin{Highlighting}[]\n\\OtherTok{main ::} \\DataTypeTok{IO}\\NormalTok{ ()}\n\\end{Highlighting}\n\\end{Shaded}\n\n\\end{codelisting}\n\nlst.~\\ref{lst:some_codeblock1}"
 
+instance IsString RefIndex where
+  fromString (T.pack -> s) =
+    case find @[] (\pfx -> s `hasPfx` pfx) [minBound..] of
+      Just pfx -> IdxRef pfx s
+      Nothing -> error $ "Invalid reference: " <> T.unpack s
+
 citeGen :: T.Text -> [Int] -> Inlines
 citeGen p l = cite (mconcat $ map (cit . (p<>) . T.pack . show) l) $ text $
   "[" <> T.intercalate "; " (map (("@"<>) . (p<>) . T.pack . show) l) <> "]"
 
-refGen :: T.Text -> [Int] -> [Int] -> M.Map T.Text RefRec
+refGen :: T.Text -> [Int] -> [Int] -> M.Map RefIndex RefRec
 refGen p l1 l2 = M.fromList $ mconcat $ zipWith refRec'' (((uncapitalizeFirst p<>) . T.pack . show) `map` l1) l2
 
-refGen' :: T.Text -> [Int] -> [(Int, Int)] -> M.Map T.Text RefRec
+refGen' :: T.Text -> [Int] -> [(Int, Int)] -> M.Map RefIndex RefRec
 refGen' p l1 l2 = M.fromList $ mconcat $ zipWith refRec''' (((uncapitalizeFirst p<>) . T.pack . show) `map` l1) l2
 
-refRec' :: T.Text -> Int -> T.Text -> [(T.Text, RefRec)]
-refRec' ref i tit = [(ref, RefRec{refLabel=Just ref,refIndex=[(i,Nothing)],refGlobal=0,refHideFromList=False,refTitle=toList $ text tit,refSubfigure=Nothing})]
+refRec' :: T.Text -> Int -> T.Text -> [(RefIndex, RefRec)]
+refRec' ref i tit = [(fromString $ T.unpack ref, RefRec{refLabel=Just ref,refIndex=[(i,Nothing)],refGlobal=0,refHideFromList=False,refTitle=toList $ text tit,refSubfigure=Nothing})]
 
-refRec'' :: T.Text -> Int -> [(T.Text, RefRec)]
+refRec'' :: T.Text -> Int -> [(RefIndex, RefRec)]
 refRec'' ref i = refRec' ref i ""
 
-refRec''' :: T.Text -> (Int, Int) -> [(T.Text, RefRec)]
-refRec''' ref (c,i) = [(ref, RefRec{refLabel=Just ref,refIndex=[(c,Nothing), (i,Nothing)],refGlobal=0,refHideFromList=False,refTitle=toList $ text "",refSubfigure=Nothing})]
+refRec''' :: T.Text -> (Int, Int) -> [(RefIndex, RefRec)]
+refRec''' ref (c,i) = [(fromString $ T.unpack ref, RefRec{refLabel=Just ref,refIndex=[(c,Nothing), (i,Nothing)],refGlobal=0,refHideFromList=False,refTitle=toList $ text "",refSubfigure=Nothing})]
 
 testRefs' :: T.Text -> [Int] -> [Int] -> Prefix -> T.Text -> Expectation
 testRefs' p l1 l2 prop res = testRefs (para $ citeGen p l1) (set (refsAt prop) (refGen p l1 l2) def) (para $ text res)
@@ -489,7 +497,7 @@ cit :: T.Text -> [Citation]
 cit r = [defCit{citationId=r}]
 
 infixr 0 =:
-(=:) :: Prefix -> M.Map T.Text RefRec -> References
+(=:) :: Prefix -> M.Map RefIndex RefRec -> References
 a =: b = def
   & ctrsAt a .~ (refIndex $ last $ M.elems b)
   & refsAt a .~ b

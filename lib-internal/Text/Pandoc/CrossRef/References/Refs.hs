@@ -164,7 +164,7 @@ data RefData = RefData { rdGlob :: Maybe Natural
 
 getRefIndex :: Prefix -> References -> Citation -> RefData
 getRefIndex prefix refs Citation{citationId=cid,citationSuffix=suf}
-  = let ref = M.lookup lab $ refs ^. prop
+  = let ref = M.lookup (IdxRef prefix lab) $ refs ^. prop
         sub = refSubfigure <$> ref
         idx = refIndex <$> ref
         tit = refTitle <$> ref

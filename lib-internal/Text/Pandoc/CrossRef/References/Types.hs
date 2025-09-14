@@ -40,7 +40,14 @@ data RefRec = RefRec { refIndex :: Index
                      , refLabel :: Maybe Text
                      } deriving (Show, Eq)
 
-type RefMap = M.Map Text RefRec
+type RefMap = M.Map RefIndex RefRec
+
+data RefIndex = IdxSynth Natural | IdxRef Prefix Text
+  deriving (Eq, Ord, Show)
+
+displayIdx :: RefIndex -> String
+displayIdx (IdxSynth ctr) = "#" <> show ctr
+displayIdx (IdxRef _ txt) = T.unpack txt
 
 data Prefix
   = PfxImg

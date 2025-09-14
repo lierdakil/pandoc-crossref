@@ -71,7 +71,7 @@ runHeader n (label, cls, attrs) text' = do
       cc <- use $ wsReferences . ctrsAt PfxSec
       globCtr <- wsReferences . stGlob <<%= (+ 1)
       when (label' `hasPfx` PfxSec) $
-        wsReferences . refsAt PfxSec %= M.insert label' RefRec {
+        wsReferences . refsAt PfxSec %= M.insert (IdxRef PfxSec label') RefRec {
           refIndex = cc
         , refGlobal = globCtr
         , refTitle = text'

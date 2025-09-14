@@ -95,16 +95,17 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
   chap  <- S.take chaptersDepth <$> use (wsReferences . ctrsAt PfxSec)
   prop' <- use $ wsReferences . refsAt pfx
   curIdx <- use $ wsReferences . ctrsAt pfx
+  globCtr <- wsReferences . stGlob <<%= (+ 1)
   let i | Just n <- number = n
         | chap' :> last' <- S.viewr curIdx
         , chap' == chap
         = succ . fst $ last'
         | otherwise = 1
       index = chap S.|> (i, refLabel <|> customLabel (Pfx pfx) i)
-      label' = fromMaybe (T.pack (show pfx <> (':' : show index))) label
+      synthLabel = IdxSynth globCtr
+      label' = fromMaybe synthLabel $ IdxRef pfx <$> label
   when (M.member label' prop') $
-    error . T.unpack $ "Duplicate label: " <> label'
-  globCtr <- wsReferences . stGlob <<%= (+ 1)
+    error $ "Duplicate label: " <> displayIdx label'
   wsReferences . ctrsAt pfx .= index
   refHideFromList <- checkHidden attrs
   let rec' = RefRec {
