@@ -2,6 +2,7 @@
 pandoc-crossref is a pandoc filter for numbering figures,
 equations, tables and cross-references to them.
 Copyright (C) 2015  Nikolay Yakimov <root@livid.pp.ru>
+Copyright (C) 2025  Gesh <gesh@gesh.uni.cx>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
