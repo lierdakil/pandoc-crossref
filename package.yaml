@@ -28,7 +28,7 @@ data-files:
 - docs/index.md
 - test/m2m/*/*
 dependencies:
-  base: ">=4.16 && <5"
+  base: ">=4.19 && <5"
   text: ">=1.2.2 && <2.2"
   pandoc: ">=3.8 && <3.9"
   pandoc-types: ">= 1.23 && < 1.24"
