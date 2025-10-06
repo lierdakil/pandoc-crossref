@@ -214,7 +214,7 @@ jobs:
           echo ::set-output name=${os}::${desc}
         done
       id: description
-    - name: Upload "nightly" for Linux
+    - name: Upload "nightly" for Linux X64
       if: "!startsWith(github.ref, 'refs/tags/v')"
       uses: WebFreak001/deploy-nightly@v1.1.0
       env:
@@ -223,7 +223,19 @@ jobs:
         upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
         release_id: 44009421
         asset_path: ./assets/pandoc-crossref-Linux-X64-${{github.sha}}.tar.xz
-        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-$$.tar.xz
+        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-X64-$$.tar.xz
+        asset_content_type: application/x-gtar
+        max_releases: 21
+    - name: Upload "nightly" for Linux ARM64
+      if: "!startsWith(github.ref, 'refs/tags/v')"
+      uses: WebFreak001/deploy-nightly@v1.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+        release_id: 44009421
+        asset_path: ./assets/pandoc-crossref-Linux-ARM64-${{github.sha}}.tar.xz
+        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-ARM64-$$.tar.xz
         asset_content_type: application/x-gtar
         max_releases: 21
     - name: Upload "nightly" for macOS X64
