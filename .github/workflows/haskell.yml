@@ -81,7 +81,11 @@ jobs:
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-* || true
 
   build-nix:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: cachix/install-nix-action@v20
@@ -147,6 +151,9 @@ jobs:
 
         chmod +x Linux-X64-build-static/pandoc-crossref
         tar cJf assets/pandoc-crossref-Linux-X64-${{github.sha}}.tar.xz -C Linux-X64-build-static pandoc-crossref pandoc-crossref.1
+
+        chmod +x Linux-ARM64-build-static/pandoc-crossref
+        tar cJf assets/pandoc-crossref-Linux-ARM64-${{github.sha}}.tar.xz -C Linux-ARM64-build-static pandoc-crossref pandoc-crossref.1
 
         chmod +x macOS-X64-build/pandoc-crossref
         tar cJf assets/pandoc-crossref-macOS-X64-${{github.sha}}.tar.xz -C macOS-X64-build pandoc-crossref

@@ -64,13 +64,18 @@
       overlays = [ haskellNix.overlay ];
       pkgs = import nixpkgs { inherit system overlays; inherit (haskellNix) config; };
       flake_ = args: (hixProject args).flake {
-        crossPlatforms = ps: with ps; [ musl64 ];
+        crossPlatforms = ps: with ps; [ musl64 aarch64-multiplatform-musl ];
       };
       flake = flake_ {};
     in {
       packages = {
         default = flake.packages."pandoc-crossref:exe:pandoc-crossref";
-        static = flake.packages."x86_64-unknown-linux-musl:pandoc-crossref:exe:pandoc-crossref";
+        static =
+          if system == "x86_64-linux"
+          then flake.packages."x86_64-unknown-linux-musl:pandoc-crossref:exe:pandoc-crossref"
+          else if system == "aarch64-linux"
+          then flake.packages."aarch64-unknown-linux-musl:pandoc-crossref:exe:pandoc-crossref"
+          else throw "Don't know ${system} target";
         pandoc = (hixProject {}).hsPkgs.pandoc-cli.components.exes.pandoc;
         pandoc-with-crossref = pkgs.symlinkJoin {
           name = "pandoc-with-crossref";
