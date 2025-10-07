@@ -14,58 +14,26 @@ and finally (fig. 3)
 
 # S hidden supplemental section {#hidden-supplemental-section label="S"}
 
-:::: {#fig:fig_s1 .figure}
-![Figure S.1: hidden! first supp figure](figs/fig_s1.jpg){hidden="y"}
+![Figure S.1: hidden! first supp figure](figs/fig_s1.jpg){#fig:fig_s1
+hidden="y"}
 
-::: {.caption short-caption=""}
-Figure S.1: hidden! first supp figure
-:::
-::::
-
-:::: {#fig:fig_s2 .figure}
-![Figure S.2: hidden! second supp figure](figs/fig_s2.jpg){hidden="y"}
-
-::: {.caption short-caption=""}
-Figure S.2: hidden! second supp figure
-:::
-::::
+![Figure S.2: hidden! second supp figure](figs/fig_s2.jpg){#fig:fig_s2
+hidden="y"}
 
 # 2 hidden section {#hidden-section hidden="y"}
 
-:::: {#fig:fig_h1 .figure}
-![Figure 2.1: hidden! first hidden figure](figs/fig_s1.jpg)
+![Figure 2.1: hidden! first hidden figure](figs/fig_s1.jpg){#fig:fig_h1}
 
-::: {.caption short-caption=""}
-Figure 2.1: hidden! first hidden figure
-:::
-::::
-
-:::: {#fig:fig_h2 .figure}
-![Figure 2.2: hidden! second hidden figure](figs/fig_s2.jpg)
-
-::: {.caption short-caption=""}
-Figure 2.2: hidden! second hidden figure
-:::
-::::
+![Figure 2.2: hidden! second hidden
+figure](figs/fig_s2.jpg){#fig:fig_h2}
 
 ## 2.1 subsection of a hidden section
 
-:::: {#fig:fig_h1_s .figure}
-![Figure 2.1.1: hidden! first hidden subsection figure](figs/fig_s1.jpg)
+![Figure 2.1.1: hidden! first hidden subsection
+figure](figs/fig_s1.jpg){#fig:fig_h1_s}
 
-::: {.caption short-caption=""}
-Figure 2.1.1: hidden! first hidden subsection figure
-:::
-::::
-
-:::: {#fig:fig_h2_s .figure}
 ![Figure 2.1.2: hidden! second hidden subsection
-figure](figs/fig_s2.jpg)
-
-::: {.caption short-caption=""}
-Figure 2.1.2: hidden! second hidden subsection figure
-:::
-::::
+figure](figs/fig_s2.jpg){#fig:fig_h2_s}
 
 # 3 regular section
 
@@ -85,22 +53,11 @@ figure](figs/fig_s2.jpg){#fig:fig_nss2}
 
 ## 3.2 hidden subsection {#hidden-subsection hidden="y"}
 
-:::: {#fig:fig_ss1 .figure}
-![Figure 3.2.1: hidden! first hidden subsection figure](figs/fig_s1.jpg)
+![Figure 3.2.1: hidden! first hidden subsection
+figure](figs/fig_s1.jpg){#fig:fig_ss1}
 
-::: {.caption short-caption=""}
-Figure 3.2.1: hidden! first hidden subsection figure
-:::
-::::
-
-:::: {#fig:fig_ss2 .figure}
 ![Figure 3.2.2: hidden! second hidden subsection
-figure](figs/fig_s2.jpg)
-
-::: {.caption short-caption=""}
-Figure 3.2.2: hidden! second hidden subsection figure
-:::
-::::
+figure](figs/fig_s2.jpg){#fig:fig_ss2}
 
 ![Figure 3.2.3: visible! overridden
 visibility](figs/fig_s3.jpg){#fig:fig_ss3 hidden="n"}
@@ -131,15 +88,13 @@ main = putStrLn "Hello, World!"
 ```
 :::
 
-::: {#tbl:table1}
   foo   bar
   ----- -----
   1     10
   2     20
   3     30
 
-  : Table 3.2.1: hidden! table
-:::
+  : Table 3.2.1: hidden! table {#tbl:table1}
 
 ::: {#tbl:table2 hidden="n"}
   foo   bar

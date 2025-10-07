@@ -54,22 +54,18 @@ main = putStrLn "Hello World!"
 
 ------------------------------------------------------------------------
 
-::: {#tbl:mytable}
   a   b   c
   --- --- ---
   1   2   3
   4   5   6
 
-  : Table 1: My table
-:::
+  : Table 1: My table {#tbl:mytable}
 
-::: {#tbl:1}
   a   b
   --- ---
   1   2
 
-  : Table 2: Table
-:::
+  : Table 2: Table {#tbl:1}
 
 # List of Figures
 

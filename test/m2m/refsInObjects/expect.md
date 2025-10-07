@@ -2,13 +2,11 @@
 
 ![Figure 1: fig. 1](foo.png){#fig:fig}
 
-::: {#tbl:table}
   -- -- --
         
   -- -- --
 
-  : Table 1: tbl. 1 fig. 2 fig. 2 (a) fig. 2 (b) lst. 1
-:::
+  : Table 1: tbl. 1 fig. 2 fig. 2 (a) fig. 2 (b) lst. 1 {#tbl:table}
 
 ::: {#lst:lst .listing .cpp}
 Listing 1: Listing tbl. 1 fig. 2 fig. 2 (a) fig. 2 (b) lst. 1

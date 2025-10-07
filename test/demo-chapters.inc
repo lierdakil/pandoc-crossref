@@ -602,80 +602,77 @@
       1
       ( "sec:chapter-3.-tables" , [] , [] )
       [ Str "Chapter" , Space , Str "3." , Space , Str "Tables" ]
-  , Div
+  , Table
       ( "tbl:table1" , [] , [] )
-      [ Table
-          ( "" , [] , [] )
-          (Caption
-             Nothing
-             [ Plain
-                 [ Emph [ Str "Table" , Space , Str "3.1" ]
-                 , Str ":"
-                 , Space
-                 , Str "Table"
-                 , Space
-                 , Str "example"
-                 ]
-             ])
-          [ ( AlignLeft , ColWidthDefault )
-          , ( AlignLeft , ColWidthDefault )
-          ]
-          (TableHead
+      (Caption
+         Nothing
+         [ Plain
+             [ Emph [ Str "Table" , Space , Str "3.1" ]
+             , Str ":"
+             , Space
+             , Str "Table"
+             , Space
+             , Str "example"
+             ]
+         ])
+      [ ( AlignLeft , ColWidthDefault )
+      , ( AlignLeft , ColWidthDefault )
+      ]
+      (TableHead
+         ( "" , [] , [] )
+         [ Row
              ( "" , [] , [] )
-             [ Row
+             [ Cell
                  ( "" , [] , [] )
-                 [ Cell
-                     ( "" , [] , [] )
-                     AlignDefault
-                     (RowSpan 1)
-                     (ColSpan 1)
-                     [ Plain [ Str "First" , Space , Str "Header" ] ]
-                 , Cell
-                     ( "" , [] , [] )
-                     AlignDefault
-                     (RowSpan 1)
-                     (ColSpan 1)
-                     [ Plain [ Str "Second" , Space , Str "Header" ] ]
-                 ]
-             ])
-          [ TableBody
+                 AlignDefault
+                 (RowSpan 1)
+                 (ColSpan 1)
+                 [ Plain [ Str "First" , Space , Str "Header" ] ]
+             , Cell
+                 ( "" , [] , [] )
+                 AlignDefault
+                 (RowSpan 1)
+                 (ColSpan 1)
+                 [ Plain [ Str "Second" , Space , Str "Header" ] ]
+             ]
+         ])
+      [ TableBody
+          ( "" , [] , [] )
+          (RowHeadColumns 0)
+          []
+          [ Row
               ( "" , [] , [] )
-              (RowHeadColumns 0)
-              []
-              [ Row
+              [ Cell
                   ( "" , [] , [] )
-                  [ Cell
-                      ( "" , [] , [] )
-                      AlignDefault
-                      (RowSpan 1)
-                      (ColSpan 1)
-                      [ Plain [ Str "Content" , Space , Str "Cell" ] ]
-                  , Cell
-                      ( "" , [] , [] )
-                      AlignDefault
-                      (RowSpan 1)
-                      (ColSpan 1)
-                      [ Plain [ Str "Content" , Space , Str "Cell" ] ]
-                  ]
-              , Row
+                  AlignDefault
+                  (RowSpan 1)
+                  (ColSpan 1)
+                  [ Plain [ Str "Content" , Space , Str "Cell" ] ]
+              , Cell
                   ( "" , [] , [] )
-                  [ Cell
-                      ( "" , [] , [] )
-                      AlignDefault
-                      (RowSpan 1)
-                      (ColSpan 1)
-                      [ Plain [ Str "Content" , Space , Str "Cell" ] ]
-                  , Cell
-                      ( "" , [] , [] )
-                      AlignDefault
-                      (RowSpan 1)
-                      (ColSpan 1)
-                      [ Plain [ Str "Content" , Space , Str "Cell" ] ]
-                  ]
+                  AlignDefault
+                  (RowSpan 1)
+                  (ColSpan 1)
+                  [ Plain [ Str "Content" , Space , Str "Cell" ] ]
+              ]
+          , Row
+              ( "" , [] , [] )
+              [ Cell
+                  ( "" , [] , [] )
+                  AlignDefault
+                  (RowSpan 1)
+                  (ColSpan 1)
+                  [ Plain [ Str "Content" , Space , Str "Cell" ] ]
+              , Cell
+                  ( "" , [] , [] )
+                  AlignDefault
+                  (RowSpan 1)
+                  (ColSpan 1)
+                  [ Plain [ Str "Content" , Space , Str "Cell" ] ]
               ]
           ]
-          (TableFoot ( "" , [] , [] ) [])
       ]
+      (TableFoot ( "" , [] , [] ) [])
   , Para
       [ Str "Table"
       , Space

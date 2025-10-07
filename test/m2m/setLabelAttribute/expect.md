@@ -10,13 +10,11 @@ Figure 1.1: Figure
 
 [$$equation\qquad{(1.1)}$$]{#eq:1 label="(1.1)"}
 
-::: {#tbl:1 label="1.1"}
   a   b
   --- ---
   1   2
 
-  : Table 1.1: Table
-:::
+  : Table 1.1: Table {#tbl:1 label="1.1"}
 
 ::: {#lst:1 .listing}
 Listing 1.1: Code Listing

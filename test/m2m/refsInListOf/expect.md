@@ -14,14 +14,12 @@ if you try to cite them in main text next to one of the ones cited in a
 figure caption, e.g. (fig. 1, tbl. 1) or (fig. 2, tbl. 1), although if
 you cite the thing alone it'll work just fine (tbl. 1)
 
-::: {#tbl:tbl1}
   col1   col2
   ------ ------
   row1   row1
   row2   ro2
 
-  : Table 1: Table 1
-:::
+  : Table 1: Table 1 {#tbl:tbl1}
 
 # List of Figures
 
