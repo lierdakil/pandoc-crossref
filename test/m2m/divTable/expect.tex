@@ -1,0 +1,77 @@
+On a table in a crossref div, attributes remain untouched. It's a
+backwards compatibility thing.
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{\label{tbl:table1}table}\tabularnewline
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 10 \\
+2 & 20 \\
+3 & 30 \\
+\end{longtable}
+
+However, if a table in a crossref div has id set, then its id takes
+precedence in LaTeX.
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{table}\label{quux}\tabularnewline
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 10 \\
+2 & 20 \\
+3 & 30 \\
+\end{longtable}
+
+Even if attributes are empty
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{\label{tbl:table2}table (no attributes)}\tabularnewline
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 10 \\
+2 & 20 \\
+3 & 30 \\
+\end{longtable}
+
+But tables without a div don't get wrapped since Pandoc 3.8.2:
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{table (crossref id)}\label{tbl:table3}\tabularnewline
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+foo & bar \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 10 \\
+2 & 20 \\
+3 & 30 \\
+\end{longtable}

@@ -24,6 +24,7 @@ import Lens.Micro.Mtl
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared (blocksToInlines)
 import Data.Function ((&))
+import qualified Data.Text as T
 
 import Text.Pandoc.CrossRef.References.Monad
 import Text.Pandoc.CrossRef.References.Blocks.Util
@@ -39,8 +40,12 @@ runTable (label, clss, attrs) mtattr short btitle rest colspec header cells foot
   idxStr <- chapIndex ref
   let short' | refHideFromList ref = Just mempty
              | otherwise = short
+      maybeTeXLabel
+        | Just (tid, _, _) <- mtattr
+        , T.null tid = latexLabel ref
+        | otherwise = mempty
       title'
-        | isLatexFormat opts = latexLabel ref <> title
+        | isLatexFormat opts = maybeTeXLabel <> title
         | otherwise = applyTemplate idxStr title $ tableTemplate opts
       caption' = Caption short' (walkReplaceInlines title' title btitle:rest)
       label' | isLatexFormat opts = ""
