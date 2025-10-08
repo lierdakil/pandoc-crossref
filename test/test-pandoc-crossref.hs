@@ -192,7 +192,7 @@ main = hspec $ do
           PfxEqn =: M.fromList $ refRec'' "eq:equation" 1)
       it "Labels tables" $
         testAll (table' "Test table" "table")
-        (divWith ("tbl:table", [], []) $ table' "Table 1: Test table" "",
+        (table'' ("tbl:table", [], []) "Table 1: Test table" "",
           PfxTbl =: M.fromList $ refRec' "tbl:table" 1 "Test table")
       it "Labels code blocks" $
         testAll (codeBlock' "Test code block" "codeblock")
@@ -338,7 +338,7 @@ main = hspec $ do
             <> para (citeGen "tbl:some_table" [1])
             `test` concat (
               [ "\\begin{longtable}[]{@{}l@{}}\n"
-              , "\\caption{\\label{tbl:some_table1}A table}\\tabularnewline\n"
+              , "\\caption{A table}\\label{tbl:some_table1}\\tabularnewline\n"
               , "\\toprule\\noalign{}\n"
               , "\\endfirsthead\n"
               , "\\endhead\n"
@@ -449,7 +449,13 @@ equation' :: T.Text -> T.Text -> Inlines
 equation' eq ref = displayMath eq <> ref' "eq" ref
 
 table' :: T.Text -> T.Text -> Blocks
-table' title ref = table (simpleCaption . plain $ text title <> ref' "tbl" ref) []
+table' title ref = tableWith ("tbl:" <> ref, [], []) (simpleCaption . plain $ text title) []
+   (TableHead nullAttr [Row nullAttr $ map (Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) . toList) [para $ str "H1", para $ str "H2"]])
+  [TableBody nullAttr (RowHeadColumns 0) [] [Row nullAttr $ map (Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) . toList) [para $ str "C1", para $ str "C2"]]]
+  (TableFoot nullAttr [])
+
+table'' :: Attr -> T.Text -> T.Text -> Blocks
+table'' attr title ref = tableWith attr (simpleCaption . plain $ text title <> ref' "tbl" ref) []
    (TableHead nullAttr [Row nullAttr $ map (Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) . toList) [para $ str "H1", para $ str "H2"]])
   [TableBody nullAttr (RowHeadColumns 0) [] [Row nullAttr $ map (Cell nullAttr AlignDefault (RowSpan 0) (ColSpan 0) . toList) [para $ str "C1", para $ str "C2"]]]
   (TableFoot nullAttr [])

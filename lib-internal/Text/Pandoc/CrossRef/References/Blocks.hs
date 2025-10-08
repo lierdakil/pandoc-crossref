@@ -97,7 +97,7 @@ replaceBlock
   = runCodeBlock (label, nub $ divClasses <> cbClasses, divAttrs <> cbAttrs) code $ Right caption
 replaceBlock (Para [Span attr [Math DisplayMath eq]])
   = runBlockMath attr eq
-replaceBlock x = maybe noReplaceRecurse replaceBlock $ divBlocks x
+replaceBlock _ = noReplaceRecurse
 
 replaceInlineMany :: [Inline] -> WS (ReplacedResult [Inline])
 replaceInlineMany (Span spanAttr@(label,clss,attrs) [Math DisplayMath eq]:xs) = do
@@ -124,16 +124,6 @@ replaceBlockMany bs@(x:xs) = do
     Just res' -> replaceRecurse res'
     Nothing -> liftF (listOf x opts) `fixRefs` xs
 replaceBlockMany [] = noReplaceRecurse
-
-divBlocks :: Block -> Maybe Block
-divBlocks (Table tattr (Caption short (btitle:rest)) colspec header cells foot)
-  | not $ null title
-  , Just label <- getRefLabel PfxTbl [last title]
-  = Just $ Div (label,[],[]) [
-    Table tattr (Caption short $ walkReplaceInlines (dropWhileEnd isSpace (init title)) title btitle:rest) colspec header cells foot]
-  where
-    title = blocksToInlines [btitle]
-divBlocks _ = Nothing
 
 spanInlines :: Options -> [Inline] -> [Inline]
 spanInlines opts (math@(Math DisplayMath _eq):ils)
