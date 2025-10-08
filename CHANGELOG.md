@@ -1,3 +1,42 @@
+## 0.3.22
+
+### Changes
+
+-   Update to support pandoc 3.8.2 (gesh)
+
+    Recent changes in Pandoc are incompatible with older versions of
+    pandoc-crossref.
+
+    Minimal supported version of Pandoc is now 3.8.2.
+
+### Fixes
+
+-   Do not inject duplicate TeX label for tables
+
+    Since Pandoc 3.8.2, table labels (and other attributes) are parsed. As such,
+    they're also added to LaTeX. But pandoc-crossref adds its own LaTeX labels,
+    which creates duplicates.
+
+    Now, pandoc-crossref only injects labels if a table without a label of its
+    own is wrapped in a Div. This is mostly kept for backwards compatibility.
+
+-   Remove flaky tests flag from freezefile
+
+    `cabal.project.freeze` no longer sets `enable_flaky_tests` flag. This
+    shouldn't affect end users, but this is a consideration for downstream
+    packagers.
+
+### Maintenance
+
+-   Remove divBlocks hack
+
+    This hack reparsed table titles to support `{#tbl:foo}` syntax for labels.
+    This is now redundant as Pandoc parses this itself. Hence removed.
+
+-   Makefile: config nix experimental-features, fix yq invocation (gesh)
+
+    These changes make the Makefile more robust.
+
 ## 0.3.21
 
 ### New features
