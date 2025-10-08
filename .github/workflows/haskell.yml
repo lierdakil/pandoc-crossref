@@ -34,6 +34,7 @@ jobs:
       shell: bash
       run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
     - name: Cabal configure
+      shell: bash
       run: |
         cabal v2-configure \
           --constraint pandoc==${{ env.PANDOC_VERSION }} \
