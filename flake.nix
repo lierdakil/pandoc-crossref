@@ -55,6 +55,10 @@
             ./CHANGELOG.md
           ];
         };
+        cabalProjectLocal = ''
+          package pandoc-crossref
+            flags: +enable_flaky_tests
+        '';
         modules = [({pkgs, lib, ...}: {
           doHaddock = lib.mkForce false;
           packages.pandoc-crossref.ghcOptions =

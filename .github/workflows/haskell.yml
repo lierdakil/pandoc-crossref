@@ -34,7 +34,16 @@ jobs:
       shell: bash
       run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
     - name: Cabal configure
-      run: cabal v2-configure --constraint pandoc==${{ env.PANDOC_VERSION }} --constraint zip-archive'>='0.4.2.1 --enable-tests ${{matrix.extra-options}}
+      run: |
+        cabal v2-configure \
+          --constraint pandoc==${{ env.PANDOC_VERSION }} \
+          --constraint zip-archive'>='0.4.2.1 \
+          --enable-tests \
+          ${{matrix.extra-options}}
+        cat >> cabal.project.local <<EOF
+        package pandoc-crossref
+          flags: +enable_flaky_tests
+        EOF
     - uses: actions/cache@v4
       with:
         path: .cabal-store

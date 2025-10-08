@@ -32,6 +32,7 @@ cabal.project.freeze: .github/workflows/haskell.yml
 		--with-compiler=ghc-$$(yq -r '.jobs.build.strategy.matrix.ghcver[0]' .github/workflows/haskell.yml) \
 		--constraint pandoc==$$(yq -r '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
 	sed -ri '/ *\S+ [^=]/ s/ *[+-]pkg-config//' cabal.project.freeze
+	sed -ri '/pandoc-crossref/ d' cabal.project.freeze
 
 stack.yaml: cabal.project.freeze stack.template.yaml .github/workflows/haskell.yml
 	echo "# THIS FILE IS GENERATED, DO NOT EDIT DIRECTLY" > stack.yaml
