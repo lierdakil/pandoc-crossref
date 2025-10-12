@@ -11,8 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-13 is amd64, while macos-latest is arm64
-        os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-15-intel, windows-latest]
         ghcver: ['9.8.4']
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
