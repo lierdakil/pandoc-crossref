@@ -1,7 +1,13 @@
 {
   # This is a template created by `hix init`
   inputs = {
-    haskellNix.url = "github:input-output-hk/haskell.nix";
+    haskellNix = {
+      url = "github:input-output-hk/haskell.nix";
+      inputs.hackage = {
+        url = "github:lierdakil/hackage.nix";
+        flake = false;
+      };
+    };
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     nix-filter.url = "github:numtide/nix-filter";
