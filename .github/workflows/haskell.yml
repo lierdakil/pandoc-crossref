@@ -89,11 +89,12 @@ jobs:
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-* || true
         rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-* || true
 
-  build-nix:
+  build-nix-pre:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
+        target: ['.', '.#static']
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -113,9 +114,35 @@ jobs:
         endpoint: https://nix-cache.undo.it
         cache: pandoc-crossref
         token: ${{ secrets.ATTIC_TOKEN }}
-    - run: nix build
-    - run: nix build .#static
+    - run: nix build ${{ matrix.target }}
+
+  build-nix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    needs: [build-nix-pre]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: cachix/install-nix-action@v20
+      with:
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        extra_nix_config: |
+          substituters = https://cache.nixos.org https://cache.iog.io
+          trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+    - uses: cachix/cachix-action@v12
+      with:
+        name: pandoc-crossref
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - name: Setup Attic cache
+      uses: ryanccn/attic-action@v0
+      with:
+        endpoint: https://nix-cache.undo.it
+        cache: pandoc-crossref
+        token: ${{ secrets.ATTIC_TOKEN }}
     - run: |
+        nix build .#static
         cp -r result/bin/ pandoc-crossref-${{runner.os}}-${{runner.arch}}
         chmod +w -R pandoc-crossref-${{runner.os}}-${{runner.arch}}
     - name: Check pandoc version for static binary
