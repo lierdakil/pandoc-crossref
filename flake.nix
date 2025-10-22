@@ -2,7 +2,7 @@
   # This is a template created by `hix init`
   inputs = {
     haskellNix = {
-      url = "github:input-output-hk/haskell.nix";
+      url = "github:input-output-hk/haskell.nix/17cc2e9e95aa6946bfcccc5a529cb7e9d78fe901";
       inputs.hackage = {
         url = "github:lierdakil/hackage.nix";
         flake = false;
