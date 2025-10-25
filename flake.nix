@@ -113,7 +113,7 @@
     extra-trusted-public-keys = [
       "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
       "pandoc-crossref.cachix.org-1:LI9ABFTkGpPCTkUTzoopVSSpb1a26RSTJNMsqVbDtPM="
-      "pandoc-crossref:LUq5vqxFmYJStwKcNstjjGFoGd3+k+jpfyXR2V/eZjw="
+      "pandoc-crossref:BvJtyW5CX3TDps8qurbFDyauLj2fsXx37RKH5yP+18U="
       ];
   };
 }
