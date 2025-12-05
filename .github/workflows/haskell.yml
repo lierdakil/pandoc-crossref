@@ -96,19 +96,24 @@ jobs:
         os: [ubuntu-latest, ubuntu-24.04-arm]
         target: ['.', '.#static']
     runs-on: ${{ matrix.os }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
     - uses: actions/checkout@v4
     - uses: cachix/install-nix-action@v20
       with:
+        install_options: --no-daemon
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
         extra_nix_config: |
-          substituters = https://cache.nixos.org https://cache.iog.io
+          substituters = https://cache.nixos.org https://cache.iog.io https://nix-cache.undo.it/pandoc-crossref?trusted=true&priority=50
           trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
     - uses: cachix/cachix-action@v12
       with:
         name: pandoc-crossref
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - run: nix build ${{ matrix.target }}
+    - run: nix copy --to 's3://pandoc-crossref?region=${{secrets.AWS_REGION}}&endpoint=${{secrets.AWS_ENDPOINT_URL}}' --all
 
   build-nix:
     strategy:
@@ -117,13 +122,17 @@ jobs:
         os: [ubuntu-latest, ubuntu-24.04-arm]
     runs-on: ${{ matrix.os }}
     needs: [build-nix-pre]
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
     - uses: actions/checkout@v4
     - uses: cachix/install-nix-action@v20
       with:
+        install_options: --no-daemon
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
         extra_nix_config: |
-          substituters = https://cache.nixos.org https://cache.iog.io
+          substituters = https://cache.nixos.org https://cache.iog.io https://nix-cache.undo.it/pandoc-crossref?trusted=true&priority=50
           trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
     - uses: cachix/cachix-action@v12
       with:
@@ -158,6 +167,7 @@ jobs:
       with:
         name: ${{runner.os}}-${{runner.arch}}-build-static
         path: pandoc-crossref-${{runner.os}}-${{runner.arch}}
+    - run: nix copy --to 's3://pandoc-crossref?region=${{secrets.AWS_REGION}}&endpoint=${{secrets.AWS_ENDPOINT_URL}}' --all
 
   release:
     needs: [build, build-nix]
