@@ -1,5 +1,5 @@
 name: pandoc-crossref
-version: '0.3.22'
+version: '0.3.23'
 language: GHC2021
 default-extensions:
 - OverloadedStrings
