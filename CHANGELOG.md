@@ -1,3 +1,10 @@
+## 0.3.23
+
+-   Center subfigures in LaTeX
+
+    Probably since 0.3.21 due to an inconsistency between `subfig` and
+    `subcaption`, subfigures were no longer properly centered in LaTeX.
+
 ## 0.3.22
 
 ### Changes
