@@ -196,8 +196,10 @@ latexSubFigure width (Image (_, cls, attrs) alt (src, title)) ref =
     filterWidth = filter $ (/= "width") . fst
     img = Image (fromMaybe "" (refLabel ref), cls, filterWidth attrs) alt (src, title')
   in concat [
-      [ RawInline (Format "latex") ("\\begin{subfigure}{" <> T.pack (show width) <> "\\linewidth}") ]
-      , [ img ]
+      [ RawInline (Format "latex") ("\\begin{subfigure}{" <> T.pack (show width) <> "\\linewidth}")
+      , RawInline (Format "latex") "\\centering"
+      , img
+      ]
       , texalt
       , [RawInline (Format "latex") "\\end{subfigure}%\n"]
       ]
