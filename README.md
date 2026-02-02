@@ -47,6 +47,8 @@ Bear in mind that those are a product of automated build scripts, and as
 such, provided as-is, with zero guarantees. Feel free to open issues if those
 don't work though, I'll try to do what I can.
 
+After unpacking the pre-built executables, simply place them somewhere Pandoc can find them (somewhere in PATH, `cwd`, etc.). For instance, on Windows, you may want to copy them in the same directory that `pandoc.exe` was installed in (that is, in `C:\Program Files\Pandoc\`), provided that directory has been added to PATH environment variable.
+
 **WARNING:** When using pre-built executables, **make sure that your pandoc
 version matches the version pandoc-crossref was built against, otherwise
 weird stuff will likely happen.** Feel free to open issues if there's a new
