@@ -6,9 +6,14 @@ build:
 	nix build . .#static .#pandoc
 
 pin:
-	nix build .#static
-	cachix pin pandoc-crossref $$(git describe --tags) $$(nix eval --raw .#static) -a bin/pandoc-crossref --keep-revisions 1
-	cachix pin pandoc-crossref $$(git describe --tags)-with-pandoc $$(nix eval --raw .#pandoc-with-crossref) --keep-revisions 1
+	nix build \
+		--no-link --narinfo-cache-negative-ttl 0 --print-out-paths \
+		.#packages.{x86_64,aarch64}-linux.{static,pandoc-with-crossref} \
+		| cachix push pandoc-crossref
+	cachix pin pandoc-crossref $$(git describe --tags)-x86_64 $$(nix eval --raw .#packages.x86_64-linux.static) -a bin/pandoc-crossref --keep-revisions 1
+	cachix pin pandoc-crossref $$(git describe --tags)-aarch64 $$(nix eval --raw .#packages.aarch64-linux.static) -a bin/pandoc-crossref --keep-revisions 1
+	cachix pin pandoc-crossref $$(git describe --tags)-x86_64-with-pandoc $$(nix eval --raw .#packages.x86_64-linux.pandoc-with-crossref) --keep-revisions 1
+	cachix pin pandoc-crossref $$(git describe --tags)-aarch64-with-pandoc $$(nix eval --raw .#packages.aarch64-linux.pandoc-with-crossref) --keep-revisions 1
 
 push:
 	nix build . .#static .#pandoc .#pandoc-with-crossref --json \
