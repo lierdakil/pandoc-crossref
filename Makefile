@@ -1,22 +1,22 @@
-.PHONY: build pin push test update
+.PHONY: build pin push test update regen-test-fixtures upload upload-docs
 
-export NIX_CONFIG := extra-experimental-features = nix-command flakes
+export NIX_CONFIG += extra-experimental-features = nix-command flakes
 
 build:
-	nix build . .#static .#pandoc $(NIX_EXTRA_OPTS)
+	nix build . .#static .#pandoc
 
 pin:
-	nix build .#static $(NIX_EXTRA_OPTS)
-	cachix pin pandoc-crossref $$(git describe --tags) $$(nix eval --raw .#static $(NIX_EXTRA_OPTS)) -a bin/pandoc-crossref --keep-revisions 1
-	cachix pin pandoc-crossref $$(git describe --tags)-with-pandoc $$(nix eval --raw .#pandoc-with-crossref $(NIX_EXTRA_OPTS)) --keep-revisions 1
+	nix build .#static
+	cachix pin pandoc-crossref $$(git describe --tags) $$(nix eval --raw .#static) -a bin/pandoc-crossref --keep-revisions 1
+	cachix pin pandoc-crossref $$(git describe --tags)-with-pandoc $$(nix eval --raw .#pandoc-with-crossref) --keep-revisions 1
 
 push:
-	nix build . .#static .#pandoc .#pandoc-with-crossref $(NIX_EXTRA_OPTS) --json \
+	nix build . .#static .#pandoc .#pandoc-with-crossref --json \
 		| jq -r '.[].outputs | to_entries[].value' \
 		| cachix push pandoc-crossref
 
 test:
-	nix run .#test $(NIX_EXTRA_OPTS) && nix run .#test-integrative $(NIX_EXTRA_OPTS)
+	nix run .#test && nix run .#test-integrative
 
 regen-test-fixtures:
 	nix develop --command bash -c './mkcheck.sh && ./mkinttest.sh'
