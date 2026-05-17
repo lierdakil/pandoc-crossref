@@ -1,17 +1,18 @@
 name: pandoc-crossref
-version: '0.3.23'
+version: "0.3.23"
 language: GHC2021
 default-extensions:
-- OverloadedStrings
-- LambdaCase
-- TemplateHaskell
-- RecordWildCards
-- ViewPatterns
-- MultiWayIf
-- ApplicativeDo
-- BlockArguments
+  - OverloadedStrings
+  - LambdaCase
+  - TemplateHaskell
+  - RecordWildCards
+  - ViewPatterns
+  - MultiWayIf
+  - ApplicativeDo
+  - BlockArguments
 synopsis: Pandoc filter for cross-references
-description: pandoc-crossref is a pandoc filter for numbering figures, equations,
+description:
+  pandoc-crossref is a pandoc filter for numbering figures, equations,
   tables and cross-references to them.
 category: Text
 author: Nikolay Yakimov
@@ -20,13 +21,13 @@ license: GPL-2
 license-file: LICENSE
 github: lierdakil/pandoc-crossref
 extra-source-files:
-- test/*.inc
-- CHANGELOG.md
-- licenses/LICENSE.roman-numerals
+  - test/*.inc
+  - CHANGELOG.md
+  - licenses/LICENSE.roman-numerals
 data-files:
-- docs/demo/demo.md
-- docs/index.md
-- test/m2m/*/*
+  - docs/demo/demo.md
+  - docs/index.md
+  - test/m2m/*/*
 dependencies:
   base: ">=4.19 && <5"
   text: ">=1.2.2 && <2.2"
@@ -47,9 +48,11 @@ _deps:
   microlens: &microlens { microlens: ">=0.4.12.0 && <0.5.0.0" }
   mtl: &mtl { mtl: ">=1.1 && <2.4" }
   open-browser: &open-browser { open-browser: ">= 0.2 && < 0.4" }
-  optparse-applicative: &optparse-applicative { optparse-applicative: ">= 0.13 && < 0.20" }
+  optparse-applicative:
+    &optparse-applicative { optparse-applicative: ">= 0.13 && < 0.20" }
   syb: &syb { syb: ">=0.4 && <0.8" }
-  template-haskell: &template-haskell { template-haskell: ">=2.7.0.0 && <3.0.0.0" }
+  template-haskell:
+    &template-haskell { template-haskell: ">=2.7.0.0 && <3.0.0.0" }
   temporary: &temporary { temporary: ">= 1.2 && < 1.4" }
   utility-ht: &utility-ht { utility-ht: ">=0.0.11 && <0.1.0" }
   ##############################################################################
@@ -100,8 +103,8 @@ library:
   source-dirs: lib
   ghc-options: -Wall
   exposed-modules:
-  - Text.Pandoc.CrossRef
-  - Text.Pandoc.CrossRef.Internal
+    - Text.Pandoc.CrossRef
+    - Text.Pandoc.CrossRef.Internal
   other-modules: []
   dependencies:
     <<: *lib-deps
@@ -126,8 +129,8 @@ executables:
       - ManData
     source-dirs: src
     ghc-options:
-    - -Wall
-    - -threaded
+      - -Wall
+      - -threaded
     dependencies:
       <<: *exec-deps
 tests:
@@ -141,11 +144,11 @@ tests:
     generated-other-modules:
       - Paths_pandoc_crossref
     source-dirs:
-    - test
+      - test
     ghc-options:
-    - -Wall
-    - -fno-warn-unused-do-bind
-    - -threaded
+      - -Wall
+      - -fno-warn-unused-do-bind
+      - -threaded
     dependencies:
       <<: *test-deps
   test-integrative:
@@ -156,22 +159,21 @@ tests:
     other-modules: []
     source-dirs: test
     ghc-options:
-    - -Wall
-    - -fno-warn-unused-do-bind
-    - -threaded
+      - -Wall
+      - -fno-warn-unused-do-bind
+      - -threaded
     dependencies:
       <<: *test-int-deps
     build-tools:
-    - pandoc-cli:pandoc
+      - pandoc-cli:pandoc
 benchmarks:
   simple:
     main: bench-simple.hs
-    other-modules:
-      Native
+    other-modules: Native
     source-dirs: test
     ghc-options:
-    - -Wall
-    - -fno-warn-unused-do-bind
-    - -threaded
+      - -Wall
+      - -fno-warn-unused-do-bind
+      - -threaded
     dependencies:
       <<: *bench-deps
