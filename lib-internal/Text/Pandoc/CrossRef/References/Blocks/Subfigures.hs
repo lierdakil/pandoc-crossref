@@ -94,7 +94,7 @@ runSubfigures (label, cls, attrs) images caption = do
       | otherwise = blks
       where
         figurize x
-          | Para is <- x = case (mapMaybe getImg is) `zip` widths' of
+          | Para is <- x = case mapMaybe getImg is `zip` widths' of
               [] -> Nothing -- skip empty Paras
               [_] -> error "The impossible happened: single-element Para in \
                 \subfigure which is not a figure"

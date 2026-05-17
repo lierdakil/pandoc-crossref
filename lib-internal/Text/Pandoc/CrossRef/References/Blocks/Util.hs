@@ -39,7 +39,6 @@ import Text.Pandoc.Definition
 import Text.Pandoc.Shared (stringify, deNote)
 import Text.Pandoc.Walk (walk)
 import Control.Monad (when)
-import Data.Maybe (fromMaybe)
 
 import Text.Read (readMaybe)
 
@@ -103,7 +102,7 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
         | otherwise = 1
       index = chap S.|> (i, refLabel <|> customLabel (Pfx pfx) i)
       synthLabel = IdxSynth globCtr
-      label' = fromMaybe synthLabel $ IdxRef pfx <$> label
+      label' = maybe synthLabel (IdxRef pfx) label
   when (M.member label' prop') $
     error $ "Duplicate label: " <> displayIdx label'
   wsReferences . ctrsAt pfx .= index
