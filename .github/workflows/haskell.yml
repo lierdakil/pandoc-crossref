@@ -12,108 +12,108 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, macos-15-intel, windows-latest]
-        ghcver: ['9.8.4']
+        ghcver: ["9.8.4"]
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: haskell-actions/setup@v2
-      with:
-        ghc-version: ${{matrix.ghcver}}
-    - name: Cabal init
-      shell: pwsh
-      run: |
-        $store = Join-Path $pwd ".cabal-store"
-        New-Item -ItemType Directory -Force "$store"
-        cabal user-config init --force --augment="store-dir: $store" `
-          --augment="install-method: copy"
-    - name: Cabal update
-      run: cabal v2-update
-    - name: Copy build config
-      shell: bash
-      run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
-    - name: Cabal configure
-      shell: bash
-      run: |
-        cabal v2-configure \
-          --constraint pandoc==${{ env.PANDOC_VERSION }} \
-          --constraint zip-archive'>='0.4.2.1 \
-          --enable-tests \
-          ${{matrix.extra-options}}
-        cat >> cabal.project.local <<EOF
-        package pandoc-crossref
-          flags: +enable_flaky_tests
-        EOF
-    - uses: actions/cache@v4
-      with:
-        path: .cabal-store
-        key: r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
-        restore-keys: |
-          r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
-          r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}
-          r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}
-    - shell: bash
-      run: |
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-* || true
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-* || true
-        ls .cabal-store/ghc-${{matrix.ghcver}}/ || true
-    - name: Install dependencies
-      run: cabal v2-build --only-dependencies
-    - name: Build
-      run: cabal v2-build
-    - name: Run tests
-      run: cabal v2-test
-    - name: Install
-      shell: bash
-      run: |
-        mkdir pandoc-crossref-${{runner.os}}-${{runner.arch}}
-        export GIT_DIR="$PWD/.git"
-        cabal v2-install --installdir=$PWD/pandoc-crossref-${{runner.os}}-${{runner.arch}}
-    - name: Get Version
-      shell: bash
-      id: get_version
-      run: |
-        cd pandoc-crossref-${{runner.os}}-${{runner.arch}}/
-        chmod +x pandoc-crossref
-        VERSION="$(./pandoc-crossref --version)"
-        echo "$VERSION"
-        echo "$VERSION" > version.txt
-    - uses: actions/upload-artifact@v4
-      with:
-        name: ${{runner.os}}-${{runner.arch}}-build
-        path: pandoc-crossref-${{runner.os}}-${{runner.arch}}
-    - shell: bash
-      run: |
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-* || true
-        rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-* || true
+      - uses: actions/checkout@v4
+      - uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{matrix.ghcver}}
+      - name: Cabal init
+        shell: pwsh
+        run: |
+          $store = Join-Path $pwd ".cabal-store"
+          New-Item -ItemType Directory -Force "$store"
+          cabal user-config init --force --augment="store-dir: $store" `
+            --augment="install-method: copy"
+      - name: Cabal update
+        run: cabal v2-update
+      - name: Copy build config
+        shell: bash
+        run: cp misc/${{runner.os}}-build-cabal-config ./cabal.project
+      - name: Cabal configure
+        shell: bash
+        run: |
+          cabal v2-configure \
+            --constraint pandoc==${{ env.PANDOC_VERSION }} \
+            --constraint zip-archive'>='0.4.2.1 \
+            --enable-tests \
+            ${{matrix.extra-options}}
+          cat >> cabal.project.local <<EOF
+          package pandoc-crossref
+            flags: +enable_flaky_tests
+          EOF
+      - uses: actions/cache@v4
+        with:
+          path: .cabal-store
+          key: r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+          restore-keys: |
+            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}
+            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}
+      - shell: bash
+        run: |
+          rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
+          rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-* || true
+          rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-* || true
+          ls .cabal-store/ghc-${{matrix.ghcver}}/ || true
+      - name: Install dependencies
+        run: cabal v2-build --only-dependencies
+      - name: Build
+        run: cabal v2-build
+      - name: Run tests
+        run: cabal v2-test
+      - name: Install
+        shell: bash
+        run: |
+          mkdir pandoc-crossref-${{runner.os}}-${{runner.arch}}
+          export GIT_DIR="$PWD/.git"
+          cabal v2-install --installdir=$PWD/pandoc-crossref-${{runner.os}}-${{runner.arch}}
+      - name: Get Version
+        shell: bash
+        id: get_version
+        run: |
+          cd pandoc-crossref-${{runner.os}}-${{runner.arch}}/
+          chmod +x pandoc-crossref
+          VERSION="$(./pandoc-crossref --version)"
+          echo "$VERSION"
+          echo "$VERSION" > version.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{runner.os}}-${{runner.arch}}-build
+          path: pandoc-crossref-${{runner.os}}-${{runner.arch}}
+      - shell: bash
+        run: |
+          rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
+          rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossr_-* || true
+          rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pndc-crssrf-* || true
 
   build-nix-pre:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
-        target: ['.', '.#static']
+        target: [".", ".#static"]
     runs-on: ${{ matrix.os }}
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: cachix/install-nix-action@v20
-      with:
-        install_options: --no-daemon
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        extra_nix_config: |
-          substituters = https://cache.nixos.org https://cache.iog.io https://nix-cache.undo.it/pandoc-crossref?trusted=true&priority=50
-          trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
-    - uses: cachix/cachix-action@v12
-      with:
-        name: pandoc-crossref
-        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix build ${{ matrix.target }}
-    - run: nix copy --to 's3://pandoc-crossref?region=${{secrets.AWS_REGION}}&endpoint=${{secrets.AWS_ENDPOINT_URL}}' --all
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v20
+        with:
+          install_options: --no-daemon
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          extra_nix_config: |
+            substituters = https://cache.nixos.org https://cache.iog.io https://nix-cache.undo.it/pandoc-crossref?trusted=true&priority=50
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+      - uses: cachix/cachix-action@v12
+        with:
+          name: pandoc-crossref
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - run: nix build ${{ matrix.target }}
+      - run: nix copy --to 's3://pandoc-crossref?region=${{secrets.AWS_REGION}}&endpoint=${{secrets.AWS_ENDPOINT_URL}}' --all
 
   build-nix:
     strategy:
@@ -126,211 +126,211 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: cachix/install-nix-action@v20
-      with:
-        install_options: --no-daemon
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        extra_nix_config: |
-          substituters = https://cache.nixos.org https://cache.iog.io https://nix-cache.undo.it/pandoc-crossref?trusted=true&priority=50
-          trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
-    - uses: cachix/cachix-action@v12
-      with:
-        name: pandoc-crossref
-        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: |
-        nix build .#static
-        cp -r result/bin/ pandoc-crossref-${{runner.os}}-${{runner.arch}}
-        chmod +w -R pandoc-crossref-${{runner.os}}-${{runner.arch}}
-    - name: Check pandoc version for static binary
-      run: |
-        ./pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
-    - run: nix run .#test
-    - run: nix run .#test-integrative
-    - run: nix develop -c echo ok
-    - name: Check pandoc version in shell
-      run: |
-        [ "$(nix develop -c pandoc --version | head -n1)" == "pandoc ${{ env.PANDOC_VERSION }}" ]
-    - name: Make manpage
-      run: |
-        nix develop -c pandoc -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref.1
-    - name: Get Version
-      shell: bash
-      id: get_version
-      run: |
-        cd pandoc-crossref-${{runner.os}}-${{runner.arch}}/
-        chmod +x pandoc-crossref
-        VERSION="$(./pandoc-crossref --version)"
-        echo "$VERSION"
-        echo "$VERSION" > version.txt
-    - uses: actions/upload-artifact@v4
-      with:
-        name: ${{runner.os}}-${{runner.arch}}-build-static
-        path: pandoc-crossref-${{runner.os}}-${{runner.arch}}
-    - run: nix copy --to 's3://pandoc-crossref?region=${{secrets.AWS_REGION}}&endpoint=${{secrets.AWS_ENDPOINT_URL}}' --all
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v20
+        with:
+          install_options: --no-daemon
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          extra_nix_config: |
+            substituters = https://cache.nixos.org https://cache.iog.io https://nix-cache.undo.it/pandoc-crossref?trusted=true&priority=50
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+      - uses: cachix/cachix-action@v12
+        with:
+          name: pandoc-crossref
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - run: |
+          nix build .#static
+          cp -r result/bin/ pandoc-crossref-${{runner.os}}-${{runner.arch}}
+          chmod +w -R pandoc-crossref-${{runner.os}}-${{runner.arch}}
+      - name: Check pandoc version for static binary
+        run: |
+          ./pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
+      - run: nix run .#test
+      - run: nix run .#test-integrative
+      - run: nix develop -c echo ok
+      - name: Check pandoc version in shell
+        run: |
+          [ "$(nix develop -c pandoc --version | head -n1)" == "pandoc ${{ env.PANDOC_VERSION }}" ]
+      - name: Make manpage
+        run: |
+          nix develop -c pandoc -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref.1
+      - name: Get Version
+        shell: bash
+        id: get_version
+        run: |
+          cd pandoc-crossref-${{runner.os}}-${{runner.arch}}/
+          chmod +x pandoc-crossref
+          VERSION="$(./pandoc-crossref --version)"
+          echo "$VERSION"
+          echo "$VERSION" > version.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{runner.os}}-${{runner.arch}}-build-static
+          path: pandoc-crossref-${{runner.os}}-${{runner.arch}}
+      - run: nix copy --to 's3://pandoc-crossref?region=${{secrets.AWS_REGION}}&endpoint=${{secrets.AWS_ENDPOINT_URL}}' --all
 
   release:
     needs: [build, build-nix]
     runs-on: ubuntu-latest
     container: alpine:3.15.0
     steps:
-    - run: |
-        echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories
-        apk add --update --no-cache p7zip hub bash tar xz
-    - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v4
-    - name: Repack assets
-      run: |
-        mkdir assets
+      - run: |
+          echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories
+          apk add --update --no-cache p7zip hub bash tar xz
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+      - name: Repack assets
+        run: |
+          mkdir assets
 
-        chmod +x Linux-X64-build-static/pandoc-crossref
-        tar cJf assets/pandoc-crossref-Linux-X64-${{github.sha}}.tar.xz -C Linux-X64-build-static pandoc-crossref pandoc-crossref.1
+          chmod +x Linux-X64-build-static/pandoc-crossref
+          tar cJf assets/pandoc-crossref-Linux-X64-${{github.sha}}.tar.xz -C Linux-X64-build-static pandoc-crossref pandoc-crossref.1
 
-        chmod +x Linux-ARM64-build-static/pandoc-crossref
-        tar cJf assets/pandoc-crossref-Linux-ARM64-${{github.sha}}.tar.xz -C Linux-ARM64-build-static pandoc-crossref pandoc-crossref.1
+          chmod +x Linux-ARM64-build-static/pandoc-crossref
+          tar cJf assets/pandoc-crossref-Linux-ARM64-${{github.sha}}.tar.xz -C Linux-ARM64-build-static pandoc-crossref pandoc-crossref.1
 
-        chmod +x macOS-X64-build/pandoc-crossref
-        tar cJf assets/pandoc-crossref-macOS-X64-${{github.sha}}.tar.xz -C macOS-X64-build pandoc-crossref
+          chmod +x macOS-X64-build/pandoc-crossref
+          tar cJf assets/pandoc-crossref-macOS-X64-${{github.sha}}.tar.xz -C macOS-X64-build pandoc-crossref
 
-        chmod +x macOS-ARM64-build/pandoc-crossref
-        tar cJf assets/pandoc-crossref-macOS-ARM64-${{github.sha}}.tar.xz -C macOS-ARM64-build pandoc-crossref
+          chmod +x macOS-ARM64-build/pandoc-crossref
+          tar cJf assets/pandoc-crossref-macOS-ARM64-${{github.sha}}.tar.xz -C macOS-ARM64-build pandoc-crossref
 
-        cd Windows-X64-build
-        7z a ../assets/pandoc-crossref-Windows-X64-${{github.sha}}.7z pandoc-crossref.exe
-    - uses: actions/upload-artifact@v4
-      with:
-        name: release-assets
-        path: assets
-    - name: Generate description.md
-      if: startsWith(github.ref, 'refs/tags/v')
-      shell: bash
-      run: |
-        echo -n "" > description.md
-        for i in *-build; do
-          os="${i%-build}"
-          desc="$(cat $i/version.txt)"
-          echo "${os}: ${desc}" >> description.md
-        done
-        ver="${GITHUB_REF##*/v}"
-        echo "### Changelog" >> description.md
-        sed -rn '/^## *'"${ver//./\\.}"'/,/^##[^#]/ p' CHANGELOG.md | head -n-1 | tail -n+2 >> description.md
-        echo "description.md"
-        cat description.md
-    - name: Rename assets for release
-      if: startsWith(github.ref, 'refs/tags/v')
-      shell: bash
-      run: |
-        for i in assets/*; do
-          mv "$i" "${i/-${{github.sha}}/}"
-        done
-    - name: Create release
-      if: startsWith(github.ref, 'refs/tags/v')
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: softprops/action-gh-release@v1
-      with:
-        body_path: description.md
-        files: |
-          assets/*
-        fail_on_unmatched_files: true
-    - name: Extract branch name
-      if: "!startsWith(github.ref, 'refs/tags/v')"
-      shell: bash
-      run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
-      id: extract_branch
-    - name: Generate description outputs
-      if: "!startsWith(github.ref, 'refs/tags/v')"
-      shell: bash
-      run: |
-        for i in *-build; do
-          os="${i%-build}"
-          desc="$(cat $i/version.txt)"
-          echo ::set-output name=${os}::${desc}
-        done
-      id: description
-    - name: Upload "nightly" for Linux X64
-      if: "!startsWith(github.ref, 'refs/tags/v')"
-      uses: WebFreak001/deploy-nightly@v1.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
-        release_id: 44009421
-        asset_path: ./assets/pandoc-crossref-Linux-X64-${{github.sha}}.tar.xz
-        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-X64-$$.tar.xz
-        asset_content_type: application/x-gtar
-        max_releases: 21
-    - name: Upload "nightly" for Linux ARM64
-      if: "!startsWith(github.ref, 'refs/tags/v')"
-      uses: WebFreak001/deploy-nightly@v1.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
-        release_id: 44009421
-        asset_path: ./assets/pandoc-crossref-Linux-ARM64-${{github.sha}}.tar.xz
-        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-ARM64-$$.tar.xz
-        asset_content_type: application/x-gtar
-        max_releases: 21
-    - name: Upload "nightly" for macOS X64
-      if: "!startsWith(github.ref, 'refs/tags/v')"
-      uses: WebFreak001/deploy-nightly@v1.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
-        release_id: 44009421
-        asset_path: ./assets/pandoc-crossref-macOS-X64-${{github.sha}}.tar.xz
-        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-macOS-X64-$$.tar.xz
-        asset_content_type: application/x-gtar
-        max_releases: 21
-    - name: Upload "nightly" for macOS ARM64
-      if: "!startsWith(github.ref, 'refs/tags/v')"
-      uses: WebFreak001/deploy-nightly@v1.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
-        release_id: 44009421
-        asset_path: ./assets/pandoc-crossref-macOS-ARM64-${{github.sha}}.tar.xz
-        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-macOS-ARM64-$$.tar.xz
-        asset_content_type: application/x-gtar
-        max_releases: 21
-    - name: Upload "nightly" for Windows
-      if: "!startsWith(github.ref, 'refs/tags/v')"
-      uses: WebFreak001/deploy-nightly@v1.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
-        release_id: 44009421
-        asset_path: ./assets/pandoc-crossref-Windows-X64-${{github.sha}}.7z
-        asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Windows-$$.7z
-        asset_content_type: application/x-7z-compressed
-        max_releases: 21
-      # TODO: where to put this?
-      #   versionDescription: |
-      #     Linux: ${{steps.description.outputs.Linux}}
-      #     macOS: ${{steps.description.outputs.macOS}}
-      #     Windows: ${{steps.description.outputs.Windows}}
+          cd Windows-X64-build
+          7z a ../assets/pandoc-crossref-Windows-X64-${{github.sha}}.7z pandoc-crossref.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: assets
+      - name: Generate description.md
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          echo -n "" > description.md
+          for i in *-build; do
+            os="${i%-build}"
+            desc="$(cat $i/version.txt)"
+            echo "${os}: ${desc}" >> description.md
+          done
+          ver="${GITHUB_REF##*/v}"
+          echo "### Changelog" >> description.md
+          sed -rn '/^## *'"${ver//./\\.}"'/,/^##[^#]/ p' CHANGELOG.md | head -n-1 | tail -n+2 >> description.md
+          echo "description.md"
+          cat description.md
+      - name: Rename assets for release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          for i in assets/*; do
+            mv "$i" "${i/-${{github.sha}}/}"
+          done
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: description.md
+          files: |
+            assets/*
+          fail_on_unmatched_files: true
+      - name: Extract branch name
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        shell: bash
+        run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+        id: extract_branch
+      - name: Generate description outputs
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        shell: bash
+        run: |
+          for i in *-build; do
+            os="${i%-build}"
+            desc="$(cat $i/version.txt)"
+            echo ::set-output name=${os}::${desc}
+          done
+        id: description
+      - name: Upload "nightly" for Linux X64
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+          release_id: 44009421
+          asset_path: ./assets/pandoc-crossref-Linux-X64-${{github.sha}}.tar.xz
+          asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-X64-$$.tar.xz
+          asset_content_type: application/x-gtar
+          max_releases: 21
+      - name: Upload "nightly" for Linux ARM64
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+          release_id: 44009421
+          asset_path: ./assets/pandoc-crossref-Linux-ARM64-${{github.sha}}.tar.xz
+          asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Linux-ARM64-$$.tar.xz
+          asset_content_type: application/x-gtar
+          max_releases: 21
+      - name: Upload "nightly" for macOS X64
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+          release_id: 44009421
+          asset_path: ./assets/pandoc-crossref-macOS-X64-${{github.sha}}.tar.xz
+          asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-macOS-X64-$$.tar.xz
+          asset_content_type: application/x-gtar
+          max_releases: 21
+      - name: Upload "nightly" for macOS ARM64
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+          release_id: 44009421
+          asset_path: ./assets/pandoc-crossref-macOS-ARM64-${{github.sha}}.tar.xz
+          asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-macOS-ARM64-$$.tar.xz
+          asset_content_type: application/x-gtar
+          max_releases: 21
+      - name: Upload "nightly" for Windows
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: https://uploads.github.com/repos/lierdakil/pandoc-crossref/releases/44009421/assets{?name,label}
+          release_id: 44009421
+          asset_path: ./assets/pandoc-crossref-Windows-X64-${{github.sha}}.7z
+          asset_name: pandoc-crossref-${{steps.extract_branch.outputs.branch}}-Windows-$$.7z
+          asset_content_type: application/x-7z-compressed
+          max_releases: 21
+        # TODO: where to put this?
+        #   versionDescription: |
+        #     Linux: ${{steps.description.outputs.Linux}}
+        #     macOS: ${{steps.description.outputs.macOS}}
+        #     Windows: ${{steps.description.outputs.Windows}}
 
   build-stack:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Install dependencies
-      run: |
-        wget https://get.haskellstack.org/stable/linux-x86_64.tar.gz
-        tar zxf linux-x86_64.tar.gz
-        mv stack-*/stack ./
-        chmod +x ./stack
-    - uses: actions/cache@v4
-      with:
-        path: /home/runner/.stack
-        key: ${{ runner.os }}-stack
-    - name: Build and test
-      run: ./stack build --test
-    - name: Verify version
-      shell: bash
-      run: |
-        stack exec -- pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          wget https://get.haskellstack.org/stable/linux-x86_64.tar.gz
+          tar zxf linux-x86_64.tar.gz
+          mv stack-*/stack ./
+          chmod +x ./stack
+      - uses: actions/cache@v4
+        with:
+          path: /home/runner/.stack
+          key: ${{ runner.os }}-stack
+      - name: Build and test
+        run: ./stack build --test
+      - name: Verify version
+        shell: bash
+        run: |
+          stack exec -- pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
