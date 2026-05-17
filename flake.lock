@@ -121,11 +121,11 @@
     "hackage": {
       "flake": false,
       "locked": {
-        "lastModified": 1770475948,
-        "narHash": "sha256-JhDr976i3Dx02taz+scMZ3CVI3aPZwhBNg69yegcDmc=",
+        "lastModified": 1779035872,
+        "narHash": "sha256-cF9LBR+dZRtBwdDWoq075kL3qHKFdFS9vDFhEMXRTWo=",
         "owner": "lierdakil",
         "repo": "hackage.nix",
-        "rev": "61156f22f296fb81215b3caac58dd654fdd0a34e",
+        "rev": "7c6146b094594a58a1f9076036561877e68d1233",
         "type": "github"
       },
       "original": {
