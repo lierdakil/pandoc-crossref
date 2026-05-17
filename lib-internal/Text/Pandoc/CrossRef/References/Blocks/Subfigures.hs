@@ -227,10 +227,16 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
   let label' = normalizeLabel label
   let title = blocksToInlines [btitle]
       (attrs, content') = case blocksToInlines content of
-        [Image attr@(_, _, as) _ tgt] ->
+        [Image attr@(_, _, as) alt tgt] ->
             -- the second argument is a fix for
             -- https://github.com/jgm/pandoc/issues/9720
-            (fattrs <> as, \capt -> [Plain [Image attr capt tgt]])
+            let newContent
+                  -- and this is a fix for https://github.com/lierdakil/pandoc-crossref/issues/506,
+                  -- wherein we want to preserve alt if it's specified. Odd heuristic, but should
+                  -- generally work...
+                  | title /= alt = const [Plain [Image attr alt tgt]]
+                  | otherwise = \capt -> [Plain [Image attr capt tgt]]
+            in (fattrs <> as, newContent)
         _ -> (fattrs, const content)
   ref <- replaceAttr label' attrs title SPfxImg
   idxStr <- chapIndex ref
