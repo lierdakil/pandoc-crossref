@@ -151,11 +151,7 @@
             pandoc
           ];
         };
-        devShells.dev = flake.devShells.default.overrideAttrs (old: {
-          nativeBuildInputs = old.nativeBuildInputs ++ [
-            pkgs.hlint
-          ];
-        });
+        devShells.dev = flake.devShells.default;
       }
     );
 

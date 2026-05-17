@@ -420,7 +420,7 @@ replaceRefOne = \case
 testCBCaptions :: Blocks -> Blocks -> Expectation
 testCBCaptions bs res =
   let opts = defaultOptions{Text.Pandoc.CrossRef.Util.Options.codeBlockCaptions=True}
-  in bottomUp (\bs' -> fromMaybe bs' $ Util.CodeBlockCaptions.mkCodeBlockCaptions opts bs') (toList bs) `shouldBe` toList res
+  in (bottomUp (\bs' -> fromMaybe bs' $ Util.CodeBlockCaptions.mkCodeBlockCaptions opts bs') (toList bs)) `shouldBe` toList res
 
 testList :: Blocks -> References -> Blocks -> Expectation
 testList bs st res = runWSWithOptsInit defaultOptions st (bottomUpM listOf' (toList bs))
@@ -505,8 +505,10 @@ cit r = [defCit{citationId=r}]
 infixr 0 =:
 (=:) :: Prefix -> M.Map RefIndex RefRec -> References
 a =: b = def
-  & ctrsAt a .~ refIndex $ last $ M.elems b
+  & ctrsAt a .~ (refIndex $ last $ M.elems b)
   & refsAt a .~ b
   & stGlob %~ (+ fromIntegral (M.size b))
   & stHiddenHeaderLevel .~
-    [HiddenHeader { hhLevel = 1, hhHidden = False } | a == PfxSec]
+    if a == PfxSec
+    then [HiddenHeader { hhLevel = 1, hhHidden = False }]
+    else []

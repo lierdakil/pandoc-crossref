@@ -103,7 +103,7 @@ replaceAttr label attrs title (toPrefix -> pfx) = do
         | otherwise = 1
       index = chap S.|> (i, refLabel <|> customLabel (Pfx pfx) i)
       synthLabel = IdxSynth globCtr
-      label' = maybe synthLabel (IdxRef pfx) label
+      label' = fromMaybe synthLabel $ IdxRef pfx <$> label
   when (M.member label' prop') $
     error $ "Duplicate label: " <> displayIdx label'
   wsReferences . ctrsAt pfx .= index
