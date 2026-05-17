@@ -1,3 +1,15 @@
+## 0.3.24
+
+-   Fix for #506
+
+    A prior fix/workaround for https://github.com/jgm/pandoc/issues/9720 had
+    unintentionally clobbered explicitly-specified `alt` attributes on images.
+
+    Unfortunately, Pandoc does not expose `alt` attribute explicitly to filters,
+    instead it's only seen as image caption. So a simple heuristic is used:
+    if image caption does not match the figure caption, we assume it's an
+    explicitly-specified alt text and preserve it. Otherwise, clobber it.
+
 ## 0.3.23
 
 -   Center subfigures in LaTeX
