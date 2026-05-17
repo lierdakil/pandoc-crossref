@@ -113,7 +113,7 @@ jobs:
           name: pandoc-crossref
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: nix build ${{ matrix.target }}
-      - run: nix copy --to 's3://pandoc-crossref?region=${{secrets.AWS_REGION}}&endpoint=${{secrets.AWS_ENDPOINT_URL}}' --all
+      - run: nix copy --to 's3://pandoc-crossref?region=${{secrets.AWS_REGION}}&endpoint=${{secrets.AWS_ENDPOINT_URL}}&compression=zstd' --all
 
   build-nix:
     strategy:
