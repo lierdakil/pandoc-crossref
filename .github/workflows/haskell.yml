@@ -101,7 +101,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v20
+      - uses: cachix/install-nix-action@v31
         with:
           install_options: --no-daemon
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -127,7 +127,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v20
+      - uses: cachix/install-nix-action@v31
         with:
           install_options: --no-daemon
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
