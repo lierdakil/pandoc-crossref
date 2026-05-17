@@ -789,7 +789,7 @@ See also [List item templates](#list-item-templates)
 -   `linkReferences`, default `false`: Make references hyperlinks to the
     referenced element
 -   `nameInLink`, default `false`: For single-element references,
-    inlcude prefix into hyperlink (when using `linkReferences`)
+    include prefix into hyperlink (when using `linkReferences`)
 
 Note that none of the `*Delim` options are honored with cleveref output.
 Use cleveref's customization options instead.
