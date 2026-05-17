@@ -10,6 +10,15 @@
     if image caption does not match the figure caption, we assume it's an
     explicitly-specified alt text and preserve it. Otherwise, clobber it.
 
+-  `preserveAltText` option. As stated above, if `alt` is missing or matches the
+    figure caption, it will be clobbered, and figure caption will be generated
+    by Pandoc with `aria-hidden="true"`. When `preserveAltText` is set to `True`,
+    pandoc-crossref will preserve the alt text (be it explicit or implicit from
+    caption) verbatim, forcing Pandoc to produce both alt text and figure
+    caption in the output. The hope is this may prove useful in some workflows,
+    but you definitely should just specify alt text on all your images if you
+    care about screen readers at all.
+
 ## 0.3.23
 
 -   Center subfigures in LaTeX
