@@ -82,6 +82,7 @@ data Options = Options { cref :: Bool
                        , setLabelAttribute :: Bool
                        , equationNumberTeX :: Text
                        , listOfMetadata :: Bool
+                       , preserveAltText :: Bool
                        }
 
 isLatexFormat :: Options -> Bool

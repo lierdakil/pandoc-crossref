@@ -707,6 +707,14 @@ A list of variables follows.
     This option doesn't affect LaTeX output (which offloads numbering to the LaTeX engine).
 -   `listOfMetadata`, default `false`. Enables setting `list-of-figures` &c
     variables to pass through to the Pandoc's templating engine.
+-   `preserveAltText`, default `false`. By default, if an image in a figure does not have an explicit
+    `alt` attribute, pandoc-crossref will assume it's only the figure caption, and not an `alt`
+    text. Pandoc will then produce a figure caption with `aria-hidden="true"` attribute and no `alt`
+    text on the image itself. Setting this flag to `true` will make pandoc-crossref preserve the
+    `alt` text (even if it is inferred from the figure caption) verbatim, which forces Pandoc to
+    generate an image with `alt` text and figure caption without `aria-hidden`. This is certainly
+    a half-measure at best, hence disabled by default, but may be better than nothing in certain
+    workflows.
 
 ### Item title format
 

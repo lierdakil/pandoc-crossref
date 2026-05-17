@@ -234,7 +234,7 @@ runFigure subFigure (label, cls, fattrs) (Caption short (btitle : rest)) content
                   -- and this is a fix for https://github.com/lierdakil/pandoc-crossref/issues/506,
                   -- wherein we want to preserve alt if it's specified. Odd heuristic, but should
                   -- generally work...
-                  | title /= alt = const [Plain [Image attr alt tgt]]
+                  | preserveAltText opts || title /= alt = const [Plain [Image attr alt tgt]]
                   | otherwise = \capt -> [Plain [Image attr capt tgt]]
             in (fattrs <> as, newContent)
         _ -> (fattrs, const content)

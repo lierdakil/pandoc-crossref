@@ -1,0 +1,17 @@
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={Single figure}]{./fig1.png}}
+\caption{Single figure}\label{fig:one}
+\end{figure}
+
+\begin{pandoccrossrefsubfigures}
+
+\begin{subfigure}{1.0\linewidth}\centering\pandocbounded{\includegraphics[keepaspectratio,alt={subfigure 1 caption}]{image1.png}}\caption{subfigure
+1 caption\label{fig:figureRefA}}\end{subfigure}%
+
+\begin{subfigure}{1.0\linewidth}\centering\pandocbounded{\includegraphics[keepaspectratio,alt={subfigure 2 caption}]{image2.png}}\caption{subfigure
+2 caption\label{fig:figureRefB}}\end{subfigure}%
+
+\caption{Caption of figure}\label{fig:figureRef}
+
+\end{pandoccrossrefsubfigures}
