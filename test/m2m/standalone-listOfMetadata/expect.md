@@ -104,7 +104,7 @@ pairDelim: ", "
 rangeDelim: "-"
 refDelim: ", "
 refIndexTemplate: $$i$$$$suf$$
-secHeaderDelim:
+secHeaderDelim: 
 secHeaderTemplate: $$i$$$$secHeaderDelim[n]$$$$t$$
 secLabels: arabic
 secPrefix:
