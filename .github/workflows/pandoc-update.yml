@@ -1,0 +1,171 @@
+name: Check for pandoc updates
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-update:
+    name: Check for a new pandoc release and open an update PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master-test
+          fetch-depth: 0
+
+      - name: Install yq and jq
+        run: |
+          set -euo pipefail
+          sudo -n apt-get update -y
+          sudo -n apt-get install -y --no-install-recommends yq jq
+
+      # ---- Decide whether an update is needed (light; exits fast otherwise) ----
+      - name: Check for a new pandoc release
+        id: compare
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          latest_version="$(curl -fs \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              https://api.github.com/repos/jgm/pandoc/releases/latest \
+              | yq -r '.tag_name' | sed 's/^v//')"
+          current_version="$(yq -r '.env.PANDOC_VERSION' .github/workflows/haskell.yml)"
+          branch="pandoc-${latest_version}"
+          echo "Latest pandoc release  : $latest_version (v$latest_version)"
+          echo "Current PANDOC_VERSION : $current_version"
+          echo "Candidate branch       : $branch"
+          need_update="false"
+          if [ "$latest_version" != "$current_version" ]; then
+            refs="$(curl -fs \
+                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?per_page=100&state=open" \
+                | yq -r '.[].head.ref')"
+            pr_count="$(printf '%s\n' "$refs" | grep -c "^${branch}$" || true)"
+            echo "Open PRs for $branch: $pr_count"
+            if [ "$pr_count" -eq 0 ]; then
+              need_update="true"
+            else
+              echo "An open PR already exists for $branch; skipping."
+            fi
+          else
+            echo "No new pandoc version; nothing to do."
+          fi
+          echo "latest_version=$latest_version" >> $GITHUB_OUTPUT
+          echo "current_version=$current_version" >> $GITHUB_OUTPUT
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+          echo "need_update=$need_update" >> $GITHUB_OUTPUT
+
+      - name: Install Nix
+        if: steps.compare.outputs.need_update == 'true'
+        uses: cachix/install-nix-action@v31
+        with:
+          install_options: --no-daemon
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Haskell (GHC 9.8.4 + cabal)
+        if: steps.compare.outputs.need_update == 'true'
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: "9.8.4"
+          enable-stack: true
+
+      - name: Create the update branch
+        if: steps.compare.outputs.need_update == 'true'
+        run: |
+          set -euo pipefail
+          git checkout -b "${{ steps.compare.outputs.branch }}" 2>/dev/null \
+              || git checkout "${{ steps.compare.outputs.branch }}"
+          git branch --show-current
+
+      - name: Patch PANDOC_VERSION in haskell.yml
+        if: steps.compare.outputs.need_update == 'true'
+        run: |
+          set -euo pipefail
+          sed -ri -e "s|^[[:space:]]*PANDOC_VERSION:[[:space:]]*\".*\"|  PANDOC_VERSION: \"${{ steps.compare.outputs.latest_version }}\"|" \
+              .github/workflows/haskell.yml
+          echo "Patched:"
+          grep -n 'PANDOC_VERSION:' .github/workflows/haskell.yml | head -n1
+
+      - name: Run make update
+        if: steps.compare.outputs.need_update == 'true'
+        run: |
+          set -euo pipefail
+          export PATH="/tmp/pandoc-update-tools:$PATH"
+          echo "stack : $(command -v stack)"
+          echo "nix   : $(command -v nix)"
+          echo "cabal : $(command -v cabal)"
+          echo "yq    : $(command -v yq)"
+          time make update
+          echo "--- git status after make update ---"
+          git status --short
+
+      - name: Commit changes
+        if: steps.compare.outputs.need_update == 'true'
+        run: |
+          set -euo pipefail
+          git add .github/workflows/haskell.yml
+          git add cabal.project.freeze
+          git add stack.yaml
+          git add flake.lock
+          git add stack.yaml.lock || true
+          if git diff --cached --quiet; then
+            echo "::error::make update produced no changes; aborting."
+            exit 1
+          fi
+          echo "=== files to be committed ==="
+          git diff --cached --stat
+          commit_msg_file=$(mktemp)
+          printf '%s\n' \
+            "deps: bump pandoc to ${{ steps.compare.outputs.latest_version }}" \
+            "" \
+            "Problem: a new pandoc release (v${{ steps.compare.outputs.latest_version }}) is available" \
+            "" \
+            "Solution: update PANDOC_VERSION in .github/workflows/haskell.yml and" \
+            "regenerate cabal.project.freeze, stack.yaml, flake.lock and stack.yaml.lock" \
+            "via make update" > "$commit_msg_file"
+          git -c user.name="pandoc-update-bot" \
+              -c user.email="pandoc-update-bot@github.com" \
+              commit -F "$commit_msg_file"
+          rm -f "$commit_msg_file"
+
+      - name: Push the update branch
+        if: steps.compare.outputs.need_update == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git push --force \
+              "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+              "HEAD:${{ steps.compare.outputs.branch }}"
+          echo "Branch pushed."
+
+      - name: Open a pull request against master
+        if: steps.compare.outputs.need_update == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          body="Automated daily pandoc version bump: updates PANDOC_VERSION in .github/workflows/haskell.yml and regenerates dependency lockfiles via make update."
+          payload="$(jq -n \
+            --arg title "Bump pandoc to ${{ steps.compare.outputs.latest_version }}" \
+            --arg head "${{ steps.compare.outputs.branch }}" \
+            --arg base "master-test" \
+            --arg body "$body" \
+            '{title, body, head, base}')"
+          echo "PR payload: $payload"
+          curl -fs -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$payload" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls" \
+            | jq -c .number, .html_url, .state
