@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   check-update:
@@ -151,19 +152,10 @@ jobs:
         if: steps.compare.outputs.need_update == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          body="Automated daily pandoc version bump: updates PANDOC_VERSION in .github/workflows/haskell.yml and regenerates dependency lockfiles via make update."
-          payload="$(jq -n \
-            --arg title "Bump pandoc to ${{ steps.compare.outputs.latest_version }}" \
-            --arg head "${{ steps.compare.outputs.branch }}" \
-            --arg base "master" \
-            --arg body "$body" \
-            '{title: $title, body: $body, head: $head, base: $base}')"
-          echo "PR payload: $payload"
-          curl -fsL -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "X-GitHub-Api-Version: 2026-03-10" \
-            'https://api.github.com/repos/lierdakil/pandoc-crossref/pulls' \
-            -d "$payload"
+        run: gh pr create --fill --base master --head "${{ steps.compare.outputs.branch }}"
+
+      - name: Trigger build
+        if: steps.compare.outputs.need_update == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run haskell.yml --ref "${{ steps.compare.outputs.branch }}"

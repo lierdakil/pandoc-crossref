@@ -1,6 +1,8 @@
 name: Haskell CI
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
 
 env:
   PANDOC_VERSION: "3.12.1"
