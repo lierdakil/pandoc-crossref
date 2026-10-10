@@ -1,3 +1,11 @@
+## 0.3.26
+
+-   Update for pandoc 3.12. No functional changes.
+
+## 0.3.25
+
+-   Update for pandoc 3.10. No functional changes.
+
 ## 0.3.24
 
 -   Fix for #506
