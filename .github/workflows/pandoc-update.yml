@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout master
+      - name: Checkout test
         uses: actions/checkout@v4
         with:
-          ref: master
+          ref: test
           fetch-depth: 0
 
       # ---- Decide whether an update is needed (light; exits fast otherwise) ----
@@ -148,11 +148,11 @@ jobs:
               "HEAD:${{ steps.compare.outputs.branch }}"
           echo "Branch pushed."
 
-      - name: Open a pull request against master
+      - name: Open a pull request against test
         if: steps.compare.outputs.need_update == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr create --fill --base master --head "${{ steps.compare.outputs.branch }}"
+        run: gh pr create --fill --base test --head "${{ steps.compare.outputs.branch }}"
 
       - name: Trigger build
         if: steps.compare.outputs.need_update == 'true'
