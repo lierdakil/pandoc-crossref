@@ -21,12 +21,6 @@ jobs:
           ref: master-test
           fetch-depth: 0
 
-      - name: Install yq and jq
-        run: |
-          set -euo pipefail
-          sudo -n apt-get update -y
-          sudo -n apt-get install -y --no-install-recommends yq jq
-
       # ---- Decide whether an update is needed (light; exits fast otherwise) ----
       - name: Check for a new pandoc release
         id: compare
