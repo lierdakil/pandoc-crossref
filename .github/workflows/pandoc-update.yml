@@ -71,6 +71,7 @@ jobs:
         with:
           ghc-version: "9.8.4"
           enable-stack: true
+          cabal-update: true
 
       - name: Create the update branch
         if: steps.compare.outputs.need_update == 'true'
