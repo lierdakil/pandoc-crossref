@@ -1,5 +1,5 @@
 package *
-  debug-info: False
+  debug-info: 0
   executable-stripping: True
 packages: .
 package pandoc

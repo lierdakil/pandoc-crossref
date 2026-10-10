@@ -1,5 +1,5 @@
 package *
-  debug-info: False
+  debug-info: 0
   split-sections: True
   executable-stripping: True
 packages: .
