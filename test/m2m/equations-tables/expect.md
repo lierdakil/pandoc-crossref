@@ -1,14 +1,14 @@
-This is a test file with some referenced equations, line $$ this $$
+This is a test file with some referenced equations, line $$this$$
 
-Some equations might be inside of text, $$ for example $$ this one.
+Some equations might be inside of text, $$for example$$ this one.
 
 Some equations might be on start of paragraphs:
 
-$$ start $$ of paragraph.
+$$start$$ of paragraph.
 
 Other might be on separate paragraphs of their own:
 
-$$ separate $$
+$$separate$$
 
 Some of those can be labelled:
 
@@ -16,7 +16,7 @@ This is a test file with some referenced equations, line
 
 ::: {#eq:0}
 +:-------------------------------------------------------------:+--------:+
-| $$ this $$                                                    | $$(1)$$ |
+| $$this$$                                                      | $$(1)$$ |
 +---------------------------------------------------------------+---------+
 :::
 
@@ -24,7 +24,7 @@ Some equations might be inside of text,
 
 ::: {#eq:1}
 +:-------------------------------------------------------------:+--------:+
-| $$ for example $$                                             | $$(2)$$ |
+| $$for example$$                                               | $$(2)$$ |
 +---------------------------------------------------------------+---------+
 :::
 
@@ -34,7 +34,7 @@ Some equations might be on start of paragraphs:
 
 ::: {#eq:2}
 +:-------------------------------------------------------------:+--------:+
-| $$ start $$                                                   | $$(3)$$ |
+| $$start$$                                                     | $$(3)$$ |
 +---------------------------------------------------------------+---------+
 :::
 
@@ -44,7 +44,7 @@ Other might be on separate paragraphs of their own:
 
 ::: {#eq:3}
 +:-------------------------------------------------------------:+--------:+
-| $$ separate $$                                                | $$(4)$$ |
+| $$separate$$                                                  | $$(4)$$ |
 +---------------------------------------------------------------+---------+
 :::
 

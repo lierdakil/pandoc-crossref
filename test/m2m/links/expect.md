@@ -1,30 +1,30 @@
-This is a test file with some referenced equations, line $$ this $$
+This is a test file with some referenced equations, line $$this$$
 
-Some equations might be inside of text, $$ for example $$ this one.
+Some equations might be inside of text, $$for example$$ this one.
 
 Some equations might be on start of paragraphs:
 
-$$ start $$ of paragraph.
+$$start$$ of paragraph.
 
 Other might be on separate paragraphs of their own:
 
-$$ separate $$
+$$separate$$
 
 Some of those can be labelled:
 
 This is a test file with some referenced equations, line
-[$$ this \qquad{(1)}$$]{#eq:0}
+[$$this\qquad{(1)}$$]{#eq:0}
 
 Some equations might be inside of text,
-[$$ for example \qquad{(2)}$$]{#eq:1} this one.
+[$$for example\qquad{(2)}$$]{#eq:1} this one.
 
 Some equations might be on start of paragraphs:
 
-[$$ start \qquad{(3)}$$]{#eq:2} of paragraph.
+[$$start\qquad{(3)}$$]{#eq:2} of paragraph.
 
 Other might be on separate paragraphs of their own:
 
-[$$ separate \qquad{(4)}$$]{#eq:3}
+[$$separate\qquad{(4)}$$]{#eq:3}
 
 Then they can be referenced:
 

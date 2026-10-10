@@ -563,8 +563,7 @@
   , Para
       [ Span
           ( "eq:eqn1" , [] , [] )
-          [ Math
-              DisplayMath " P_i(x) = \\sum_i a_i x^i \\qquad{(2.1)}"
+          [ Math DisplayMath "P_i(x) = \\sum_i a_i x^i\\qquad{(2.1)}"
           ]
       ]
   , Para
@@ -1074,7 +1073,7 @@
           ( "eq:eqn2" , [] , [] )
           [ Math
               DisplayMath
-              " S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x \\qquad{(4.1)}"
+              "S(x) = \\int_{x_1}^{x_2} a x+b \\  \\mathrm{d}x\\qquad{(4.1)}"
           ]
       ]
   , Header
