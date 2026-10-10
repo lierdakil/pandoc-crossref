@@ -166,5 +166,4 @@ jobs:
             -H "Authorization: Bearer $GITHUB_TOKEN" \
             -H "Content-Type: application/json" \
             -d "$payload" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls" \
-            | jq -c .number, .html_url, .state
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls"
