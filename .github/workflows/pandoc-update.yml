@@ -18,7 +18,7 @@ jobs:
       - name: Checkout master
         uses: actions/checkout@v4
         with:
-          ref: master-test
+          ref: master
           fetch-depth: 0
 
       # ---- Decide whether an update is needed (light; exits fast otherwise) ----
@@ -157,7 +157,7 @@ jobs:
           payload="$(jq -n \
             --arg title "Bump pandoc to ${{ steps.compare.outputs.latest_version }}" \
             --arg head "${{ steps.compare.outputs.branch }}" \
-            --arg base "master-test" \
+            --arg base "master" \
             --arg body "$body" \
             '{title: $title, body: $body, head: $head, base: $base}')"
           echo "PR payload: $payload"
