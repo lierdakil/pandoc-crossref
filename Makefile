@@ -30,7 +30,8 @@ cabal.project.freeze: .github/workflows/haskell.yml
 	rm cabal.project.freeze || true
 	cabal freeze \
 		--with-compiler=ghc-$$(yq -r '.jobs.build.strategy.matrix.ghcver[0]' .github/workflows/haskell.yml) \
-		--constraint pandoc==$$(yq -r '.env.PANDOC_VERSION' .github/workflows/haskell.yml)
+		--constraint pandoc==$$(yq -r '.env.PANDOC_VERSION' .github/workflows/haskell.yml) \
+		--reorder-goals --max-backjumps 4000
 	sed -ri '/ *\S+ [^=]/ s/ *[+-]pkg-config//' cabal.project.freeze
 	sed -ri '/pandoc-crossref/ d' cabal.project.freeze
 
