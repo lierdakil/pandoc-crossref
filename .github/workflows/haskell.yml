@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
 
 env:
-  PANDOC_VERSION: "3.12.1"
   LANG: en_US.utf8
 
 jobs:
@@ -37,8 +36,9 @@ jobs:
       - name: Cabal configure
         shell: bash
         run: |
+          PANDOC_VERSION=$(cat .pandoc_version)
           cabal v2-configure \
-            --constraint pandoc==${{ env.PANDOC_VERSION }} \
+            --constraint pandoc=="$PANDOC_VERSION" \
             --constraint zip-archive'>='0.4.2.1 \
             --enable-tests \
             ${{matrix.extra-options}}
@@ -49,11 +49,11 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .cabal-store
-          key: r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+          key: r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ hashFiles('.pandoc_version')) }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
           restore-keys: |
-            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
-            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}-${{hashFiles('pandoc-crossref.cabal')}}
-            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ env.PANDOC_VERSION }}
+            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ hashFiles('.pandoc_version')) }}-${{hashFiles('pandoc-crossref.cabal')}}-${{hashFiles('dist-newstyle/cache/plan.json')}}
+            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ hashFiles('.pandoc_version')) }}-${{hashFiles('pandoc-crossref.cabal')}}
+            r2-${{runner.os}}-${{runner.arch}}-${{matrix.ghcver}}-${{ hashFiles('.pandoc_version')) }}
       - shell: bash
         run: |
           rm -rvf .cabal-store/ghc-${{matrix.ghcver}}/pandoc-crossref-* || true
@@ -146,13 +146,13 @@ jobs:
           chmod +w -R pandoc-crossref-${{runner.os}}-${{runner.arch}}
       - name: Check pandoc version for static binary
         run: |
-          ./pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
+          ./pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref --version | grep -q "Pandoc v$(cat .pandoc_version)"
       - run: nix run .#test
       - run: nix run .#test-integrative
       - run: nix develop -c echo ok
       - name: Check pandoc version in shell
         run: |
-          [ "$(nix develop -c pandoc --version | head -n1)" == "pandoc ${{ env.PANDOC_VERSION }}" ]
+          [ "$(nix develop -c pandoc --version | head -n1)" == "pandoc $(cat .pandoc_version)" ]
       - name: Make manpage
         run: |
           nix develop -c pandoc -s -t man docs/index.md -o pandoc-crossref-${{runner.os}}-${{runner.arch}}/pandoc-crossref.1
@@ -335,4 +335,4 @@ jobs:
       - name: Verify version
         shell: bash
         run: |
-          stack exec -- pandoc-crossref --version | grep -q 'Pandoc v${{ env.PANDOC_VERSION }}'
+          stack exec -- pandoc-crossref --version | grep -q "Pandoc v$(cat .pandoc_version)"

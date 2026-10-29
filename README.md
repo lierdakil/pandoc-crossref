@@ -248,7 +248,7 @@ for details.
 
 # How to bump pandoc version
 
-1. Change `PANDOC_VERSION` in `.github/workflows/haskell.yml` to the new Pandoc version.
+1. Change pandoc version in `.pandoc_version` to the new Pandoc version.
 2. Relax version bounds in `package.yaml` if needed.
 3. Run `make update`. You need at least `nix`, `stack` and `cabal` (i.e. cabal-install) installed and in `PATH`.
 

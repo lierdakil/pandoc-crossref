@@ -26,11 +26,11 @@ test:
 regen-test-fixtures:
 	nix develop --command bash -c './mkcheck.sh && ./mkinttest.sh'
 
-cabal.project.freeze: .github/workflows/haskell.yml
+cabal.project.freeze: .github/workflows/haskell.yml .pandoc_version
 	rm cabal.project.freeze || true
 	cabal freeze \
 		--with-compiler=ghc-$$(yq -r '.jobs.build.strategy.matrix.ghcver[0]' .github/workflows/haskell.yml) \
-		--constraint pandoc==$$(yq -r '.env.PANDOC_VERSION' .github/workflows/haskell.yml) \
+		--constraint pandoc==$$(cat .pandoc_version) \
 		--reorder-goals --max-backjumps 4000
 	sed -ri '/ *\S+ [^=]/ s/ *[+-]pkg-config//' cabal.project.freeze
 	sed -ri '/pandoc-crossref/ d' cabal.project.freeze
@@ -43,11 +43,11 @@ stack.yaml: cabal.project.freeze stack.template.yaml .github/workflows/haskell.y
 		| sed -rn 's/^\s*any.([^ ]*) ==([^, ]*)([^,]*),?$$/- \1-\2/p' \
 		>> stack.yaml
 
-flake.lock: .github/workflows/haskell.yml
+flake.lock: .pandoc_version
 	nix \
 		flake update
 
-stack.yaml.lock: .github/workflows/haskell.yml stack.yaml
+stack.yaml.lock: .pandoc_version stack.yaml
 	# need this to update stack.yaml.lock, feel free to kill after that
 	stack build --no-system-ghc --no-install-ghc --no-nix || true
 

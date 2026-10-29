@@ -33,7 +33,7 @@ jobs:
               -H "Authorization: Bearer $GITHUB_TOKEN" \
               https://api.github.com/repos/jgm/pandoc/releases/latest \
               | yq -r '.tag_name' | sed 's/^v//')"
-          current_version="$(yq -r '.env.PANDOC_VERSION' .github/workflows/haskell.yml)"
+          current_version="$(cat .pandoc_version)"
           branch="pandoc-${latest_version}"
           echo "Latest pandoc release  : $latest_version (v$latest_version)"
           echo "Current PANDOC_VERSION : $current_version"
@@ -86,14 +86,13 @@ jobs:
               || git checkout "${{ steps.compare.outputs.branch }}"
           git branch --show-current
 
-      - name: Patch PANDOC_VERSION in haskell.yml
+      - name: Patch .pandoc_version
         if: steps.compare.outputs.need_update == 'true'
         run: |
           set -euo pipefail
-          sed -ri -e "s|^[[:space:]]*PANDOC_VERSION:[[:space:]]*\".*\"|  PANDOC_VERSION: \"${{ steps.compare.outputs.latest_version }}\"|" \
-              .github/workflows/haskell.yml
+          echo '${{ steps.compare.outputs.latest_version }}' > .pandoc_version
           echo "Patched:"
-          grep -n 'PANDOC_VERSION:' .github/workflows/haskell.yml | head -n1
+          cat .pandoc_version
 
       - name: Run make update
         if: steps.compare.outputs.need_update == 'true'
@@ -112,7 +111,7 @@ jobs:
         if: steps.compare.outputs.need_update == 'true'
         run: |
           set -euo pipefail
-          git add .github/workflows/haskell.yml
+          git add .pandoc_version
           git add cabal.project.freeze
           git add stack.yaml
           git add flake.lock
@@ -129,7 +128,7 @@ jobs:
             "" \
             "Problem: a new pandoc release (v${{ steps.compare.outputs.latest_version }}) is available" \
             "" \
-            "Solution: update PANDOC_VERSION in .github/workflows/haskell.yml and" \
+            "Solution: update .pandoc_version and" \
             "regenerate cabal.project.freeze, stack.yaml, flake.lock and stack.yaml.lock" \
             "via make update" > "$commit_msg_file"
           git -c user.name="pandoc-update-bot" \
