@@ -154,6 +154,7 @@ jobs:
       - run: nix run .#test
       - run: nix run .#test-integrative
       - run: nix develop -c echo ok
+      - run: nix develop .#dev -c echo ok
       - name: Check pandoc version in shell
         run: |
           [ "$(nix develop -c pandoc --version | head -n1)" == "pandoc $(cat .pandoc_version)" ]
