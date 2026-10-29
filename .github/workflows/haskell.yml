@@ -18,6 +18,10 @@ jobs:
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v4
+      - name: "Use the Command Line Tools toolchain"
+        if:  matrix.os == 'macos-latest'
+        run: |
+          sudo xcode-select -s /Library/Developer/CommandLineTools
       - uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{matrix.ghcver}}
