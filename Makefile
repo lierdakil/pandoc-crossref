@@ -26,9 +26,10 @@ test:
 regen-test-fixtures:
 	nix develop --command bash -c './mkcheck.sh && ./mkinttest.sh'
 
-cabal.project.freeze: .github/workflows/haskell.yml .pandoc_version
+cabal.project.freeze: .github/workflows/haskell.yml .pandoc_version flake.lock
 	rm cabal.project.freeze || true
 	cabal freeze \
+		--index-state=$$(nix eval --raw .#hackage-index) \
 		--with-compiler=ghc-$$(yq -r '.jobs.build.strategy.matrix.ghcver[0]' .github/workflows/haskell.yml) \
 		--constraint pandoc==$$(cat .pandoc_version) \
 		--reorder-goals --max-backjumps 4000
