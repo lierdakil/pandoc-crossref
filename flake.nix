@@ -20,9 +20,13 @@
       flake-utils,
       haskellNix,
       nix-filter,
+      hackage,
       ...
     }:
-    flake-utils.lib.eachDefaultSystem (
+    {
+      hackage-index = with nixpkgs.lib; head (attrNames (import "${hackage}/index-state.nix"));
+    }
+    // flake-utils.lib.eachDefaultSystem (
       system:
       let
         linker-workaround =
